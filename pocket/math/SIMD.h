@@ -6,40 +6,38 @@
 #pragma once
 #endif /* _USE_PRAGMA_ONCE */
 
+#include "Math.h"
 #ifdef _USING_MATH_IO
 #include "io.h"
 #endif /* _USING_MATH_IO */
 
 namespace pocket
 {
-template <typename> struct simd_t;
 
-/*---------------------------------------------------------------------------------------
-* 簡易作成関数
-*---------------------------------------------------------------------------------------*/
-template <typename T> inline simd_t<T> make_simd();
-template <typename T> inline simd_t<T> make_simd(T, T, T, T);
+namespace detail
+{
+template <typename T>
+struct __vector4
+{
+	typedef T type[4];
+	typedef T value_type;
+	typedef value_type& reference;
+	typedef const value_type& const_reference;
+	typedef type& type_reference;
+	typedef const type& type_const_reference;
 
-#ifndef __SIMD_OPERATOR_FOR_DECL
-#define __SIMD_OPERATOR_FOR_DECL(opr) \
-	simd_t& operator opr (const simd_t& s)\
-		{\
-		for (int i = 0; i < 4; ++i)\
-			mm[i] opr s.mm[i];\
-		return *this;\
-		}
-#endif /* __SIMD_OPERATOR_FOR_DECL */
+	type mm;
+};
+}
 
-#ifndef __SIMD_OPERATOR_BINOMIAL_DECL
-#define __SIMD_OPERATOR_BINOMIAL_DECL(opr) \
-	simd_t operator opr (const simd_t& s) const\
-		{\
-		simd_t result;\
-		for (int i = 0; i < 4; ++i)\
-			result.mm[i] = mm[i] opr s.mm[i];\
-		return result;\
-		}
-#endif /* __SIMD_OPERATOR_BINOMIAL_DECL */
+#ifndef _SIMD_BINOMIAL_OPERATOR
+#	define _SIMD_BINOMIAL_OPERATOR(operate) \
+	mm1.mm[0] operate mm2.mm[0],\
+	mm1.mm[1] operate mm2.mm[1],\
+	mm1.mm[2] operate mm2.mm[2],\
+	mm1.mm[3] operate mm2.mm[3]
+
+#endif // !_SIMD_BINOMIAL_OPERATOR
 
 template <typename T>
 struct simd_t
@@ -48,153 +46,203 @@ struct simd_t
 	* Types
 	*---------------------------------------------------------------------------------------*/
 
-	typedef T type[4];
+	typedef detail::__vector4<T> type;
 	typedef T value_type;
-
 	typedef value_type& reference;
 	typedef const value_type& const_reference;
-
 	typedef type& type_reference;
 	typedef const type& type_const_reference;
+
+	typedef Math<T> math_type;
 
 	/*---------------------------------------------------------------------------------------
 	* Members
 	*---------------------------------------------------------------------------------------*/
 
-	type mm;
+	 /* None */
 
 	/*---------------------------------------------------------------------------------------
 	* Functions
 	*---------------------------------------------------------------------------------------*/
 
-	/*---------------------------------------------------------------------
-	* 先頭の値取得
-	*---------------------------------------------------------------------*/
-	T first() const
+	static _INLINE_FORCE type zero()
 	{
-		return mm[0];
+		type result = {
+			math_type::Zero,
+			math_type::Zero,
+			math_type::Zero,
+			math_type::Zero
+		};
+		return result;
+	}
+	static _INLINE_FORCE type one()
+	{
+		type result = {
+			math_type::One,
+			math_type::One,
+			math_type::One,
+			math_type::One
+		};
+		return result;
+	}
+	static _INLINE_FORCE type add(type_const_reference mm1, type_const_reference mm2)
+	{
+		type result = {
+			_SIMD_BINOMIAL_OPERATOR(+)
+		};
+		return result;
+	}
+	static _INLINE_FORCE type sub(type_const_reference mm1, type_const_reference mm2)
+	{
+		type result = {
+			_SIMD_BINOMIAL_OPERATOR(-)
+		};
+		return result;
+	}
+	static _INLINE_FORCE type mul(type_const_reference mm1, type_const_reference mm2)
+	{
+		type result = {
+			_SIMD_BINOMIAL_OPERATOR(*)
+		};
+		return result;
+	}
+	static _INLINE_FORCE type div(type_const_reference mm1, type_const_reference mm2)
+	{
+		type result = {
+			_SIMD_BINOMIAL_OPERATOR(/)
+		};
+		return result;
+	}
+	static _INLINE_FORCE type or_(type_const_reference mm1, type_const_reference mm2)
+	{
+		type result = {
+			_SIMD_BINOMIAL_OPERATOR(|)
+		};
+		return result;
+	}
+	static _INLINE_FORCE type and_(type_const_reference mm1, type_const_reference mm2)
+	{
+		type result = {
+			_SIMD_BINOMIAL_OPERATOR(&)
+		};
+		return result;
+	}
+	static _INLINE_FORCE type xor_(type_const_reference mm1, type_const_reference mm2)
+	{
+		type result = {
+			_SIMD_BINOMIAL_OPERATOR(^)
+		};
+		return result;
+	}
+	static _INLINE_FORCE type rem(type_const_reference mm1, type_const_reference mm2)
+	{
+		type result = {
+			_SIMD_BINOMIAL_OPERATOR(%)
+		};
+		return result;
+	}
+	static _INLINE_FORCE type sqrt(type_const_reference mm)
+	{
+		type result = {
+			math_type::sqrt(mm.mm[0]),
+			math_type::sqrt(mm.mm[1]),
+			math_type::sqrt(mm.mm[2]),
+			math_type::sqrt(mm.mm[3])
+		};
+		return result;
+	}
+	static _INLINE_FORCE type rsqrt(type_const_reference mm)
+	{
+		type result = {
+			math_type::rsqrt(mm.mm[0]),
+			math_type::rsqrt(mm.mm[1]),
+			math_type::rsqrt(mm.mm[2]),
+			math_type::rsqrt(mm.mm[3])
+		};
+		return result;
+	}
+	static _INLINE_FORCE type(max)(type_const_reference mm1, type_const_reference mm2)
+	{
+		type result = {
+			math_type::max(mm1.mm[0], mm2.mm[0]),
+			math_type::max(mm1.mm[1], mm2.mm[1]),
+			math_type::max(mm1.mm[2], mm2.mm[2]),
+			math_type::max(mm1.mm[3], mm2.mm[3])
+		};
+		return result;
+	}
+	static _INLINE_FORCE type(min)(type_const_reference mm1, type_const_reference mm2)
+	{
+		type result = {
+			math_type::min(mm1.mm[0], mm2.mm[0]),
+			math_type::min(mm1.mm[1], mm2.mm[1]),
+			math_type::min(mm1.mm[2], mm2.mm[2]),
+			math_type::min(mm1.mm[3], mm2.mm[3])
+		};
+		return result;
+	}
+	static _INLINE_FORCE type clamp(type_const_reference mm, type_const_reference mn, type_const_reference mx)
+	{
+		type result = {
+			math_type::clamp(mm.mm[0], mn.mm[0], mx.mm[0]),
+			math_type::clamp(mm.mm[1], mn.mm[1], mx.mm[1]),
+			math_type::clamp(mm.mm[2], mn.mm[2], mx.mm[2]),
+			math_type::clamp(mm.mm[3], mn.mm[3], mx.mm[3])
+		};
+		return result;
+	}
+	static _INLINE_FORCE type set(value_type f)
+	{
+		type result = {
+			f, f, f, f
+		};
+		return result;
+	}
+	static _INLINE_FORCE type set(value_type x, value_type y, value_type z, value_type w)
+	{
+		type result = {
+			x, y, z, w
+		};
+		return result;
+	}
+	static _INLINE_FORCE value_type first(type_const_reference mm)
+	{
+		return mm.mm[0];
+	}
+	template <int INDEX>
+	static _INLINE_FORCE float at(type_const_reference mm)
+	{
+		return mm.mm[INDEX];
+	}
+	template <int W, int Z, int Y, int X>
+	static _INLINE_FORCE type parmute(type_const_reference mm)
+	{
+		type result = {
+			mm.mm[X],
+			mm.mm[Y],
+			mm.mm[Z],
+			mm.mm[W]
+		};
+		return result;
+	}
+	template <int I>
+	static _INLINE_FORCE type parmute(type_const_reference mm)
+	{
+		type result = {
+			mm.mm[I],
+			mm.mm[I],
+			mm.mm[I],
+			mm.mm[I]
+		};
+		return result;
 	}
 
 	/*---------------------------------------------------------------------------------------
 	* Operators
 	*---------------------------------------------------------------------------------------*/
 
-	/*---------------------------------------------------------------------
-	* アクセス演算子
-	*---------------------------------------------------------------------*/
-	T operator [] (int i) const
-	{
-		return mm[i];
-	}
-
-	/*---------------------------------------------------------------------
-	* 単項演算子
-	*---------------------------------------------------------------------*/
-	simd_t operator + () const
-	{
-		return *this;
-	}
-	simd_t operator - () const
-	{
-		simd_t result;
-		for (int i = 0; i < 4; ++i)
-		{
-			result.mm[i] = -mm[i];
-		}
-		return result;
-	}
-
-	/*---------------------------------------------------------------------
-	* 代入演算子
-	*---------------------------------------------------------------------*/
-	simd_t& operator = (T t)
-	{
-		for (int i = 0; i < 4; ++i)
-		{
-			mm[i] = t;
-		}
-		return *this;
-	}
-	simd_t& operator = (type_const_reference s)
-	{
-		for (int i = 0; i < 4; ++i)
-		{
-			mm[i] = s[i];
-		}
-		return *this;
-	}
-
-	/*---------------------------------------------------------------------
-	* 複合演算子
-	*---------------------------------------------------------------------*/
-	__SIMD_OPERATOR_FOR_DECL(+= );
-	__SIMD_OPERATOR_FOR_DECL(-= );
-	__SIMD_OPERATOR_FOR_DECL(*= );
-	simd_t& operator *= (T s)
-	{
-		for (int i = 0; i < 4; ++i)
-			mm[i] *= s;
-		return *this;
-	}
-	__SIMD_OPERATOR_FOR_DECL(/= );
-	simd_t& operator /= (T s)
-	{
-		for (int i = 0; i < 4; ++i)
-			mm[i] /= s;
-		return *this;
-	}
-	__SIMD_OPERATOR_FOR_DECL(%= );
-	__SIMD_OPERATOR_FOR_DECL(&= );
-	__SIMD_OPERATOR_FOR_DECL(|= );
-	__SIMD_OPERATOR_FOR_DECL(^= );
-
-	__SIMD_OPERATOR_BINOMIAL_DECL(+);
-	__SIMD_OPERATOR_BINOMIAL_DECL(-);
-	__SIMD_OPERATOR_BINOMIAL_DECL(*);
-	__SIMD_OPERATOR_BINOMIAL_DECL(/ );
-	__SIMD_OPERATOR_BINOMIAL_DECL(%);
-	__SIMD_OPERATOR_BINOMIAL_DECL(&);
-	__SIMD_OPERATOR_BINOMIAL_DECL(| );
-	__SIMD_OPERATOR_BINOMIAL_DECL(^);
+	/* None */
 };
-
-#undef __SIMD_OPERATOR_FOR_DECL
-#undef __SIMD_OPERATOR_BINOMIAL_DECL
-
-template <typename T> inline
-simd_t<T> make_simd()
-{
-	static const T ZERO = static_cast<T>(0);
-	static const simd_t<T> result = {ZERO, ZERO, ZERO, ZERO};
-	return result;
-}
-template <typename T> inline
-simd_t<T> make_simd(T x, T y, T z, T w)
-{
-	simd_t<T> result = {x, y, z, w};
-	return result;
-}
-
-#ifdef _USING_MATH_IO
-template <typename CharT, typename CharTraits, typename T> inline
-std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const simd_t<T>& v)
-{
-	os << out_char::box_brackets_left << v.mm[0] << out_char::comma_space
-		<< v.mm[1] << out_char::comma_space
-		<< v.mm[2] << out_char::comma_space
-		<< v.mm[3] << out_char::box_brackets_right;
-	return os;
-}
-template <typename CharT, typename CharTraits, typename T> inline
-std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, CharTraits>& os, const simd_t<T>& v)
-{
-	os << out_char::box_brackets_left << v.mm[0] << out_char::comma_space
-		<< v.mm[1] << out_char::comma_space
-		<< v.mm[2] << out_char::comma_space
-		<< v.mm[3] << out_char::box_brackets_right;
-	return os;
-}
-#endif /* _USING_MATH_IO */
 
 } /* namespace pocket */
 
@@ -242,57 +290,108 @@ struct simd_t<float>
 	* Members
 	*---------------------------------------------------------------------------------------*/
 
-	union
-	{
-		type mm;
-		value_type _data[4];
-	};
+	/* None */
 
 	/*---------------------------------------------------------------------------------------
 	* Functions
 	*---------------------------------------------------------------------------------------*/
 
-	/*---------------------------------------------------------------------
-	* 先頭の値取得
-	*---------------------------------------------------------------------*/
-	float first() const
+	static _INLINE_FORCE type zero()
+	{
+		return _mm_setzero_ps();
+	}
+	static _INLINE_FORCE type one()
+	{
+		return _mm_set_ps1(Math<float>::One);
+	}
+	static _INLINE_FORCE type add(type mm1, type mm2)
+	{
+		return _mm_add_ps(mm1, mm2);
+	}
+	static _INLINE_FORCE type sub(type mm1, type mm2)
+	{
+		return _mm_sub_ps(mm1, mm2);
+	}
+	static _INLINE_FORCE type mul(type mm1, type mm2)
+	{
+		return _mm_mul_ps(mm1, mm2);
+	}
+	static _INLINE_FORCE type div(type mm1, type mm2)
+	{
+		return _mm_div_ps(mm1, mm2);
+	}
+	static _INLINE_FORCE type or_(type mm1, type mm2)
+	{
+		return _mm_or_ps(mm1, mm2);
+	}
+	static _INLINE_FORCE type and_(type mm1, type mm2)
+	{
+		return _mm_and_ps(mm1, mm2);
+	}
+	static _INLINE_FORCE type xor_(type mm1, type mm2)
+	{
+		return _mm_xor_ps(mm1, mm2);
+	}
+	static _INLINE_FORCE type rem(type mm1, type mm2)
+	{
+		return _mm_and_ps(mm1, mm2);
+	}
+	static _INLINE_FORCE type sqrt(type mm)
+	{
+		return _mm_sqrt_ps(mm);
+	}
+	static _INLINE_FORCE type rsqrt(type mm)
+	{
+		return _mm_rsqrt_ps(mm);
+	}
+	static _INLINE_FORCE type (max)(type mm1, type mm2)
+	{
+		return _mm_max_ps(mm1, mm2);
+	}
+	static _INLINE_FORCE type (min)(type mm1, type mm2)
+	{
+		return _mm_min_ps(mm1, mm2);
+	}
+	static _INLINE_FORCE type clamp(type mm, type mn, type mx)
+	{
+		return _mm_max_ps(mn, _mm_min_ps(mm, mx));
+	}
+	static _INLINE_FORCE type set(value_type f)
+	{
+		return _mm_set_ps1(f);
+	}
+	static _INLINE_FORCE type set(value_type x, value_type y, value_type z, value_type w)
+	{
+		return _mm_set_ps(w, z, y, x);
+	}
+	static _INLINE_FORCE float first(type mm)
 	{
 		return _mm_cvtss_f32(mm);
 	}
-
-	/*---------------------------------------------------------------------
-	* 指定インデックス取得
-	*---------------------------------------------------------------------*/
-	template <int X, int Y, int Z, int W>
-	simd_t parmute() const
-	{
-		simd_t result = {_mm_shuffle_ps(mm, mm, _MM_SHUFFLE(W, Z, Y, X))};
-		return result;
-	}
-	template <int X, int Y, int Z, int W>
-	simd_t& parmute(simd_t& s) const
-	{
-		s.mm = _mm_shuffle_ps(mm, mm, _MM_SHUFFLE(W, Z, Y, X));
-		return s;
-	}
-
-	/*---------------------------------------------------------------------
-	* 特定の値を取得
-	*---------------------------------------------------------------------*/
 	template <int INDEX>
-	float at() const
+	static _INLINE_FORCE float at(type mm)
 	{
 		type m = _mm_shuffle_ps(mm, mm, _MM_SHUFFLE(INDEX, INDEX, INDEX, INDEX));
 		return _mm_cvtss_f32(m);
+	}
+	template <int X, int Y, int Z, int W>
+	static _INLINE_FORCE type parmute(type mm)
+	{
+		return _mm_shuffle_ps(mm, mm, _MM_SHUFFLE(W, Z, Y, X));
+	}
+	template <int I>
+	static _INLINE_FORCE type parmute(type mm)
+	{
+		return _mm_shuffle_ps(mm, mm, _MM_SHUFFLE(I, I, I, I));
 	}
 
 	/*---------------------------------------------------------------------------------------
 	* Operators
 	*---------------------------------------------------------------------------------------*/
 
-	/*---------------------------------------------------------------------
-	* 型変換演算子
-	*---------------------------------------------------------------------*/
+	/* None */
+
+#if 0
 	_CXX11_EXPLICIT operator type () const
 	{
 		return mm;
@@ -310,134 +409,10 @@ struct simd_t<float>
 		return _mm256_cvtps_pd(mm);
 	}
 #endif /* _USE_SIMD_TYPE >= _SIMD_TYPE_SSE2 */
-
-	/*---------------------------------------------------------------------
-	* 単項演算子
-	*---------------------------------------------------------------------*/
-	simd_t operator + () const
-	{
-		return *this;
-	}
-	simd_t operator - () const
-	{
-		simd_t result = {_mm_sub_ps(_mm_setzero_ps(), mm)};
-		return result;
-	}
-
-	/*---------------------------------------------------------------------
-	* 二項演算子
-	*---------------------------------------------------------------------*/
-	simd_t operator + (const simd_t& s) const
-	{
-		simd_t result = {_mm_add_ps(mm, s.mm)};
-		return result;
-	}
-	simd_t operator - (const simd_t& s) const
-	{
-		simd_t result = {_mm_sub_ps(mm, s.mm)};
-		return result;
-	}
-	simd_t operator * (const simd_t& s) const
-	{
-		simd_t result = {_mm_mul_ps(mm, s.mm)};
-		return result;
-	}
-	simd_t operator / (const simd_t& s) const
-	{
-		simd_t result = {_mm_div_ps(mm, s.mm)};
-		return result;
-	}
-	simd_t operator % (const simd_t& s) const
-	{
-		simd_t result = {_mm_and_ps(mm, s.mm)};
-		return result;
-	}
-	simd_t operator & (const simd_t& s) const
-	{
-		simd_t result = {_mm_and_ps(mm, s.mm)};
-		return result;
-	}
-	simd_t operator | (const simd_t& s) const
-	{
-		simd_t result = {_mm_or_ps(mm, s.mm)};
-		return result;
-	}
-	simd_t operator ^ (const simd_t& s) const
-	{
-		simd_t result = {_mm_xor_ps(mm, s.mm)};
-		return result;
-	}
-
-	/*---------------------------------------------------------------------
-	* 代入演算子
-	*---------------------------------------------------------------------*/
-	simd_t& operator = (float f)
-	{
-		mm = _mm_set1_ps(f);
-		return *this;
-	}
-	simd_t& operator = (type_const_reference s)
-	{
-		mm = s;
-		return *this;
-	}
-
-	/*---------------------------------------------------------------------
-	* 複合演算子
-	*---------------------------------------------------------------------*/
-	simd_t& operator += (const simd_t& s)
-	{
-		mm = _mm_add_ps(mm, s.mm);
-		return *this;
-	}
-	simd_t& operator -= (const simd_t& s)
-	{
-		mm = _mm_sub_ps(mm, s.mm);
-		return *this;
-	}
-	simd_t& operator *= (const simd_t& s)
-	{
-		mm = _mm_mul_ps(mm, s.mm);
-		return *this;
-	}
-	simd_t& operator *= (float s)
-	{
-		mm = _mm_mul_ps(mm, _mm_set1_ps(s));
-		return *this;
-	}
-	simd_t& operator /= (const simd_t& s)
-	{
-		mm = _mm_div_ps(mm, s.mm);
-		return *this;
-	}
-	simd_t& operator /= (float s)
-	{
-		mm = _mm_div_ps(mm, _mm_set1_ps(s));
-		return *this;
-	}
-	simd_t& operator %= (const simd_t& s)
-	{
-		mm = _mm_and_ps(mm, s.mm);
-		return *this;
-	}
-	simd_t& operator &= (const simd_t& s)
-	{
-		mm = _mm_and_ps(mm, s.mm);
-		return *this;
-	}
-	simd_t& operator |= (const simd_t& s)
-	{
-		mm = _mm_or_ps(mm, s.mm);
-		return *this;
-	}
-	simd_t& operator ^= (const simd_t& s)
-	{
-		mm = _mm_xor_ps(mm, s.mm);
-		return *this;
-	}
+#endif
 };
 
-#	if _USE_SIMD_TYPE >= _SIMD_TYPE_SSE2
+#if _USE_SIMD_TYPE >= _SIMD_TYPE_SSE2
 template <>
 struct simd_t<int32_t>
 {
@@ -470,9 +445,9 @@ struct simd_t<uint32_t>
 	typedef type& type_reference;
 	typedef const type& type_const_reference;
 };
-#	endif
+#endif
 
-#	if _USE_SIMD_TYPE >= _SIMD_TYPE_AVX
+#if _USE_SIMD_TYPE >= _SIMD_TYPE_AVX
 template <>
 struct simd_t<double>
 {
@@ -521,42 +496,7 @@ struct simd_t<uint64_t>
 	typedef type& type_reference;
 	typedef const type& type_const_reference;
 };
-#	endif
-
-template <> inline
-simd_t<float> make_simd()
-{
-	static const simd_t<float> result = {_mm_setzero_ps()};
-	return result;
-}
-template <> inline
-simd_t<float> make_simd(float x, float y, float z, float w)
-{
-	simd_t<float> result = {_mm_set_ps(w, z, y, x)};
-	return result;
-}
-
-
-#ifdef _USING_MATH_IO
-template <typename CharT, typename CharTraits> inline
-std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const simd_t<float>& v)
-{
-	os << out_char::box_brackets_left << v._data[0] << out_char::comma_space
-		<< v._data[1] << out_char::comma_space
-		<< v._data[2] << out_char::comma_space
-		<< v._data[3] << out_char::box_brackets_right;
-	return os;
-}
-template <typename CharT, typename CharTraits> inline
-std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, CharTraits>& os, const simd_t<float>& v)
-{
-	os << out_char::box_brackets_left << v._data[0] << out_char::comma_space
-		<< v._data[1] << out_char::comma_space
-		<< v._data[2] << out_char::comma_space
-		<< v._data[3] << out_char::box_brackets_right;
-	return os;
-}
-#endif /* _USING_MATH_IO */
+#endif
 
 } /* namespace pocket */
 

@@ -11,6 +11,9 @@
 #include "Vector4.h"
 #include "Quaternion.h"
 #include "Matrix3x3.h"
+#ifdef _USE_SIMD_ANONYMOUS
+#include "SIMD.h"
+#endif /* _USE_SIMD_ANONYMOUS */
 #ifdef _USE_CXX11
 #include <initializer_list>
 #endif /* _USE_CXX11 */
@@ -61,7 +64,10 @@ struct Matrix4x4
 	typedef Vector4<T> row_type;
 	typedef Vector4<T> column_type;
 
-	typedef typename Vector4<T>::simd_value_type simd_type;
+#ifdef _USE_SIMD_ANONYMOUS
+	typedef simd_t<T> simd_type;
+	typedef typename simd_type::type simd_value_type;
+#endif /* _USE_SIMD_ANONYMOUS */
 
 	typedef container::array<Vector4<T>, 4> array4x4_type;
 	typedef typename array4x4_type::value_type value_type;
@@ -341,7 +347,7 @@ struct Matrix4x4
 		}
 #endif
 
-#if defined(_USE_SIMD) && defined(_USE_ANONYMOUS)
+#ifdef _USE_SIMD_ANONYMOUS
 		/*------------------------------
 		*    1  2  3  4   ->
 		*   ____________   ____________   ____________
@@ -351,36 +357,32 @@ struct Matrix4x4
 		* 4 |3, 3, 3, 3|   |3, 3, 3, 3|   |0, 1, 2, 3|
 		*------------------------------*/
 
-#ifndef _MM_SHUFFLE_Nx4
-#	define _MM_SHUFFLE_Nx4(N) _MM_SHUFFLE(N, N, N, N)
-#endif /* _MM_SHUFFLE_Nx4 */
-
 		iterator ri = result.M.begin();
-		const_iterator ti = m.M.begin();
+		const_iterator mi = m.M.begin();
 		const_iterator j;
 		for (const_iterator i = M.begin(), end = M.end(); i != end; ++i, ++ri)
 		{
-			simd_type mx = _mm_shuffle_ps(i->simd.mm, i->simd.mm, _MM_SHUFFLE_Nx4(0));
-			simd_type my = _mm_shuffle_ps(i->simd.mm, i->simd.mm, _MM_SHUFFLE_Nx4(1));
-			simd_type mz = _mm_shuffle_ps(i->simd.mm, i->simd.mm, _MM_SHUFFLE_Nx4(2));
-			simd_type mw = _mm_shuffle_ps(i->simd.mm, i->simd.mm, _MM_SHUFFLE_Nx4(3));
+			simd_value_type mx = simd_type::template parmute<0>(i->mm);
+			simd_value_type my = simd_type::template parmute<1>(i->mm);
+			simd_value_type mz = simd_type::template parmute<2>(i->mm);
+			simd_value_type mw = simd_type::template parmute<3>(i->mm);
 
-			j = ti;
-			mx = _mm_mul_ps(mx, j->simd.mm);
+			j = mi;
+			mx = simd_type::mul(mx, j->mm);
 			++j;
-			my = _mm_mul_ps(my, j->simd.mm);
+			my = simd_type::mul(my, j->mm);
 			++j;
-			mz = _mm_mul_ps(mz, j->simd.mm);
+			mz = simd_type::mul(mz, j->mm);
 			++j;
-			mw = _mm_mul_ps(mw, j->simd.mm);
+			mw = simd_type::mul(mw, j->mm);
 
-			mx = _mm_add_ps(mx, mz);
-			my = _mm_add_ps(my, mw);
+			mx = simd_type::add(mx, mz);
+			my = simd_type::add(my, mw);
 
-			ri->simd.mm = _mm_add_ps(mx, my);
+			ri->mm = simd_type::add(mx, my);
 		}
-#undef _MM_SHUFFLE_Nx4
-#else
+#else /* _USE_SIMD_ANONYMOUS */
+
 #	if defined(__DEBUG)
 		/* コピー&転置をして計算しやすいようにする */
 		Matrix4x4 t = m.transposed();
@@ -1829,6 +1831,10 @@ struct Matrix4x4
 	Matrix4x4& operator () (const behavior::_scale_t&, T x, T y, T z)
 	{
 		return load_scale(x, y, z);
+	}
+	Matrix4x4& operator () (const behavior::_scale_t&, T s)
+	{
+		return load_scale(s);
 	}
 	Matrix4x4& operator () (const behavior::_rotate_t&, const behavior::_x_t&, T angle)
 	{

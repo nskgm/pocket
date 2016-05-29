@@ -1,6 +1,8 @@
-/pocket.VC.VC.opendb
-/pocket.VC.db
-/.vs/pocket/v14
-/pocket/.vs/pocket/v14
+/.vs
 /x64
 /pocket/x64
+/pocket/Release
+/Release
+*.opendb
+*.exe
+*.db

@@ -75,23 +75,15 @@ int main(int argc, char** argv)
 		<< pocket::Quaternionf::Identity << endl
 		<< pocket::Rectanglef(0.0f, 320.0f, 0.0f, 240.0f) << endl
 		<< pocket::Colorf::White << endl
-		<< pocket::make_simd<float>(0, 1, 2, 3) << endl
 		<< pocket::Mathf::SinCos(320.0f) << endl << endl
 		<< pocket::Planef::Up << endl
 		;
 	pocket::Matrix4x4f s, r, t;
-	s.load_scale(2.0f);
-	r.load_rotate_z(30.0f);
-	t.load_translate(0.0f, 1.0f, 2.0f);
+	s(pocket::behavior::scale, 2.0f);
+	r(pocket::behavior::rotate, pocket::behavior::x, 30.0f);
+	t(pocket::behavior::translate, 0.0f, 1.0f, 2.0f);
 
-	{
-		Timer calc("matrix");
-		for (int i = 0; i < N; ++i)
-		{
-			pocket::Matrix4x4f m = s * r * t;
-			m.load_identity();
-		}
-	}
-	
+	cout << r << endl;
+
 	return 0;
 }

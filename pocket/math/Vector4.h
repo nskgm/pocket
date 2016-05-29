@@ -9,14 +9,12 @@
 #include "Math.h"
 #include "Vector2.h"
 #include "Vector3.h"
+#ifdef _USE_SIMD_ANONYMOUS
 #include "SIMD.h"
+#endif /* _USE_SIMD_ANONYMOUS */
 #ifdef _USING_MATH_IO
 #include "io.h"
 #endif /* _USING_MATH_IO */
-
-#if defined(_USE_SIMD) && defined(_USE_ANONYMOUS)
-#	define _USE_SIMD_ANONYMOUS
-#endif
 
 namespace pocket
 {
@@ -70,8 +68,10 @@ struct Vector4
 	typedef typename array_type::reference reference;
 	typedef typename array_type::const_reference const_reference;
 
+#ifdef _USE_SIMD_ANONYMOUS
 	typedef simd_t<T> simd_type;
 	typedef typename simd_type::type simd_value_type;
+#endif /* _USE_SIMD_ANONYMOUS */
 
 	/*-----------------------------------------------------------------------------------------
 	* Members
@@ -104,10 +104,10 @@ struct Vector4
 		};
 #endif /* _USE_ANONYMOUS_NON_POD */
 
-#ifdef _USE_SIMD
+#ifdef _USE_SIMD_ANONYMOUS
 		// simd_typeが使用できる場合は演算に使用する
-		simd_type simd;
-#endif /* _USE_SIMD */
+		simd_value_type mm;
+#endif /* _USE_SIMD_ANONYMOUS */
 
 		array_type Data;
 	};
@@ -364,8 +364,7 @@ struct Vector4
 	Vector4& add(const Vector4& v, Vector4& result) const
 	{
 #ifdef _USE_SIMD_ANONYMOUS
-		result.simd = simd;
-		result.simd += v.simd;
+		result.mm = simd_type::add(mm, v.mm);
 #else
 		result.X = X + v.X;
 		result.Y = Y + v.Y;
@@ -389,8 +388,7 @@ struct Vector4
 	Vector4& subtract(const Vector4& v, Vector4& result) const
 	{
 #ifdef _USE_SIMD_ANONYMOUS
-		result.simd = simd;
-		result.simd -= v.simd;
+		result.mm = simd_type::sub(mm, v.mm);
 #else
 		result.X = X - v.X;
 		result.Y = Y - v.Y;
@@ -414,8 +412,7 @@ struct Vector4
 	Vector4& multiply(T f, Vector4& result) const
 	{
 #ifdef _USE_SIMD_ANONYMOUS
-		result.simd = simd;
-		result.simd *= f;
+		result.mm = simd_type::mul(mm, simd_type::set(f));
 #else
 		result.X = X * f;
 		result.Y = Y * f;
@@ -436,8 +433,7 @@ struct Vector4
 	{
 		_DEB_ASSERT(f != math_type::Zero);
 #ifdef _USE_SIMD_ANONYMOUS
-		result.simd = simd;
-		result.simd /= f;
+		result.mm = simd_type::div(mm, simd_type::set(f));
 		return *this;
 #else
 		f = math_type::One / f;
@@ -493,14 +489,13 @@ struct Vector4
 	T length() const
 	{
 #ifdef _USE_SIMD_ANONYMOUS
-		simd_type result = {_mm_mul_ps(simd.mm, simd.mm)};
-		simd_value_type perm = _mm_shuffle_ps(result.mm, result.mm, _MM_SHUFFLE(0, 1, 2, 3));
-		result.mm = _mm_add_ps(result.mm, perm);
-		perm = _mm_shuffle_ps(result.mm, result.mm, _MM_SHUFFLE(1, 0, 3, 2));
-		result.mm = _mm_add_ps(result.mm, perm);
-
-		result.mm = _mm_sqrt_ps(result);
-		return result.first();
+		simd_value_type r = simd_type::mul(mm, mm);
+		simd_value_type parm = simd_type::template parmute<0, 1, 2, 3>(r);
+		r = simd_type::add(r, parm);
+		parm = simd_type::template parmute<1, 0, 3, 2>(r);
+		r = simd_type::add(r, parm);
+		r = simd_type::sqrt(r);
+		return simd_type::first(r);
 #else
 		return math_type::sqrt(dot(*this));
 #endif /* _USE_SIMD */
@@ -552,21 +547,17 @@ struct Vector4
 		/* |v1||v2|cos(θ)と同じになる */
 		/* 値が０のときは垂直 */
 #ifdef _USE_SIMD_ANONYMOUS
-		/* X:X*v.X, Y:Y*v.Y, Z:Z*v.Z, W:W*v.W */
-		simd_type result = {_mm_mul_ps(simd.mm, v.simd.mm)};
-		/* W, Z, Y, X */
-		//simd_type perm = _mm_shuffle_ps(result.mm, result.mm, _MM_SHUFFLE(3, 2, 1, 0));
-		simd_value_type perm = _mm_shuffle_ps(result.mm, result.mm, _MM_SHUFFLE(0, 1, 2, 3));
-		/* X+W, Y+Z, Z+Y, W+X */
-		result.mm = _mm_add_ps(result.mm, perm);
-
-		/* Z+Y, W+X, X+W, Y+Z */
-		//perm = _mm_shuffle_ps(result.mm, result.mm, _MM_SHUFFLE(2, 3, 0, 1));
-		perm = _mm_shuffle_ps(result.mm, result.mm, _MM_SHUFFLE(1, 0, 3, 2));
-		/* X+W+Z+Y, Y+Z+W+X, Z+Y+X+W, W+X+Y+Z */
-		result.mm = _mm_add_ps(result.mm, perm);
-
-		return result.first();
+		/* X*X, Y*Y, Z*Z, W*W */
+		simd_value_type r = simd_type::mul(mm, v.mm);
+		/* W*W, Z*Z, Y*Y, X*X  */
+		simd_value_type parm = simd_type::template parmute<0, 1, 2, 3>(r); // _mm_shuffle_ps(result.mm, result.mm, _MM_SHUFFLE(0, 1, 2, 3));
+		/* X*X+W*W, Y*Y+Z*Z, Z*Z+Y*Y, W*W+X*X */
+		r = simd_type::add(r, parm);
+		/* Z*Z+Y*Y, W*W+X*X, X*X+W*W, Y*Y+Z*Z */
+		parm = simd_type::template parmute<1, 0, 3, 2>(r); // _mm_shuffle_ps(result.mm, result.mm, _MM_SHUFFLE(1, 0, 3, 2));
+		/* X*X+W*W+Z*Z+Y*Y, Y*Y+Z*Z+W*W+X*X, Z*Z+Y*Y+X*X+W*W, W*W+X*X+Y*Y+Z*Z,*/
+		r = simd_type::add(r, parm);
+		return simd_type::first(r);
 #else
 		return X * v.X + Y * v.Y + Z * v.Z + W * v.W;
 #endif /* _USE_SIMD */
@@ -587,13 +578,13 @@ struct Vector4
 	Vector4& cross(const Vector4& v, Vector4& result) const
 	{
 #ifdef _USE_SIMD_ANONYMOUS
-		const unsigned int YZX = _MM_SHUFFLE(3, 0, 2, 1);
-		const unsigned int ZXY = _MM_SHUFFLE(3, 1, 0, 2);
-		simd_value_type syzx = _mm_shuffle_ps(simd.mm, simd.mm, YZX);
-		simd_value_type szxy = _mm_shuffle_ps(simd.mm, simd.mm, ZXY);
-		simd_value_type tzxy = _mm_shuffle_ps(v.simd.mm, v.simd.mm, ZXY);
-		simd_value_type tyzx = _mm_shuffle_ps(v.simd.mm, v.simd.mm, YZX);
-		result.simd.mm = _mm_sub_ps(_mm_mul_ps(syzx, tzxy), _mm_mul_ps(szxy, tyzx));
+		simd_value_type syzx = simd_type::template parmute<3, 0, 2, 1>(mm, mm);
+		simd_value_type szxy = simd_type::template parmute<3, 1, 0, 2>(mm, mm);
+		simd_value_type tzxy = simd_type::template parmute<3, 0, 2, 1>(v.mm, v.mm);
+		simd_value_type tyzx = simd_type::template parmute<3, 1, 0, 2>(v.mm, v.mm);
+		simd_value_type m1 = simd_type::mul(syzx, tzxy);
+		simd_value_type m2 = simd_type::mul(szxy, tyzx);
+		result.mm = simd_type::sub(m1, m2);
 #else
 		result.X = Y * v.Z - Z * v.Y;
 		result.Y = Z * v.X - X * v.Z;
@@ -608,15 +599,15 @@ struct Vector4
 	Vector4& normalize()
 	{
 #ifdef _USE_SIMD_ANONYMOUS
-		simd_type result = {_mm_mul_ps(simd.mm, simd.mm)};
-		simd_value_type perm = _mm_shuffle_ps(result.mm, result.mm, _MM_SHUFFLE(0, 1, 2, 3));
-		result.mm = _mm_add_ps(result.mm, perm);
-		perm = _mm_shuffle_ps(result.mm, result.mm, _MM_SHUFFLE(1, 0, 3, 2));
-		result.mm = _mm_add_ps(result.mm, perm);
-
+		simd_value_type r = simd_type::mul(mm, mm);
+		simd_value_type parm = simd_type::template parmute<0, 1, 2, 3>(mm);
+		r = simd_type::add(r, parm);
+		parm = simd_type::template parmute<1, 0, 3, 2>(r);
+		r = simd_type::add(r, parm);
+		r = simd_type::sqrt(r);
 		/* 1.0 / sqrt */
-		result.mm = _mm_rsqrt_ps(result.mm);
-		simd.mm = _mm_mul_ps(simd.mm, result.mm);
+		r = simd_type::rsqrt(r);
+		mm = simd_type::mul(mm, r);
 #else
 		T len = length_sq();
 		/* ゼロ割対策 */
@@ -678,10 +669,10 @@ struct Vector4
 	{
 #ifdef _USE_SIMD_ANONYMOUS
 		/* from*(1.0 - t) + to*t */
-		simd_value_type ft = _mm_set1_ps(math_type::One - t);
-		simd_value_type tt = _mm_set1_ps(t);
-		result.simd.mm = _mm_mul_ps(simd.mm, ft);
-		result.simd.mm = _mm_add_ps(result.simd.mm, _mm_mul_ps(to.simd.mm, tt));
+		simd_value_type ft = simd_type::set(math_type::One - t);
+		simd_value_type tt = simd_type::set(t);
+		result.mm = simd_type::mul(mm, ft);
+		result.mm = simd_type::add(result.mm, simd_type::mul(to.mm, tt));
 #else
 		result.X = math_type::lerp(X, to.X, t);
 		result.Y = math_type::lerp(Y, to.Y, t);
@@ -700,9 +691,9 @@ struct Vector4
 	Vector4& saturate()
 	{
 #ifdef _USE_SIMD_ANONYMOUS
-		const simd_value_type zero = _mm_setzero_ps();
-		const simd_value_type one = _mm_set1_ps(math_type::One);
-		simd.mm = _mm_max_ps(zero, _mm_min_ps(simd.mm, one));
+		const simd_value_type zero = simd_type::zero();
+		const simd_value_type one = simd_type::one();
+		mm = simd_type::clamp(mm, zero, one);
 #else
 		X = math_type::clamp01(X);
 		Y = math_type::clamp01(Y);
@@ -719,7 +710,7 @@ struct Vector4
 	Vector4& saturated(Vector4& result) const
 	{
 #ifdef _USE_SIMD_ANONYMOUS
-		result.simd = simd;
+		result.mm = mm;
 		result.saturate();
 #else
 		result.X = math_type::clamp01(X);
