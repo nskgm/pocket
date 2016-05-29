@@ -274,9 +274,9 @@ public:
 		T y = Math::remainder(x, Math::One);
 		if (y >= Math::Half)
 		{
-			return Math::floor(x + Math::Half);
+			return Math::ceil(x);
 		}
-		return Math::ceil(x - Math::Half);
+		return Math::floor(x);
 #endif /* _USE_CXX11 */
 	}
 	/*---------------------------------------------------------------------

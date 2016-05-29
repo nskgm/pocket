@@ -78,17 +78,17 @@ struct Plane
 	* Members
 	*-----------------------------------------------------------------------------------------*/
 
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 	union
 	{
 		struct
 		{
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 
 			Vector3<T> Normal; /* 法線 */
 			T D; /* 原点からの距離 */
 
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		};
 		struct
 		{
@@ -99,7 +99,7 @@ struct Plane
 		};
 		array_type Data;
 	};
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 
 	/*-----------------------------------------------------------------------------------------
 	* Constants
@@ -331,6 +331,7 @@ struct Plane
 	*---------------------------------------------------------------------*/
 	bool is_intersect_line(const Vector3<T>& begin, const Vector3<T>& end) const
 	{
+#if 0
 		/* 始点から終点へのベクトルを求める */
 		Vector3<T> dir(behavior::noinitialize);
 		end.Direction(begin, dir);
@@ -350,6 +351,10 @@ struct Plane
 		/* 射影で求めた間に存在しているか, Dを基準点として考える */
 		//return ((b - D) >= math_type::Zero) && ((e - D) <= math_type::Zero);
 		return (b * e) <= math_type::Zero; /* 同符号の場合は衝突していない, 表裏関係なし */
+#else
+		/* 同符号の場合は交差していない */
+		return dot_coord(begin) * dot_coord(end) <= math_type::Zero;
+#endif
 	}
 	bool is_intersect_line(const line_type& line) const
 	{
@@ -423,20 +428,20 @@ struct Plane
 	T& operator [] (int i)
 	{
 		_DEB_RANGE_ASSERT(i, 0, 3);
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		return Data[i];
 #else
 		return (&Normal.X)[i];
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 	}
 	const T& operator [] (int i) const
 	{
 		_DEB_RANGE_ASSERT(i, 0, 3);
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		return Data[i];
 #else
 		return (&Normal.X)[i];
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 	}
 
 	/*---------------------------------------------------------------------
@@ -449,19 +454,19 @@ struct Plane
 	}
 	_CXX11_EXPLICIT operator T* ()
 	{
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		return &Data[0];
 #else
 		return &Normal.X;
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 	}
 	_CXX11_EXPLICIT operator const T* () const
 	{
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		return &Data[0];
 #else
 		return &Normal.X;
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 	}
 
 	/*---------------------------------------------------------------------

@@ -14,6 +14,10 @@
 #include "io.h"
 #endif /* _USING_MATH_IO */
 
+#if defined(_USE_SIMD) && defined(_USE_ANONYMOUS)
+#	define _USE_SIMD_ANONYMOUS
+#endif
+
 namespace pocket
 {
 
@@ -74,19 +78,6 @@ struct Vector4
 	*-----------------------------------------------------------------------------------------*/
 
 	// 匿名は使用できないがsimd_typeは使用できる
-#if defined(_USE_SIMD) && !defined(_USE_ANONYMOUS)
-	union
-	{
-		struct
-		{
-			T X;
-			T Y;
-			T Z;
-			T W;
-		};
-		simd_type simd;
-	};
-#else
 #ifdef _USE_ANONYMOUS
 	union
 	{
@@ -101,6 +92,8 @@ struct Vector4
 
 #ifdef _USE_ANONYMOUS
 		};
+
+#ifdef _USE_ANONYMOUS_NON_POD
 		struct
 		{
 			Vector2<T> XY;
@@ -109,19 +102,16 @@ struct Vector4
 		{
 			Vector3<T> XYZ;
 		};
-		array_type Data;
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 
-		// simd_typeが使用できる場合は演算に使用する
 #ifdef _USE_SIMD
-
+		// simd_typeが使用できる場合は演算に使用する
 		simd_type simd;
 #endif /* _USE_SIMD */
 
-#ifdef _USE_ANONYMOUS
+		array_type Data;
 	};
 #endif /* _USE_ANONYMOUS */
-#endif /* defined(_USE_SIMD) && !defined(_USE_ANONYMOUS) */
 
 	template <typename> friend struct Vector4;
 
@@ -152,7 +142,7 @@ struct Vector4
 
 	}
 	explicit Vector4(const behavior::_zero_t&) :
-#ifdef _ANONYMOUS_NORMAL_CONSTRUCT
+#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
 		X(math_type::Zero), Y(math_type::Zero), Z(math_type::Zero),
 #else
 		XYZ(math_type::Zero, math_type::Zero, math_type::Zero),
@@ -162,7 +152,7 @@ struct Vector4
 
 	}
 	explicit Vector4(const behavior::_zero_t&, const behavior::_direction_t&) :
-#ifdef _ANONYMOUS_NORMAL_CONSTRUCT
+#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
 		X(math_type::Zero), Y(math_type::Zero), Z(math_type::Zero),
 #else
 		XYZ(math_type::Zero, math_type::Zero, math_type::Zero),
@@ -172,7 +162,7 @@ struct Vector4
 
 	}
 	explicit Vector4(const behavior::_zero_t&, const behavior::_position_t&) :
-#ifdef _ANONYMOUS_NORMAL_CONSTRUCT
+#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
 		X(math_type::Zero), Y(math_type::Zero), Z(math_type::Zero),
 #else
 		XYZ(math_type::Zero, math_type::Zero, math_type::Zero),
@@ -182,7 +172,7 @@ struct Vector4
 
 	}
 	explicit Vector4(const behavior::_one_t&) :
-#ifdef _ANONYMOUS_NORMAL_CONSTRUCT
+#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
 		X(math_type::One), Y(math_type::One), Z(math_type::One),
 #else
 		XYZ(math_type::One, math_type::One, math_type::One),
@@ -192,7 +182,7 @@ struct Vector4
 
 	}
 	explicit Vector4(const behavior::_one_t&, const behavior::_direction_t&) :
-#ifdef _ANONYMOUS_NORMAL_CONSTRUCT
+#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
 		X(math_type::One), Y(math_type::One), Z(math_type::One),
 #else
 		XYZ(math_type::One, math_type::One, math_type::One),
@@ -202,7 +192,7 @@ struct Vector4
 
 	}
 	explicit Vector4(const behavior::_one_t&, const behavior::_position_t&) :
-#ifdef _ANONYMOUS_NORMAL_CONSTRUCT
+#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
 		X(math_type::One), Y(math_type::One), Z(math_type::One),
 #else
 		XYZ(math_type::One, math_type::One, math_type::One),
@@ -212,7 +202,7 @@ struct Vector4
 
 	}
 	explicit Vector4(const behavior::_half_t&, const behavior::_direction_t&) :
-#ifdef _ANONYMOUS_NORMAL_CONSTRUCT
+#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
 		X(math_type::Half), Y(math_type::Half), Z(math_type::Half),
 #else
 		XYZ(math_type::Half, math_type::Half, math_type::Half),
@@ -222,7 +212,7 @@ struct Vector4
 
 	}
 	explicit Vector4(const behavior::_half_t&, const behavior::_position_t&) :
-#ifdef _ANONYMOUS_NORMAL_CONSTRUCT
+#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
 		X(math_type::Half), Y(math_type::Half), Z(math_type::Half),
 #else
 		XYZ(math_type::Half, math_type::Half, math_type::Half),
@@ -232,7 +222,7 @@ struct Vector4
 
 	}
 	explicit Vector4(const behavior::_half_of_half_t&, const behavior::_direction_t&) :
-#ifdef _ANONYMOUS_NORMAL_CONSTRUCT
+#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
 		X(math_type::HalfOfHalf), Y(math_type::HalfOfHalf), Z(math_type::HalfOfHalf),
 #else
 		XYZ(math_type::HalfOfHalf, math_type::HalfOfHalf, math_type::HalfOfHalf),
@@ -242,7 +232,7 @@ struct Vector4
 
 	}
 	explicit Vector4(const behavior::_half_of_half_t&, const behavior::_position_t&) :
-#ifdef _ANONYMOUS_NORMAL_CONSTRUCT
+#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
 		X(math_type::HalfOfHalf), Y(math_type::HalfOfHalf), Z(math_type::HalfOfHalf),
 #else
 		XYZ(math_type::HalfOfHalf, math_type::HalfOfHalf, math_type::HalfOfHalf),
@@ -253,7 +243,7 @@ struct Vector4
 	}
 
 	Vector4(T X, T Y, T Z, T W) :
-#ifdef _ANONYMOUS_NORMAL_CONSTRUCT
+#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
 		X(X), Y(Y), Z(Z),
 #else
 		XYZ(X, Y, Z),
@@ -269,7 +259,7 @@ struct Vector4
 		_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U3)
 	>
 		Vector4(U X, U1 Y, U2 Z, U3 W) :
-#ifdef _ANONYMOUS_NORMAL_CONSTRUCT
+#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
 		X(static_cast<T>(X)), Y(static_cast<T>(Y)), Z(static_cast<T>(Z)),
 #else
 		XYZ(static_cast<T>(X), static_cast<T>(Y), static_cast<T>(Z)),
@@ -279,7 +269,7 @@ struct Vector4
 
 	}
 	explicit Vector4(T f, T w = math_type::One) :
-#ifdef _ANONYMOUS_NORMAL_CONSTRUCT
+#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
 		X(f), Y(f), Z(f),
 #else
 		XYZ(f),
@@ -290,7 +280,7 @@ struct Vector4
 	}
 	template <typename U, _TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
 	explicit Vector4(U f, U w = Math<U>::One) :
-#ifdef _ANONYMOUS_NORMAL_CONSTRUCT
+#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
 		X(static_cast<T>(f)), Y(static_cast<T>(f)), Z(static_cast<T>(f)),
 #else
 		XYZ(static_cast<T>(f)),
@@ -300,7 +290,7 @@ struct Vector4
 
 	}
 	explicit Vector4(const Vector2<T>& v, T z, T w) :
-#ifdef _ANONYMOUS_NORMAL_CONSTRUCT
+#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
 		X(v.X), Y(v.Y), Z(z),
 #else
 		XYZ(v, z),
@@ -311,7 +301,7 @@ struct Vector4
 	}
 	template <typename U>
 	explicit Vector4(const Vector2<U>& v, U z, U w) :
-#ifdef _ANONYMOUS_NORMAL_CONSTRUCT
+#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
 		X(static_cast<T>(v.X)), Y(static_cast<T>(v.Y)), Z(static_cast<T>(z)),
 #else
 		XYZ(static_cast<T>(v.X), static_cast<T>(v.Y), static_cast<T>(z)),
@@ -321,7 +311,7 @@ struct Vector4
 
 	}
 	explicit Vector4(const Vector3<T>& v, T w) :
-#ifdef _ANONYMOUS_NORMAL_CONSTRUCT
+#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
 		X(v.Z), Y(v.Y), Z(v.Z),
 #else
 		XYZ(v),
@@ -332,7 +322,7 @@ struct Vector4
 	}
 	template <typename U>
 	explicit Vector4(const Vector3<U>& v, U w) :
-#ifdef _ANONYMOUS_NORMAL_CONSTRUCT
+#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
 		X(static_cast<T>(v.X)), Y(static_cast<T>(v.Y)), Z(static_cast<T>(v.Z)),
 #else
 		XYZ(static_cast<T>(v.X), static_cast<T>(v.Y), static_cast<T>(v.Z)),
@@ -343,7 +333,7 @@ struct Vector4
 	}
 	template <typename U>
 	explicit Vector4(const Vector4<U>& v) :
-#ifdef _ANONYMOUS_NORMAL_CONSTRUCT
+#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
 		X(static_cast<T>(v.X)), Y(static_cast<T>(v.Y)), Z(static_cast<T>(v.Z)),
 #else
 		XYZ(static_cast<T>(v.X), static_cast<T>(v.Y), static_cast<T>(v.Z)),
@@ -373,7 +363,7 @@ struct Vector4
 	*---------------------------------------------------------------------*/
 	Vector4& add(const Vector4& v, Vector4& result) const
 	{
-#ifdef _USE_SIMD
+#ifdef _USE_SIMD_ANONYMOUS
 		result.simd = simd;
 		result.simd += v.simd;
 #else
@@ -398,7 +388,7 @@ struct Vector4
 	*---------------------------------------------------------------------*/
 	Vector4& subtract(const Vector4& v, Vector4& result) const
 	{
-#ifdef _USE_SIMD
+#ifdef _USE_SIMD_ANONYMOUS
 		result.simd = simd;
 		result.simd -= v.simd;
 #else
@@ -423,7 +413,7 @@ struct Vector4
 	*---------------------------------------------------------------------*/
 	Vector4& multiply(T f, Vector4& result) const
 	{
-#ifdef _USE_SIMD
+#ifdef _USE_SIMD_ANONYMOUS
 		result.simd = simd;
 		result.simd *= f;
 #else
@@ -445,7 +435,7 @@ struct Vector4
 	Vector4& divide(T f, Vector4& result) const
 	{
 		_DEB_ASSERT(f != math_type::Zero);
-#ifdef _USE_SIMD
+#ifdef _USE_SIMD_ANONYMOUS
 		result.simd = simd;
 		result.simd /= f;
 		return *this;
@@ -502,7 +492,7 @@ struct Vector4
 	*---------------------------------------------------------------------*/
 	T length() const
 	{
-#ifdef _USE_SIMD
+#ifdef _USE_SIMD_ANONYMOUS
 		simd_type result = {_mm_mul_ps(simd.mm, simd.mm)};
 		simd_value_type perm = _mm_shuffle_ps(result.mm, result.mm, _MM_SHUFFLE(0, 1, 2, 3));
 		result.mm = _mm_add_ps(result.mm, perm);
@@ -561,7 +551,7 @@ struct Vector4
 	{
 		/* |v1||v2|cos(θ)と同じになる */
 		/* 値が０のときは垂直 */
-#ifdef _USE_SIMD
+#ifdef _USE_SIMD_ANONYMOUS
 		/* X:X*v.X, Y:Y*v.Y, Z:Z*v.Z, W:W*v.W */
 		simd_type result = {_mm_mul_ps(simd.mm, v.simd.mm)};
 		/* W, Z, Y, X */
@@ -587,7 +577,7 @@ struct Vector4
 	Vector4 cross(const Vector4& v) const
 	{
 		/* Vector3分でW成分は0とする */
-#ifdef _USE_SIMD
+#ifdef _USE_SIMD_ANONYMOUS
 		Vector4 result(behavior::noinitialize);
 		return cross(v, result);
 #else
@@ -596,7 +586,7 @@ struct Vector4
 	}
 	Vector4& cross(const Vector4& v, Vector4& result) const
 	{
-#ifdef _USE_SIMD
+#ifdef _USE_SIMD_ANONYMOUS
 		const unsigned int YZX = _MM_SHUFFLE(3, 0, 2, 1);
 		const unsigned int ZXY = _MM_SHUFFLE(3, 1, 0, 2);
 		simd_value_type syzx = _mm_shuffle_ps(simd.mm, simd.mm, YZX);
@@ -617,7 +607,7 @@ struct Vector4
 	*---------------------------------------------------------------------*/
 	Vector4& normalize()
 	{
-#ifdef _USE_SIMD
+#ifdef _USE_SIMD_ANONYMOUS
 		simd_type result = {_mm_mul_ps(simd.mm, simd.mm)};
 		simd_value_type perm = _mm_shuffle_ps(result.mm, result.mm, _MM_SHUFFLE(0, 1, 2, 3));
 		result.mm = _mm_add_ps(result.mm, perm);
@@ -672,7 +662,7 @@ struct Vector4
 	*---------------------------------------------------------------------*/
 	Vector4 lerp(const Vector4& to, T t) const
 	{
-#ifdef _USE_SIMD
+#ifdef _USE_SIMD_ANONYMOUS
 		Vector4 result(behavior::noinitialize);
 		return lerp(to, t, result);
 #else
@@ -686,7 +676,7 @@ struct Vector4
 	}
 	Vector4& lerp(const Vector4& to, T t, Vector4& result) const
 	{
-#ifdef _USE_SIMD
+#ifdef _USE_SIMD_ANONYMOUS
 		/* from*(1.0 - t) + to*t */
 		simd_value_type ft = _mm_set1_ps(math_type::One - t);
 		simd_value_type tt = _mm_set1_ps(t);
@@ -709,7 +699,7 @@ struct Vector4
 	*---------------------------------------------------------------------*/
 	Vector4& saturate()
 	{
-#ifdef _USE_SIMD
+#ifdef _USE_SIMD_ANONYMOUS
 		const simd_value_type zero = _mm_setzero_ps();
 		const simd_value_type one = _mm_set1_ps(math_type::One);
 		simd.mm = _mm_max_ps(zero, _mm_min_ps(simd.mm, one));
@@ -728,7 +718,7 @@ struct Vector4
 	}
 	Vector4& saturated(Vector4& result) const
 	{
-#ifdef _USE_SIMD
+#ifdef _USE_SIMD_ANONYMOUS
 		result.simd = simd;
 		result.saturate();
 #else
@@ -1418,7 +1408,7 @@ Vector4<T> Vector2<T>::swizzle(int x, int y, int z, int w) const
 
 template <typename T> inline
 Vector3<T>::Vector3(const Vector4<T>& v) :
-#ifdef _ANONYMOUS_NORMAL_CONSTRUCT
+#ifndef _USE_ANONYMOUS_NON_POD
 	X(v.X), Y(v.Y),
 #else
 	XY(v.X, v.Y),
@@ -1430,7 +1420,7 @@ Vector3<T>::Vector3(const Vector4<T>& v) :
 template <typename T>
 template <typename U> inline
 Vector3<T>::Vector3(const Vector4<U>& v) :
-#ifdef _ANONYMOUS_NORMAL_CONSTRUCT
+#ifndef _USE_ANONYMOUS_NON_POD
 	X(static_cast<T>(v.X)), Y(static_cast<T>(v.Y)),
 #else
 	XY(static_cast<T>(v.X), static_cast<T>(v.Y)),

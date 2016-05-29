@@ -83,10 +83,14 @@ struct Vector3
 
 #ifdef _USE_ANONYMOUS
 		};
+
+#ifdef _USE_ANONYMOUS_NON_POD
 		struct
 		{
 			Vector2<T> XY;
 		};
+#endif /* _USE_ANONYMOUS_NON_POD */
+
 		array_type Data;
 	};
 #endif /* _USE_ANONYMOUS */
@@ -119,7 +123,7 @@ struct Vector3
 
 	}
 	explicit Vector3(const behavior::_zero_t&) :
-#ifdef _ANONYMOUS_NORMAL_CONSTRUCT
+#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
 		X(math_type::Zero), Y(math_type::Zero),
 #else
 		XY(math_type::Zero, math_type::Zero),
@@ -129,7 +133,7 @@ struct Vector3
 
 	}
 	explicit Vector3(const behavior::_one_t&) :
-#ifdef _ANONYMOUS_NORMAL_CONSTRUCT
+#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
 		X(math_type::One), Y(math_type::One),
 #else
 		XY(math_type::One, math_type::One),
@@ -139,7 +143,7 @@ struct Vector3
 
 	}
 	explicit Vector3(const behavior::_half_t&) :
-#ifdef _ANONYMOUS_NORMAL_CONSTRUCT
+#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
 		X(math_type::Half), Y(math_type::Half),
 #else
 		XY(math_type::Half, math_type::Half),
@@ -149,7 +153,7 @@ struct Vector3
 
 	}
 	explicit Vector3(const behavior::_half_of_half_t&) :
-#ifdef _ANONYMOUS_NORMAL_CONSTRUCT
+#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
 		X(math_type::HalfOfHalf), Y(math_type::HalfOfHalf),
 #else
 		XY(math_type::HalfOfHalf, math_type::HalfOfHalf),
@@ -159,13 +163,13 @@ struct Vector3
 
 	}
 
-	Vector3(T X, T Y, T Z) :
-#ifdef _ANONYMOUS_NORMAL_CONSTRUCT
-		X(X), Y(Y),
+	Vector3(T x, T y, T z) :
+#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+		X(x), Y(y),
 #else
-		XY(X, Y),
+		XY(x, y),
 #endif
-		Z(Z)
+		Z(z)
 	{
 
 	}
@@ -175,7 +179,7 @@ struct Vector3
 		_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U2)
 	>
 		Vector3(U X, U1 Y, U2 Z) :
-#ifdef _ANONYMOUS_NORMAL_CONSTRUCT
+#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
 		X(static_cast<T>(X)), Y(static_cast<T>(Y)),
 #else
 		XY(static_cast<T>(X), static_cast<T>(Y)),
@@ -185,7 +189,7 @@ struct Vector3
 
 	}
 	explicit Vector3(T f) :
-#ifdef _ANONYMOUS_NORMAL_CONSTRUCT
+#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
 		X(f), Y(f),
 #else
 		XY(f),
@@ -196,7 +200,7 @@ struct Vector3
 	}
 	template <typename U, _TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
 	explicit Vector3(U f) :
-#ifdef _ANONYMOUS_NORMAL_CONSTRUCT
+#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
 		X(static_cast<T>(f)), Y(static_cast<T>(f)),
 #else
 		XY(static_cast<T>(f)),
@@ -206,7 +210,7 @@ struct Vector3
 
 	}
 	Vector3(const Vector2<T>& v, T Z) :
-#ifdef _ANONYMOUS_NORMAL_CONSTRUCT
+#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
 		X(v.X), Y(v.Y),
 #else
 		XY(v),
@@ -217,7 +221,7 @@ struct Vector3
 	}
 	template <typename U>
 	Vector3(const Vector2<U>& v, U Z) :
-#ifdef _ANONYMOUS_NORMAL_CONSTRUCT
+#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
 		X(static_cast<T>(v.X)), Y(static_cast<T>(v.Y)),
 #else
 		XY(static_cast<T>(v.X), static_cast<T>(v.Y)),
@@ -228,7 +232,7 @@ struct Vector3
 	}
 	template <typename U>
 	Vector3(const Vector3<U>& v) :
-#ifdef _ANONYMOUS_NORMAL_CONSTRUCT
+#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
 		X(static_cast<T>(v.X)), Y(static_cast<T>(v.Y)),
 #else
 		XY(static_cast<T>(v.X), static_cast<T>(v.Y)),

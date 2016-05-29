@@ -251,12 +251,14 @@ struct is_math_type : false_type
 template <typename T>
 struct is_math_floating_type : false_type
 {};
+#if 0
 template <typename T>
 struct is_math_type<std::complex<T> > : is_math_type<T>
 {};
 template <typename T>
 struct is_math_floating_type<std::complex<T> > : is_math_floating_type<T>
 {};
+#endif
 
 #ifndef _UNUSING_MATH_INT_FLOAT
 template <>
@@ -360,10 +362,6 @@ struct is_arithmetic<long double> : true_type
 
 using std::is_arithmetic;
 #endif /* _USE_CXX11 */
-
-template <typename T>
-struct is_arithmetic<std::complex<T> > : is_arithmetic<T>
-{};
 
 /*---------------------------------------------------------------------
 * 真の時にT1、偽の時にT2の型となる型

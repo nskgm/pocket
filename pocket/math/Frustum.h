@@ -31,7 +31,7 @@ typedef Frustum<long double> Frustumld;
 
 #ifdef _USE_CXX11
 template <typename T>
-using frustum = frustum<T>;
+using frustum = Frustum<T>;
 #ifndef _UNUSING_MATH_INT_FLOAT
 using frustumf = frustum<float>;
 #endif /* _UNUSING_MATH_INT_FLOAT */
@@ -129,16 +129,16 @@ struct Frustum
 	* Members
 	*---------------------------------------------------------------------------------------*/
 
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 	union
 	{
 		struct
 		{
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 
 			array_type Planes;
 
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		};
 		struct
 		{
@@ -150,7 +150,7 @@ struct Frustum
 			Plane<T> Far;
 		};
 	};
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 
 	template <typename> friend struct Frustum;
 
@@ -170,37 +170,37 @@ struct Frustum
 
 	}
 	Frustum(const Plane<T>& left, const Plane<T>& right, const Plane<T>& up, const Plane<T>& down, const Plane<T>& near, const Plane<T>& far)
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		: Left(left), Right(right),
 		Up(up), Down(down),
 		Near(near), Far(far)
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 	{
-#ifndef _USE_ANONYMOUS
+#ifndef _USE_ANONYMOUS_NON_POD
 		Planes[0] = left;
 		Planes[1] = right;
 		Planes[2] = up;
 		Planes[3] = down;
 		Planes[4] = near;
 		Planes[5] = far;
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 	}
 	template <typename U>
 	Frustum(const Plane<U>& left, const Plane<U>& right, const Plane<U>& up, const Plane<U>& down, const Plane<U>& near, const Plane<U>& far)
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		: Left(static_cast<Plane<T> >(left)), Right(static_cast<Plane<T> >(right)),
 		Up(static_cast<Plane<T> >(up)), Down(static_cast<Plane<T> >(down)),
 		Near(static_cast<Plane<T> >(near)), Far(static_cast<Plane<T> >(far))
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 	{
-#ifndef _USE_ANONYMOUS
+#ifndef _USE_ANONYMOUS_NON_POD
 		Planes[0] = static_cast<Plane<T> >(left);
 		Planes[1] = static_cast<Plane<T> >(right);
 		Planes[2] = static_cast<Plane<T> >(up);
 		Planes[3] = static_cast<Plane<T> >(down);
 		Planes[4] = static_cast<Plane<T> >(near);
 		Planes[5] = static_cast<Plane<T> >(far);
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 	}
 
 	explicit Frustum(const LookAt& lookat, const ProjectionFieldOfView& fov)
@@ -445,35 +445,35 @@ struct Frustum
 	*---------------------------------------------------------------------*/
 	_CXX11_EXPLICIT operator Plane<T>* ()
 	{
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		return &Left;
 #else
 		return &Planes[0];
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 	}
 	_CXX11_EXPLICIT operator const Plane<T>* () const
 	{
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		return &Left;
 #else
 		return &Planes[0];
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 	}
 	_CXX11_EXPLICIT operator T* ()
 	{
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		return &Left.Normal.X;
 #else
 		return &Planes[0].Normal.X;
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 	}
 	_CXX11_EXPLICIT operator const T* () const
 	{
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		return &Left.Normal.X;
 #else
 		return &Planes[0].Normal.X;
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 	}
 
 	/*---------------------------------------------------------------------

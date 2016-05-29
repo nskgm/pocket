@@ -1,5 +1,5 @@
-﻿#ifndef __MATH_TEMPLATE_H__
-#define __MATH_TEMPLATE_H__
+﻿#ifndef __MATH_RECTANGLE_H__
+#define __MATH_RECTANGLE_H__
 
 #include "config.h"
 #ifdef _USE_PRAGMA_ONCE
@@ -277,22 +277,22 @@ struct Rectangle
 	* Members
 	*------------------------------------------------------------------------------------------*/
 
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 	union
 	{
 		struct
 		{
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 
 			Range<T> X;
 			Range<T> Y;
 
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		};
 
 		array_type Data;
 	};
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 
 	template <typename> friend struct Rectangle;
 
@@ -431,20 +431,20 @@ struct Rectangle
 	T& operator [] (int i)
 	{
 		_DEB_RANGE_ASSERT(i, 0, 3);
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		return Data[i];
 #else
 		return (&X.Min)[i];
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 	}
 	const T& operator [] (int i) const
 	{
 		_DEB_RANGE_ASSERT(i, 0, 3);
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		return Data[i];
 #else
 		return (&X.Min)[i];
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 	}
 
 	/*---------------------------------------------------------------------
@@ -457,19 +457,19 @@ struct Rectangle
 	}
 	_CXX11_EXPLICIT operator T* ()
 	{
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		return &Data[0];
 #else
 		return &X.Min;
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 	}
 	_CXX11_EXPLICIT operator const T* () const
 	{
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		return &Data[0];
 #else
 		return &X.Min;
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 	}
 
 	/*---------------------------------------------------------------------
@@ -524,4 +524,4 @@ std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, 
 
 } /* namespace pocket */
 
-#endif /* __MATH_TEMPLATE_H__ */
+#endif /* __MATH_RECTANGLE_H__ */

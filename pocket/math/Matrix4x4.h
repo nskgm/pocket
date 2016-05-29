@@ -85,16 +85,16 @@ struct Matrix4x4
 	* Members
 	*-----------------------------------------------------------------------------------------*/
 
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 	union
 	{
 		struct
 		{
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 
-			array4x4_type M; /* 行4 */
+			array4x4_type M;
 
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		};
 		/* 1行ごと */
 		struct
@@ -126,7 +126,7 @@ struct Matrix4x4
 		};
 		array16_type Data;
 	};
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 
 	template <typename> friend struct Matrix4x4;
 
@@ -172,7 +172,7 @@ struct Matrix4x4
 		T M31, T M32, T M33, T M34,
 		T M41, T M42, T M43, T M44)
 	{
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		MV0.X = M11;
 		MV0.Y = M12;
 		MV0.Z = M13;
@@ -194,11 +194,11 @@ struct Matrix4x4
 		M[1] = Vector4<T>(M21, M22, M23, M24);
 		M[2] = Vector4<T>(M31, M32, M33, M34);
 		M[3] = Vector4<T>(M41, M42, M43, M44);
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 	}
 	Matrix4x4(const Vector4<T>& M1, const Vector4<T>& M2, const Vector4<T>& M3, const Vector4<T>& M4)
 	{
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		MV0 = M1;
 		MV1 = M2;
 		MV2 = M3;
@@ -208,14 +208,14 @@ struct Matrix4x4
 		M[1] = M2;
 		M[2] = M3;
 		M[3] = M4;
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 	}
 	explicit Matrix4x4(const Vector3<T>& M1, T M1W,
 		const Vector3<T>& M2, T M2W,
 		const Vector3<T>& M3, T M3W,
 		const Vector3<T>& M4, T M4W = math_type::One)
 	{
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		Right = M1;
 		_RightW = M1W;
 		Up = M2;
@@ -248,7 +248,7 @@ struct Matrix4x4
 		p->Y = M4.Y;
 		p->Z = M4.Z;
 		p->W = M4W;
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 	}
 	explicit Matrix4x4(const Matrix3x3<T>& m)
 	{
@@ -323,10 +323,6 @@ struct Matrix4x4
 	*---------------------------------------------------------------------*/
 	Matrix4x4& multiply(const Matrix4x4& m, Matrix4x4& result) const
 	{
-		/* VC++のデバッグで1000000回回して下記の時間 */
-		/* 16300ms: for 3回ループ */
-		/*  8770ms: 転置＆アクセスあまりしないように */
-		/* 19090ms: ばらし */
 #if 0
 		/* ゼロ埋め */
 		result.load_zero();
@@ -360,7 +356,6 @@ struct Matrix4x4
 			ri->W = i->dot(*j);
 		}
 #else
-		/* コンパイラが解釈しやすいのか最適化では早くなった */
 		const_iterator oi0 = m.M.begin();
 		const_iterator oi1 = oi0 + 1;
 		const_iterator oi2 = oi0 + 2;
@@ -443,23 +438,23 @@ struct Matrix4x4
 	const Vector3<T>& right() const
 	{
 		//return Vector3<T>(m.X, m.Y, m.Z);
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		return Right;
 #else
 		const Vector4<T>& m = M[0];
 		return reinterpret_cast<const Vector3<T>&>(m);
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 	}
 	Matrix4x4& right(const Vector3<T>& v)
 	{
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		Right = v;
 #else
 		Vector4<T>& m = M[0];
 		m.X = v.X;
 		m.Y = v.Y;
 		m.Z = v.Z;
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 		return *this;
 	}
 	/*---------------------------------------------------------------------
@@ -468,23 +463,23 @@ struct Matrix4x4
 	const Vector3<T>& up() const
 	{
 		//return Vector3<T>(m.X, m.Y, m.Z);
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		return Up;
 #else
 		const Vector4<T>& m = M[1];
 		return reinterpret_cast<const Vector3<T>&>(m);
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 	}
 	Matrix4x4& up(const Vector3<T>& v)
 	{
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		Up = v;
 #else
 		Vector4<T>& m = M[1];
 		m.X = v.X;
 		m.Y = v.Y;
 		m.Z = v.Z;
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 		return *this;
 	}
 	/*---------------------------------------------------------------------
@@ -493,23 +488,23 @@ struct Matrix4x4
 	const Vector3<T>& forward() const
 	{
 		//return Vector3<T>(m.X, m.Y, m.Z);
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		return Forward;
 #else
 		const Vector4<T>& m = M[2];
 		return reinterpret_cast<const Vector3<T>&>(m);
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 	}
 	Matrix4x4& forward(const Vector3<T>& v)
 	{
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		Forward = v;
 #else
 		Vector4<T>& m = M[2];
 		m.X = v.X;
 		m.Y = v.Y;
 		m.Z = v.Z;
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 		return *this;
 	}
 	/*---------------------------------------------------------------------
@@ -517,24 +512,24 @@ struct Matrix4x4
 	*---------------------------------------------------------------------*/
 	const Vector3<T>& position() const
 	{
-		//return Vector3<T>(m.X, m.Y, m.Z);
-#ifdef _USE_ANONYMOUS
+		// Vector3<T>(m.X, m.Y, m.Z);
+#ifdef _USE_ANONYMOUS_NON_POD
 		return Position;
 #else
 		const Vector4<T>& m = M[3];
 		return reinterpret_cast<const Vector3<T>&>(m);
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 	}
 	Matrix4x4& position(const Vector3<T>& v)
 	{
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		Position = v;
 #else
 		Vector4<T>& m = M[3];
 		m.X = v.X;
 		m.Y = v.Y;
 		m.Z = v.Z;
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 		return *this;
 	}
 
@@ -771,7 +766,7 @@ struct Matrix4x4
 	Matrix4x4& load_translate(T x, T y, T z)
 	{
 		load_identity();
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		Position.X = x;
 		Position.Y = y;
 		Position.Z = z;
@@ -781,20 +776,20 @@ struct Matrix4x4
 		p->X = x;
 		p->Y = y;
 		p->Z = z;
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 		return *this;
 	}
 	Matrix4x4& load_translate(const Vector3<T>& v)
 	{
 		load_identity();
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		Position = v;
 #else
 		Vector4<T>* p = &M[3];
 		p->X = v.X;
 		p->Y = v.Y;
 		p->Z = v.Z;
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 		return *this;
 	}
 	/*---------------------------------------------------------------------
@@ -892,36 +887,17 @@ struct Matrix4x4
 	{
 		load_identity();
 
-		/* 3D座標にあるオブジェクトをスクリーン座標へ変換する[-1.0~1.0へ変換する] */
-
-		/* fov: Y軸における視野角 */
-		/* aspect: 画面におけるアスペクト比（横÷高さ） */
-		/* near, far: Z軸上での表示する範囲 */
-
-		/* 視錐体をそれぞれの軸から三角形として考える */
-
-		/* Y軸の変換 */
-		/* fovからZ値におけるYを求めることが出来る */
-		/* タンジェントで長さが求まり、Yをその値で割る */
-		/* -1.0~1.0におさめる計算で画面上のYとなる */
-		/* 掛けるので逆数として */
 		T t = math_type::One / math_type::tan(fovy * math_type::Half);
 
 		Vector4<T>* p = &M[0];
-		/* X軸の変換、基本的にはYと同じでアスペクト比での補正を行う */
 		p->X = t / aspect;
 
 		p = &M[1];
 		p->Y = t;
 
-		/* tをZの比率に再利用 */
 		t = math_type::One / (far - near);
 
-		/* nearは単純に平行移動するのみ */
-
-		/* Z変換 */
 		p = &M[2];
-		/* farの場合に1とすればいいからfar/range */
 		p->Z = (far + near) * t;
 		p->W = -math_type::One;
 
@@ -945,10 +921,9 @@ struct Matrix4x4
 		load_identity();
 
 		T dx = math_type::One / (right - left);
-		T dy = math_type::One / (top - bottom); /* 反転するのでTop-Bottom */
+		T dy = math_type::One / (top - bottom);
 		T dz = math_type::One / (far - near);
 
-		/* XYZをそれぞれ-1~1の間にする */
 		Vector4<T>* p = &M[0];
 		p->X = math_type::Two * dx;
 
@@ -958,7 +933,6 @@ struct Matrix4x4
 		p = &M[2];
 		p->Z = -math_type::Two * dz; /* 右手特有 */
 
-		/* 並行移動-1~1間の平行移動 */
 		p = &M[3];
 		p->X = -(right + left) * dx;
 		p->Y = -(bottom + top) * dy;
@@ -1164,9 +1138,6 @@ struct Matrix4x4
 	*---------------------------------------------------------------------*/
 	T determinant() const
 	{
-		/* わかりやすいサイト */
-		/* http://physmath.main.jp/src/inverse-cofactor-ex4.html */
-
 		const Vector4<T>* v0 = &M[0];
 		const Vector4<T>* v1 = &M[1];
 		const Vector4<T>* v2 = &M[2];
@@ -1212,9 +1183,6 @@ struct Matrix4x4
 	}
 	bool inversed(Matrix4x4& result) const
 	{
-		/* わかりやすいサイト */
-		/* http://physmath.main.jp/src/inverse-cofactor-ex4.html */
-
 		T det = determinant();
 		/* 逆行列が存在しない */
 		//if (det == math_type::Zero)
@@ -1475,19 +1443,19 @@ struct Matrix4x4
 	}
 	_CXX11_EXPLICIT operator T* ()
 	{
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		return &Data[0];
 #else
 		return &M[0].X;
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 	}
 	_CXX11_EXPLICIT operator const T* () const
 	{
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		return &Data[0];
 #else
 		return &M[0].X;
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 	}
 
 	/*---------------------------------------------------------------------
@@ -1740,11 +1708,11 @@ struct Matrix4x4
 	}
 	Vector3<T>& operator () (const behavior::_right_t&)
 	{
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		return Right;
 #else
 		return reinterpret_cast<Vector3<T>&>(M[0]);
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 	}
 	const Vector3<T>& operator () (const behavior::_right_t&) const
 	{
@@ -1752,11 +1720,11 @@ struct Matrix4x4
 	}
 	Vector3<T>& operator () (const behavior::_up_t&)
 	{
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		return Up;
 #else
 		return reinterpret_cast<Vector3<T>&>(M[1]);
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 	}
 	const Vector3<T>& operator () (const behavior::_up_t&) const
 	{
@@ -1764,11 +1732,11 @@ struct Matrix4x4
 	}
 	Vector3<T>& operator () (const behavior::_front_t&)
 	{
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		return Forward;
 #else
 		return reinterpret_cast<Vector3<T>&>(M[2]);
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 	}
 	const Vector3<T>& operator () (const behavior::_front_t&) const
 	{
@@ -1800,11 +1768,11 @@ struct Matrix4x4
 	}
 	Vector3<T>& operator () (const behavior::_position_t&)
 	{
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		return Position;
 #else
 		return reinterpret_cast<Vector3<T>&>(M[3]);
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 	}
 	const Vector3<T>& operator () (const behavior::_position_t&) const
 	{
@@ -1961,54 +1929,54 @@ const Matrix4x4<T> Matrix4x4<T>::Identity(math_type::One);
 /*---------------------------------------------------------------------
 * Vector3.transform
 *---------------------------------------------------------------------*/
-template <typename T>
-inline Vector3<T>& Vector3<T>::transform(const Matrix4x4<T>& m)
+template <typename T> inline
+Vector3<T>& Vector3<T>::transform(const Matrix4x4<T>& m)
 {
 	Vector3<T> v = *this;
 	return m.transform(v, *this);
 }
-template <typename T>
-inline Vector3<T> Vector3<T>::transformed(const Matrix4x4<T>& m) const
+template <typename T> inline
+Vector3<T> Vector3<T>::transformed(const Matrix4x4<T>& m) const
 {
 	Vector3<T> v(behavior::noinitialize);
 	return m.transform(*this, v);
 }
-template <typename T>
-inline Vector3<T>& Vector3<T>::transformed(const Matrix4x4<T>& m, Vector3<T>& result) const
+template <typename T> inline
+Vector3<T>& Vector3<T>::transformed(const Matrix4x4<T>& m, Vector3<T>& result) const
 {
 	return m.transform(*this, result);
 }
-template <typename T>
-inline Vector3<T>& Vector3<T>::transform_coord(const Matrix4x4<T>& m)
+template <typename T> inline
+Vector3<T>& Vector3<T>::transform_coord(const Matrix4x4<T>& m)
 {
 	Vector3<T> v = *this;
 	return m.transform_coord(v, *this);
 }
-template <typename T>
-inline Vector3<T> Vector3<T>::transformed_coord(const Matrix4x4<T>& m) const
+template <typename T> inline
+Vector3<T> Vector3<T>::transformed_coord(const Matrix4x4<T>& m) const
 {
 	Vector3<T> v(behavior::noinitialize);
 	return m.transform_coord(*this, v);
 }
-template <typename T>
-inline Vector3<T>& Vector3<T>::transformed_coord(const Matrix4x4<T>& m, Vector3<T>& result) const
+template <typename T> inline
+Vector3<T>& Vector3<T>::transformed_coord(const Matrix4x4<T>& m, Vector3<T>& result) const
 {
 	return m.transform_coord(*this, result);
 }
-template <typename T>
-inline Vector3<T>& Vector3<T>::transform_normal(const Matrix4x4<T>& m)
+template <typename T> inline
+Vector3<T>& Vector3<T>::transform_normal(const Matrix4x4<T>& m)
 {
 	Vector3<T> v = *this;
 	return m.transform_normal(v, *this);
 }
-template <typename T>
-inline Vector3<T> Vector3<T>::transformed_normal(const Matrix4x4<T>& m) const
+template <typename T> inline
+Vector3<T> Vector3<T>::transformed_normal(const Matrix4x4<T>& m) const
 {
 	Vector3<T> v(behavior::noinitialize);
 	return m.transform_normal(*this, v);
 }
-template <typename T>
-inline Vector3<T>& Vector3<T>::transformed_normal(const Matrix4x4<T>& m, Vector3<T>& result) const
+template <typename T> inline
+Vector3<T>& Vector3<T>::transformed_normal(const Matrix4x4<T>& m, Vector3<T>& result) const
 {
 	return m.transform_normal(*this, result);
 }
@@ -2016,49 +1984,49 @@ inline Vector3<T>& Vector3<T>::transformed_normal(const Matrix4x4<T>& m, Vector3
 /*---------------------------------------------------------------------
 * Vector4.transform
 *---------------------------------------------------------------------*/
-template <typename T>
-inline Vector4<T>& Vector4<T>::transform(const Matrix4x4<T>& m)
+template <typename T> inline
+Vector4<T>& Vector4<T>::transform(const Matrix4x4<T>& m)
 {
 	Vector4<T> v = *this;
 	return m.transform(v, *this);
 }
-template <typename T>
-inline Vector4<T> Vector4<T>::transformed(const Matrix4x4<T>& m) const
+template <typename T> inline
+Vector4<T> Vector4<T>::transformed(const Matrix4x4<T>& m) const
 {
 	Vector4<T> v(behavior::noinitialize);
 	return m.transform(*this, v);
 }
-template <typename T>
-inline Vector4<T>& Vector4<T>::transformed(const Matrix4x4<T>& m, Vector4<T>& result) const
+template <typename T> inline
+Vector4<T>& Vector4<T>::transformed(const Matrix4x4<T>& m, Vector4<T>& result) const
 {
 	return m.transform(*this, result);
 }
-template <typename T>
-inline Vector4<T>& Vector4<T>::transform_coord(const Matrix4x4<T>& m)
+template <typename T> inline
+Vector4<T>& Vector4<T>::transform_coord(const Matrix4x4<T>& m)
 {
 	Vector4<T> v = *this;
 	return m.transform_coord(v, *this);
 }
-template <typename T>
-inline Vector4<T> Vector4<T>::transformed_coord(const Matrix4x4<T>& m) const
+template <typename T> inline
+Vector4<T> Vector4<T>::transformed_coord(const Matrix4x4<T>& m) const
 {
 	Vector4<T> v(behavior::noinitialize);
 	return m.transform_coord(*this, v);
 }
-template <typename T>
-inline Vector4<T>& Vector4<T>::transformed_coord(const Matrix4x4<T>& m, Vector4<T>& result) const
+template <typename T> inline
+Vector4<T>& Vector4<T>::transformed_coord(const Matrix4x4<T>& m, Vector4<T>& result) const
 {
 	return m.transform_coord(*this, result);
 }
 
-template <typename T>
-inline Vector3<T> Vector3<T>::operator * (const Matrix4x4<T>& m) const
+template <typename T> inline
+Vector3<T> Vector3<T>::operator * (const Matrix4x4<T>& m) const
 {
 	Vector3<T> r(behavior::noinitialize);
 	return m.transform(*this, r);
 }
-template <typename T>
-inline Vector4<T> Vector4<T>::operator * (const Matrix4x4<T>& m) const
+template <typename T> inline
+Vector4<T> Vector4<T>::operator * (const Matrix4x4<T>& m) const
 {
 	Vector4<T> r(behavior::noinitialize);
 	return m.transform(*this, r);
@@ -2067,8 +2035,8 @@ inline Vector4<T> Vector4<T>::operator * (const Matrix4x4<T>& m) const
 /*---------------------------------------------------------------------
 * 行列からクォータニオンを求める
 *---------------------------------------------------------------------*/
-template <typename T>
-inline Quaternion<T>& Quaternion<T>::from_matrix(const Matrix4x4<T>& m)
+template <typename T> inline
+Quaternion<T>& Quaternion<T>::from_matrix(const Matrix4x4<T>& m)
 {
 	const Vector4<T>* v0 = &m.M[0];
 	const Vector4<T>* v1 = &m.M[1];

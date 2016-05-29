@@ -118,18 +118,18 @@
 * C++11が使用できるか設定. VC++の場合はVC++12以上
 *---------------------------------------------------------------------------------------*/
 #ifndef _USE_CXX11
-#	if ((defined(_MSC_VER) && (_MSC_VER >= 1800)) || (__cplusplus >= __CXX11))
+#	if ((defined(_MSC_VER) && (_MSC_VER >= 1800)) || _CXX_VER(11))
 #		define _USE_CXX11
-#	endif /* ((defined(_MSC_VER) && (_MSC_VER >= 1800)) || (__cplusplus >= __CXX11))) */
+#	endif
 #endif /* _USE_CXX11 */
 
 /*---------------------------------------------------------------------------------------
 * C++14が使用できるか設定. VC++の場合は不明
 *---------------------------------------------------------------------------------------*/
 #ifndef _USE_CXX14
-#	if (defined(_MSC_VER) && _MSC_VER >= 2000) || (__cplusplus >= __CXX14)
+#	if (defined(_MSC_VER) && _MSC_VER >= 2000) || _CXX_VER(14)
 #		define _USE_CXX14
-#	endif /*  */
+#	endif
 #endif /* _USE_CXX14 */
 
 /*---------------------------------------------------------------------------------------
@@ -138,17 +138,17 @@
 #ifndef _USE_ANONYMOUS
 #	if defined(_MSC_VER)
 #		define _USE_ANONYMOUS
-#	elif defined(__GNUC__) && defined(_USE_CXX11)
+#	elif defined(__GNUC__)
 #		if __GNUC__ >= 4
-#			if __GNUC__ == 4 /* 4の場合はマイナーバージョンが7以上 */
-#				if __GNUC_MINOR__ > 7
+#			if __GNUC__ == 4
+#				if __GNUC_MINOR__ >= 5
 #					define _USE_ANONYMOUS
-#				endif /* __GNUC_MINOR__ > 7 */
+#				endif /* __GNUC_MINOR__ >= 5 */
 #			else
 #				define _USE_ANONYMOUS
-#			endif /* __GNUC__ == 4 */
-#		endif /* __GNUC__ >= 4 */
-#	elif defined(__clang__) && defined(_USE_CXX11)
+#			endif
+#		endif
+#	elif defined(__clang__)
 #		if __clang_major__ >= 3
 #			if __clang_major__ == 3
 #				if __clang_minor__ >= 1
@@ -157,9 +157,19 @@
 #			else
 #				define _USE_ANONYMOUS
 #			endif
-#		endif  /* __clang_major__ >= 3 */
+#		endif
 #	endif
 #endif /* _USE_ANONYMOUS */
+
+#ifndef _USE_ANONYMOUS_NON_POD
+#	ifdef _MSC_VER
+#		define _USE_ANONYMOUS_NON_POD
+#	else
+#		if defined(_USE_ANONYMOUS) && _CXX_VER(11)
+#			define _USE_ANONYMOUS_NON_POD
+#		endif
+#	endif
+#endif /* !_USE_ANONYMOUS_NON_POD */
 
 /*---------------------------------------------------------------------------------------
 * 匿名が使用できた場合の警告を消す＆使用を許可
@@ -175,11 +185,16 @@
 /*---------------------------------------------------------------------------------------
 * 匿名使用時のコンストラクタ挙動が違った場合の設定
 *---------------------------------------------------------------------------------------*/
-#if (!defined(_USE_ANONYMOUS) || (defined(_USE_ANONYMOUS) && defined(__GNUC__)))
-#	ifndef _ANONYMOUS_NORMAL_CONSTRUCT
-#		define _ANONYMOUS_NORMAL_CONSTRUCT
-#	endif /* _ANONYMOUS_NORMAL_CONSTRUCT */
-#endif /* (!defined(_USE_ANONYMOUS) || (defined(_USE_ANONYMOUS) && defined(__GNUC__))) */
+#ifndef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+#	ifndef _USE_ANONYMOUS_NON_POD
+#		define _USE_ANONYMOUS_NORMAL_CONSTRUCT
+#	else
+		// 定義されていてもgccとclangでは通常コンストラクタ
+#		if defined(__GNUC__) || defined(__clang__)
+#			define _USE_ANONYMOUS_NORMAL_CONSTRUCT
+#		endif
+#	endif
+#endif /* _USE_ANONYMOUS_NORMAL_CONSTRUCT */
 
 /*---------------------------------------------------------------------------------------
 * 匿名が使用できてC++11が使用できるか設定

@@ -104,7 +104,7 @@ struct Matrix3x3
 	typedef Vector3<T> row_type;
 	typedef Vector3<T> column_type;
 
-	typedef container::array<Vector3<T>, 4> array3x3_type;
+	typedef container::array<Vector3<T>, 3> array3x3_type;
 	typedef typename array3x3_type::value_type value_type;
 	typedef typename array3x3_type::iterator iterator;
 	typedef typename array3x3_type::const_iterator const_iterator;
@@ -126,16 +126,16 @@ struct Matrix3x3
 	* Members
 	*------------------------------------------------------------------------------------------*/
 
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 	union
 	{
 		struct
 		{
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 
 			array3x3_type M; /* 行3 */
 
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		};
 		/* 1行ごと */
 		struct
@@ -159,6 +159,7 @@ struct Matrix3x3
 				};
 			};
 		};
+
 		/* それぞれの要素へアクセス */
 		struct
 		{
@@ -168,7 +169,7 @@ struct Matrix3x3
 		};
 		array9_type Data;
 	};
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 
 	/*------------------------------------------------------------------------------------------
 	* Constants
@@ -208,7 +209,7 @@ struct Matrix3x3
 		T M21, T M22, T M23,
 		T M31, T M32, T M33)
 	{
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		MV0.X = M11;
 		MV0.Y = M12;
 		MV0.Z = M13;
@@ -222,11 +223,11 @@ struct Matrix3x3
 		M[0] = Vector3<T>(M11, M12, M13);
 		M[1] = Vector3<T>(M21, M22, M23);
 		M[2] = Vector3<T>(M31, M32, M33);
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 	}
 	Matrix3x3(const Vector3<T>& M1, const Vector3<T>& M2, const Vector3<T>& M3)
 	{
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		MV0 = M1;
 		MV1 = M2;
 		MV2 = M3;
@@ -234,7 +235,7 @@ struct Matrix3x3
 		M[0] = M1;
 		M[1] = M2;
 		M[2] = M3;
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 	}
 	explicit Matrix3x3(const Matrix4x4<T>&); /* Matrix4x4.h */
 
@@ -363,19 +364,19 @@ struct Matrix3x3
 	const Vector3<T>& right() const
 	{
 		//return Vector3<T>(m.X, m.Y, m.Z);
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		return Right;
 #else
 		return M[0];
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 	}
 	Matrix3x3& right(const Vector3<T>& v)
 	{
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		Right = v;
 #else
 		M[0] = v;
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 		return *this;
 	}
 	/*---------------------------------------------------------------------
@@ -384,19 +385,19 @@ struct Matrix3x3
 	const Vector3<T>& up() const
 	{
 		//return Vector3<T>(m.X, m.Y, m.Z);
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		return Up;
 #else
 		return M[1];
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 	}
 	Matrix3x3& up(const Vector3<T>& v)
 	{
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		Up = v;
 #else
 		M[1] = v;
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 		return *this;
 	}
 	/*---------------------------------------------------------------------
@@ -405,19 +406,19 @@ struct Matrix3x3
 	const Vector3<T>& forward() const
 	{
 		//return Vector3<T>(m.X, m.Y, m.Z);
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		return Forward;
 #else
 		return M[2];
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 	}
 	Matrix3x3& forward(const Vector3<T>& v)
 	{
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		Forward = v;
 #else
 		M[2] = v;
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 		return *this;
 	}
 	/*---------------------------------------------------------------------
@@ -425,22 +426,22 @@ struct Matrix3x3
 	*---------------------------------------------------------------------*/
 	const Vector2<T>& position() const
 	{
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		return Position;
 #else
 		const Vector3<T>& m = M[2];
 		return reinterpret_cast<const Vector2<T>&>(m);
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 	}
 	Matrix3x3& position(const Vector2<T>& v)
 	{
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		Position = v;
 #else
 		Vector3<T>& m = M[2];
 		m.X = v.X;
 		m.Y = v.Y;
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 		return *this;
 	}
 
@@ -688,7 +689,7 @@ struct Matrix3x3
 	Matrix3x3& load_translate(T x, T y)
 	{
 		load_identity();
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		Position.X = x;
 		Position.Y = y;
 #else
@@ -696,19 +697,19 @@ struct Matrix3x3
 		Vector3<T>* p = &M[2];
 		p->X = x;
 		p->Y = y;
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 		return *this;
 	}
 	Matrix3x3& load_translate(const Vector2<T>& v)
 	{
 		load_identity();
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		Position = v;
 #else
 		Vector3<T>* p = &M[2];
 		p->X = v.X;
 		p->Y = v.Y;
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 		return *this;
 	}
 
@@ -1006,19 +1007,19 @@ struct Matrix3x3
 	}
 	_CXX11_EXPLICIT operator T* ()
 	{
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		return &Data[0];
 #else
 		return &M[0].X;
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 	}
 	_CXX11_EXPLICIT operator const T* () const
 	{
-#ifdef _USE_ANONYMOUS
+#ifdef _USE_ANONYMOUS_NON_POD
 		return &Data[0];
 #else
 		return &M[0].X;
-#endif /* _USE_ANONYMOUS */
+#endif /* _USE_ANONYMOUS_NON_POD */
 	}
 
 	/*---------------------------------------------------------------------
