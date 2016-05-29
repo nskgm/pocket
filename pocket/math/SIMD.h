@@ -536,7 +536,6 @@ simd_t<float> make_simd(float x, float y, float z, float w)
 	return result;
 }
 
-} /* namespace pocket */
 
 #ifdef _USING_MATH_IO
 template <typename CharT, typename CharTraits> inline
@@ -558,6 +557,8 @@ std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, 
 	return os;
 }
 #endif /* _USING_MATH_IO */
+
+} /* namespace pocket */
 
 #endif /* _USE_SIMD */
 

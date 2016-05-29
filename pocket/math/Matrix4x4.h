@@ -61,6 +61,8 @@ struct Matrix4x4
 	typedef Vector4<T> row_type;
 	typedef Vector4<T> column_type;
 
+	typedef typename Vector4<T>::simd_value_type simd_type;
+
 	typedef container::array<Vector4<T>, 4> array4x4_type;
 	typedef typename array4x4_type::value_type value_type;
 	typedef typename array4x4_type::iterator iterator;
@@ -339,7 +341,47 @@ struct Matrix4x4
 		}
 #endif
 
-#if defined(__DEBUG) && !defined(_USE_SIMD)
+#if defined(_USE_SIMD) && defined(_USE_ANONYMOUS)
+		/*------------------------------
+		*    1  2  3  4   ->
+		*   ____________   ____________   ____________
+		* 1 |0, 0, 0, 0|   |0, 0, 0, 0|   |0, 1, 2, 3|
+		* 2 |1, 1, 1, 1| = |1, 1, 1, 1| * |0, 1, 2, 3|
+		* 3 |2, 2, 2, 2|   |2, 2, 2, 2|   |0, 1, 2, 3|
+		* 4 |3, 3, 3, 3|   |3, 3, 3, 3|   |0, 1, 2, 3|
+		*------------------------------*/
+
+#ifndef _MM_SHUFFLE_Nx4
+#	define _MM_SHUFFLE_Nx4(N) _MM_SHUFFLE(N, N, N, N)
+#endif /* _MM_SHUFFLE_Nx4 */
+
+		iterator ri = result.M.begin();
+		const_iterator ti = m.M.begin();
+		const_iterator j;
+		for (const_iterator i = M.begin(), end = M.end(); i != end; ++i, ++ri)
+		{
+			simd_type mx = _mm_shuffle_ps(i->simd.mm, i->simd.mm, _MM_SHUFFLE_Nx4(0));
+			simd_type my = _mm_shuffle_ps(i->simd.mm, i->simd.mm, _MM_SHUFFLE_Nx4(1));
+			simd_type mz = _mm_shuffle_ps(i->simd.mm, i->simd.mm, _MM_SHUFFLE_Nx4(2));
+			simd_type mw = _mm_shuffle_ps(i->simd.mm, i->simd.mm, _MM_SHUFFLE_Nx4(3));
+
+			j = ti;
+			mx = _mm_mul_ps(mx, j->simd.mm);
+			++j;
+			my = _mm_mul_ps(my, j->simd.mm);
+			++j;
+			mz = _mm_mul_ps(mz, j->simd.mm);
+			++j;
+			mw = _mm_mul_ps(mw, j->simd.mm);
+
+			mx = _mm_add_ps(mx, mz);
+			my = _mm_add_ps(my, mw);
+
+			ri->simd.mm = _mm_add_ps(mx, my);
+		}
+#undef _MM_SHUFFLE_Nx4
+#else
+#	if defined(__DEBUG)
 		/* コピー&転置をして計算しやすいようにする */
 		Matrix4x4 t = m.transposed();
 		iterator ri = result.M.begin();
@@ -355,7 +397,7 @@ struct Matrix4x4
 			++j;
 			ri->W = i->dot(*j);
 		}
-#else
+#	else
 		const_iterator oi0 = m.M.begin();
 		const_iterator oi1 = oi0 + 1;
 		const_iterator oi2 = oi0 + 2;
@@ -368,6 +410,7 @@ struct Matrix4x4
 			ri->Z = i->X * oi0->Z + i->Y * oi1->Z + i->Z * oi2->Z + i->W * oi3->Z;
 			ri->W = i->X * oi0->W + i->Y * oi1->W + i->Z * oi2->W + i->W * oi3->W;
 		}
+#	endif
 #endif
 		return result;
 	}
