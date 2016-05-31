@@ -530,39 +530,45 @@
 
 /* _UNUSING_SIMDを定義されていたら使用しない */
 #if !defined(_USE_SIMD) && !defined(_USE_SIMD_TYPE) && !defined(_UNUSING_SIMD)
-#	ifdef _MSC_VER
-#		if defined(_M_IX86_FP) || defined(_M_IX86) // SIMDが使用できる
+#	if defined(__AVX2__) || defined(__AVX__) // AVXは共通処理
+#		define _USE_SIMD
+#		ifdef __AVX2__
+#			define _USE_SIMD_TYPE _SIMD_TYPE_AVX2
+#		else
+#			define _USE_SIMD_TYPE _SIMD_TYPE_AVX
+#		endif /* __AVX2__ */
+#	elif defined(_MSC_VER)
+#		if defined(_M_IX86_FP) || defined(_M_IX86) || defined(_M_IX64_FP) || defined(_M_IX64)
 #			define _USE_SIMD
-#			if defined(__AVX2__)
-#				define _USE_SIMD_TYPE _SIMD_TYPE_AVX2
-#			elif defined(__AVX__)
-#					define _USE_SIMD_TYPE _SIMD_TYPE_AVX
-#			elif defined(_M_IX86_FP)
+#			if defined(_M_IX86_FP)
 #				if _M_IX86_FP == 2
 #					define _USE_SIMD_TYPE _SIMD_TYPE_SSE2
 #				elif _M_IX86_FP == 1
 #					define _USE_SIMD_TYPE _SIMD_TYPE_SSE
 #				endif
+#			elif defined(_M_IX64_FP)
+#				if _M_IX64_FP == 2
+#					define _USE_SIMD_TYPE _SIMD_TYPE_SSE2
+#				elif _M_IX64_FP == 1
+#					define _USE_SIMD_TYPE _SIMD_TYPE_SSE
+#				endif
 #			else
 #				define _USE_SIMD_TYPE _SIMD_TYPE_SSE2
 #			endif
+#		elif defined(_USE_x64) // 64bitが使用できる場合は必ずSSE2以上が使用可能, AVXかは上で判定
+#			define _USE_SIMD
+#			define _USE_SIMD_TYPE _SIMD_TYPE_SSE2
 #		endif
 #	elif defined(__GNUC__) || defined(__clang__)
-#		if defined(__AVX2__) || defined(__AVX__) || defined(__SSE4_2__) || defined(__SSE4_1__) || defined(__SSE4__) || \
-			defined(__SSE3__) || defined(__SSE2__) // SIMDが使用できる
-#			define _USE_SIMD
-#			if defined(__AVX2__)
-#				define _USE_SIMD_TYPE _SIMD_TYPE_AVX2
-#			elif defined(__AVX__)
-#				define _USE_SIMD_TYPE _SIMD_TYPE_AVX
-#			elif defined(__SSE4_2__) || defined(__SSE4_1__) || defined(__SSE4__)
+#		if defined(__SSE4_2__) || defined(__SSE4_1__) || defined(__SSE4__) || defined(__SSE3__) || defined(__SSE2__)
+#			if defined(__SSE4_2__) || defined(__SSE4_1__) || defined(__SSE4__)
 #				define _USE_SIMD_TYPE _SIMD_TYPE_SSE4
 #			elif defined(__SSE3__)
 #				define _USE_SIMD_TYPE _SIMD_TYPE_SSE3
-#			elif defined(__SSE2__)
+#			else
 #				define _USE_SIMD_TYPE _SIMD_TYPE_SSE2
 #			endif
-#		endif
+#		endif /* __SSE4_2__ || __SSE4_1__ || __SSE4__ || __SSE3__ || __SSE2__ */
 #	endif
 #endif /* _USE_SIMD */
 

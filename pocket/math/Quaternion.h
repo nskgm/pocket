@@ -291,7 +291,7 @@ struct Quaternion
 			return false;
 		}
 
-		len = math_type::inverse(len);
+		len = math_type::reciprocal(len);
 		X = -X * len;
 		Y = -Y * len;
 		Z = -Z * len;
@@ -316,7 +316,7 @@ struct Quaternion
 			return false;
 		}
 
-		len = math_type::inverse(len);
+		len = math_type::reciprocal(len);
 		result.X = -X * len;
 		result.Y = -Y * len;
 		result.Z = -Z * len;

@@ -171,7 +171,7 @@ public:
 	/*---------------------------------------------------------------------
 	* 逆数を求める
 	*---------------------------------------------------------------------*/
-	static inline T inverse(T f)
+	static inline T reciprocal(T f)
 	{
 		_DEB_ASSERT(!Math::is_near_zero(f));
 		return (Math::One / f);

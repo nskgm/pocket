@@ -400,10 +400,10 @@ struct Matrix4x4
 			ri->W = i->dot(*j);
 		}
 #	else
-		const_iterator oi0 = m.M.begin();
-		const_iterator oi1 = oi0 + 1;
-		const_iterator oi2 = oi0 + 2;
-		const_iterator oi3 = oi0 + 3;
+		const_pointer oi0 = &m.M[0];
+		const_pointer oi1 = &m.M[1];
+		const_pointer oi2 = &m.M[2];
+		const_pointer oi3 = &m.M[3];
 		iterator ri = result.M.begin();
 		for (const_iterator i = M.begin(), end = M.end(); i != end; ++i, ++ri)
 		{

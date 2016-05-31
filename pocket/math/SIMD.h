@@ -28,6 +28,22 @@ struct __vector4
 
 	type mm;
 };
+
+template <typename T>
+struct up_type
+{
+	typedef T type;
+};
+template <>
+struct up_type<float>
+{
+	typedef double type;
+};
+template <>
+struct up_type<double>
+{
+	typedef long double type;
+};
 }
 
 #ifndef _SIMD_BINOMIAL_OPERATOR
@@ -54,6 +70,8 @@ struct simd_t
 	typedef const type& type_const_reference;
 
 	typedef Math<T> math_type;
+
+	typedef typename detail::up_type<T> up_type;
 
 	/*---------------------------------------------------------------------------------------
 	* Members
@@ -103,6 +121,16 @@ struct simd_t
 	{
 		type result = {
 			_SIMD_BINOMIAL_OPERATOR(*)
+		};
+		return result;
+	}
+	static _INLINE_FORCE type mul_add(type_const_reference mm1, type_const_reference mm2, type_const_reference mm3)
+	{
+		type result = {
+			mm1.mm[0] * mm2.mm[0] + mm3.mm[0],
+			mm1.mm[1] * mm2.mm[1] + mm3.mm[1],
+			mm1.mm[2] * mm2.mm[2] + mm3.mm[2],
+			mm1.mm[3] * mm2.mm[3] + mm3.mm[3],
 		};
 		return result;
 	}
@@ -237,6 +265,32 @@ struct simd_t
 		return result;
 	}
 
+	static _INLINE_FORCE void store1(T* f, type_const_reference mm)
+	{
+		*f = mm.mm[0];
+	}
+	static _INLINE_FORCE void store1(T* f1, T* f2, type_const_reference mm)
+	{
+		*f1 = mm.mm[0];
+		*f2 = mm.mm[1];
+	}
+	static _INLINE_FORCE void store3(T* f1, T* f2, T* f3, type_const_reference mm)
+	{
+		*f1 = mm.mm[0];
+		*f2 = mm.mm[1];
+		*f3 = mm.mm[2];
+	}
+	static _INLINE_FORCE void store(T* f, type_const_reference mm)
+	{
+		*f = mm.mm[0];
+		++f;
+		*f = mm.mm[1];
+		++f;
+		*f = mm.mm[2];
+		++f;
+		*f = mm.mm[3];
+	}
+
 	/*---------------------------------------------------------------------------------------
 	* Operators
 	*---------------------------------------------------------------------------------------*/
@@ -279,12 +333,12 @@ struct simd_t<float>
 
 	typedef __m128 type;
 	typedef float value_type;
-
 	typedef value_type& reference;
 	typedef const value_type& const_reference;
-
 	typedef type& type_reference;
 	typedef const type& type_const_reference;
+
+	typedef Math<float> math_type;
 
 	/*---------------------------------------------------------------------------------------
 	* Members
@@ -302,7 +356,7 @@ struct simd_t<float>
 	}
 	static _INLINE_FORCE type one()
 	{
-		return _mm_set_ps1(Math<float>::One);
+		return _mm_set_ps1(math_type::One);
 	}
 	static _INLINE_FORCE type add(type mm1, type mm2)
 	{
@@ -315,6 +369,10 @@ struct simd_t<float>
 	static _INLINE_FORCE type mul(type mm1, type mm2)
 	{
 		return _mm_mul_ps(mm1, mm2);
+	}
+	static _INLINE_FORCE type mul_add(type mm1, type mm2, type mm3)
+	{
+		return _mm_add_ps(_mm_mul_ps(mm1, mm2), mm3);
 	}
 	static _INLINE_FORCE type div(type mm1, type mm2)
 	{
@@ -374,7 +432,7 @@ struct simd_t<float>
 		type m = _mm_shuffle_ps(mm, mm, _MM_SHUFFLE(INDEX, INDEX, INDEX, INDEX));
 		return _mm_cvtss_f32(m);
 	}
-	template <int X, int Y, int Z, int W>
+	template <int W, int Z, int Y, int X>
 	static _INLINE_FORCE type parmute(type mm)
 	{
 		return _mm_shuffle_ps(mm, mm, _MM_SHUFFLE(W, Z, Y, X));
@@ -383,6 +441,29 @@ struct simd_t<float>
 	static _INLINE_FORCE type parmute(type mm)
 	{
 		return _mm_shuffle_ps(mm, mm, _MM_SHUFFLE(I, I, I, I));
+	}
+
+	static _INLINE_FORCE void store1(float* f, type mm)
+	{
+		_mm_store_ss(f, mm);
+	}
+	static _INLINE_FORCE void store2(float* f1, float* f2, type mm)
+	{
+		type m = _mm_shuffle_ps(mm, mm, _MM_SHUFFLE(1, 1, 1, 1));
+		_mm_store_ss(f1, mm);
+		_mm_store_ss(f2, m);
+	}
+	static _INLINE_FORCE void store3(float* f1, float* f2, float* f3, type mm)
+	{
+		type m1 = _mm_shuffle_ps(mm, mm, _MM_SHUFFLE(1, 1, 1, 1));
+		type m2 = _mm_shuffle_ps(mm, mm, _MM_SHUFFLE(2, 2, 2, 2));
+		_mm_store_ss(f1, mm);
+		_mm_store_ss(f2, m1);
+		_mm_store_ss(f3, m2);
+	}
+	static _INLINE_FORCE void store(float* f, type mm)
+	{
+		_mm_store_ps(f, mm);
 	}
 
 	/*---------------------------------------------------------------------------------------

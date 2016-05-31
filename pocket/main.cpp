@@ -83,7 +83,8 @@ int main(int argc, char** argv)
 	r(pocket::behavior::rotate, pocket::behavior::x, 30.0f);
 	t(pocket::behavior::translate, 0.0f, 1.0f, 2.0f);
 
-	cout << r << endl;
+	cout << s * r * t << endl;
+	cout << pocket::vec4f(5.0f, 2.0f, 10.0f, 1.0f).dot(pocket::vec4f::One) << endl;
 
 	return 0;
 }
