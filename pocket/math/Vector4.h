@@ -342,6 +342,13 @@ struct Vector4
 	{
 
 	}
+#ifdef _USE_SIMD_ANONYMOUS
+	explicit Vector4(simd_value_type mm) :
+		mm(mm)
+	{
+
+	}
+#endif /* _USE_SIMD_ANONYMOUS */
 
 	/*-----------------------------------------------------------------------------------------
 	* Functions
@@ -604,7 +611,6 @@ struct Vector4
 		r = simd_type::add(r, parm);
 		parm = simd_type::template parmute<1, 0, 3, 2>(r);
 		r = simd_type::add(r, parm);
-		r = simd_type::sqrt(r);
 		/* 1.0 / sqrt */
 		r = simd_type::rsqrt(r);
 		mm = simd_type::mul(mm, r);

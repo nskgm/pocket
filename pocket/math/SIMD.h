@@ -83,6 +83,11 @@ struct simd_t
 	* Functions
 	*---------------------------------------------------------------------------------------*/
 
+	static _INLINE_FORCE bool is_vectorize()
+	{
+		return false;
+	}
+
 	static _INLINE_FORCE type zero()
 	{
 		type result = {
@@ -349,6 +354,11 @@ struct simd_t<float>
 	/*---------------------------------------------------------------------------------------
 	* Functions
 	*---------------------------------------------------------------------------------------*/
+
+	static _INLINE_FORCE bool is_vectorize()
+	{
+		return true;
+	}
 
 	static _INLINE_FORCE type zero()
 	{

@@ -31,6 +31,8 @@ typedef Math<double> Mathd;
 typedef Math<long double> Mathld;
 #endif /* _USING_MATH_LONG_DOUBLE */
 
+namespace detail
+{
 template <typename T>
 struct math_int_t;
 
@@ -52,6 +54,7 @@ struct math_int_t<double>
 	typedef uint64_t type;
 	_STATICAL_CONSTANT type SignBit = 1ULL << 63;
 };
+}
 
 template <typename T>
 class Math
@@ -83,7 +86,7 @@ public:
 		{
 			//Sin = Math<T>::Sin(f);
 			//Cos = Math<T>::Cos(f);
-			Math<T>::sin_cos(f, Sin, Cos);
+			Math::sin_cos(f, Sin, Cos);
 		}
 	};
 
@@ -91,8 +94,8 @@ public:
 	typedef T& reference;
 	typedef const T& const_reference;
 
-	typedef math_int_t<T> int_t;
-	typedef typename int_t::type int_type;
+	typedef detail::math_int_t<T> int_type;
+	typedef typename int_type::type int_value_type;
 
 	/*-----------------------------------------------------------------------------------------
 	* Members
@@ -802,6 +805,11 @@ template <int N>
 inline bool Math<int>::is_near(int f)
 {
 	return (f == N);
+}
+template <>
+inline int Math<int>::reciprocal(int f)
+{
+	return 0;
 }
 template <>
 inline int Math<int>::round(int x)
