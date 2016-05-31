@@ -53,7 +53,7 @@ struct up_type<double>
 	mm1.mm[2] operate mm2.mm[2],\
 	mm1.mm[3] operate mm2.mm[3]
 
-#endif // !_SIMD_BINOMIAL_OPERATOR
+#endif /* _SIMD_BINOMIAL_OPERATOR */
 
 template <typename T>
 struct simd_t
@@ -243,7 +243,7 @@ struct simd_t
 		return mm.mm[0];
 	}
 	template <int INDEX>
-	static _INLINE_FORCE float at(type_const_reference mm)
+	static _INLINE_FORCE value_type at(type_const_reference mm)
 	{
 		return mm.mm[INDEX];
 	}
@@ -270,11 +270,82 @@ struct simd_t
 		return result;
 	}
 
+	static _INLINE_FORCE bool equal(type_const_reference mm1, type_const_reference mm2)
+	{
+		return mm1.mm[0] == mm2.mm[0] &&
+			mm1.mm[1] == mm2.mm[1] &&
+			mm1.mm[2] == mm2.mm[2] &&
+			mm1.mm[3] == mm2.mm[3];
+	}
+	static _INLINE_FORCE bool not_equal(type_const_reference mm1, type_const_reference mm2)
+	{
+		return mm1.mm[0] != mm2.mm[0] &&
+			mm1.mm[1] != mm2.mm[1] &&
+			mm1.mm[2] != mm2.mm[2] &&
+			mm1.mm[3] != mm2.mm[3];
+	}
+	static _INLINE_FORCE bool greater(type_const_reference mm1, type_const_reference mm2)
+	{
+		return mm1.mm[0] < mm2.mm[0] &&
+			mm1.mm[1] < mm2.mm[1] &&
+			mm1.mm[2] < mm2.mm[2] &&
+			mm1.mm[3] < mm2.mm[3];
+	}
+	static _INLINE_FORCE bool greater_equal(type_const_reference mm1, type_const_reference mm2)
+	{
+		return mm1.mm[0] <= mm2.mm[0] &&
+			mm1.mm[1] <= mm2.mm[1] &&
+			mm1.mm[2] <= mm2.mm[2] &&
+			mm1.mm[3] <= mm2.mm[3];
+	}
+	static _INLINE_FORCE bool less(type_const_reference mm1, type_const_reference mm2)
+	{
+		return mm1.mm[0] > mm2.mm[0] &&
+			mm1.mm[1] > mm2.mm[1] &&
+			mm1.mm[2] > mm2.mm[2] &&
+			mm1.mm[3] > mm2.mm[3];
+	}
+	static _INLINE_FORCE bool less_equal(type_const_reference mm1, type_const_reference mm2)
+	{
+		return mm1.mm[0] >= mm2.mm[0] &&
+			mm1.mm[1] >= mm2.mm[1] &&
+			mm1.mm[2] >= mm2.mm[2] &&
+			mm1.mm[3] >= mm2.mm[3];
+	}
+
+	static _INLINE_FORCE type load1(const value_type* f)
+	{
+		type result = {
+			*f, math_type::One, math_type::One, math_type::One
+		};
+		return result;
+	}
+	static _INLINE_FORCE type load2(const value_type* f)
+	{
+		type result = {
+			f[0], f[1], math_type::One, math_type::One
+		};
+		return result;
+	}
+	static _INLINE_FORCE type load3(const value_type* f)
+	{
+		type result = {
+			f[0], f[1], f[2], math_type::One
+		};
+		return result;
+	}
+	static _INLINE_FORCE type load(const value_type* f)
+	{
+		type result = {
+			f[0], f[1], f[2], f[3]
+		};
+		return result;
+	}
 	static _INLINE_FORCE void store1(T* f, type_const_reference mm)
 	{
 		*f = mm.mm[0];
 	}
-	static _INLINE_FORCE void store1(T* f1, T* f2, type_const_reference mm)
+	static _INLINE_FORCE void store2(T* f1, T* f2, type_const_reference mm)
 	{
 		*f1 = mm.mm[0];
 		*f2 = mm.mm[1];
@@ -453,6 +524,47 @@ struct simd_t<float>
 		return _mm_shuffle_ps(mm, mm, _MM_SHUFFLE(I, I, I, I));
 	}
 
+	static _INLINE_FORCE bool equal(type mm1, type mm2)
+	{
+		return mask_all(_mm_cmpeq_ps(mm1, mm2));
+	}
+	static _INLINE_FORCE bool not_equal(type mm1, type mm2)
+	{
+		return mask_all(_mm_cmpneq_ps(mm1, mm2));
+	}
+	static _INLINE_FORCE bool greater(type mm1, type mm2)
+	{
+		return mask_all(_mm_cmpngt_ps(mm1, mm2));
+	}
+	static _INLINE_FORCE bool greater_equal(type mm1, type mm2)
+	{
+		return mask_all(_mm_cmpnge_ps(mm1, mm2));
+	}
+	static _INLINE_FORCE bool less(type mm1, type mm2)
+	{
+		return mask_all(_mm_cmpnlt_ps(mm1, mm2));
+	}
+	static _INLINE_FORCE bool less_equal(type mm1, type mm2)
+	{
+		return mask_all(_mm_cmpnle_ps(mm1, mm2));
+	}
+
+	static _INLINE_FORCE type load1(const value_type* f)
+	{
+		return _mm_load_ss(f);
+	}
+	static _INLINE_FORCE type load2(const value_type* f)
+	{
+		return _mm_set_ps(f[0], f[1], math_type::One, math_type::One);
+	}
+	static _INLINE_FORCE type load3(const value_type* f)
+	{
+		return _mm_set_ps(f[0], f[1], f[2], math_type::One);
+	}
+	static _INLINE_FORCE type load(const value_type* f)
+	{
+		return _mm_load_ps(f);
+	}
 	static _INLINE_FORCE void store1(float* f, type mm)
 	{
 		_mm_store_ss(f, mm);
@@ -501,6 +613,14 @@ struct simd_t<float>
 	}
 #endif /* _USE_SIMD_TYPE >= _SIMD_TYPE_SSE2 */
 #endif
+
+private:
+	static _INLINE_FORCE bool mask_all(type mm)
+	{
+		// それぞれの最上ビットが立っていたら1が入る
+		// 2進で1111が入るので0x0F
+		return _mm_movemask_ps(mm) == 0x0F;
+	}
 };
 
 #if _USE_SIMD_TYPE >= _SIMD_TYPE_SSE2

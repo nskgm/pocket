@@ -84,7 +84,13 @@ int main(int argc, char** argv)
 	t(pocket::behavior::translate, 0.0f, 1.0f, 2.0f);
 
 	cout << s * r * t << endl;
-	cout << pocket::vec4f(5.0f, 2.0f, 10.0f, 1.0f).dot(pocket::vec4f::One) << endl;
+
+	typedef pocket::simd_t<float> simd_f;
+	cout << simd_f::is_vectorize() << endl;
+	simd_f::type zero = simd_f::zero();
+	cout << simd_f::equal(zero, zero) << endl;
+	simd_f::type one = simd_f::one();
+	cout << simd_f::greater_equal(zero, one) << endl;
 
 	return 0;
 }

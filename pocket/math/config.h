@@ -561,6 +561,7 @@
 #		endif
 #	elif defined(__GNUC__) || defined(__clang__)
 #		if defined(__SSE4_2__) || defined(__SSE4_1__) || defined(__SSE4__) || defined(__SSE3__) || defined(__SSE2__)
+#			define _USE_SIMD
 #			if defined(__SSE4_2__) || defined(__SSE4_1__) || defined(__SSE4__)
 #				define _USE_SIMD_TYPE _SIMD_TYPE_SSE4
 #			elif defined(__SSE3__)

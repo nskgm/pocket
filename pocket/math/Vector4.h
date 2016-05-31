@@ -490,6 +490,24 @@ struct Vector4
 	{
 		return (X == math_type::Zero && Y == math_type::Zero && Z == math_type::Zero && W == math_type::Zero);
 	}
+
+	/*---------------------------------------------------------------------
+	* Wをゼロに設定
+	*---------------------------------------------------------------------*/
+	Vector4& w0()
+	{
+		W = math_type::Zero;
+		return *this;
+	}
+	/*---------------------------------------------------------------------
+	* Wを1に設定
+	*---------------------------------------------------------------------*/
+	Vector4& w1()
+	{
+		W = math_type::One;
+		return *this;
+	}
+
 	/*---------------------------------------------------------------------
 	* 長さを求める
 	*---------------------------------------------------------------------*/
@@ -580,7 +598,7 @@ struct Vector4
 		return cross(v, result);
 #else
 		return Vector4(Y * v.Z - Z * v.Y, Z * v.X - X * v.Z, X * v.Y - Y * v.X, math_type::Zero);
-#endif /* _USE_SIMD */		
+#endif /* _USE_SIMD */
 	}
 	Vector4& cross(const Vector4& v, Vector4& result) const
 	{
@@ -1010,7 +1028,11 @@ struct Vector4
 	*---------------------------------------------------------------------*/
 	Vector4& operator = (T f)
 	{
+#ifdef _USE_SIMD_ANONYMOUS
+		mm = simd_type::set(f);
+#else
 		X = Y = Z = W = f;
+#endif /* _USE_SIMD_ANONYMOUS */
 		return *this;
 	}
 	template <typename U, _TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
@@ -1041,45 +1063,30 @@ struct Vector4
 	*---------------------------------------------------------------------*/
 	Vector4& operator += (const Vector4& v)
 	{
-		X += v.X;
-		Y += v.Y;
-		Z += v.Z;
-		W += v.W;
-		return *this;
+		return add(v, *this);
 	}
 	template <typename U, _TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
 	Vector4& operator += (const Vector4<U>& v)
 	{
-		X += static_cast<T>(v.X);
-		Y += static_cast<T>(v.Y);
-		Z += static_cast<T>(v.Z);
-		W += static_cast<T>(v.W);
-		return *this;
+		return add<U>(v, *this);
 	}
 	Vector4& operator -= (const Vector4& v)
 	{
-		X -= v.X;
-		Y -= v.Y;
-		Z -= v.Z;
-		W -= v.W;
-		return *this;
+		return subtract(v, *this);
 	}
 	template <typename U, _TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
 	Vector4& operator -= (const Vector4<U>& v)
 	{
-		X -= static_cast<T>(v.X);
-		Y -= static_cast<T>(v.Y);
-		Z -= static_cast<T>(v.Z);
-		W -= static_cast<T>(v.W);
-		return *this;
+		return subtract<U>(v, *this);
 	}
 	Vector4& operator *= (T f)
 	{
-		X *= f;
-		Y *= f;
-		Z *= f;
-		W *= f;
-		return *this;
+		return multiply(f, *this);
+	}
+	template <typename U, _TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
+	Vector4& operator *= (U f)
+	{
+		return multiply<U>(f, *this);
 	}
 	Vector4& operator *= (const Matrix4x4<T>& m)
 	{
@@ -1089,25 +1096,14 @@ struct Vector4
 	{
 		return rotate(q);
 	}
-	template <typename U, _TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
-	Vector4& operator *= (U f)
-	{
-		X *= static_cast<T>(f);
-		Y *= static_cast<T>(f);
-		Z *= static_cast<T>(f);
-		return *this;
-	}
 	Vector4& operator /= (T f)
 	{
-		_DEB_ASSERT(f != math_type::Zero);
-		f = math_type::One / f;
-		return *this *= f;
+		return divide(f, *this);
 	}
 	template <typename U, _TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
 	Vector4& operator /= (U f)
 	{
-		_DEB_ASSERT(f != Math<U>::Zero);
-		return *this *= static_cast<T>(f);
+		return divide(f, *this);
 	}
 	Vector4& operator %= (T f)
 	{
