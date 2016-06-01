@@ -1,3 +1,3 @@
 # pocket
 
-好き勝手にコミットするだけ。
+Compile: VC++14, g++(no -std=c++11 & -std=c++11)
