@@ -449,7 +449,7 @@ struct simd_t
 	{
 		return select(mm, select1110());
 	}
-	
+
 	/*---------------------------------------------------------------------
 	* 比較
 	*---------------------------------------------------------------------*/
@@ -966,8 +966,7 @@ private:
 		// ゼロより大きいものをマスクとする
 		const type mask = set(x, y, z, w);
 		const type zero = _mm_setzero_ps();
-		/* mask > zero */
-		return _mm_cmpngt_ps(mask, zero);
+		return _mm_cmpgt_ps(zero, mask);
 	}
 };
 
