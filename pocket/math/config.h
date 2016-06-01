@@ -577,17 +577,18 @@
 #	define _USE_SIMD_ANONYMOUS
 #endif /* _USE_SIMD && _USE_ANONYMOUS */
 
-#ifndef _USE_SIMD_ANONYMOUS_128
-#	if _USE_SIMD_TYPE >= _SIMD_TYPE_SSE2
-#		define _USE_SIMD_ANONYMOUS_128
-#	endif /* _USE_SIMD_TYPE >= _SIMD_TYPE_SSE2 */
-#endif /* _USE_SIMD_ANONYMOUS_128 */
-
-#ifndef _USE_SIMD_ANONYMOUS_256
-#	if _USE_SIMD_TYPE >= _SIMD_TYPE_AVX
-#		define _USE_SIMD_ANONYMOUS_256
-#	endif /* _USE_SIMD_TYPE >= _SIMD_TYPE_SSE2 */
-#endif /* _USE_SIMD_ANONYMOUS_256 */
+#ifdef _USE_SIMD
+#	ifndef _USE_SIMD_128 // 128bitが使用できる
+#		if _USE_SIMD_TYPE >= _SIMD_TYPE_SSE2
+#			define _USE_SIMD_128
+#		endif /* _USE_SIMD_TYPE >= _SIMD_TYPE_SSE2 */
+#	endif /* _USE_SIMD_128 */
+#	ifndef _USE_SIMD_256 // 256btiが使用できる
+#		if _USE_SIMD_TYPE >= _SIMD_TYPE_AVX
+#			define _USE_SIMD_256
+#		endif /* _USE_SIMD_TYPE >= _SIMD_TYPE_SSE2 */
+#	endif /* _USE_SIMD_256 */
+#endif /* _USE_SIMD */
 
 /*---------------------------------------------------------------------------------------
 * SIMDのタイプを文字列定義

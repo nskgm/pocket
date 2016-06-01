@@ -85,12 +85,26 @@ int main(int argc, char** argv)
 
 	cout << s * r * t << endl;
 
-	typedef pocket::simd_t<float> simd_f;
-	cout << simd_f::is_vectorize() << endl;
-	simd_f::type zero = simd_f::zero();
-	cout << simd_f::equal(zero, zero) << endl;
-	simd_f::type one = simd_f::one();
-	cout << simd_f::greater_equal(zero, one) << endl;
+	typedef pocket::simd_t<float> simdf;
+	cout << simdf::is_vectorize() << endl;
+	simdf::type zero = simdf::zero();
+	simdf::type one = simdf::one();
+	cout << simdf::equal(zero, zero) << endl;
+	cout << simdf::greater_equal(zero, one) << endl;
+	cout << simdf::less_equal(zero, one) << endl;
+
+	pocket::Vector4f v, d(2.0f, 5.0f, 4.0f, 0.0f);
+	v.from_pitch_yaw(45.0f, 15.0f);
+	cout << v << endl;
+	v += d;
+	cout << v << endl;
+
+#ifdef _USE_SIMD
+	v.w1();
+	cout << v << endl;
+	pocket::Vector4f v2(simdf::select(v.mm, simdf::select1110()));
+	cout << v2 << endl;
+#endif
 
 	return 0;
 }

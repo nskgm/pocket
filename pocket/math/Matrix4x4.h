@@ -362,10 +362,10 @@ struct Matrix4x4
 		const_iterator j;
 		for (const_iterator i = M.begin(), end = M.end(); i != end; ++i, ++ri)
 		{
-			simd_value_type mx = simd_type::template parmute<0>(i->mm);
-			simd_value_type my = simd_type::template parmute<1>(i->mm);
-			simd_value_type mz = simd_type::template parmute<2>(i->mm);
-			simd_value_type mw = simd_type::template parmute<3>(i->mm);
+			simd_value_type mx = simd_type::template permute<0>(i->mm);
+			simd_value_type my = simd_type::template permute<1>(i->mm);
+			simd_value_type mz = simd_type::template permute<2>(i->mm);
+			simd_value_type mw = simd_type::template permute<3>(i->mm);
 
 			j = mi;
 			mx = simd_type::mul(mx, j->mm);
