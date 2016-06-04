@@ -4,7 +4,7 @@
 #include "config.h"
 #ifdef _USE_PRAGMA_ONCE
 #pragma once
-#endif /* _USE_PRAGMA_ONCE */
+#endif // _USE_PRAGMA_ONCE
 
 #include <iostream>
 #include <limits>
@@ -26,7 +26,7 @@ namespace out_char
 		os.put(os.widen((CHAR)));\
 		return os;\
 	}
-#endif /* _DECL_OUT_CHAR_FUNCTION */
+#endif // _DECL_OUT_CHAR_FUNCTION
 
 _DECL_OUT_CHAR_FUNCTION(space, ' ');
 _DECL_OUT_CHAR_FUNCTION(line, '\n');
@@ -48,7 +48,7 @@ _DECL_OUT_CHAR_FUNCTION(exclamation, '!');
 _DECL_OUT_CHAR_FUNCTION(colon, ':');
 _DECL_OUT_CHAR_FUNCTION(semicolon, ';');
 
-/* [, ] */
+// [, ]
 template <typename CharT, typename CharTraits> inline
 std::basic_ostream<CharT, CharTraits>& comma_space(std::basic_ostream<CharT, CharTraits>& os)
 {
@@ -63,11 +63,11 @@ std::basic_iostream<CharT, CharTraits>& comma_space(std::basic_iostream<CharT, C
 }
 
 #undef _DECL_OUT_CHAR_FUNCTION
-} /* namespace out_char */
+} // namespace out_char
 
 namespace skip_char
 {
-/* 指定の文字までスキップ */
+// 指定の文字までスキップ
 template <typename CharT, typename CharTraits> inline
 std::basic_istream<CharT, CharTraits>& ignore(std::basic_istream<CharT, CharTraits>& is, CharT delim)
 {
@@ -78,7 +78,7 @@ std::basic_iostream<CharT, CharTraits>& ignore(std::basic_iostream<CharT, CharTr
 {
 	return is.ignore(std::numeric_limits<std::streamsize>::max(), delim);
 }
-} /* namespace skip_char */
-} /* namespace pocket */
+} // namespace skip_char
+} // namespace pocket
 
-#endif /* __MATH_IO_H__ */
+#endif // __MATH_IO_H__

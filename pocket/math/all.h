@@ -4,7 +4,7 @@
 #include "config.h"
 #ifdef _USE_PRAGMA_ONCE
 #pragma once
-#endif /* _USE_PRAGMA_ONCE */
+#endif // _USE_PRAGMA_ONCE
 
 #include "fwd.h"
 #include "Debug.h"
@@ -24,4 +24,4 @@
 #include "Color.h"
 #include "Rectangle.h"
 
-#endif /* __MATH_ALL_H__ */
+#endif // __MATH_ALL_H__

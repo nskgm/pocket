@@ -4,12 +4,12 @@
 #include "config.h"
 #ifdef _USE_PRAGMA_ONCE
 #pragma once
-#endif /* _USE_PRAGMA_ONCE */
+#endif // _USE_PRAGMA_ONCE
 
 #include "Math.h"
 #ifdef _USING_MATH_IO
 #include "io.h"
-#endif /* _USING_MATH_IO */
+#endif // _USING_MATH_IO
 
 namespace pocket
 {
@@ -23,27 +23,27 @@ template <typename> struct Matrix3x3;
 typedef Vector2<int> Point2;
 typedef Vector2<int> Vector2i;
 typedef Vector2<float> Vector2f;
-#endif /* _UNUSING_MATH_INT_FLOAT */
+#endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
 typedef Vector2<double> Vector2d;
-#endif /* _USING_MATH_DOUBLE */
+#endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
 typedef Vector2<long double> Vector2ld;
-#endif /* _USING_MATH_LONG_DOUBLE */
+#endif // _USING_MATH_LONG_DOUBLE
 
 #ifdef _USE_CXX11
 template <typename T>
 using vec2 = Vector2<T>;
 #ifndef _UNUSING_MATH_INT_FLOAT
 using vec2f = vec2<float>;
-#endif /* _UNUSING_MATH_INT_FLOAT */
+#endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
 using vec2d = vec2<double>;
-#endif /* _USING_MATH_DOUBLE */
+#endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
 using vec2ld = vec2<long double>;
-#endif /* _USING_MATH_LONG_DOUBLE */
-#endif /* _USE_CXX11 */
+#endif // _USING_MATH_LONG_DOUBLE
+#endif // _USE_CXX11
 
 template <typename T>
 struct Vector2
@@ -74,7 +74,7 @@ struct Vector2
 	{
 		struct
 		{
-#endif /* _USE_ANONYMOUS */
+#endif // _USE_ANONYMOUS
 
 			T X;
 			T Y;
@@ -83,7 +83,7 @@ struct Vector2
 		};
 		array_type Data;
 	};
-#endif /* _USE_ANONYMOUS */
+#endif // _USE_ANONYMOUS
 
 	template <typename> friend struct Vector2;
 
@@ -91,17 +91,17 @@ struct Vector2
 	* Constants
 	*-----------------------------------------------------------------------------------------*/
 
-	static const Vector2 Zero; /* 0.0, 0.0 */
-	static const Vector2 One; /* 1.0, 1.0 */
-	static const Vector2 UnitX; /* 1.0, 0.0 */
-	static const Vector2 UnitY; /* 0.0, 1.0 */
-	static const Vector2 Up; /* 0.0, 1.0 */
-	static const Vector2 Down; /* 0.0, -1.0 */
-	static const Vector2 Right; /* 1.0, 0.0 */
-	static const Vector2 Left; /* -1.0, 0.0 */
+	static const Vector2 Zero; // 0.0, 0.0
+	static const Vector2 One; // 1.0, 1.0
+	static const Vector2 UnitX; // 1.0, 0.0
+	static const Vector2 UnitY; // 0.0, 1.0
+	static const Vector2 Up; // 0.0, 1.0
+	static const Vector2 Down; // 0.0, -1.0
+	static const Vector2 Right; // 1.0, 0.0
+	static const Vector2 Left; // -1.0, 0.0
 #if 0
-	static const Vector2 Front; /* 0.0, 0.0 [Dummy] */
-	static const Vector2 Back; /* 0.0, 0.0 [Dummy] */
+	static const Vector2 Front; // 0.0, 0.0 [Dummy]
+	static const Vector2 Back; // 0.0, 0.0 [Dummy]
 #endif
 
 	/*-----------------------------------------------------------------------------------------
@@ -164,9 +164,9 @@ struct Vector2
 	}
 
 	explicit Vector2(const Vector3<T>&);
-	template <typename U> explicit Vector2(const Vector3<U>&); /* Vector3.h */
+	template <typename U> explicit Vector2(const Vector3<U>&); // Vector3.h
 	explicit Vector2(const Vector4<T>&);
-	template <typename U> explicit Vector2(const Vector4<U>&); /* Vector4.h */
+	template <typename U> explicit Vector2(const Vector4<U>&); // Vector4.h
 
 	/*-----------------------------------------------------------------------------------------
 	* Functions
@@ -247,7 +247,7 @@ struct Vector2
 	*---------------------------------------------------------------------*/
 	bool is_parallel(const Vector2& v) const
 	{
-		/* 長さの積の大きさが一致していたら平行(+: 同方向, -: 逆方向) */
+		// 長さの積の大きさが一致していたら平行(+: 同方向, -: 逆方向)
 		return math_type::is_near_zero(dot(v) - (length() * v.length()));
 	}
 	/*---------------------------------------------------------------------
@@ -307,7 +307,7 @@ struct Vector2
 	*---------------------------------------------------------------------*/
 	T distance(const Vector2& v) const
 	{
-		/* 差を求めたあとの長さ */
+		// 差を求めたあとの長さ
 		Vector2 t(X - v.X, Y - v.Y);
 		return t.length();
 	}
@@ -330,8 +330,8 @@ struct Vector2
 	*---------------------------------------------------------------------*/
 	T dot(const Vector2& v) const
 	{
-		/* |v1||v2|cos(θ)と同じになる */
-		/* 値が０のときは垂直 */
+		// |v1||v2|cos(θ)と同じになる
+		// 値が０のときは垂直
 		return X * v.X + Y * v.Y;
 	}
 	/*---------------------------------------------------------------------
@@ -339,7 +339,7 @@ struct Vector2
 	*---------------------------------------------------------------------*/
 	T cross(const Vector2& v) const
 	{
-		/* 三角形をイメージしたときに高さになる */
+		// 三角形をイメージしたときに高さになる
 		return X * v.Y - v.X * Y;
 	}
 	/*---------------------------------------------------------------------
@@ -348,10 +348,10 @@ struct Vector2
 	Vector2& normalize()
 	{
 		T len = length_sq();
-		/* ゼロ割対策 */
+		// ゼロ割対策
 		if (len != math_type::Zero)
 		{
-			/* 長さの逆数 */
+			// 長さの逆数
 			len = math_type::rsqrt(len);
 			X *= len;
 			Y *= len;
@@ -376,10 +376,10 @@ struct Vector2
 	*---------------------------------------------------------------------*/
 	Vector2 projection(const Vector2& v) const
 	{
-		/* 正規化された基準となる線のもう片方のベクトルの比率 */
-		/* 基準となるベクトルは目安となるので正規化されている方がやりやすい */
-		/* ベクトル同士の角度で求めるので内積を使用する */
-		/* どちらも正規化されていた場合比率が求めやすい */
+		// 正規化された基準となる線のもう片方のベクトルの比率
+		// 基準となるベクトルは目安となるので正規化されている方がやりやすい
+		// ベクトル同士の角度で求めるので内積を使用する
+		// どちらも正規化されていた場合比率が求めやすい
 		return *this * v.dot(*this);
 	}
 	Vector2& projection(const Vector2& v, Vector2& result) const
@@ -452,7 +452,7 @@ struct Vector2
 	/*---------------------------------------------------------------------
 	* 座標変換
 	*---------------------------------------------------------------------*/
-	Vector2& transform(const Matrix3x3<T>&); /* Matrix3x3.h */
+	Vector2& transform(const Matrix3x3<T>&); // Matrix3x3.h
 	Vector2& transformed(const Matrix3x3<T>&, Vector2&) const;
 	Vector2 transformed(const Matrix3x3<T>&) const;
 	Vector2& transform_coord(const Matrix3x3<T>&);
@@ -471,8 +471,8 @@ struct Vector2
 		_DEB_RANGE_ASSERT(y, 0, 1);
 		return Vector2((*this)[x], (*this)[y]);
 	}
-	Vector3<T> swizzle(int x, int y, int z) const; /* Vector3.h */
-	Vector4<T> swizzle(int x, int y, int z, int w) const; /* Vector4.h */
+	Vector3<T> swizzle(int x, int y, int z) const; // Vector3.h
+	Vector4<T> swizzle(int x, int y, int z, int w) const; // Vector4.h
 
 	/*-----------------------------------------------------------------------------------------
 	* Operatots
@@ -488,7 +488,7 @@ struct Vector2
 		return Data[i];
 #else
 		return (&X)[i];
-#endif /* _USE_ANONYMOUS */
+#endif // _USE_ANONYMOUS
 	}
 	const T& operator [] (int i) const
 	{
@@ -497,7 +497,7 @@ struct Vector2
 		return Data[i];
 #else
 		return (&X)[i];
-#endif /* _USE_ANONYMOUS */
+#endif // _USE_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------
@@ -514,7 +514,7 @@ struct Vector2
 		return &Data[0];
 #else
 		return &X;
-#endif /* _USE_ANONYMOUS */
+#endif // _USE_ANONYMOUS
 	}
 	_CXX11_EXPLICIT operator const T* () const
 	{
@@ -522,7 +522,7 @@ struct Vector2
 		return &Data[0];
 #else
 		return &X;
-#endif /* _USE_ANONYMOUS */
+#endif // _USE_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------
@@ -619,7 +619,7 @@ struct Vector2
 		Vector2 result(behavior::noinitialize);
 		return multiply(f, result);
 	}
-	Vector2 operator * (const Matrix3x3<T>&) const; /* Matrix3x3.h */
+	Vector2 operator * (const Matrix3x3<T>&) const; // Matrix3x3.h
 	template <typename U, _TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
 	Vector2 operator * (U f) const
 	{
@@ -975,7 +975,7 @@ template <typename T>
 const Vector2<T> Vector2<T>::Back(math_type::Zero, math_type::Zero);
 #endif
 
-/* 左辺が数値の場合の演算子 */
+// 左辺が数値の場合の演算子
 
 template <typename T> inline
 Vector2<T> operator * (T f, const Vector2<T>& v)
@@ -987,7 +987,7 @@ Vector2<T> operator * (T f, const Vector2<T>& v)
 template <typename CharT, typename CharTraits, typename T> inline
 std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const Vector2<T>& v)
 {
-	/* (X, Y) */
+	// (X, Y)
 	os << out_char::parentheses_left << v.X << out_char::comma_space
 		<< v.Y << out_char::parentheses_right;
 	return os;
@@ -1019,8 +1019,8 @@ std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, 
 	is.ignore();
 	return is;
 }
-#endif /* _USING_MATH_IO */
+#endif // _USING_MATH_IO
 
-} /* namespace pocket */
+} // namespace pocket
 
-#endif /* __MATH_VECTOR2_H__ */
+#endif // __MATH_VECTOR2_H__

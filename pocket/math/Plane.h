@@ -4,7 +4,7 @@
 #include "config.h"
 #ifdef _USE_PRAGMA_ONCE
 #pragma once
-#endif /* _USE_PRAGMA_ONCE */
+#endif // _USE_PRAGMA_ONCE
 
 #include "Math.h"
 #include "Vector3.h"
@@ -13,7 +13,7 @@
 #include "Ray.h"
 #ifdef _USING_MATH_IO
 #include "io.h"
-#endif /* _USING_MATH_IO */
+#endif // _USING_MATH_IO
 
 namespace pocket
 {
@@ -22,27 +22,27 @@ template <typename> struct Plane;
 
 #ifndef _UNUSING_MATH_INT_FLOAT
 typedef Plane<float> Planef;
-#endif /* _UNUSING_MATH_INT_FLOAT */
+#endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
 typedef Plane<double> Planed;
-#endif /* _USING_MATH_DOUBLE */
+#endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
 typedef Plane<long double> Planeld;
-#endif /* _USING_MATH_LONG_DOUBLE */
+#endif // _USING_MATH_LONG_DOUBLE
 
 #ifdef _USE_CXX11
 template <typename T>
 using plane = Plane<T>;
 #ifndef _UNUSING_MATH_INT_FLOAT
 using planef = plane<float>;
-#endif /* _UNUSING_MATH_INT_FLOAT */
+#endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
 using planed = plane<double>;
-#endif /* _USING_MATH_DOUBLE */
+#endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
 using planeld = plane<long double>;
-#endif /* _USING_MATH_LONG_DOUBLE */
-#endif /* _USE_CXX11 */
+#endif // _USING_MATH_LONG_DOUBLE
+#endif // _USE_CXX11
 
 template <typename T>
 struct Plane
@@ -69,9 +69,9 @@ struct Plane
 
 	enum IntersectType
 	{
-		eOnForward, /* 前面 */
-		eOnBackward, /* 背面 */
-		eOnPlane /* 平面上 */
+		eOnForward, // 前面
+		eOnBackward, // 背面
+		eOnPlane // 平面上
 	};
 
 	/*-----------------------------------------------------------------------------------------
@@ -83,34 +83,34 @@ struct Plane
 	{
 		struct
 		{
-#endif /* _USE_ANONYMOUS_NON_POD */
+#endif // _USE_ANONYMOUS_NON_POD
 
-			Vector3<T> Normal; /* 法線 */
-			T D; /* 原点からの距離 */
+			Vector3<T> Normal; // 法線
+			T D; // 原点からの距離
 
 #ifdef _USE_ANONYMOUS_NON_POD
 		};
 		struct
 		{
-			T A; /* 法線X成分 */
-			T B; /* 法線Y成分 */
-			T C; /* 法線Z成分 */
+			T A; // 法線X成分
+			T B; // 法線Y成分
+			T C; // 法線Z成分
 			T Distance;
 		};
 		array_type Data;
 	};
-#endif /* _USE_ANONYMOUS_NON_POD */
+#endif // _USE_ANONYMOUS_NON_POD
 
 	/*-----------------------------------------------------------------------------------------
 	* Constants
 	*-----------------------------------------------------------------------------------------*/
 
-	static const Plane Up; /* 0.0, 1.0, 0.0, 0.0 */
-	static const Plane Down; /* 0.0, -1.0, 0.0, 0.0 */
-	static const Plane Right; /* 1.0, 0.0, 0.0, 0.0 */
-	static const Plane Left; /* -1.0, 0.0, 0.0, 0.0 */
-	static const Plane Front; /* 0.0, 0.0, 1.0, 0.0 */
-	static const Plane Back; /* 0.0, 0.0, -1.0, 0.0 */
+	static const Plane Up; // 0.0, 1.0, 0.0, 0.0
+	static const Plane Down; // 0.0, -1.0, 0.0, 0.0
+	static const Plane Right; // 1.0, 0.0, 0.0, 0.0
+	static const Plane Left; // -1.0, 0.0, 0.0, 0.0
+	static const Plane Front; // 0.0, 0.0, 1.0, 0.0
+	static const Plane Back; // 0.0, 0.0, -1.0, 0.0
 
 	/*-----------------------------------------------------------------------------------------
 	* Constructors
@@ -167,7 +167,7 @@ struct Plane
 	{
 
 	}
-	explicit Plane(T d) : /* 上方向での距離を渡すのみ */
+	explicit Plane(T d) : // 上方向での距離を渡すのみ
 		Normal(math_type::Zero, math_type::One, math_type::Zero),
 		D(-d)
 	{
@@ -213,13 +213,13 @@ struct Plane
 	*---------------------------------------------------------------------*/
 	Plane& from_points(const Vector3<T>& v0, const Vector3<T>& v1, const Vector3<T>& v2)
 	{
-		/* v0からv1へのベクトル */
+		// v0からv1へのベクトル
 		Vector3<T> d1(behavior::noinitialize);
 		v1.subtract(v0, d1);
-		/* v1からv2へのベクトル */
+		// v1からv2へのベクトル
 		Vector3<T> d2(behavior::noinitialize);
 		v2.subtract(v0, d2);
-		/* 二つのベクトルから外積と基点となるv0を渡す */
+		// 二つのベクトルから外積と基点となるv0を渡す
 		return from_normal_point(d1.Cross(d2), v0);
 	}
 	/*---------------------------------------------------------------------
@@ -227,10 +227,10 @@ struct Plane
 	*---------------------------------------------------------------------*/
 	Plane& from_normal_point(const Vector3<T>& normal, const Vector3<T>& p)
 	{
-		/* 正規化されていないことを考慮して渡されてきた法線ベクトルを正規化 */
+		// 正規化されていないことを考慮して渡されてきた法線ベクトルを正規化
 		normal.normalized(Normal);
-		/* dotという名の平面の方程式から求められる値, [ax + by + cz + d] -> [d = -(ax + by + cz)] */
-		/* [a b c] = n */
+		// dotという名の平面の方程式から求められる値, [ax + by + cz + d] -> [d = -(ax + by + cz)]
+		// [a b c] = n
 		D = -Normal.dot(p);
 		return *this;
 	}
@@ -260,7 +260,7 @@ struct Plane
 	*---------------------------------------------------------------------*/
 	Plane& normalize()
 	{
-		/* 法線の長さでDも正規化を行う */
+		// 法線の長さでDも正規化を行う
 		T length = Normal.length_sq();
 		if (length != math_type::Zero)
 		{
@@ -289,7 +289,7 @@ struct Plane
 	*---------------------------------------------------------------------*/
 	Vector3<T> point() const
 	{
-		/* Dは負の値になっているので反転 */
+		// Dは負の値になっているので反転
 		return Normal * -D;
 	}
 	Vector3<T>& point(Vector3<T>& result) const
@@ -332,27 +332,27 @@ struct Plane
 	bool is_intersect_line(const Vector3<T>& begin, const Vector3<T>& end) const
 	{
 #if 0
-		/* 始点から終点へのベクトルを求める */
+		// 始点から終点へのベクトルを求める
 		Vector3<T> dir(behavior::noinitialize);
 		end.Direction(begin, dir);
 
-		/* 法線ベクトルとの内積が0の場合は垂直になっているので交差していない */
+		// 法線ベクトルとの内積が0の場合は垂直になっているので交差していない
 		if (math_type::is_near_zero(Normal.dot(dir)))
 		{
-			/* 交差なし */
+			// 交差なし
 			return false;
 		}
 
-		/* 法線と線分の始点終点の射影を求める（内積） */
-		/* これで単位ベクトルからの長さが求まる */
+		// 法線と線分の始点終点の射影を求める（内積）
+		// これで単位ベクトルからの長さが求まる
 		T b = Normal.dot(begin);
 		T e = Normal.dot(end);
 
-		/* 射影で求めた間に存在しているか, Dを基準点として考える */
+		// 射影で求めた間に存在しているか, Dを基準点として考える
 		//return ((b - D) >= math_type::Zero) && ((e - D) <= math_type::Zero);
-		return (b * e) <= math_type::Zero; /* 同符号の場合は衝突していない, 表裏関係なし */
+		return (b * e) <= math_type::Zero; // 同符号の場合は衝突していない, 表裏関係なし
 #else
-		/* 同符号の場合は交差していない */
+		// 同符号の場合は交差していない
 		return dot_coord(begin) * dot_coord(end) <= math_type::Zero;
 #endif
 	}
@@ -365,7 +365,7 @@ struct Plane
 	*---------------------------------------------------------------------*/
 	bool is_intersect_ray(const Vector3<T>& position, const Vector3<T>& direction) const
 	{
-		/* 法線との内積を行って0じゃなければいずれ交差する */
+		// 法線との内積を行って0じゃなければいずれ交差する
 		return Normal.dot(direction) != math_type::Zero;
 	}
 	bool is_intersect_ray(const ray_type& ray) const
@@ -377,7 +377,7 @@ struct Plane
 	*---------------------------------------------------------------------*/
 	IntersectType intersect_point(const Vector3<T>& point) const
 	{
-		/* 法線上の点との距離を計算 */
+		// 法線上の点との距離を計算
 		T distance = dot_coord(point);
 
 		if (distance >= math_type::Epsilon)
@@ -401,12 +401,12 @@ struct Plane
 	{
 		T distance = dot_coord(center);
 
-		/* 半径より小さかったら平面上に存在している */
+		// 半径より小さかったら平面上に存在している
 		if (math_type::abs(distance) <= radius)
 		{
 			return eOnPlane;
 		}
-		/* 半径より大きい場合は前面 */
+		// 半径より大きい場合は前面
 		if (distance > radius)
 		{
 			return eOnForward;
@@ -432,7 +432,7 @@ struct Plane
 		return Data[i];
 #else
 		return (&Normal.X)[i];
-#endif /* _USE_ANONYMOUS_NON_POD */
+#endif // _USE_ANONYMOUS_NON_POD
 	}
 	const T& operator [] (int i) const
 	{
@@ -441,7 +441,7 @@ struct Plane
 		return Data[i];
 #else
 		return (&Normal.X)[i];
-#endif /* _USE_ANONYMOUS_NON_POD */
+#endif // _USE_ANONYMOUS_NON_POD
 	}
 
 	/*---------------------------------------------------------------------
@@ -458,7 +458,7 @@ struct Plane
 		return &Data[0];
 #else
 		return &Normal.X;
-#endif /* _USE_ANONYMOUS_NON_POD */
+#endif // _USE_ANONYMOUS_NON_POD
 	}
 	_CXX11_EXPLICIT operator const T* () const
 	{
@@ -466,7 +466,7 @@ struct Plane
 		return &Data[0];
 #else
 		return &Normal.X;
-#endif /* _USE_ANONYMOUS_NON_POD */
+#endif // _USE_ANONYMOUS_NON_POD
 	}
 
 	/*---------------------------------------------------------------------
@@ -552,7 +552,7 @@ struct Plane
 	*---------------------------------------------------------------------*/
 	Plane& operator += (T d)
 	{
-		/* 距離のみを変化させる */
+		// 距離のみを変化させる
 		D -= d;
 		return *this;
 	}
@@ -757,7 +757,7 @@ bool Ray<T, VectorN>::is_intersect(const Plane<T>& p) const
 template <typename CharT, typename CharTraits, typename T> inline
 std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const Plane<T>& p)
 {
-	/* (Normal, D) */
+	// (Normal, D)
 	os << out_char::parentheses_left << p.Normal << out_char::comma_space << p.D << out_char::parentheses_right;
 	return os;
 }
@@ -787,8 +787,8 @@ std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, 
 	is.ignore();
 	return is;
 }
-#endif /* _USING_MATH_IO */
+#endif // _USING_MATH_IO
 
-} /* namespace pocket */
+} // namespace pocket
 
-#endif /* __MATH_PLANE_H__ */
+#endif // __MATH_PLANE_H__

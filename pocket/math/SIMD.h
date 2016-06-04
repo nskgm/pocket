@@ -4,19 +4,27 @@
 #include "config.h"
 #ifdef _USE_PRAGMA_ONCE
 #pragma once
-#endif /* _USE_PRAGMA_ONCE */
+#endif // _USE_PRAGMA_ONCE
 
 #include "Math.h"
 #include <numeric>
 #ifdef _USING_MATH_IO
 #include "io.h"
-#endif /* _USING_MATH_IO */
+#endif // _USING_MATH_IO
 
 namespace pocket
 {
 
 namespace detail
 {
+template <typename T>
+struct _vector4i
+{
+	typedef T type[4];
+
+	type mm;
+};
+
 template <typename T>
 struct _vector4
 {
@@ -29,26 +37,13 @@ struct _vector4
 
 	typedef Math<T> math_type;
 	typedef typename math_type::int_value_type value_int_type;
-	typedef _vector4<value_int_type> int_t;
+	typedef _vector4i<value_int_type> int_t;
 
 	union
 	{
 		type mm;
-		int_t mmi;
+		int_t i;
 	};
-
-	_vector4& operator = (const _vector4& v)
-#ifdef _USE_CXX11
-		= default;
-#else
-	{
-		for (int i = 0; i < 4; ++i)
-		{
-			mm[i] = v.mm[i];
-		}
-		return *this;
-	}
-#endif /* _USE_CXX11 */
 };
 
 template <typename T>
@@ -75,7 +70,7 @@ struct up_type<double>
 	mm1.mm[2] operate mm2.mm[2],\
 	mm1.mm[3] operate mm2.mm[3]
 
-#endif /* _SIMD_BINOMIAL_OPERATOR */
+#endif // _SIMD_BINOMIAL_OPERATOR
 
 template <typename T>
 struct simd_t
@@ -100,13 +95,13 @@ struct simd_t
 	* Members
 	*---------------------------------------------------------------------------------------*/
 
-	 /* None */
+	// None
 
-	 /*---------------------------------------------------------------------------------------
-	 * Constants
-	 *---------------------------------------------------------------------------------------*/
+	/*---------------------------------------------------------------------------------------
+	* Constants
+	*---------------------------------------------------------------------------------------*/
 
-	/* None */
+	// None
 
 	/*---------------------------------------------------------------------------------------
 	* Functions
@@ -236,14 +231,14 @@ struct simd_t
 	static _INLINE_FORCE type div(type_const_reference mm1, type_const_reference mm2)
 	{
 		type result = {
-			_SIMD_BINOMIAL_OPERATOR(/)
+			_SIMD_BINOMIAL_OPERATOR(/ )
 		};
 		return result;
 	}
 	static _INLINE_FORCE type or_(type_const_reference mm1, type_const_reference mm2)
 	{
 		type result = {
-			_SIMD_BINOMIAL_OPERATOR(|)
+			_SIMD_BINOMIAL_OPERATOR(| )
 		};
 		return result;
 	}
@@ -328,6 +323,16 @@ struct simd_t
 		};
 		return result;
 	}
+	static _INLINE_FORCE type reciprocal(type_const_reference mm)
+	{
+		type result = {
+			math_type::reciprocal(mm.mm[0]),
+			math_type::reciprocal(mm.mm[1]),
+			math_type::reciprocal(mm.mm[2]),
+			math_type::reciprocal(mm.mm[3])
+		};
+		return result;
+	}
 
 	/*---------------------------------------------------------------------
 	* 指定の部分を取得
@@ -366,10 +371,10 @@ struct simd_t
 	static _INLINE_FORCE type select(type_const_reference mm1, type_const_reference mm2, type_const_reference mm_select)
 	{
 		type result = {
-			(mm1.mmi[0] & ~mm_select.mmi[0]) | (mm2.mmi[0] & mm_select.mmi[0]),
-			(mm1.mmi[1] & ~mm_select.mmi[1]) | (mm2.mmi[1] & mm_select.mmi[1]),
-			(mm1.mmi[2] & ~mm_select.mmi[2]) | (mm2.mmi[2] & mm_select.mmi[2]),
-			(mm1.mmi[3] & ~mm_select.mmi[3]) | (mm2.mmi[3] & mm_select.mmi[3])
+			(mm1.i.mm[0] & ~mm_select.i.mm[0]) | (mm2.i.mm[0] & mm_select.i.mm[0]),
+			(mm1.i.mm[1] & ~mm_select.i.mm[1]) | (mm2.i.mm[1] & mm_select.i.mm[1]),
+			(mm1.i.mm[2] & ~mm_select.i.mm[2]) | (mm2.i.mm[2] & mm_select.i.mm[2]),
+			(mm1.i.mm[3] & ~mm_select.i.mm[3]) | (mm2.i.mm[3] & mm_select.i.mm[3])
 		};
 		return result;
 	}
@@ -469,10 +474,10 @@ struct simd_t
 	}
 	static _INLINE_FORCE bool greater(type_const_reference mm1, type_const_reference mm2)
 	{
-		return mm1.mm[0] < mm2.mm[0] &&
-			mm1.mm[1] < mm2.mm[1] &&
-			mm1.mm[2] < mm2.mm[2] &&
-			mm1.mm[3] < mm2.mm[3];
+		return mm1.mm[0] > mm2.mm[0] &&
+			mm1.mm[1] > mm2.mm[1] &&
+			mm1.mm[2] > mm2.mm[2] &&
+			mm1.mm[3] > mm2.mm[3];
 	}
 	static _INLINE_FORCE bool greater_equal(type_const_reference mm1, type_const_reference mm2)
 	{
@@ -553,11 +558,36 @@ struct simd_t
 		*f = mm.mm[3];
 	}
 
+	/*---------------------------------------------------------------------
+	* 計算
+	*---------------------------------------------------------------------*/
+	static _INLINE_FORCE type dot(type_const_reference mm1, type_const_reference mm2)
+	{
+		value_type d = mm1.mm[0] * mm2.mm[0] + mm1.mm[1] * mm2.mm[1] + mm1.mm[2] * mm2.mm[2] + mm1.mm[3] * mm2.mm[3];
+		type result = {
+			d, d, d, d
+		};
+		return result;
+	}
+	static _INLINE_FORCE type length_sq(type_const_reference mm)
+	{
+		return dot(mm, mm);
+	}
+	static _INLINE_FORCE type length(type_const_reference mm)
+	{
+		value_type d = mm.mm[0] * mm.mm[0] + mm.mm[1] * mm.mm[1] + mm.mm[2] * mm.mm[2] + mm.mm[3] * mm.mm[3];
+		value_type l = math_type::sqrt(d);
+		type result = {
+			l, l, l, l
+		};
+		return result;
+	}
+
 	/*---------------------------------------------------------------------------------------
 	* Operators
 	*---------------------------------------------------------------------------------------*/
 
-	/* None */
+	// None
 
 private:
 	union conv_t
@@ -579,7 +609,7 @@ private:
 	}
 };
 
-} /* namespace pocket */
+} // namespace pocket
 
 /*---------------------------------------------------------------------
 * SIMDが使用できる場合の特殊化
@@ -604,7 +634,7 @@ private:
 namespace pocket
 {
 
-/* SIMDの特殊化 */
+// SIMDの特殊化
 template <>
 struct simd_t<float>
 {
@@ -620,7 +650,7 @@ struct simd_t<float>
 	typedef __m256 type_up;
 #else
 	typedef type type_up;
-#endif /* _USE_SIMD_256 */
+#endif // _USE_SIMD_256
 	typedef float value_type;
 	typedef value_type& reference;
 	typedef const value_type& const_reference;
@@ -631,13 +661,13 @@ struct simd_t<float>
 	* Members
 	*---------------------------------------------------------------------------------------*/
 
-	/* None */
+	// None
 
 	/*---------------------------------------------------------------------------------------
 	* Constants
 	*---------------------------------------------------------------------------------------*/
 
-	/* None */
+	// None
 
 	/*---------------------------------------------------------------------------------------
 	* Functions
@@ -745,11 +775,11 @@ struct simd_t<float>
 	{
 		return _mm_rsqrt_ps(mm);
 	}
-	static _INLINE_FORCE type (max)(type mm1, type mm2)
+	static _INLINE_FORCE type(max)(type mm1, type mm2)
 	{
 		return _mm_max_ps(mm1, mm2);
 	}
-	static _INLINE_FORCE type (min)(type mm1, type mm2)
+	static _INLINE_FORCE type(min)(type mm1, type mm2)
 	{
 		return _mm_min_ps(mm1, mm2);
 	}
@@ -762,6 +792,10 @@ struct simd_t<float>
 		const type z = _mm_setzero_ps();
 		const type o = _mm_set_ps1(math_type::One);
 		return _mm_max_ps(z, _mm_min_ps(mm, o));
+	}
+	static _INLINE_FORCE type reciprocal(type mm)
+	{
+		return _mm_rcp_ps(mm);
 	}
 
 	/*---------------------------------------------------------------------
@@ -783,7 +817,7 @@ struct simd_t<float>
 		return _mm_permute_ps(mm, _MM_SHUFFLE(W, Z, Y, X));
 #else
 		return _mm_shuffle_ps(mm, mm, _MM_SHUFFLE(W, Z, Y, X));
-#endif /* _USE_SIMD_256 */
+#endif // _USE_SIMD_256
 	}
 	template <int I>
 	static _INLINE_FORCE type permute(type mm)
@@ -792,7 +826,7 @@ struct simd_t<float>
 		return _mm_permute_ps(mm, _MM_SHUFFLE(I, I, I, I));
 #else
 		return _mm_shuffle_ps(mm, mm, _MM_SHUFFLE(I, I, I, I));
-#endif /* _USE_SIMD_256 */
+#endif // _USE_SIMD_256
 	}
 	static _INLINE_FORCE type select(type mm1, type mm2, type mm_select)
 	{
@@ -807,7 +841,7 @@ struct simd_t<float>
 	}
 	static _INLINE_FORCE type select0111()
 	{
-		/* -1, 1, 1, 1 => 0111 */
+		// -1, 1, 1, 1 => 0111
 		return selector(-math_type::One, math_type::One, math_type::One, math_type::One);
 	}
 	static _INLINE_FORCE type select0111(type mm1, type mm2)
@@ -820,7 +854,7 @@ struct simd_t<float>
 	}
 	static _INLINE_FORCE type select1011()
 	{
-		/* 1, -1, 1, 1 => 1011 */
+		// 1, -1, 1, 1 => 1011
 		return selector(math_type::One, -math_type::One, math_type::One, math_type::One);
 	}
 	static _INLINE_FORCE type select1011(type mm1, type mm2)
@@ -833,7 +867,7 @@ struct simd_t<float>
 	}
 	static _INLINE_FORCE type select1101()
 	{
-		/* 1, 1, -1, 1 => 1101 */
+		// 1, 1, -1, 1 => 1101
 		return selector(math_type::One, math_type::One, -math_type::One, math_type::One);
 	}
 	static _INLINE_FORCE type select1101(type mm1, type mm2)
@@ -846,7 +880,7 @@ struct simd_t<float>
 	}
 	static _INLINE_FORCE type select1110()
 	{
-		/* 1, 1, 1, -1 => 1110 */
+		// 1, 1, 1, -1 => 1110
 		return selector(math_type::One, math_type::One, math_type::One, -math_type::One);
 	}
 	static _INLINE_FORCE type select1110(type mm1, type mm2)
@@ -895,11 +929,11 @@ struct simd_t<float>
 	}
 	static _INLINE_FORCE type load2(const value_type* f)
 	{
-		return _mm_set_ps(f[0], f[1], math_type::One, math_type::One);
+		return _mm_set_ps(math_type::Zero, math_type::Zero, f[1], f[0]);
 	}
 	static _INLINE_FORCE type load3(const value_type* f)
 	{
-		return _mm_set_ps(f[0], f[1], f[2], math_type::One);
+		return _mm_set_ps(math_type::Zero, f[2], f[1], f[0]);
 	}
 	static _INLINE_FORCE type load(const value_type* f)
 	{
@@ -928,11 +962,36 @@ struct simd_t<float>
 		_mm_store_ps(f, mm);
 	}
 
+	/*---------------------------------------------------------------------
+	* 計算
+	*---------------------------------------------------------------------*/
+	static _INLINE_FORCE type dot(type mm1, type mm2)
+	{
+		// X*X, Y*Y, Z*Z, W*W
+		type r = _mm_mul_ps(mm1, mm2);
+		// W*W, Z*Z, Y*Y, X*X
+		type perm = _mm_shuffle_ps(r, r, _MM_SHUFFLE(0, 1, 2, 3));
+		// X*X+W*W, Y*Y+Z*Z, Z*Z+Y*Y, W*W+X*X
+		r = _mm_add_ps(r, perm);
+		// Z*Z+Y*Y, W*W+X*X, X*X+W*W, Y*Y+Z*Z
+		perm = _mm_shuffle_ps(r, r, _MM_SHUFFLE(1, 0, 3, 2));
+		// X*X+W*W+Z*Z+Y*Y, Y*Y+Z*Z+W*W+X*X, Z*Z+Y*Y+X*X+W*W, W*W+X*X+Y*Y+Z*Z
+		return _mm_add_ps(r, perm);
+	}
+	static _INLINE_FORCE type length_sq(type mm)
+	{
+		return dot(mm, mm);
+	}
+	static _INLINE_FORCE type length(type mm)
+	{
+		return _mm_sqrt_ps(length_sq(mm));
+	}
+
 	/*---------------------------------------------------------------------------------------
 	* Operators
 	*---------------------------------------------------------------------------------------*/
 
-	/* None */
+	// None
 
 #if 0
 	_CXX11_EXPLICIT operator type () const
@@ -1052,10 +1111,10 @@ struct simd_t<uint64_t>
 	typedef type& type_reference;
 	typedef const type& type_const_reference;
 };
-#endif /* _USE_SIMD_256 */
+#endif // _USE_SIMD_256
 
-} /* namespace pocket */
+} // namespace pocket
 
-#endif /* _USE_SIMD */
+#endif // _USE_SIMD
 
-#endif /* __MATH_SIMD_H__ */
+#endif // __MATH_SIMD_H__

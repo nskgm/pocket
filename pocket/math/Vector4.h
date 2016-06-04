@@ -4,17 +4,17 @@
 #include "config.h"
 #ifdef _USE_PRAGMA_ONCE
 #pragma once
-#endif /* _USE_PRAGMA_ONCE */
+#endif // _USE_PRAGMA_ONCE
 
 #include "Math.h"
 #include "Vector2.h"
 #include "Vector3.h"
 #ifdef _USE_SIMD_ANONYMOUS
 #include "SIMD.h"
-#endif /* _USE_SIMD_ANONYMOUS */
+#endif // _USE_SIMD_ANONYMOUS_ANONYMOUS
 #ifdef _USING_MATH_IO
 #include "io.h"
-#endif /* _USING_MATH_IO */
+#endif // _USING_MATH_IO
 
 namespace pocket
 {
@@ -26,27 +26,27 @@ template <typename> struct Matrix4x4;
 typedef Vector4<int> Point4;
 typedef Vector4<int> Vector4i;
 typedef Vector4<float> Vector4f;
-#endif /* _UNUSING_MATH_INT_FLOAT */
+#endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
 typedef Vector4<double> Vector4d;
-#endif /* _USING_MATH_DOUBLE */
+#endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
 typedef Vector4<long double> Vector4ld;
-#endif /* _USING_MATH_LONG_DOUBLE */
+#endif // _USING_MATH_LONG_DOUBLE
 
 #ifdef _USE_CXX11
 template <typename T>
 using vec4 = Vector4<T>;
 #ifndef _UNUSING_MATH_INT_FLOAT
 using vec4f = vec4<float>;
-#endif /* _UNUSING_MATH_INT_FLOAT */
+#endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
 using vec4d = vec4<double>;
-#endif /* _USING_MATH_DOUBLE */
+#endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
 using vec4ld = vec4<long double>;
-#endif /* _USING_MATH_LONG_DOUBLE */
-#endif /* _USE_CXX11 */
+#endif // _USING_MATH_LONG_DOUBLE
+#endif // _USE_CXX11
 
 template <typename T>
 struct Vector4
@@ -71,7 +71,7 @@ struct Vector4
 #ifdef _USE_SIMD_ANONYMOUS
 	typedef simd_t<T> simd_type;
 	typedef typename simd_type::type simd_value_type;
-#endif /* _USE_SIMD_ANONYMOUS */
+#endif // _USE_SIMD_ANONYMOUS_ANONYMOUS
 
 	/*-----------------------------------------------------------------------------------------
 	* Members
@@ -83,7 +83,7 @@ struct Vector4
 	{
 		struct
 		{
-#endif /* _USE_ANONYMOUS */
+#endif // _USE_ANONYMOUS
 
 			T X;
 			T Y;
@@ -102,16 +102,16 @@ struct Vector4
 		{
 			Vector3<T> XYZ;
 		};
-#endif /* _USE_ANONYMOUS_NON_POD */
+#endif // _USE_ANONYMOUS_NON_POD
 
 #ifdef _USE_SIMD_ANONYMOUS
 		// simd_typeが使用できる場合は演算に使用する
 		simd_value_type mm;
-#endif /* _USE_SIMD_ANONYMOUS */
+#endif // _USE_SIMD_ANONYMOUS_ANONYMOUS
 
 		array_type Data;
 	};
-#endif /* _USE_ANONYMOUS */
+#endif // _USE_ANONYMOUS
 
 	template <typename> friend struct Vector4;
 
@@ -119,18 +119,18 @@ struct Vector4
 	* Constants
 	*-----------------------------------------------------------------------------------------*/
 
-	static const Vector4 Zero; /* 0.0, 0.0, 0.0, 0.0 */
-	static const Vector4 One; /* 1.0, 1.0, 1.0, 1.0 */
-	static const Vector4 UnitX; /* 1.0, 0.0, 0.0, 0.0 */
-	static const Vector4 UnitY; /* 0.0, 1.0, 0.0, 0.0 */
-	static const Vector4 UnitZ; /* 0.0, 0.0, 1.0, 0.0 */
-	static const Vector4 UnitW; /* 0.0, 0.0, 0.0, 1.0 */
-	static const Vector4 Up; /* 0.0, 1.0, 0.0, 0.0 */
-	static const Vector4 Down; /* 0.0, -1.0, 0.0, 0.0 */
-	static const Vector4 Right; /* 1.0, 0.0, 0.0, 0.0 */
-	static const Vector4 Left; /* -1.0, 0.0, 0.0, 0.0 */
-	static const Vector4 Front; /* 0.0, 0.0, 1.0, 0.0 */
-	static const Vector4 Back; /* 0.0, 0.0, -1.0, 0.0 */
+	static const Vector4 Zero; // 0.0, 0.0, 0.0, 0.0
+	static const Vector4 One; // 1.0, 1.0, 1.0, 1.0
+	static const Vector4 UnitX; // 1.0, 0.0, 0.0, 0.0
+	static const Vector4 UnitY; // 0.0, 1.0, 0.0, 0.0
+	static const Vector4 UnitZ; // 0.0, 0.0, 1.0, 0.0
+	static const Vector4 UnitW; // 0.0, 0.0, 0.0, 1.0
+	static const Vector4 Up; // 0.0, 1.0, 0.0, 0.0
+	static const Vector4 Down; // 0.0, -1.0, 0.0, 0.0
+	static const Vector4 Right; // 1.0, 0.0, 0.0, 0.0
+	static const Vector4 Left; // -1.0, 0.0, 0.0, 0.0
+	static const Vector4 Front; // 0.0, 0.0, 1.0, 0.0
+	static const Vector4 Back; // 0.0, 0.0, -1.0, 0.0
 
 	/*-----------------------------------------------------------------------------------------
 	* Constructors
@@ -348,7 +348,7 @@ struct Vector4
 	{
 
 	}
-#endif /* _USE_SIMD_ANONYMOUS */
+#endif // _USE_SIMD_ANONYMOUS_ANONYMOUS
 
 	/*-----------------------------------------------------------------------------------------
 	* Functions
@@ -377,7 +377,7 @@ struct Vector4
 		result.Y = Y + v.Y;
 		result.Z = Z + v.Z;
 		result.W = W + v.W;
-#endif /* _USE_SIMD */
+#endif // _USE_SIMD_ANONYMOUS
 		return result;
 	}
 	template <typename U>
@@ -397,7 +397,7 @@ struct Vector4
 		result.Y = Y - v.Y;
 		result.Z = Z - v.Z;
 		result.W = W - v.W;
-#endif /* _USE_SIMD */
+#endif // _USE_SIMD_ANONYMOUS
 		return result;
 	}
 	template <typename U>
@@ -417,7 +417,7 @@ struct Vector4
 		result.Y = Y * f;
 		result.Z = Z * f;
 		result.W = W * f;
-#endif /* _USE_SIMD */
+#endif // _USE_SIMD_ANONYMOUS
 		return result;
 	}
 	template <typename U, _TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
@@ -433,11 +433,11 @@ struct Vector4
 		_DEB_ASSERT(f != math_type::Zero);
 #ifdef _USE_SIMD_ANONYMOUS
 		result.mm = simd_type::div(mm, simd_type::set(f));
-		return *this;
+		return result;
 #else
 		f = math_type::One / f;
 		return multiply(f, result);
-#endif /* _USE_SIMD */
+#endif // _USE_SIMD_ANONYMOUS
 	}
 	template <typename U, _TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
 	Vector4& divide(U f, Vector4& result) const
@@ -451,7 +451,7 @@ struct Vector4
 	*---------------------------------------------------------------------*/
 	bool is_parallel(const Vector4& v) const
 	{
-		/* 長さの積の大きさが一致していたら平行(+: 同方向, -: 逆方向) */
+		// 長さの積の大きさが一致していたら平行(+: 同方向, -: 逆方向)
 		return math_type::is_near_zero(dot(v) - (length() * v.length()));
 	}
 	/*---------------------------------------------------------------------
@@ -484,7 +484,7 @@ struct Vector4
 		return simd_type::equal(mm, Vector4::Zero.mm);
 #else
 		return (X == math_type::Zero && Y == math_type::Zero && Z == math_type::Zero && W == math_type::Zero);
-#endif /* _USE_SIMD_ANONYMOUS */
+#endif // _USE_SIMD_ANONYMOUS_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------
@@ -510,16 +510,10 @@ struct Vector4
 	T length() const
 	{
 #ifdef _USE_SIMD_ANONYMOUS
-		simd_value_type r = simd_type::mul(mm, mm);
-		simd_value_type perm = simd_type::template permute<0, 1, 2, 3>(r);
-		r = simd_type::add(r, perm);
-		perm = simd_type::template permute<1, 0, 3, 2>(r);
-		r = simd_type::add(r, perm);
-		r = simd_type::sqrt(r);
-		return simd_type::first(r);
+		return simd_type::first(simd_type::length(mm));
 #else
 		return math_type::sqrt(dot(*this));
-#endif /* _USE_SIMD */
+#endif // _USE_SIMD_ANONYMOUS
 	}
 	/*---------------------------------------------------------------------
 	* 長さを求める（二乗）
@@ -541,12 +535,12 @@ struct Vector4
 	T distance(const Vector4& v) const
 	{
 #ifdef _USE_SIMD_ANONYMOUS
-		/* 引き算したもののXYZのみを受け取る */
+		// 引き算したもののXYZのみを受け取る
 		Vector4 t(simd_type::select1110(simd_type::sub(mm, v.mm)));
 #else
 
 		Vector4 t(X - v.X, Y - v.Y, Z - v.Z, math_type::Zero);
-#endif /* _USE_SIMD_ANONYMOUS */
+#endif // _USE_SIMD_ANONYMOUS_ANONYMOUS
 		return t.length();
 	}
 	/*---------------------------------------------------------------------
@@ -559,7 +553,7 @@ struct Vector4
 #else
 
 		Vector4 t(X - v.X, Y - v.Y, Z - v.Z, math_type::Zero);
-#endif /* _USE_SIMD_ANONYMOUS */
+#endif // _USE_SIMD_ANONYMOUS_ANONYMOUS
 		return t.normalize();
 	}
 	Vector4& direction(const Vector4& v, Vector4& result) const
@@ -571,7 +565,7 @@ struct Vector4
 		result.Y = Y - v.Y;
 		result.Z = Z - v.Z;
 		result.W = math_type::Zero;
-#endif /* _USE_SIMD_ANONYMOUS */
+#endif // _USE_SIMD_ANONYMOUS_ANONYMOUS
 		return result.normalize();
 	}
 	/*---------------------------------------------------------------------
@@ -579,36 +573,26 @@ struct Vector4
 	*---------------------------------------------------------------------*/
 	T dot(const Vector4& v) const
 	{
-		/* |v1||v2|cos(θ)と同じになる */
-		/* 値が０のときは垂直 */
+		// |v1||v2|cos(θ)と同じになる
+		// 値が０のときは垂直
 #ifdef _USE_SIMD_ANONYMOUS
-		/* X*X, Y*Y, Z*Z, W*W */
-		simd_value_type r = simd_type::mul(mm, v.mm);
-		/* W*W, Z*Z, Y*Y, X*X  */
-		simd_value_type perm = simd_type::template permute<0, 1, 2, 3>(r); // _mm_shuffle_ps(result.mm, result.mm, _MM_SHUFFLE(0, 1, 2, 3));
-		/* X*X+W*W, Y*Y+Z*Z, Z*Z+Y*Y, W*W+X*X */
-		r = simd_type::add(r, perm);
-		/* Z*Z+Y*Y, W*W+X*X, X*X+W*W, Y*Y+Z*Z */
-		perm = simd_type::template permute<1, 0, 3, 2>(r); // _mm_shuffle_ps(result.mm, result.mm, _MM_SHUFFLE(1, 0, 3, 2));
-		/* X*X+W*W+Z*Z+Y*Y, Y*Y+Z*Z+W*W+X*X, Z*Z+Y*Y+X*X+W*W, W*W+X*X+Y*Y+Z*Z,*/
-		r = simd_type::add(r, perm);
-		return simd_type::first(r);
+		return simd_type::first(simd_type::dot(mm, v.mm));
 #else
 		return X * v.X + Y * v.Y + Z * v.Z + W * v.W;
-#endif /* _USE_SIMD */
+#endif // _USE_SIMD_ANONYMOUS
 	}
 	/*---------------------------------------------------------------------
 	* 外積を求める
 	*---------------------------------------------------------------------*/
 	Vector4 cross(const Vector4& v) const
 	{
-		/* Vector3分でW成分は0とする */
+		// Vector3分でW成分は0とする
 #ifdef _USE_SIMD_ANONYMOUS
 		Vector4 result(behavior::noinitialize);
 		return cross(v, result);
 #else
 		return Vector4(Y * v.Z - Z * v.Y, Z * v.X - X * v.Z, X * v.Y - Y * v.X, math_type::Zero);
-#endif /* _USE_SIMD */
+#endif // _USE_SIMD_ANONYMOUS
 	}
 	Vector4& cross(const Vector4& v, Vector4& result) const
 	{
@@ -625,7 +609,7 @@ struct Vector4
 		result.Y = Z * v.X - X * v.Z;
 		result.Z = X * v.Y - Y * v.X;
 		result.W = math_type::Zero;
-#endif /* _USE_SIMD */
+#endif // _USE_SIMD_ANONYMOUS
 		return result;
 	}
 	/*---------------------------------------------------------------------
@@ -634,27 +618,23 @@ struct Vector4
 	Vector4& normalize()
 	{
 #ifdef _USE_SIMD_ANONYMOUS
-		simd_value_type r = simd_type::mul(mm, mm);
-		simd_value_type perm = simd_type::template permute<0, 1, 2, 3>(mm);
-		r = simd_type::add(r, perm);
-		perm = simd_type::template permute<1, 0, 3, 2>(r);
-		r = simd_type::add(r, perm);
-		/* 1.0 / sqrt */
+		simd_value_type r = simd_type::length_sq(mm);
+		// 1.0 / sqrt
 		r = simd_type::rsqrt(r);
 		mm = simd_type::mul(mm, r);
 #else
 		T len = length_sq();
-		/* ゼロ割対策 */
+		// ゼロ割対策
 		if (len != math_type::Zero)
 		{
-			/* 長さの逆数 */
+			// 長さの逆数
 			len = math_type::rsqrt(len);
 			X *= len;
 			Y *= len;
 			Z *= len;
 			W *= len;
 		}
-#endif /* _USE_SIMD */
+#endif // _USE_SIMD_ANONYMOUS
 		return *this;
 	}
 	/*---------------------------------------------------------------------
@@ -697,12 +677,12 @@ struct Vector4
 			math_type::lerp(Z, to.Z, t),
 			math_type::lerp(W, to.W, t)
 		);
-#endif /* _USE_SIMD */
+#endif // _USE_SIMD_ANONYMOUS
 	}
 	Vector4& lerp(const Vector4& to, T t, Vector4& result) const
 	{
 #ifdef _USE_SIMD_ANONYMOUS
-		/* from*(1.0 - t) + to*t */
+		// from*(1.0 - t) + to*t
 		simd_value_type ft = simd_type::set(math_type::One - t);
 		simd_value_type tt = simd_type::set(t);
 		result.mm = simd_type::mul(mm, ft);
@@ -731,7 +711,7 @@ struct Vector4
 		Y = math_type::clamp01(Y);
 		Z = math_type::clamp01(Z);
 		W = math_type::clamp01(W);
-#endif /* _USE_SIMD */
+#endif // _USE_SIMD_ANONYMOUS
 		return *this;
 	}
 	Vector4 saturated() const
@@ -749,7 +729,7 @@ struct Vector4
 		result.Y = math_type::clamp01(Y);
 		result.Z = math_type::clamp01(Z);
 		result.W = math_type::clamp01(W);
-#endif /* _USE_SIMD */
+#endif // _USE_SIMD_ANONYMOUS
 		return result;
 	}
 	/*---------------------------------------------------------------------
@@ -757,7 +737,7 @@ struct Vector4
 	*---------------------------------------------------------------------*/
 	T pitch() const
 	{
-		/* Asin(Y / |v|) */
+		// Asin(Y / |v|)
 
 		T len = length_sq();
 		if (len != math_type::Zero)
@@ -773,7 +753,7 @@ struct Vector4
 	{
 		if (length_sq() != math_type::Zero)
 		{
-			/* atan2は正規化されていなくてもいい */
+			// atan2は正規化されていなくてもいい
 			return math_type::atan2(X, Z);
 		}
 		return math_type::Zero;
@@ -781,10 +761,10 @@ struct Vector4
 	/*---------------------------------------------------------------------
 	* 座標変換
 	*---------------------------------------------------------------------*/
-	Vector4& transform(const Matrix4x4<T>&); /* Matrix4x4.h */
+	Vector4& transform(const Matrix4x4<T>&); // Matrix4x4.h
 	Vector4 transformed(const Matrix4x4<T>&) const;
 	Vector4& transformed(const Matrix4x4<T>&, Vector4& result) const;
-	Vector4& transform_coord(const Matrix4x4<T>&); /* Matrix4x4.h */
+	Vector4& transform_coord(const Matrix4x4<T>&); // Matrix4x4.h
 	Vector4 transformed_coord(const Matrix4x4<T>&) const;
 	Vector4& transformed_coord(const Matrix4x4<T>&, Vector4& result) const;
 	/*---------------------------------------------------------------------
@@ -850,7 +830,7 @@ struct Vector4
 		return Data[i];
 #else
 		return (&X)[i];
-#endif /* _USE_ANONYMOUS */
+#endif // _USE_ANONYMOUS
 	}
 	const T& operator [] (int i) const
 	{
@@ -859,7 +839,7 @@ struct Vector4
 		return Data[i];
 #else
 		return (&X)[i];
-#endif /* _USE_ANONYMOUS */
+#endif // _USE_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------
@@ -894,7 +874,7 @@ struct Vector4
 		return &Data[0];
 #else
 		return &X;
-#endif /* _USE_ANONYMOUS */
+#endif // _USE_ANONYMOUS
 	}
 	_CXX11_EXPLICIT operator const T* () const
 	{
@@ -902,7 +882,7 @@ struct Vector4
 		return &Data[0];
 #else
 		return &X;
-#endif /* _USE_ANONYMOUS */
+#endif // _USE_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------
@@ -914,7 +894,7 @@ struct Vector4
 		return simd_type::equal(mm, v.mm);
 #else
 		return (X == v.X) && (Y == v.Y) && (Z == v.Z) && (W == v.W);
-#endif /* _USE_SIMD_ANONYMOUS */
+#endif // _USE_SIMD_ANONYMOUS_ANONYMOUS
 	}
 	bool operator != (const Vector4& v) const
 	{
@@ -926,7 +906,7 @@ struct Vector4
 		return simd_type::less(mm, v.mm);
 #else
 		return length_sq() < v.length_sq();
-#endif /* _USE_SIMD_ANONYMOUS */
+#endif // _USE_SIMD_ANONYMOUS_ANONYMOUS
 	}
 	bool operator <= (const Vector4& v) const
 	{
@@ -934,7 +914,7 @@ struct Vector4
 		return simd_type::less_equal(mm, v.mm);
 #else
 		return length_sq() <= v.length_sq();
-#endif /* _USE_SIMD_ANONYMOUS */
+#endif // _USE_SIMD_ANONYMOUS_ANONYMOUS
 	}
 	bool operator > (const Vector4& v) const
 	{
@@ -942,7 +922,7 @@ struct Vector4
 		return simd_type::greater(mm, v.mm);
 #else
 		return length_sq() > v.length_sq();
-#endif /* _USE_SIMD_ANONYMOUS */
+#endif // _USE_SIMD_ANONYMOUS_ANONYMOUS
 	}
 	bool operator >= (const Vector4& v) const
 	{
@@ -950,7 +930,7 @@ struct Vector4
 		return simd_type::greater_equal(mm, v.mm);
 #else
 		return length_sq() < v.length_sq();
-#endif /* _USE_SIMD_ANONYMOUS */
+#endif // _USE_SIMD_ANONYMOUS_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------
@@ -973,7 +953,7 @@ struct Vector4
 		++Y;
 		++Z;
 		++W;
-#endif /* _USE_SIMD_ANONYMOUS */
+#endif // _USE_SIMD_ANONYMOUS_ANONYMOUS
 		return *this;
 	}
 	Vector4 operator ++ (int)
@@ -991,7 +971,7 @@ struct Vector4
 		--Y;
 		--Z;
 		--W;
-#endif /* _USE_SIMD_ANONYMOUS */
+#endif // _USE_SIMD_ANONYMOUS_ANONYMOUS
 		return *this;
 	}
 	Vector4 operator -- (int)
@@ -1026,8 +1006,8 @@ struct Vector4
 		Vector4 result(behavior::noinitialize);
 		return subtract<U>(v, result);
 	}
-	Vector4 operator * (const Matrix4x4<T>&) const; /* Matrix4x4.h */
-	Vector4 operator * (const Quaternion<T>&) const; /* Quaternion.h */
+	Vector4 operator * (const Matrix4x4<T>&) const; // Matrix4x4.h
+	Vector4 operator * (const Quaternion<T>&) const; // Quaternion.h
 	Vector4 operator * (T f) const
 	{
 		Vector4 result(behavior::noinitialize);
@@ -1068,7 +1048,7 @@ struct Vector4
 		mm = simd_type::set(f);
 #else
 		X = Y = Z = W = f;
-#endif /* _USE_SIMD_ANONYMOUS */
+#endif // _USE_SIMD_ANONYMOUS_ANONYMOUS
 		return *this;
 	}
 	template <typename U, _TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
@@ -1402,7 +1382,7 @@ const Vector4<T> Vector4<T>::Front(math_type::Zero, math_type::Zero, math_type::
 template <typename T>
 const Vector4<T> Vector4<T>::Back(math_type::Zero, math_type::Zero, -math_type::One, math_type::Zero);
 
-/* 左辺が数値の場合の演算子 */
+// 左辺が数値の場合の演算子
 
 template <typename T> inline
 Vector4<T> operator * (T f, const Vector4<T>& v)
@@ -1410,7 +1390,7 @@ Vector4<T> operator * (T f, const Vector4<T>& v)
 	return v * f;
 }
 
-/* Vector2がVector4からの値を取得するコンストラクタ */
+// Vector2がVector4からの値を取得するコンストラクタ
 
 template <typename T> inline
 Vector2<T>::Vector2(const Vector4<T>& v) :
@@ -1433,7 +1413,7 @@ Vector4<T> Vector2<T>::swizzle(int x, int y, int z, int w) const
 	return Vector4<T>((*this)[x], (*this)[y], (*this)[z], (*this)[w]);
 }
 
-/* Vector3がVector4から値を取得するコンストラクタ */
+// Vector3がVector4から値を取得するコンストラクタ
 
 template <typename T> inline
 Vector3<T>::Vector3(const Vector4<T>& v) :
@@ -1470,7 +1450,7 @@ Vector4<T> Vector3<T>::swizzle(int x, int y, int z, int w) const
 template <typename CharT, typename CharTraits, typename T> inline
 std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const Vector4<T>& v)
 {
-	/* (X, Y, Z, W) */
+	// (X, Y, Z, W)
 	os << out_char::parentheses_left << v.X << out_char::comma_space
 		<< v.Y << out_char::comma_space
 		<< v.Z << out_char::comma_space
@@ -1514,8 +1494,8 @@ std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, 
 	is.ignore();
 	return is;
 }
-#endif /* _USING_MATH_IO */
+#endif // _USING_MATH_IO
 
-} /* namespace pocket */
+} // namespace pocket
 
-#endif /* __MATH_VECTOR4_H__ */
+#endif // __MATH_VECTOR4_H__

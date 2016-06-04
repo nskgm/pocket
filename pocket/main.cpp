@@ -25,7 +25,7 @@ using std::endl;
 #include <chrono>
 #else
 #include <ctime>
-#endif /* _USE_CXX11 */
+#endif // _USE_CXX11
 
 class Timer
 {
@@ -105,6 +105,9 @@ int main(int argc, char** argv)
 	pocket::Vector4f v2(simdf::select(v.mm, simdf::select1110()));
 	cout << v2 << endl;
 #endif
+
+	_CXX11_CONSTEXPR pocket::Colorf c = pocket::Colorf(2.0f, 5.0f, 1.0f, 0.0f);
+	cout << c << endl;
 
 	return 0;
 }

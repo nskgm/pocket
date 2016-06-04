@@ -7,7 +7,7 @@
 #include "Vector3.h"
 #ifdef _USING_MATH_IO
 #include <iostream>
-#endif /* _USING_MATH_IO */
+#endif // _USING_MATH_IO
 
 namespace pocket
 {
@@ -19,15 +19,15 @@ template <typename> struct Plane;
 #ifndef _UNUSING_MATH_INT_FLOAT
 typedef Ray<float, Vector2> Ray2f;
 typedef Ray<float, Vector3> Ray3f;
-#endif /* _UNUSING_MATH_INT_FLOAT */
+#endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
 typedef Ray<double, Vector2> Ray2d;
 typedef Ray<double, Vector3> Ray3d;
-#endif /* _USING_MATH_DOUBLE */
+#endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
 typedef Ray<long double, Vector2> Ray2ld;
 typedef Ray<long double, Vector3> Ray3ld;
-#endif /* _USING_MATH_LONG_DOUBLE */
+#endif // _USING_MATH_LONG_DOUBLE
 
 #ifdef _USE_CXX11
 template <typename T, template <typename> class VN>
@@ -35,16 +35,16 @@ using ray = Ray<T, VN>;
 #ifndef _UNUSING_MATH_INT_FLOAT
 using ray2f = ray<float, Vector2>;
 using ray3f = ray<float, Vector3>;
-#endif /* _UNUSING_MATH_INT_FLOAT */
+#endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
 using ray2d = ray<double, Vector2>;
 using ray3d = ray<double, Vector3>;
-#endif /* _USING_MATH_DOUBLE */
+#endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
 using ray2ld = ray<long double, Vector2>;
 using ray3ld = ray<long double, Vector3>;
-#endif /* _USING_MATH_LONG_DOUBLE */
-#endif /* _USE_CXX11 */
+#endif // _USING_MATH_LONG_DOUBLE
+#endif // _USE_CXX11
 
 template <typename T, template <typename> class VectorN>
 struct Ray
@@ -71,8 +71,8 @@ struct Ray
 	* Members
 	*-----------------------------------------------------------------------------------------*/
 
-	vector_type Position; /* 基点 */
-	vector_type Direction; /* 方向 */
+	vector_type Position; // 基点
+	vector_type Direction; // 方向
 
 	template <typename, template <typename> class> friend struct Ray;
 
@@ -80,12 +80,12 @@ struct Ray
 	* Constants
 	*-----------------------------------------------------------------------------------------*/
 
-	static const Ray Up; /* [0.0, 0.0, 0.0], [0.0, 1.0, 0.0] */
-	static const Ray Down; /* [0.0, 0.0, 0.0], [0.0, -1.0, 0.0] */
-	static const Ray Right; /* [0.0, 0.0, 0.0], [1.0, 0.0, 0.0] */
-	static const Ray Left; /* [0.0, 0.0, 0.0], [-1.0, 0.0, 0.0] */
-	static const Ray Front; /* [0.0, 0.0, 0.0], [0.0, 0.0, 1.0] */
-	static const Ray Back; /* [0.0, 0.0, 0.0], [0.0, 0.0, -1.0] */
+	static const Ray Up; // [0.0, 0.0, 0.0], [0.0, 1.0, 0.0]
+	static const Ray Down; // [0.0, 0.0, 0.0], [0.0, -1.0, 0.0]
+	static const Ray Right; // [0.0, 0.0, 0.0], [1.0, 0.0, 0.0]
+	static const Ray Left; // [0.0, 0.0, 0.0], [-1.0, 0.0, 0.0]
+	static const Ray Front; // [0.0, 0.0, 0.0], [0.0, 0.0, 1.0]
+	static const Ray Back; // [0.0, 0.0, 0.0], [0.0, 0.0, -1.0]
 
 	/*-----------------------------------------------------------------------------------------
 	* Constructors
@@ -108,7 +108,7 @@ struct Ray
 
 	}
 
-	explicit Ray(const Line<T, VectorN>&); /* Line.h */
+	explicit Ray(const Line<T, VectorN>&); // Line.h
 
 	/*-----------------------------------------------------------------------------------------
 	* Functions
@@ -126,7 +126,7 @@ struct Ray
 	/*---------------------------------------------------------------------
 	* 線分から求める
 	*---------------------------------------------------------------------*/
-	Ray& from_line(const Line<T, VectorN>&); /* Line.h */
+	Ray& from_line(const Line<T, VectorN>&); // Line.h
 
 	/*---------------------------------------------------------------------
 	* 座標を求める
@@ -153,7 +153,7 @@ struct Ray
 	/*---------------------------------------------------------------------
 	* 平面と交差しているか
 	*---------------------------------------------------------------------*/
-	bool is_intersect(const Plane<T>&) const; /* Plane.h */
+	bool is_intersect(const Plane<T>&) const; // Plane.h
 
 	/*-----------------------------------------------------------------------------------------
 	* Operators
@@ -180,7 +180,7 @@ struct Ray
 	}
 	Ray operator - () const
 	{
-		/* 反対の方向を示す */
+		// 反対の方向を示す
 		return Ray(Position, -Direction);
 	}
 
@@ -189,12 +189,12 @@ struct Ray
 	*---------------------------------------------------------------------*/
 	Ray operator + (const vector_type& p) const
 	{
-		/* 座標のみ合わせる */
+		// 座標のみ合わせる
 		return Ray(Position + p, Direction);
 	}
 	Ray operator + (const Ray& r) const
 	{
-		/* 座標は足し、方向は中間を求める */
+		// 座標は足し、方向は中間を求める
 		Vector3<T> d = Direction + r.Direction;
 		d.normalize();
 		return Ray(Position + r.Position, d);
@@ -205,14 +205,14 @@ struct Ray
 	}
 	Ray operator - (const Ray& r) const
 	{
-		/* 座標は引き、方向は逆の中間を求める */
+		// 座標は引き、方向は逆の中間を求める
 		Vector3<T> d = Direction - r.Direction;
 		d.normalize();
 		return Ray(Position - r.Position, d);
 	}
 	Ray operator * (T s) const
 	{
-		/* 座標へかける */
+		// 座標へかける
 		return Ray(Position * s, Direction);
 	}
 	Ray operator / (T s) const
@@ -226,7 +226,7 @@ struct Ray
 	Ray& operator += (const vector_type& p)
 	{
 		Position += p;
-		/* Directionはなし */
+		// Directionはなし
 		return *this;
 	}
 	Ray& operator += (const Ray& r)
@@ -277,7 +277,7 @@ const Ray<T, VectorN> Ray<T, VectorN>::Back(vector_type::Back);
 template <typename CharT, typename CharTraits, typename T, template <typename> class VectorN> inline
 std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const Ray<T, VectorN>& v)
 {
-	/* (Position, Direction) */
+	// (Position, Direction)
 	os << out_char::parentheses_left << v.Position << out_char::comma_space << v.Direction << out_char::parentheses_right;
 	return os;
 }
@@ -307,9 +307,9 @@ std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, 
 	is.ignore();
 	return is;
 }
-#endif /* _USING_MATH_IO */
+#endif // _USING_MATH_IO
 
-} /* namespace pocket */
+} // namespace pocket
 
 
-#endif /* __MATH_RAY_H__ */
+#endif // __MATH_RAY_H__

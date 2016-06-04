@@ -4,13 +4,13 @@
 #include "config.h"
 #ifdef _USE_PRAGMA_ONCE
 #pragma once
-#endif /* _USE_PRAGMA_ONCE */
+#endif // _USE_PRAGMA_ONCE
 
 #include "Math.h"
 #include "Vector2.h"
 #ifdef _USING_MATH_IO
 #include "io.h"
-#endif /* _USING_MATH_IO */
+#endif // _USING_MATH_IO
 
 namespace pocket
 {
@@ -24,27 +24,27 @@ template <typename> struct Quaternion;
 typedef Vector3<int> Point3;
 typedef Vector3<int> Vector3i;
 typedef Vector3<float> Vector3f;
-#endif /* _UNUSING_MATH_INT_FLOAT */
+#endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
 typedef Vector3<double> Vector3d;
-#endif /* _USING_MATH_DOUBLE */
+#endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
 typedef Vector3<long double> Vector3ld;
-#endif /* _USING_MATH_LONG_DOUBLE */
+#endif // _USING_MATH_LONG_DOUBLE
 
 #ifdef _USE_CXX11
 template <typename T>
 using vec3 = Vector3<T>;
 #ifndef _UNUSING_MATH_INT_FLOAT
 using vec3f = vec3<float>;
-#endif /* _UNUSING_MATH_INT_FLOAT */
+#endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
 using vec3d = vec3<double>;
-#endif /* _USING_MATH_DOUBLE */
+#endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
 using vec3ld = vec3<long double>;
-#endif /* _USING_MATH_LONG_DOUBLE */
-#endif /* _USE_CXX11 */
+#endif // _USING_MATH_LONG_DOUBLE
+#endif // _USE_CXX11
 
 template <typename T>
 struct Vector3
@@ -75,7 +75,7 @@ struct Vector3
 	{
 		struct
 		{
-#endif /* _USE_ANONYMOUS */
+#endif // _USE_ANONYMOUS
 
 			T X;
 			T Y;
@@ -89,11 +89,11 @@ struct Vector3
 		{
 			Vector2<T> XY;
 		};
-#endif /* _USE_ANONYMOUS_NON_POD */
+#endif // _USE_ANONYMOUS_NON_POD
 
 		array_type Data;
 	};
-#endif /* _USE_ANONYMOUS */
+#endif // _USE_ANONYMOUS
 
 	template <typename> friend struct Vector3;
 
@@ -101,17 +101,17 @@ struct Vector3
 	* Constants
 	*-----------------------------------------------------------------------------------------*/
 
-	static const Vector3 Zero; /* 0.0, 0.0, 0.0 */
-	static const Vector3 One; /* 1.0, 1.0, 1.0 */
-	static const Vector3 UnitX; /* 1.0, 0.0, 0.0 */
-	static const Vector3 UnitY; /* 0.0, 1.0, 0.0 */
-	static const Vector3 UnitZ; /* 0.0, 0.0, 1.0 */
-	static const Vector3 Up; /* 0.0, 1.0, 0.0 */
-	static const Vector3 Down; /* 0.0, -1.0, 0.0 */
-	static const Vector3 Right; /* 1.0, 0.0, 0.0 */
-	static const Vector3 Left; /* -1.0, 0.0, 0.0 */
-	static const Vector3 Front; /* 0.0, 0.0, 1.0 */
-	static const Vector3 Back; /* 0.0, 0.0, -1.0 */
+	static const Vector3 Zero; // 0.0, 0.0, 0.0
+	static const Vector3 One; // 1.0, 1.0, 1.0
+	static const Vector3 UnitX; // 1.0, 0.0, 0.0
+	static const Vector3 UnitY; // 0.0, 1.0, 0.0
+	static const Vector3 UnitZ; // 0.0, 0.0, 1.0
+	static const Vector3 Up; // 0.0, 1.0, 0.0
+	static const Vector3 Down; // 0.0, -1.0, 0.0
+	static const Vector3 Right; // 1.0, 0.0, 0.0
+	static const Vector3 Left; // -1.0, 0.0, 0.0
+	static const Vector3 Front; // 0.0, 0.0, 1.0
+	static const Vector3 Back; // 0.0, 0.0, -1.0
 
 	/*-----------------------------------------------------------------------------------------
 	* Constructors
@@ -243,7 +243,7 @@ struct Vector3
 	}
 
 	explicit Vector3(const Vector4<T>&);
-	template <typename U> explicit Vector3(const Vector4<U>&); /* Vector4.h */
+	template <typename U> explicit Vector3(const Vector4<U>&); // Vector4.h
 
 	/*-----------------------------------------------------------------------------------------
 	* Functions
@@ -330,7 +330,7 @@ struct Vector3
 	*---------------------------------------------------------------------*/
 	bool is_parallel(const Vector3& v) const
 	{
-		/* 長さの積の大きさが一致していたら平行(+: 同方向, -: 逆方向) */
+		// 長さの積の大きさが一致していたら平行(+: 同方向, -: 逆方向)
 		return math_type::is_near_zero(dot(v) - (length() * v.length()));
 	}
 	/*---------------------------------------------------------------------
@@ -387,7 +387,7 @@ struct Vector3
 	*---------------------------------------------------------------------*/
 	T distance(const Vector3& v) const
 	{
-		/* 差を求めたあとの長さ */
+		// 差を求めたあとの長さ
 		const Vector3 t(X - v.X, Y - v.Y, Z - v.Z);
 		return t.length();
 	}
@@ -411,8 +411,8 @@ struct Vector3
 	*---------------------------------------------------------------------*/
 	T dot(const Vector3& v) const
 	{
-		/* |v1||v2|cos(θ)と同じになる */
-		/* 値が０のときは垂直 */
+		// |v1||v2|cos(θ)と同じになる
+		// 値が０のときは垂直
 		return X * v.X + Y * v.Y + Z * v.Z;
 	}
 	/*---------------------------------------------------------------------
@@ -420,8 +420,8 @@ struct Vector3
 	*---------------------------------------------------------------------*/
 	Vector3 cross(const Vector3& v) const
 	{
-		/* 二つのベクトルに垂直なベクトルを求める */
-		/* ２Ｄでは高さを求めていたけどそれの応用でぞれぞれの軸の高さを求める */
+		// 二つのベクトルに垂直なベクトルを求める
+		// ２Ｄでは高さを求めていたけどそれの応用でぞれぞれの軸の高さを求める
 		return Vector3(Y * v.Z - Z * v.Y, Z * v.X - X * v.Z, X * v.Y - Y * v.X);
 	}
 	Vector3& cross(const Vector3& v, Vector3& result) const
@@ -439,7 +439,7 @@ struct Vector3
 		T len = length_sq();
 		if (len != math_type::Zero)
 		{
-			/* 長さの逆数 */
+			// 長さの逆数
 			len = math_type::rsqrt(len);
 			X *= len;
 			Y *= len;
@@ -517,7 +517,7 @@ struct Vector3
 	*---------------------------------------------------------------------*/
 	T pitch() const
 	{
-		/* Asin(Y / |v|) */
+		// Asin(Y / |v|)
 
 		T len = length_sq();
 		if (len != math_type::Zero)
@@ -533,7 +533,7 @@ struct Vector3
 	{
 		if (length_sq() != math_type::Zero)
 		{
-			/* atan2は正規化されていなくてもいい */
+			// atan2は正規化されていなくてもいい
 			return math_type::atan2(X, Z);
 		}
 		return math_type::Zero;
@@ -541,7 +541,7 @@ struct Vector3
 	/*---------------------------------------------------------------------
 	* 座標変換
 	*---------------------------------------------------------------------*/
-	Vector3& transform(const Matrix4x4<T>&); /* Matrix4x4.h */
+	Vector3& transform(const Matrix4x4<T>&); // Matrix4x4.h
 	Vector3 transformed(const Matrix4x4<T>&) const;
 	Vector3& transformed(const Matrix4x4<T>&, Vector3& result) const;
 	Vector3& transform_coord(const Matrix4x4<T>&);
@@ -550,7 +550,7 @@ struct Vector3
 	Vector3& transform_normal(const Matrix4x4<T>&);
 	Vector3 transformed_normal(const Matrix4x4<T>&) const;
 	Vector3& transformed_normal(const Matrix4x4<T>&, Vector3& result) const;
-	Vector3& transform(const Matrix3x3<T>&); /* Matrix3x3.h */
+	Vector3& transform(const Matrix3x3<T>&); // Matrix3x3.h
 	Vector3 transformed(const Matrix3x3<T>&) const;
 	Vector3& transformed(const Matrix3x3<T>&, Vector3& result) const;
 	Vector3& transform_normal(const Matrix3x3<T>&);
@@ -616,7 +616,7 @@ struct Vector3
 		_DEB_RANGE_ASSERT(z, 0, 2);
 		return Vector3((*this)[x], (*this)[y], (*this)[z]);
 	}
-	Vector4<T> swizzle(int x, int y, int z, int w) const; /* Vector4.h */
+	Vector4<T> swizzle(int x, int y, int z, int w) const; // Vector4.h
 
 	/*-----------------------------------------------------------------------------------------
 	* Operators
@@ -632,7 +632,7 @@ struct Vector3
 		return Data[i];
 #else
 		return (&X)[i];
-#endif /* _USE_ANONYMOUS */
+#endif // _USE_ANONYMOUS
 	}
 	const T& operator [] (int i) const
 	{
@@ -641,7 +641,7 @@ struct Vector3
 		return Data[i];
 #else
 		return (&X)[i];
-#endif /* _USE_ANONYMOUS */
+#endif // _USE_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------
@@ -667,7 +667,7 @@ struct Vector3
 		return &Data[0];
 #else
 		return &X;
-#endif /* _USE_ANONYMOUS */
+#endif // _USE_ANONYMOUS
 	}
 	_CXX11_EXPLICIT operator const T* () const
 	{
@@ -675,7 +675,7 @@ struct Vector3
 		return &Data[0];
 #else
 		return &X;
-#endif /* _USE_ANONYMOUS */
+#endif // _USE_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------
@@ -769,9 +769,9 @@ struct Vector3
 		Vector3 result(behavior::noinitialize);
 		return subtract(v, result);
 	}
-	Vector3 operator * (const Matrix3x3<T>&) const; /* Matrix3x3.h */
-	Vector3 operator * (const Matrix4x4<T>&) const; /* Matrix4x4.h */
-	Vector3 operator * (const Quaternion<T>&) const; /* Quaternion.h */
+	Vector3 operator * (const Matrix3x3<T>&) const; // Matrix3x3.h
+	Vector3 operator * (const Matrix4x4<T>&) const; // Matrix4x4.h
+	Vector3 operator * (const Quaternion<T>&) const; // Quaternion.h
 	Vector3 operator * (T f) const
 	{
 		Vector3 result(behavior::noinitialize);
@@ -1164,7 +1164,7 @@ const Vector3<T> Vector3<T>::Front(math_type::Zero, math_type::Zero, math_type::
 template <typename T>
 const Vector3<T> Vector3<T>::Back(math_type::Zero, math_type::Zero, -math_type::One);
 
-/* 左辺が数値の場合の乗算演算子 */
+// 左辺が数値の場合の乗算演算子
 
 template <typename T> inline
 Vector3<T> operator * (T f, const Vector3<T>& v)
@@ -1172,7 +1172,7 @@ Vector3<T> operator * (T f, const Vector3<T>& v)
 	return v * f;
 }
 
-/* Vector2がVector3から値取得をするコンストラクタ */
+// Vector2がVector3から値取得をするコンストラクタ
 
 template <typename T> inline
 Vector2<T>::Vector2(const Vector3<T>& v) :
@@ -1199,7 +1199,7 @@ Vector3<T> Vector2<T>::swizzle(int x, int y, int z) const
 template <typename CharT, typename CharTraits, typename T> inline
 std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const Vector3<T>& v)
 {
-	/* (X, Y, Z) */
+	// (X, Y, Z)
 	os << out_char::parentheses_left << v.X << out_char::comma_space
 		<< v.Y << out_char::comma_space
 		<< v.Z << out_char::parentheses_right;
@@ -1237,8 +1237,8 @@ std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, 
 	is.ignore();
 	return is;
 }
-#endif /* _USING_MATH_IO */
+#endif // _USING_MATH_IO
 
-} /* namespace pocket */
+} // namespace pocket
 
-#endif /* __MATH_VECTOR3_H__ */
+#endif // __MATH_VECTOR3_H__

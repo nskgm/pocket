@@ -4,14 +4,14 @@
 #include "config.h"
 #ifdef _USE_PRAGMA_ONCE
 #pragma once
-#endif /* _USE_PRAGMA_ONCE */
+#endif // _USE_PRAGMA_ONCE
 
 #include "array.h"
 #include "Math.h"
 #include "Vector2.h"
 #ifdef _USING_MATH_IO
 #include "io.h"
-#endif /* _USING_MATH_IO */
+#endif // _USING_MATH_IO
 
 namespace pocket
 {
@@ -24,29 +24,29 @@ typedef Range<int> Rangei;
 typedef Range<float> Rangef;
 typedef Rectangle<int> Rectanglei;
 typedef Rectangle<float> Rectanglef;
-#endif /* _UNUSING_MATH_INT_FLOAT */
+#endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
 typedef Range<double> Ranged;
 typedef Rectangle<double> Rectangled;
-#endif /* _USING_MATH_DOUBLE */
+#endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
 typedef Range<long double> Rangeld;
 typedef Rectangle<long double> Rectangleld;
-#endif /* _USING_MATH_LONG_DOUBLE */
+#endif // _USING_MATH_LONG_DOUBLE
 
 #ifdef _USE_CXX11
 template <typename T>
 using rect = Rectangle<T>;
 #ifndef _UNUSING_MATH_INT_FLOAT
 using rectf = rect<float>;
-#endif /* _UNUSING_MATH_INT_FLOAT */
+#endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
 using rectd = rect<double>;
-#endif /* _USING_MATH_DOUBLE */
+#endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
 using rectld = rect<long double>;
-#endif /* _USING_MATH_LONG_DOUBLE */
-#endif /* _USE_CXX11 */
+#endif // _USING_MATH_LONG_DOUBLE
+#endif // _USE_CXX11
 
 template <typename T>
 struct Range
@@ -77,7 +77,7 @@ struct Range
 	{
 		struct
 		{
-#endif /* _USE_ANONYMOUS */
+#endif // _USE_ANONYMOUS
 
 			T Min;
 			T Max;
@@ -87,7 +87,7 @@ struct Range
 
 		array_type Data;
 	};
-#endif /* _USE_ANONYMOUS */
+#endif // _USE_ANONYMOUS
 
 	template <typename> friend struct Range;
 
@@ -95,7 +95,7 @@ struct Range
 	* Constantors
 	*-----------------------------------------------------------------------------------------*/
 
-	/* None */
+	// None
 
 	/*------------------------------------------------------------------------------------------
 	* Constantors
@@ -164,7 +164,7 @@ struct Range
 		return Data[i];
 #else
 		return (&Min)[i];
-#endif /* _USE_ANONYMOUS */
+#endif // _USE_ANONYMOUS
 	}
 	const T& operator [] (int i) const
 	{
@@ -173,7 +173,7 @@ struct Range
 		return Data[i];
 #else
 		return (&Min)[i];
-#endif /* _USE_ANONYMOUS */
+#endif // _USE_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------
@@ -190,7 +190,7 @@ struct Range
 		return &Data[0];
 #else
 		return &Min;
-#endif /* _USE_ANONYMOUS */
+#endif // _USE_ANONYMOUS
 	}
 	_CXX11_EXPLICIT operator const T* () const
 	{
@@ -198,7 +198,7 @@ struct Range
 		return &Data[0];
 #else
 		return &Min;
-#endif /* _USE_ANONYMOUS */
+#endif // _USE_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------
@@ -218,7 +218,7 @@ struct Range
 template <typename CharT, typename CharTraits, typename T> inline
 std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const Range<T>& r)
 {
-	/* (Min, Max) */
+	// (Min, Max)
 	os << out_char::parentheses_left << r.Min << out_char::comma_space
 		<< r.Max << out_char::parentheses_right;
 	return os;
@@ -250,7 +250,7 @@ std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, 
 	is.ignore();
 	return is;
 }
-#endif /* _USING_MATH_IO */
+#endif // _USING_MATH_IO
 
 
 template <typename T>
@@ -282,7 +282,7 @@ struct Rectangle
 	{
 		struct
 		{
-#endif /* _USE_ANONYMOUS_NON_POD */
+#endif // _USE_ANONYMOUS_NON_POD
 
 			Range<T> X;
 			Range<T> Y;
@@ -292,7 +292,7 @@ struct Rectangle
 
 		array_type Data;
 	};
-#endif /* _USE_ANONYMOUS_NON_POD */
+#endif // _USE_ANONYMOUS_NON_POD
 
 	template <typename> friend struct Rectangle;
 
@@ -300,7 +300,7 @@ struct Rectangle
 	* Constants
 	*-----------------------------------------------------------------------------------------*/
 
-	/* None */
+	// None
 
 	/*------------------------------------------------------------------------------------------
 	* Constantors
@@ -400,22 +400,22 @@ struct Rectangle
 		return Y;
 	}
 
-	/* 左上の座標取得 */
+	// 左上の座標取得
 	Vector2<T> left_top() const
 	{
 		return Vector2<T>(X.Min, Y.Min);
 	}
-	/* 左下の座標取得 */
+	// 左下の座標取得
 	Vector2<T> left_bottom() const
 	{
 		return Vector2<T>(X.Min, Y.Max);
 	}
-	/* 右上の座標取得 */
+	// 右上の座標取得
 	Vector2<T> right_top() const
 	{
 		return Vector2<T>(X.Max, Y.Min);
 	}
-	/* 右下の座標取得 */
+	// 右下の座標取得
 	Vector2<T> right_bottom() const
 	{
 		return Vector2<T>(X.Max, X.Max);
@@ -435,7 +435,7 @@ struct Rectangle
 		return Data[i];
 #else
 		return (&X.Min)[i];
-#endif /* _USE_ANONYMOUS_NON_POD */
+#endif // _USE_ANONYMOUS_NON_POD
 	}
 	const T& operator [] (int i) const
 	{
@@ -444,7 +444,7 @@ struct Rectangle
 		return Data[i];
 #else
 		return (&X.Min)[i];
-#endif /* _USE_ANONYMOUS_NON_POD */
+#endif // _USE_ANONYMOUS_NON_POD
 	}
 
 	/*---------------------------------------------------------------------
@@ -461,7 +461,7 @@ struct Rectangle
 		return &Data[0];
 #else
 		return &X.Min;
-#endif /* _USE_ANONYMOUS_NON_POD */
+#endif // _USE_ANONYMOUS_NON_POD
 	}
 	_CXX11_EXPLICIT operator const T* () const
 	{
@@ -469,7 +469,7 @@ struct Rectangle
 		return &Data[0];
 #else
 		return &X.Min;
-#endif /* _USE_ANONYMOUS_NON_POD */
+#endif // _USE_ANONYMOUS_NON_POD
 	}
 
 	/*---------------------------------------------------------------------
@@ -520,8 +520,8 @@ std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, 
 	is.ignore();
 	return is;
 }
-#endif /* _USING_MATH_IO */
+#endif // _USING_MATH_IO
 
-} /* namespace pocket */
+} // namespace pocket
 
-#endif /* __MATH_RECTANGLE_H__ */
+#endif // __MATH_RECTANGLE_H__

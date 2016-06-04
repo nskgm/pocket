@@ -4,15 +4,15 @@
 #include "config.h"
 #ifdef _USE_PRAGMA_ONCE
 #pragma once
-#endif /* _USE_PRAGMA_ONCE */
+#endif // _USE_PRAGMA_ONCE
 
 #include "fwd.h"
 #ifdef _USING_MATH_IO
 #include "io.h"
-#endif /* _USING_MATH_IO */
+#endif // _USING_MATH_IO
 
 #ifdef _USE_CXX11
-/* C++11が使用できる場合は標準のものを使用 */
+// C++11が使用できる場合は標準のものを使用
 #include <array>
 
 namespace pocket
@@ -56,10 +56,10 @@ std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, 
 	os << pocket::out_char::box_brackets_right;
 	return os;
 }
-#endif /* _USING_MATH_IO */
+#endif // _USING_MATH_IO
 
 #else
-/* 使えない場合は簡単なクラスを定義 */
+// 使えない場合は簡単なクラスを定義
 #include "Debug.h"
 #include <cstddef>
 #include <iterator>
@@ -100,13 +100,13 @@ public:
 	* Constants
 	*---------------------------------------------------------------------------------------*/
 
-	/* None */
+	// None
 
 	/*---------------------------------------------------------------------------------------
 	* Constructs
 	*---------------------------------------------------------------------------------------*/
 
-	/* None */
+	// None
 
 	/*---------------------------------------------------------------------------------------
 	* Mathods
@@ -137,7 +137,7 @@ public:
 			*oi = tmp;
 		}
 #endif
-		/* サイズも型も同じなのでポインタの差し替え */
+		// サイズも型も同じなのでポインタの差し替え
 		pointer p = _Data;
 		_Data = other._Data;
 		other._Data = p;
@@ -228,8 +228,8 @@ public:
 		return _Data[i];
 	}
 };
-} /* namespace container */
-} /* namespace pocket */
+} // namespace container
+} // namespace pocket
 
 #ifdef _USING_MATH_IO
 template <typename CharT, typename CharTraits, typename T, size_t N> inline
@@ -264,7 +264,7 @@ std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, 
 	os << pocket::out_char::box_brackets_right;
 	return os;
 }
-#endif /* _USING_MATH_IO */
+#endif // _USING_MATH_IO
 
 namespace std
 {
@@ -275,7 +275,7 @@ namespace std
 	}
 }
 
-#endif /* _USE_CXX11 */
+#endif // _USE_CXX11
 
 /*---------------------------------------------------------------------------------------
 * 配列クラス定義
@@ -285,10 +285,10 @@ namespace pocket
 {
 #ifndef  _STATICAL_ASSERT_ARITHMETIC_CONDITIONAL
 #	define _STATICAL_ASSERT_ARITHMETIC_CONDITIONAL(T) type_traits::is_arithmetic< T >::value
-#endif /* _STATICAL_ASSERT_ARITHMETIC_CONDITIONAL */
+#endif // _STATICAL_ASSERT_ARITHMETIC_CONDITIONAL
 #ifndef  _STATICAL_ASSERT_ARITHMETIC
 #	define _STATICAL_ASSERT_ARITHMETIC(T) _STATICAL_ASSERT(_STATICAL_ASSERT_ARITHMETIC_CONDITIONAL(T), arithmetic_type_only)
-#endif /* _STATICAL_ASSERT_ARITHMETIC */
+#endif // _STATICAL_ASSERT_ARITHMETIC
 
 template <typename T, size_t N>
 struct _ALIGNED_APPROPRIATE_SIZE(T, N) fixed_array
@@ -407,6 +407,6 @@ typedef fixed_array<f64, 2> double2;
 typedef fixed_array<f64, 3> double3;
 typedef fixed_array<f64, 4> double4;
 
-} /* namespace pocket */
+} // namespace pocket
 
-#endif /* __MATH_ARRAY_H__ */
+#endif // __MATH_ARRAY_H__

@@ -4,7 +4,7 @@
 #include "config.h"
 #ifdef _USE_PRAGMA_ONCE
 #pragma once
-#endif /* _USE_PRAGMA_ONCE */
+#endif // _USE_PRAGMA_ONCE
 
 #include "fwd.h"
 #include "Debug.h"
@@ -13,7 +13,7 @@
 #include <cfloat>
 #ifdef _USING_MATH_IO
 #include "io.h"
-#endif /* _USING_MATH_IO */
+#endif // _USING_MATH_IO
 
 namespace pocket
 {
@@ -23,13 +23,13 @@ template <typename> class Math;
 #ifndef _UNUSING_MATH_INT_FLOAT
 typedef Math<int> Mathi;
 typedef Math<float> Mathf;
-#endif /* _UNUSING_MATH_INT_FLOAT */
+#endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
 typedef Math<double> Mathd;
-#endif /* _USING_MATH_DOUBLE */
+#endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
 typedef Math<long double> Mathld;
-#endif /* _USING_MATH_LONG_DOUBLE */
+#endif // _USING_MATH_LONG_DOUBLE
 
 namespace detail
 {
@@ -68,8 +68,8 @@ public:
 
 	struct SinCos
 	{
-		T Sin; /* サイン値 */
-		T Cos; /* コサイン値 */
+		T Sin; // サイン値
+		T Cos; // コサイン値
 
 		_DEFAULT_CONSTRUCTOR(SinCos);
 		SinCos(const behavior::_noinitialize_t&)
@@ -101,40 +101,40 @@ public:
 	* Members
 	*-----------------------------------------------------------------------------------------*/
 
-	/* None */
+	// None
 
 	/*-----------------------------------------------------------------------------------------
 	* Constants
 	*-----------------------------------------------------------------------------------------*/
 
-	static const T Zero; /* 0.0 */
-	static const T Half; /* 0.5 */
-	static const T HalfOfHalf; /* 0.25 */
-	static const T One; /* 1.0 */
-	static const T Two; /* 2.0 */
-	static const T Three; /* 3.0 */
-	static const T Four; /* 4.0 */
-	static const T HalfAngle; /* 180.0 */
-	static const T Infinity; /* #.INF */
-	static const T Epsilon; /* 1.0 + Epsilon > 1.0 となる値 */
-	static const T Maximum; /* 最大値 */
-	static const T Minimum; /* 最小値 */
+	static const T Zero; // 0.0
+	static const T Half; // 0.5
+	static const T HalfOfHalf; // 0.25
+	static const T One; // 1.0
+	static const T Two; // 2.0
+	static const T Three; // 3.0
+	static const T Four; // 4.0
+	static const T HalfAngle; // 180.0
+	static const T Infinity; // #.INF
+	static const T Epsilon; // 1.0 + Epsilon > 1.0 となる値
+	static const T Maximum; // 最大値
+	static const T Minimum; // 最小値
 
-	static const T Rad2Deg; /* Radian -> Degree */
-	static const T Deg2Rad; /* Degree -> Radian */
+	static const T Rad2Deg; // Radian -> Degree
+	static const T Deg2Rad; // Degree -> Radian
 
-	static const T PI; /* 3.141592654 */
-	static const T PIxTwo; /* PI * 2.0 */
-	static const T OneDivPI; /* 1.0 / PI */
-	static const T OneDivPIxTwo; /* 1.0 / (PI * 2.0) */
-	static const T PIDivTwo; /* PI / 2.0 */
-	static const T PIDivFour; /* PI / 4.0 */
+	static const T PI; // 3.141592654
+	static const T PIxTwo; // PI * 2.0
+	static const T OneDivPI; // 1.0 / PI
+	static const T OneDivPIxTwo; // 1.0 / (PI * 2.0)
+	static const T PIDivTwo; // PI / 2.0
+	static const T PIDivFour; // PI / 4.0
 
 	/*-----------------------------------------------------------------------------------------
 	* Constructors
 	*-----------------------------------------------------------------------------------------*/
 
-	/* None */
+	// None
 
 	/*------------------------------------------------------------------------------------------
 	* Functions
@@ -143,14 +143,14 @@ public:
 	/*---------------------------------------------------------------------
 	* 値がゼロに近いか
 	*---------------------------------------------------------------------*/
-	static inline bool is_near_zero(T f)
+	static _CXX11_CONSTEXPR inline bool is_near_zero(T f)
 	{
 		return (f >= -Math::Epsilon && f <= Math::Epsilon);
 	}
 	/*---------------------------------------------------------------------
 	* 値が１に近いか
 	*---------------------------------------------------------------------*/
-	static inline bool is_near_one(T f)
+	static _CXX11_CONSTEXPR inline bool is_near_one(T f)
 	{
 		return Math::is_near(f, Math::One);
 	}
@@ -158,7 +158,7 @@ public:
 	/*---------------------------------------------------------------------
 	* 値が指定の値に近いか
 	*---------------------------------------------------------------------*/
-	static inline bool is_near(T f, T value)
+	static _CXX11_CONSTEXPR inline bool is_near(T f, T value)
 	{
 		return (f <= (value + Math::Epsilon) && f >= (value - Math::Epsilon));
 	}
@@ -166,7 +166,7 @@ public:
 	* 整数部分が近いか
 	*---------------------------------------------------------------------*/
 	template <int N>
-	static inline bool is_near(T f)
+	static _CXX11_CONSTEXPR inline bool is_near(T f)
 	{
 		return (f <= (static_cast<T>(N) + Math::Epsilon) && f >= (static_cast<T>(N) - Math::Epsilon));
 	}
@@ -174,7 +174,7 @@ public:
 	/*---------------------------------------------------------------------
 	* 逆数を求める
 	*---------------------------------------------------------------------*/
-	static inline T reciprocal(T f)
+	static _CXX11_CONSTEXPR inline T reciprocal(T f)
 	{
 		_DEB_ASSERT(!Math::is_near_zero(f));
 		return (Math::One / f);
@@ -183,7 +183,7 @@ public:
 	/*---------------------------------------------------------------------
 	* 角度をラジアンへ変換
 	*---------------------------------------------------------------------*/
-	static inline T to_radian(T f)
+	static _CXX11_CONSTEXPR inline T to_radian(T f)
 	{
 		return (f * Math::Deg2Rad);
 	}
@@ -191,7 +191,7 @@ public:
 	/*---------------------------------------------------------------------
 	* ラジアンを角度へ変換
 	*---------------------------------------------------------------------*/
-	static inline T to_degree(T f)
+	static _CXX11_CONSTEXPR inline T to_degree(T f)
 	{
 		return (f * Math::Rad2Deg);
 	}
@@ -280,7 +280,7 @@ public:
 			return Math::ceil(x);
 		}
 		return Math::floor(x);
-#endif /* _USE_CXX11 */
+#endif // _USE_CXX11
 	}
 	/*---------------------------------------------------------------------
 	* 値の四捨五入した値を整数型で返す
@@ -355,7 +355,7 @@ public:
 	/*---------------------------------------------------------------------
 	* ２乗を求める
 	*---------------------------------------------------------------------*/
-	static inline T sqr(T x)
+	static _CXX11_CONSTEXPR inline T sqr(T x)
 	{
 		return (x * x);
 	}
@@ -365,7 +365,7 @@ public:
 	*---------------------------------------------------------------------*/
 	static inline T power_of_two(T x)
 	{
-		/* マイナス対応 */
+		// マイナス対応
 		T r = x >= Math::Zero ? Math::Two : -Math::Two;
 		while (r < x)
 		{
@@ -385,7 +385,7 @@ public:
 	/*---------------------------------------------------------------------
 	* 大きい方の値を返す
 	*---------------------------------------------------------------------*/
-	static inline const T& max(const T& x, const T& y)
+	static _CXX11_CONSTEXPR inline const T& max(const T& x, const T& y)
 	{
 		return x > y ? x : y;
 	}
@@ -398,7 +398,7 @@ public:
 	/*---------------------------------------------------------------------
 	* 小さい方の値を返す
 	*---------------------------------------------------------------------*/
-	static inline const T& min(const T& x, const T& y)
+	static _CXX11_CONSTEXPR inline const T& min(const T& x, const T& y)
 	{
 		return x < y ? x : y;
 	}
@@ -411,7 +411,7 @@ public:
 	/*---------------------------------------------------------------------
 	* 値をクランプ
 	*---------------------------------------------------------------------*/
-	static inline const T& clamp(const T& v, const T& min, const T& max)
+	static _CXX11_CONSTEXPR inline const T& clamp(const T& v, const T& min, const T& max)
 	{
 		return Math::max(min, Math::min(max, v));
 	}
@@ -423,7 +423,7 @@ public:
 	/*---------------------------------------------------------------------
 	* 値を0～1へクランプ
 	*---------------------------------------------------------------------*/
-	static inline const T& clamp01(const T& v)
+	static _CXX11_CONSTEXPR inline const T& clamp01(const T& v)
 	{
 		return clamp(v, Math::Zero, Math::One);
 	}
@@ -447,12 +447,12 @@ public:
 	/*---------------------------------------------------------------------
 	* 線形補間を求める
 	*---------------------------------------------------------------------*/
-	static inline T lerp(T from, T to, T t)
+	static _CXX11_CONSTEXPR inline T lerp(T from, T to, T t)
 	{
 		return (from * (Math::One - t)) + (to * t);
 	}
 	template <typename U>
-	static inline T lerp(T from, T to, U t)
+	static _CXX11_CONSTEXPR inline T lerp(T from, T to, U t)
 	{
 		return (from * (Math<U>::One - t)) + (to * t);
 	}
@@ -472,7 +472,7 @@ public:
 	*---------------------------------------------------------------------*/
 	static inline T bezier(T from, T center, T to, T t)
 	{
-		/* lerp(lerp(from, center, t), to, t)の式展開 */
+		// lerp(lerp(from, center, t), to, t)の式展開
 
 		T t0, t1, t2;
 		Math::bezier_coefficient(t, t0, t1, t2);
@@ -500,15 +500,15 @@ public:
 	*---------------------------------------------------------------------*/
 	static inline T catmull_rom(T p1, T p2, T p3, T p4, T t)
 	{
-		/* http://markun.cs.shinshu-u.ac.jp/learn/cg/cg3/index4.html */
-		/* 式展開はFerfuson/Coons式から求められる */
-		/* Ferfuson/Coonsの速度を制御点からの位置関係から求めるので速度を渡さないですむ */
-		/* 初期速度は制御点1-3の半分、最終速度は制御点2-4の半分とする(定義) */
-		/* X(t) = (2p0 - 2p1 + v0 + v1)t^3 + (-3p0 + 3p1 - 2v0 - v1)t^2 + v0t + p0 */
+		// http://markun.cs.shinshu-u.ac.jp/learn/cg/cg3/index4.html
+		// 式展開はFerfuson/Coons式から求められる
+		// Ferfuson/Coonsの速度を制御点からの位置関係から求めるので速度を渡さないですむ
+		// 初期速度は制御点1-3の半分、最終速度は制御点2-4の半分とする(定義)
+		// X(t) = (2p0 - 2p1 + v0 + v1)t^3 + (-3p0 + 3p1 - 2v0 - v1)t^2 + v0t + p0
 
-		/* 初期速度 */
+		// 初期速度
 		T v0 = (p3 - p1) * Math::Half;
-		/* 最終速度 */
+		// 最終速度
 		T v1 = (p4 - p2) * Math::Half;
 
 		T t2 = t * t;
@@ -524,12 +524,12 @@ public:
 	/*---------------------------------------------------------------------
 	* 逆から線形補間を求める
 	*---------------------------------------------------------------------*/
-	static inline T lerp_invert(T from, T to, T t)
+	static _CXX11_CONSTEXPR inline T lerp_invert(T from, T to, T t)
 	{
 		return lerp(from, to, Math::One - t);
 	}
 	template <typename U>
-	static inline T lerp_invert(T from, T to, U t)
+	static _CXX11_CONSTEXPR inline T lerp_invert(T from, T to, U t)
 	{
 		return lerp<U>(from, to, Math<U>::One - t);
 	}
@@ -542,7 +542,7 @@ public:
 	/*---------------------------------------------------------------------
 	* 直線の方程式を求める
 	*---------------------------------------------------------------------*/
-	static inline T linear_equation(const T& p, const T& v, T t)
+	static _CXX11_CONSTEXPR inline T linear_equation(const T& p, const T& v, T t)
 	{
 		return (p + v * t);
 	}
@@ -558,11 +558,11 @@ public:
 	/*---------------------------------------------------------------------
 	* 型で使用されている先頭アドレスを求める
 	*---------------------------------------------------------------------*/
-	static inline T* to_pointer(T& t)
+	static _CXX11_CONSTEXPR inline T* to_pointer(T& t)
 	{
 		return &t;
 	}
-	static inline const T* to_pointer(const T& t)
+	static _CXX11_CONSTEXPR inline const T* to_pointer(const T& t)
 	{
 		return &t;
 	}
@@ -581,7 +581,7 @@ public:
 	* 指定の型へキャスト
 	*---------------------------------------------------------------------*/
 	template <typename U>
-	static inline U cast(const T& t)
+	static _CXX11_CONSTEXPR inline U cast(const T& t)
 	{
 		return static_cast<U>(t);
 	}
@@ -613,7 +613,7 @@ public:
 	/*---------------------------------------------------------------------
 	* 足し算
 	*---------------------------------------------------------------------*/
-	static inline T add(T x, T y)
+	static _CXX11_CONSTEXPR inline T add(T x, T y)
 	{
 		return (x + y);
 	}
@@ -778,7 +778,7 @@ public:
 	* Operatots
 	*-----------------------------------------------------------------------------------------*/
 
-	/* None */
+	// None
 };
 
 #ifndef _UNUSING_MATH_INT_FLOAT
@@ -786,28 +786,28 @@ public:
 * int特有の挙動
 *---------------------------------------------------------------------*/
 template <>
-inline bool Math<int>::is_near_zero(int f)
+_CXX11_CONSTEXPR inline bool Math<int>::is_near_zero(int f)
 {
 	return (f == 0);
 }
 template <>
-inline bool Math<int>::is_near_one(int f)
+_CXX11_CONSTEXPR inline bool Math<int>::is_near_one(int f)
 {
 	return (f == 1);
 }
 template <>
-inline bool Math<int>::is_near(int f, int value)
+_CXX11_CONSTEXPR inline bool Math<int>::is_near(int f, int value)
 {
 	return (f == value);
 }
 template <>
 template <int N>
-inline bool Math<int>::is_near(int f)
+_CXX11_CONSTEXPR inline bool Math<int>::is_near(int f)
 {
 	return (f == N);
 }
 template <>
-inline int Math<int>::reciprocal(int f)
+_CXX11_CONSTEXPR inline int Math<int>::reciprocal(int f)
 {
 	return 0;
 }
@@ -854,7 +854,7 @@ inline int& Math<int>::remainder_assign(int& x, int y)
 	x %= y;
 	return x;
 }
-#endif /* _UNUSING_MATH_INT_FLOAT */
+#endif // _UNUSING_MATH_INT_FLOAT
 
 #ifndef _UNUSING_MATH_INT_FLOAT
 template <> const int Math<int>::Zero = 0;
@@ -883,7 +883,7 @@ template <> const float Math<float>::Infinity = HUGE_VALF;
 template <> const float Math<float>::Epsilon = FLT_EPSILON;
 template <> const float Math<float>::Maximum = FLT_MAX;
 template <> const float Math<float>::Minimum = FLT_MIN;
-#endif /* _UNUSING_MATH_INT_FLOAT */
+#endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
 template <> const double Math<double>::Zero = 0.0;
 template <> const double Math<double>::Half = 0.5;
@@ -898,7 +898,7 @@ template <> const double Math<double>::Infinity = HUGE_VAL;
 template <> const double Math<double>::Epsilon = DBL_EPSILON;
 template <> const double Math<double>::Maximum = DBL_MAX;
 template <> const double Math<double>::Minimum = DBL_MIN;
-#endif /* _USING_MATH_DOUBLE */
+#endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
 template <> const long double Math<long double>::Zero = 0.0L;
 template <> const long double Math<long double>::Half = 0.5L;
@@ -913,7 +913,7 @@ template <> const long double Math<long double>::Infinity = HUGE_VALL;
 template <> const long double Math<long double>::Epsilon = LDBL_EPSILON;
 template <> const long double Math<long double>::Maximum = LDBL_MAX;
 template <> const long double Math<long double>::Minimum = LDBL_MIN;
-#endif /* _USING_MATH_LONG_DOUBLE */
+#endif // _USING_MATH_LONG_DOUBLE
 
 template <typename T>
 const T Math<T>::PIxTwo = Math<T>::PI * Math<T>::Two;
@@ -930,7 +930,7 @@ const T Math<T>::Rad2Deg = Math<T>::HalfAngle / Math<T>::PI;
 template <typename T>
 const T Math<T>::Deg2Rad = Math<T>::PI / Math<T>::HalfAngle;
 
-/* 数学クラスの関数を＊演算子で呼び出す */
+// 数学クラスの関数を＊演算子で呼び出す
 
 #ifdef _USE_CXX11
 template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
@@ -1039,7 +1039,7 @@ Vector4<T> operator * (const T& f, const behavior::_vec4_t&)
 {
 	return Vector4<T>(f, f);
 }
-#endif /* _USE_CXX11 */
+#endif // _USE_CXX11
 
 #ifdef _USING_MATH_IO
 
@@ -1048,16 +1048,16 @@ namespace detail
 #ifndef _UNUSING_MATH_INT_FLOAT
 typedef Math<int>::SinCos MathSinCosi;
 typedef Math<float>::SinCos MathSinCosf;
-#endif /* _UNUSING_MATH_INT_FLOAT */
+#endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
 typedef Math<double>::SinCos MathSinCosd;
-#endif /* _USING_MATH_DOUBLE */
+#endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
 typedef Math<long double>::SinCos MathSinCosld;
-#endif /* _USING_MATH_LONG_DOUBLE */
+#endif // _USING_MATH_LONG_DOUBLE
 }
 
-/* 型を直接指定するとエラーになってしまうので */
+// 型を直接指定するとエラーになってしまうので
 #ifndef _MATH_SIN_COS_OUTPUT_OPERATOR
 #define _MATH_SIN_COS_OUTPUT_OPERATOR(TYPE) template <typename CharT, typename CharTraits> inline\
 	std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const TYPE& s)\
@@ -1073,22 +1073,22 @@ typedef Math<long double>::SinCos MathSinCosld;
 			<< out_char::comma_space << CharT('C') << out_char::colon << out_char::space << s.Cos << out_char::parentheses_right;\
 		return os;\
 	}
-#endif /* _MATH_SIN_COS_OUTPUT_OPERATOR */
+#endif // _MATH_SIN_COS_OUTPUT_OPERATOR
 
 #ifndef _UNUSING_MATH_INT_FLOAT
 _MATH_SIN_COS_OUTPUT_OPERATOR(detail::MathSinCosi);
 _MATH_SIN_COS_OUTPUT_OPERATOR(detail::MathSinCosf);
-#endif /* _UNUSING_MATH_INT_FLOAT */
+#endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
 _MATH_SIN_COS_OUTPUT_OPERATOR(detail::MathSinCosd);
-#endif /* _USING_MATH_DOUBLE */
+#endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
 _MATH_SIN_COS_OUTPUT_OPERATOR(detail::MathSinCosld);
-#endif /* _USING_MATH_LONG_DOUBLE */
+#endif // _USING_MATH_LONG_DOUBLE
 
 #undef _MATH_SIN_COS_OUTPUT_OPERATOR
-#endif /* _USING_MATH_IO */
+#endif // _USING_MATH_IO
 
-} /* namespace pocket */
+} // namespace pocket
 
-#endif /* __MATH_MATH_H__ */
+#endif // __MATH_MATH_H__

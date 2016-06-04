@@ -4,15 +4,15 @@
 #include "config.h"
 #ifdef _USE_PRAGMA_ONCE
 #pragma once
-#endif /* _USE_PRAGMA_ONCE */
+#endif // _USE_PRAGMA_ONCE
 
 #include <complex>
 #include <stdint.h>
 #ifdef _USE_CXX11
 #include <type_traits>
-#endif /* _USE_CXX11 */
+#endif // _USE_CXX11
 
-/* 簡易定義 */
+// 簡易定義
 typedef int8_t s8;
 typedef uint8_t u8;
 typedef int16_t s16;
@@ -21,7 +21,7 @@ typedef int32_t s32;
 typedef uint32_t u32;
 typedef int64_t s64;
 typedef uint64_t u64;
-typedef u32 bitfield; /* ビット演算で行わえることを明示 */
+typedef u32 bitfield; // ビット演算で行わえることを明示
 typedef u8 byte;
 typedef s8 sbyte;
 typedef unsigned short ushort;
@@ -40,21 +40,21 @@ typedef long double f128;
 #	else
 #		define _TEMPLATE_TYPE_VALIDATE(VALID_TYPE, T) typename type_traits::enable_if< VALID_TYPE < T >::value, T >::type
 #	endif
-#endif /* _TEMPLATE_TYPE_VALIDATE */
+#endif // _TEMPLATE_TYPE_VALIDATE
 
 /*---------------------------------------------------------------------------------------
 * テンプレートの型チェックの設定（算術型か？）
 *---------------------------------------------------------------------------------------*/
 #ifndef _TEMPLATE_TYPE_VALIDATE_ARITHMETIC
 #	define _TEMPLATE_TYPE_VALIDATE_ARITHMETIC(T) _TEMPLATE_TYPE_VALIDATE(type_traits::is_arithmetic, T)
-#endif /* _TEMPLATE_TYPE_VALIDATE_ARITHMETIC */
+#endif // _TEMPLATE_TYPE_VALIDATE_ARITHMETIC
 
 /*---------------------------------------------------------------------------------------
 * テンプレートの型チェックの設定（数学クラスで使用できるか？）
 *---------------------------------------------------------------------------------------*/
 #ifndef _TEMPLATE_TYPE_VALIDATE_MATH_TYPE
 #	define _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T) _TEMPLATE_TYPE_VALIDATE(type_traits::is_math_type, T)
-#endif /* _TEMPLATE_TYPE_VALIDATE_MATH_TYPE */
+#endif // _TEMPLATE_TYPE_VALIDATE_MATH_TYPE
 
 #ifndef _DECL_CHANGE_BEHAVIOR
 // pragma once が使用できる場合はstruct
@@ -64,7 +64,7 @@ typedef long double f128;
 #	else
 #		define _DECL_CHANGE_BEHAVIOR(NAME) enum _##NAME##_t { NAME }
 #	endif
-#endif /* _DECL_CHANGE_BEHAVIOR */
+#endif // _DECL_CHANGE_BEHAVIOR
 
 namespace pocket
 {
@@ -132,7 +132,7 @@ _DECL_CHANGE_BEHAVIOR(clamp01);
 _DECL_CHANGE_BEHAVIOR(vec2);
 _DECL_CHANGE_BEHAVIOR(vec3);
 _DECL_CHANGE_BEHAVIOR(vec4);
-#endif /* _USE_CXX11 */
+#endif // _USE_CXX11
 
 _DECL_CHANGE_BEHAVIOR(equal);
 _DECL_CHANGE_BEHAVIOR(not_equal);
@@ -197,7 +197,7 @@ _DECL_CHANGE_BEHAVIOR(transposed);
 _DECL_CHANGE_BEHAVIOR(determinant);
 
 _DECL_CHANGE_BEHAVIOR(inverse);
-} /* namespace behavior */
+} // namespace behavior
 
 #undef _DECL_CHANGE_BEHAVIOR
 
@@ -240,7 +240,7 @@ struct false_type : integral_constant<bool, false>
 
 using std::true_type;
 using std::false_type;
-#endif /* _USE_CXX11 */
+#endif // _USE_CXX11
 
 /*---------------------------------------------------------------------
 * 数学クラスで使用できる型か
@@ -270,7 +270,7 @@ struct is_math_type<float> : true_type
 template <>
 struct is_math_floating_type<float> : true_type
 {};
-#endif /* _UNUSING_MATH_INT_FLOAT */
+#endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
 template <>
 struct is_math_type<double> : true_type
@@ -278,7 +278,7 @@ struct is_math_type<double> : true_type
 template <>
 struct is_math_floating_type<double> : true_type
 {};
-#endif /* _USING_MATH_DOUBLE */
+#endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
 template <>
 struct is_math_type<long double> : true_type
@@ -286,7 +286,7 @@ struct is_math_type<long double> : true_type
 template <>
 struct is_math_floating_type<long double> : true_type
 {};
-#endif /* _USING_MATH_LONG_DOUBLE */
+#endif // _USING_MATH_LONG_DOUBLE
 
 /*---------------------------------------------------------------------
 * bool Cが真の時のみ型を定義、コンパイル時エラーチェック
@@ -305,7 +305,7 @@ struct enable_if<true, T>
 #else
 
 using std::enable_if;
-#endif /* _USE_CXX11 */
+#endif // _USE_CXX11
 
 
 /*---------------------------------------------------------------------
@@ -361,7 +361,7 @@ struct is_arithmetic<long double> : true_type
 #else
 
 using std::is_arithmetic;
-#endif /* _USE_CXX11 */
+#endif // _USE_CXX11
 
 /*---------------------------------------------------------------------
 * 真の時にT1、偽の時にT2の型となる型
@@ -380,7 +380,7 @@ struct conditional<false, T1, T2>
 #else
 
 using std::conditional;
-#endif /* _USE_CXX11 */
+#endif // _USE_CXX11
 
 /*---------------------------------------------------------------------
 * 真の時にN1、偽の時にN2のサイズとなる型
@@ -396,7 +396,7 @@ struct conditional_size<false, N1, N2>
 	_STATICAL_CONSTANT size_t value = N2;
 };
 
-} /* namespace type_traits */
+} // namespace type_traits
 
 /*------------------------------------------------------------------------------------------
 * Math
@@ -405,13 +405,13 @@ template <typename> class Math;
 #ifndef _UNUSING_MATH_INT_FLOAT
 typedef Math<int> Mathi;
 typedef Math<float> Mathf;
-#endif /* _UNUSING_MATH_INT_FLOAT */
+#endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
 typedef Math<double> Mathd;
-#endif /* _USING_MATH_DOUBLE */
+#endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
 typedef Math<long double> Mathld;
-#endif /* _USING_MATH_LONG_DOUBLE */
+#endif // _USING_MATH_LONG_DOUBLE
 
 /*------------------------------------------------------------------------------------------
 * Vector2
@@ -421,13 +421,13 @@ template <typename> struct Vector2;
 typedef Vector2<int> Point2;
 typedef Vector2<int> Vector2i;
 typedef Vector2<float> Vector2f;
-#endif /* _UNUSING_MATH_INT_FLOAT */
+#endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
 typedef Vector2<double> Vector2d;
-#endif /* _USING_MATH_DOUBLE */
+#endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
 typedef Vector2<long double> Vector2ld;
-#endif /* _USING_MATH_LONG_DOUBLE */
+#endif // _USING_MATH_LONG_DOUBLE
 
 /*------------------------------------------------------------------------------------------
 * Vector3
@@ -437,13 +437,13 @@ template <typename> struct Vector3;
 typedef Vector3<int> Point3;
 typedef Vector3<int> Vector3i;
 typedef Vector3<float> Vector3f;
-#endif /* _UNUSING_MATH_INT_FLOAT */
+#endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
 typedef Vector3<double> Vector3d;
-#endif /* _USING_MATH_DOUBLE */
+#endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
 typedef Vector3<long double> Vector3ld;
-#endif /* _USING_MATH_LONG_DOUBLE */
+#endif // _USING_MATH_LONG_DOUBLE
 
 /*------------------------------------------------------------------------------------------
 * Vector4
@@ -453,13 +453,13 @@ template <typename> struct Vector4;
 typedef Vector4<int> Point4;
 typedef Vector4<int> Vector4i;
 typedef Vector4<float> Vector4f;
-#endif /* _UNUSING_MATH_INT_FLOAT */
+#endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
 typedef Vector4<double> Vector4d;
-#endif /* _USING_MATH_DOUBLE */
+#endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
 typedef Vector4<long double> Vector4ld;
-#endif /* _USING_MATH_LONG_DOUBLE */
+#endif // _USING_MATH_LONG_DOUBLE
 
 /*------------------------------------------------------------------------------------------
 * Matrix4x4
@@ -467,13 +467,13 @@ typedef Vector4<long double> Vector4ld;
 template <typename> struct Matrix4x4;
 #ifndef _UNUSING_MATH_INT_FLOAT
 typedef Matrix4x4<float> Matrix4x4f;
-#endif /* _UNUSING_MATH_INT_FLOAT */
+#endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
 typedef Matrix4x4<double> Matrix4x4d;
-#endif /* _USING_MATH_DOUBLE */
+#endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
 typedef Matrix4x4<long double> Matrix4x4ld;
-#endif /* _USING_MATH_LONG_DOUBLE */
+#endif // _USING_MATH_LONG_DOUBLE
 
 /*------------------------------------------------------------------------------------------
 * Quaternion
@@ -481,13 +481,13 @@ typedef Matrix4x4<long double> Matrix4x4ld;
 template <typename> struct Quaternion;
 #ifndef _UNUSING_MATH_INT_FLOAT
 typedef Quaternion<float> Quaternionf;
-#endif /* _UNUSING_MATH_INT_FLOAT */
+#endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
 typedef Quaternion<double> Quaterniond;
-#endif /* _USING_MATH_DOUBLE */
+#endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
 typedef Quaternion<long double> Quaternionld;
-#endif /* _USING_MATH_LONG_DOUBLE */
+#endif // _USING_MATH_LONG_DOUBLE
 
 /*------------------------------------------------------------------------------------------
 * Plane
@@ -495,13 +495,13 @@ typedef Quaternion<long double> Quaternionld;
 template <typename> struct Plane;
 #ifndef _UNUSING_MATH_INT_FLOAT
 typedef Plane<float> Planef;
-#endif /* _UNUSING_MATH_INT_FLOAT */
+#endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
 typedef Plane<double> Planed;
-#endif /* _USING_MATH_DOUBLE */
+#endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
 typedef Plane<long double> Planeld;
-#endif /* _USING_MATH_LONG_DOUBLE */
+#endif // _USING_MATH_LONG_DOUBLE
 
 /*------------------------------------------------------------------------------------------
 * Color
@@ -509,13 +509,13 @@ typedef Plane<long double> Planeld;
 template <typename> struct Color;
 #ifndef _UNUSING_MATH_INT_FLOAT
 typedef Color<float> Colorf;
-#endif /* _UNUSING_MATH_INT_FLOAT */
+#endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
 typedef Color<double> Colord;
-#endif /* _USING_MATH_DOUBLE */
+#endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
 typedef Color<long double> Colorld;
-#endif /* _USING_MATH_LONG_DOUBLE */
+#endif // _USING_MATH_LONG_DOUBLE
 
 /*------------------------------------------------------------------------------------------
 * Range, Rectangle
@@ -527,15 +527,15 @@ typedef Range<int> Rangei;
 typedef Range<float> Rangef;
 typedef Rectangle<int> Rectanglei;
 typedef Rectangle<float> Rectanglef;
-#endif /* _UNUSING_MATH_INT_FLOAT */
+#endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
 typedef Range<double> Ranged;
 typedef Rectangle<double> Rectangled;
-#endif /* _USING_MATH_DOUBLE */
+#endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
 typedef Range<long double> Rangeld;
 typedef Rectangle<long double> Rectangleld;
-#endif /* _USING_MATH_LONG_DOUBLE */
+#endif // _USING_MATH_LONG_DOUBLE
 
 /*------------------------------------------------------------------------------------------
 * Line
@@ -544,15 +544,15 @@ template <typename, template<typename> class> struct Line;
 #ifndef _UNUSING_MATH_INT_FLOAT
 typedef Line<float, Vector2> Line2f;
 typedef Line<float, Vector3> Line3f;
-#endif /* _UNUSING_MATH_INT_FLOAT */
+#endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
 typedef Line<double, Vector2> Line2d;
 typedef Line<double, Vector3> Line3d;
-#endif /* _USING_MATH_DOUBLE */
+#endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
 typedef Line<long double, Vector2> Line2ld;
 typedef Line<long double, Vector3> Line3ld;
-#endif /* _USING_MATH_LONG_DOUBLE */
+#endif // _USING_MATH_LONG_DOUBLE
 
 /*------------------------------------------------------------------------------------------
 * Ray
@@ -561,16 +561,16 @@ template <typename, template<typename> class> struct Ray;
 #ifndef _UNUSING_MATH_INT_FLOAT
 typedef Ray<float, Vector2> Ray2f;
 typedef Ray<float, Vector3> Ray3f;
-#endif /* _UNUSING_MATH_INT_FLOAT */
+#endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
 typedef Ray<double, Vector2> Ray2d;
 typedef Ray<double, Vector3> Ray3d;
-#endif /* _USING_MATH_DOUBLE */
+#endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
 typedef Ray<long double, Vector2> Ray2ld;
 typedef Ray<long double, Vector3> Ray3ld;
-#endif /* _USING_MATH_LONG_DOUBLE */
+#endif // _USING_MATH_LONG_DOUBLE
 
-} /* namespace pocket */
+} // namespace pocket
 
-#endif /* __MATH_FORWARD_H__ */
+#endif // __MATH_FORWARD_H__

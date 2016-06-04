@@ -4,7 +4,7 @@
 #include "config.h"
 #ifdef _USE_PRAGMA_ONCE
 #pragma once
-#endif /* _USE_PRAGMA_ONCE */
+#endif // _USE_PRAGMA_ONCE
 
 #include "Debug.h"
 #include "Math.h"
@@ -13,7 +13,7 @@
 #include "Matrix4x4.h"
 #ifdef _USING_MATH_IO
 #include "io.h"
-#endif /* _USING_MATH_IO */
+#endif // _USING_MATH_IO
 
 namespace pocket
 {
@@ -21,27 +21,27 @@ namespace pocket
 template <typename> struct Frustum;
 #ifndef _UNUSING_MATH_INT_FLOAT
 typedef Frustum<float> Frustumf;
-#endif /* _UNUSING_MATH_INT_FLOAT */
+#endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
 typedef Frustum<double> Frustumd;
-#endif /* _USING_MATH_DOUBLE */
+#endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
 typedef Frustum<long double> Frustumld;
-#endif /* _USING_MATH_LONG_DOUBLE */
+#endif // _USING_MATH_LONG_DOUBLE
 
 #ifdef _USE_CXX11
 template <typename T>
 using frustum = Frustum<T>;
 #ifndef _UNUSING_MATH_INT_FLOAT
 using frustumf = frustum<float>;
-#endif /* _UNUSING_MATH_INT_FLOAT */
+#endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
 using frustumd = frustum<double>;
-#endif /* _USING_MATH_DOUBLE */
+#endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
 using frustumld = frustum<long double>;
-#endif /* _USING_MATH_LONG_DOUBLE */
-#endif /* _USE_CXX11 */
+#endif // _USING_MATH_LONG_DOUBLE
+#endif // _USE_CXX11
 
 template <typename T>
 struct Frustum
@@ -134,7 +134,7 @@ struct Frustum
 	{
 		struct
 		{
-#endif /* _USE_ANONYMOUS_NON_POD */
+#endif // _USE_ANONYMOUS_NON_POD
 
 			array_type Planes;
 
@@ -150,7 +150,7 @@ struct Frustum
 			Plane<T> Far;
 		};
 	};
-#endif /* _USE_ANONYMOUS_NON_POD */
+#endif // _USE_ANONYMOUS_NON_POD
 
 	template <typename> friend struct Frustum;
 
@@ -158,7 +158,7 @@ struct Frustum
 	* Constants
 	*---------------------------------------------------------------------------------------*/
 
-	/* None */
+	// None
 
 	/*---------------------------------------------------------------------------------------
 	* Constructors
@@ -174,7 +174,7 @@ struct Frustum
 		: Left(left), Right(right),
 		Up(up), Down(down),
 		Near(near), Far(far)
-#endif /* _USE_ANONYMOUS_NON_POD */
+#endif // _USE_ANONYMOUS_NON_POD
 	{
 #ifndef _USE_ANONYMOUS_NON_POD
 		Planes[0] = left;
@@ -183,7 +183,7 @@ struct Frustum
 		Planes[3] = down;
 		Planes[4] = near;
 		Planes[5] = far;
-#endif /* _USE_ANONYMOUS_NON_POD */
+#endif // _USE_ANONYMOUS_NON_POD
 	}
 	template <typename U>
 	Frustum(const Plane<U>& left, const Plane<U>& right, const Plane<U>& up, const Plane<U>& down, const Plane<U>& near, const Plane<U>& far)
@@ -191,7 +191,7 @@ struct Frustum
 		: Left(static_cast<Plane<T> >(left)), Right(static_cast<Plane<T> >(right)),
 		Up(static_cast<Plane<T> >(up)), Down(static_cast<Plane<T> >(down)),
 		Near(static_cast<Plane<T> >(near)), Far(static_cast<Plane<T> >(far))
-#endif /* _USE_ANONYMOUS_NON_POD */
+#endif // _USE_ANONYMOUS_NON_POD
 	{
 #ifndef _USE_ANONYMOUS_NON_POD
 		Planes[0] = static_cast<Plane<T> >(left);
@@ -200,7 +200,7 @@ struct Frustum
 		Planes[3] = static_cast<Plane<T> >(down);
 		Planes[4] = static_cast<Plane<T> >(near);
 		Planes[5] = static_cast<Plane<T> >(far);
-#endif /* _USE_ANONYMOUS_NON_POD */
+#endif // _USE_ANONYMOUS_NON_POD
 	}
 
 	explicit Frustum(const LookAt& lookat, const ProjectionFieldOfView& fov)
@@ -248,7 +248,7 @@ struct Frustum
 	*---------------------------------------------------------------------*/
 	Frustum& from_view_projection_matrix(const Matrix4x4<T>& view, const Matrix4x4<T>& projection)
 	{
-		/* クリップ行列を計算 */
+		// クリップ行列を計算
 		Matrix4x4<T> clip(behavior::noinitialize);
 		view.multiply(projection, clip);
 
@@ -264,17 +264,17 @@ struct Frustum
 		const Vector4<T>* v2 = &clip[2];
 		const Vector4<T>* v3 = &clip[3];
 
-		/* それぞれの面情報を計算 */
+		// それぞれの面情報を計算
 		Plane<T>* p = &Planes[0];
 
-		/* 左 */
+		// 左
 		p->Normal.X = v0->W + v0->X;
 		p->Normal.Y = v1->W + v1->X;
 		p->Normal.Z = v2->W + v2->X;
 		p->D = v3->W + v3->X;
 		p->normalize();
 
-		/* 右 */
+		// 右
 		p = &Planes[1];
 		p->Normal.X = v0->W - v0->X;
 		p->Normal.Y = v1->W - v1->X;
@@ -282,7 +282,7 @@ struct Frustum
 		p->D = v3->W - v3->X;
 		p->normalize();
 
-		/* 上 */
+		// 上
 		p = &Planes[2];
 		p->Normal.X = v0->W - v0->Y;
 		p->Normal.Y = v1->W - v1->Y;
@@ -290,7 +290,7 @@ struct Frustum
 		p->D = v3->W - v3->Y;
 		p->normalize();
 
-		/* 下 */
+		// 下
 		p = &Planes[3];
 		p->Normal.X = v0->W + v0->Y;
 		p->Normal.Y = v1->W + v1->Y;
@@ -298,7 +298,7 @@ struct Frustum
 		p->D = v3->W + v3->Y;
 		p->normalize();
 
-		/* 近 */
+		// 近
 		p = &Planes[4];
 		p->Normal.X = v0->W - v0->Z;
 		p->Normal.Y = v1->W - v1->Z;
@@ -306,7 +306,7 @@ struct Frustum
 		p->D = v3->W - v3->Z;
 		p->normalize();
 
-		/* 遠 */
+		// 遠
 		p = &Planes[5];
 		p->Normal.X = v0->W + v0->Z;
 		p->Normal.Y = v1->W + v1->Z;
@@ -324,7 +324,7 @@ struct Frustum
 	{
 		for (const_iterator i = Planes.begin(), end = Planes.end(); i != end; ++i)
 		{
-			/* 背面に存在している */
+			// 背面に存在している
 			if (i->intersect_point(point) == Plane<T>::eOnBackward)
 			{
 				return false;
@@ -449,7 +449,7 @@ struct Frustum
 		return &Left;
 #else
 		return &Planes[0];
-#endif /* _USE_ANONYMOUS_NON_POD */
+#endif // _USE_ANONYMOUS_NON_POD
 	}
 	_CXX11_EXPLICIT operator const Plane<T>* () const
 	{
@@ -457,7 +457,7 @@ struct Frustum
 		return &Left;
 #else
 		return &Planes[0];
-#endif /* _USE_ANONYMOUS_NON_POD */
+#endif // _USE_ANONYMOUS_NON_POD
 	}
 	_CXX11_EXPLICIT operator T* ()
 	{
@@ -465,7 +465,7 @@ struct Frustum
 		return &Left.Normal.X;
 #else
 		return &Planes[0].Normal.X;
-#endif /* _USE_ANONYMOUS_NON_POD */
+#endif // _USE_ANONYMOUS_NON_POD
 	}
 	_CXX11_EXPLICIT operator const T* () const
 	{
@@ -473,7 +473,7 @@ struct Frustum
 		return &Left.Normal.X;
 #else
 		return &Planes[0].Normal.X;
-#endif /* _USE_ANONYMOUS_NON_POD */
+#endif // _USE_ANONYMOUS_NON_POD
 	}
 
 	/*---------------------------------------------------------------------
@@ -566,8 +566,8 @@ std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, 
 	is.ignore();
 	return is;
 }
-#endif /* _USING_MATH_IO */
+#endif // _USING_MATH_IO
 
-} /* namespace pocket */
+} // namespace pocket
 
-#endif /* __MATH_FRUSTUM_H__ */
+#endif // __MATH_FRUSTUM_H__

@@ -4,7 +4,7 @@
 #include "config.h"
 #ifdef _USE_PRAGMA_ONCE
 #pragma once
-#endif /* _USE_PRAGMA_ONCE */
+#endif // _USE_PRAGMA_ONCE
 
 #include "array.h"
 #include "Math.h"
@@ -13,7 +13,7 @@
 #include "Quaternion.h"
 #ifdef _USING_MATH_IO
 #include "io.h"
-#endif /* _USING_MATH_IO */
+#endif // _USING_MATH_IO
 
 namespace pocket
 {
@@ -23,42 +23,42 @@ template <typename> struct Matrix4x4;
 
 #ifndef _UNUSING_MATH_INT_FLOAT
 typedef Matrix3x3<float> Matrix3x3f;
-#endif /* _UNUSING_MATH_INT_FLOAT */
+#endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
 typedef Matrix3x3<double> Matrix3x3d;
-#endif /* _USING_MATH_DOUBLE */
+#endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
 typedef Matrix3x3<long double> Matrix3x3ld;
-#endif /* _USING_MATH_LONG_DOUBLE */
+#endif // _USING_MATH_LONG_DOUBLE
 
 #ifdef _USE_CXX11
 template <typename T>
 using mat3x3 = Matrix3x3<T>;
 #ifndef _UNUSING_MATH_INT_FLOAT
 using mat3x3f = mat3x3<float>;
-#endif /* _UNUSING_MATH_INT_FLOAT */
+#endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
 using mat3x3d = mat3x3<double>;
-#endif /* _USING_MATH_DOUBLE */
+#endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
 using mat3x3ld = mat3x3<long double>;
-#endif /* _USING_MATH_LONG_DOUBLE */
-#endif /* _USE_CXX11 */
+#endif // _USING_MATH_LONG_DOUBLE
+#endif // _USE_CXX11
 
-/* 行列の配列位置を示す */
+// 行列の配列位置を示す
 struct MatrixPoint
 {
 	enum Elem
 #ifdef _USE_CXX11
 		: unsigned int
-#endif /* _USE_CXX11 */
+#endif // _USE_CXX11
 	{
 
 #ifdef _USE_CXX11
 		_0, _1, _2, _3,
 #else
 		_0 = 0x00U, _1 = 0x01U, _2 = 0x02U, _3 = 0x03U,
-#endif /* _USE_CXX11 */
+#endif // _USE_CXX11
 
 		_X = _0,
 		_Y = _1,
@@ -83,7 +83,7 @@ struct MatrixPoint
 	}
 };
 
-/* カンマでMatrixPointを生成する演算子 */
+// カンマでMatrixPointを生成する演算子
 
 inline MatrixPoint operator , (MatrixPoint::Elem y, MatrixPoint::Elem x)
 {
@@ -131,36 +131,36 @@ struct Matrix3x3
 	{
 		struct
 		{
-#endif /* _USE_ANONYMOUS_NON_POD */
+#endif // _USE_ANONYMOUS_NON_POD
 
-			array3x3_type M; /* 行3 */
+			array3x3_type M; // 行3
 
 #ifdef _USE_ANONYMOUS_NON_POD
 		};
-		/* 1行ごと */
+		// 1行ごと
 		struct
 		{
 			row_type MV0;
 			row_type MV1;
 			row_type MV2;
 		};
-		/* 行列内ベクトル */
+		// 行列内ベクトル
 		struct
 		{
-			Vector3<T> Right; /* X方向ベクトル */
-			Vector3<T> Up; /* Y方向ベクトル */
+			Vector3<T> Right; // X方向ベクトル
+			Vector3<T> Up; // Y方向ベクトル
 			union
 			{
-				Vector3<T> Forward; /* Z方向ベクトル */
+				Vector3<T> Forward; // Z方向ベクトル
 				struct
 				{
-					Vector2<T> Position; /* 2D時座標 */
+					Vector2<T> Position; // 2D時座標
 					T PositionZ;
 				};
 			};
 		};
 
-		/* それぞれの要素へアクセス */
+		// それぞれの要素へアクセス
 		struct
 		{
 			T M11; T M12; T M13;
@@ -169,14 +169,14 @@ struct Matrix3x3
 		};
 		array9_type Data;
 	};
-#endif /* _USE_ANONYMOUS_NON_POD */
+#endif // _USE_ANONYMOUS_NON_POD
 
 	/*------------------------------------------------------------------------------------------
 	* Constants
 	*------------------------------------------------------------------------------------------*/
 
-	static const Matrix3x3 Zero; /* 0.0 x 9 */
-	static const Matrix3x3 Identity; /* 単位行列 */
+	static const Matrix3x3 Zero; // 0.0 x 9
+	static const Matrix3x3 Identity; // 単位行列
 
 	/*------------------------------------------------------------------------------------------
 	* Constructors
@@ -223,7 +223,7 @@ struct Matrix3x3
 		M[0] = Vector3<T>(M11, M12, M13);
 		M[1] = Vector3<T>(M21, M22, M23);
 		M[2] = Vector3<T>(M31, M32, M33);
-#endif /* _USE_ANONYMOUS_NON_POD */
+#endif // _USE_ANONYMOUS_NON_POD
 	}
 	Matrix3x3(const Vector3<T>& M1, const Vector3<T>& M2, const Vector3<T>& M3)
 	{
@@ -235,9 +235,9 @@ struct Matrix3x3
 		M[0] = M1;
 		M[1] = M2;
 		M[2] = M3;
-#endif /* _USE_ANONYMOUS_NON_POD */
+#endif // _USE_ANONYMOUS_NON_POD
 	}
-	explicit Matrix3x3(const Matrix4x4<T>&); /* Matrix4x4.h */
+	explicit Matrix3x3(const Matrix4x4<T>&); // Matrix4x4.h
 
 	/*------------------------------------------------------------------------------------------
 	* Functions
@@ -368,7 +368,7 @@ struct Matrix3x3
 		return Right;
 #else
 		return M[0];
-#endif /* _USE_ANONYMOUS_NON_POD */
+#endif // _USE_ANONYMOUS_NON_POD
 	}
 	Matrix3x3& right(const Vector3<T>& v)
 	{
@@ -376,7 +376,7 @@ struct Matrix3x3
 		Right = v;
 #else
 		M[0] = v;
-#endif /* _USE_ANONYMOUS_NON_POD */
+#endif // _USE_ANONYMOUS_NON_POD
 		return *this;
 	}
 	/*---------------------------------------------------------------------
@@ -389,7 +389,7 @@ struct Matrix3x3
 		return Up;
 #else
 		return M[1];
-#endif /* _USE_ANONYMOUS_NON_POD */
+#endif // _USE_ANONYMOUS_NON_POD
 	}
 	Matrix3x3& up(const Vector3<T>& v)
 	{
@@ -397,7 +397,7 @@ struct Matrix3x3
 		Up = v;
 #else
 		M[1] = v;
-#endif /* _USE_ANONYMOUS_NON_POD */
+#endif // _USE_ANONYMOUS_NON_POD
 		return *this;
 	}
 	/*---------------------------------------------------------------------
@@ -410,7 +410,7 @@ struct Matrix3x3
 		return Forward;
 #else
 		return M[2];
-#endif /* _USE_ANONYMOUS_NON_POD */
+#endif // _USE_ANONYMOUS_NON_POD
 	}
 	Matrix3x3& forward(const Vector3<T>& v)
 	{
@@ -418,7 +418,7 @@ struct Matrix3x3
 		Forward = v;
 #else
 		M[2] = v;
-#endif /* _USE_ANONYMOUS_NON_POD */
+#endif // _USE_ANONYMOUS_NON_POD
 		return *this;
 	}
 	/*---------------------------------------------------------------------
@@ -431,7 +431,7 @@ struct Matrix3x3
 #else
 		const Vector3<T>& m = M[2];
 		return reinterpret_cast<const Vector2<T>&>(m);
-#endif /* _USE_ANONYMOUS_NON_POD */
+#endif // _USE_ANONYMOUS_NON_POD
 	}
 	Matrix3x3& position(const Vector2<T>& v)
 	{
@@ -441,7 +441,7 @@ struct Matrix3x3
 		Vector3<T>& m = M[2];
 		m.X = v.X;
 		m.Y = v.Y;
-#endif /* _USE_ANONYMOUS_NON_POD */
+#endif // _USE_ANONYMOUS_NON_POD
 		return *this;
 	}
 
@@ -485,7 +485,7 @@ struct Matrix3x3
 	*---------------------------------------------------------------------*/
 	T pitch() const
 	{
-		/* 前ベクトルのY軸の状態から計算する */
+		// 前ベクトルのY軸の状態から計算する
 		return forward().pitch();
 	}
 	/*---------------------------------------------------------------------
@@ -571,7 +571,7 @@ struct Matrix3x3
 	Matrix3x3& load_rotate_x(T r)
 	{
 		load_identity();
-		/* サインとコサインを角度から求める */
+		// サインとコサインを角度から求める
 		T S = math_type::sin(r);
 		T C = math_type::cos(r);
 		Vector3<T>* p = &M[1];
@@ -680,7 +680,7 @@ struct Matrix3x3
 	*---------------------------------------------------------------------*/
 	Matrix3x3& load_rotate_axis_angle(const Vector3<T>& axis, T angle)
 	{
-		/* 四元数での計算を行なう */
+		// 四元数での計算を行なう
 		return load_rotate_quaternion(Quaternion<T>(axis, angle));
 	}
 	/*---------------------------------------------------------------------
@@ -693,11 +693,11 @@ struct Matrix3x3
 		Position.X = x;
 		Position.Y = y;
 #else
-		/* ４の位置が座標を扱う要素 */
+		// ４の位置が座標を扱う要素
 		Vector3<T>* p = &M[2];
 		p->X = x;
 		p->Y = y;
-#endif /* _USE_ANONYMOUS_NON_POD */
+#endif // _USE_ANONYMOUS_NON_POD
 		return *this;
 	}
 	Matrix3x3& load_translate(const Vector2<T>& v)
@@ -709,7 +709,7 @@ struct Matrix3x3
 		Vector3<T>* p = &M[2];
 		p->X = v.X;
 		p->Y = v.Y;
-#endif /* _USE_ANONYMOUS_NON_POD */
+#endif // _USE_ANONYMOUS_NON_POD
 		return *this;
 	}
 
@@ -829,15 +829,15 @@ struct Matrix3x3
 		Vector3<T>* v1 = &M[1];
 		Vector3<T>* v2 = &M[2];
 
-		/* [0][1] = [1][0] */
+		// [0][1] = [1][0]
 		T tmp = v0->Y;
 		v0->Y = v1->X;
 		v1->X = tmp;
-		/* [0][2] = [2][0] */
+		// [0][2] = [2][0]
 		tmp = v0->Z;
 		v0->Z = v2->X;
 		v2->X = tmp;
-		/* [1][2] = [2][1] */
+		// [1][2] = [2][1]
 		tmp = v1->Z;
 		v1->Z = v2->Y;
 		v2->Y = tmp;
@@ -865,13 +865,13 @@ struct Matrix3x3
 		Vector3<T>* r1 = &result.M[1];
 		Vector3<T>* r2 = &result.M[2];
 
-		/* [0][1] = [1][0] */
+		// [0][1] = [1][0]
 		r0->Y = v1->X;
 		r1->X = v0->Y;
-		/* [0][2] = [2][0] */
+		// [0][2] = [2][0]
 		r0->Z = v2->X;
 		r2->X = v0->Z;
-		/* [1][2] = [2][1] */
+		// [1][2] = [2][1]
 		r1->Z = v2->Y;
 		r2->Y = v1->Z;
 
@@ -1011,7 +1011,7 @@ struct Matrix3x3
 		return &Data[0];
 #else
 		return &M[0].X;
-#endif /* _USE_ANONYMOUS_NON_POD */
+#endif // _USE_ANONYMOUS_NON_POD
 	}
 	_CXX11_EXPLICIT operator const T* () const
 	{
@@ -1019,7 +1019,7 @@ struct Matrix3x3
 		return &Data[0];
 #else
 		return &M[0].X;
-#endif /* _USE_ANONYMOUS_NON_POD */
+#endif // _USE_ANONYMOUS_NON_POD
 	}
 
 	/*---------------------------------------------------------------------
@@ -1107,7 +1107,7 @@ struct Matrix3x3
 		}
 		return *this;
 	}
-#endif /* _USE_CXX11 */
+#endif // _USE_CXX11
 
 	/*---------------------------------------------------------------------
 	* 複合演算子
@@ -1365,8 +1365,8 @@ std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, 
 	is.ignore();
 	return is;
 }
-#endif /* _USING_MATH_IO */
+#endif // _USING_MATH_IO
 
-} /* namespace pocket */
+} // namespace pocket
 
-#endif /* __MATH_MATRIX3X3_H__ */
+#endif // __MATH_MATRIX3X3_H__

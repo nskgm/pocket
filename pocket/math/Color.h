@@ -4,13 +4,13 @@
 #include "config.h"
 #ifdef _USE_PRAGMA_ONCE
 #pragma once
-#endif /* _USE_PRAGMA_ONCE */
+#endif // _USE_PRAGMA_ONCE
 
 #include "array.h"
 #include "Math.h"
 #ifdef _USING_MATH_IO
 #include "io.h"
-#endif /* _USING_MATH_IO */
+#endif // _USING_MATH_IO
 
 namespace pocket
 {
@@ -18,27 +18,27 @@ namespace pocket
 template <typename> struct Color;
 #ifndef _UNUSING_MATH_INT_FLOAT
 typedef Color<float> Colorf;
-#endif /* _UNUSING_MATH_INT_FLOAT */
+#endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
 typedef Color<double> Colord;
-#endif /* _USING_MATH_DOUBLE */
+#endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
 typedef Color<long double> Colorld;
-#endif /* _USING_MATH_LONG_DOUBLE */
+#endif // _USING_MATH_LONG_DOUBLE
 
 #ifdef _USE_CXX11
 template <typename T>
 using color = Color<T>;
 #ifndef _UNUSING_MATH_INT_FLOAT
 using colorf = color<float>;
-#endif /* _UNUSING_MATH_INT_FLOAT */
+#endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
 using colord = color<double>;
-#endif /* _USING_MATH_DOUBLE */
+#endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
 using colorld = color<long double>;
-#endif /* _USING_MATH_LONG_DOUBLE */
-#endif /* _USE_CXX11 */
+#endif // _USING_MATH_LONG_DOUBLE
+#endif // _USE_CXX11
 
 template <typename T>
 struct Color
@@ -68,7 +68,7 @@ struct Color
 	{
 		struct
 		{
-#endif /* _USE_ANONYMOUS */
+#endif // _USE_ANONYMOUS
 
 			T R;
 			T G;
@@ -80,7 +80,7 @@ struct Color
 
 		array_type Data;
 	};
-#endif /* _USE_ANONYMOUS */
+#endif // _USE_ANONYMOUS
 
 	template <typename> friend struct Color;
 
@@ -88,32 +88,32 @@ struct Color
 	* Constants
 	*------------------------------------------------------------------------------------------*/
 
-	static const Color Black; /* [0.0, 0.0, 0.0, 1.0] */
-	static const Color White; /* [1.0, 1.0, 1.0, 1.0] */
-	static const Color Red; /* [1.0, 0.0, 0.0, 1.0] */
-	static const Color Green; /* [0.0, 1.0, 0.0, 1.0] */
-	static const Color Blue; /* [0.0, 0.0, 1.0, 1.0] */
-	static const Color Yellow; /* [1.0, 1.0, 0.0, 1.0] */
-	static const Color Cyan; /* [0.0, 1.0, 1.0, 1.0] */
-	static const Color Magenta; /* [1.0, 0.0, 1.0, 1.0] */
-	static const Color Gray; /* [0.25, 0.25, 0.25, 1.0] */
-	static const Color Orange; /* [1.0, 0.5, 0.0, 1.0] */
-	static const Color Clear; /* [1.0, 1.0, 1.0, 0.25] */
-	static const Color None; /* [0.0, 0.0, 0.0, 0.0] */
+	static const Color Black; // [0.0, 0.0, 0.0, 1.0]
+	static const Color White; // [1.0, 1.0, 1.0, 1.0]
+	static const Color Red; // [1.0, 0.0, 0.0, 1.0]
+	static const Color Green; // [0.0, 1.0, 0.0, 1.0]
+	static const Color Blue; // [0.0, 0.0, 1.0, 1.0]
+	static const Color Yellow; // [1.0, 1.0, 0.0, 1.0]
+	static const Color Cyan; // [0.0, 1.0, 1.0, 1.0]
+	static const Color Magenta; // [1.0, 0.0, 1.0, 1.0]
+	static const Color Gray; // [0.25, 0.25, 0.25, 1.0]
+	static const Color Orange; // [1.0, 0.5, 0.0, 1.0]
+	static const Color Clear; // [1.0, 1.0, 1.0, 0.25]
+	static const Color None; // [0.0, 0.0, 0.0, 0.0]
 
-	static const T Byte2Float; /* 1.0 / 255.0 */
-	static const T Float2Byte; /* 255.0 */
+	static const T Byte2Float; // 1.0 / 255.0
+	static const T Float2Byte; // 255.0
 
 	/*------------------------------------------------------------------------------------------
 	* Constructors
 	*------------------------------------------------------------------------------------------*/
 
 	_DEFAULT_CONSTRUCTOR(Color);
-	explicit Color(const behavior::_noinitialize_t&)
+	_CXX11_CONSTEXPR explicit Color(const behavior::_noinitialize_t&)
 	{
 
 	}
-	Color(T r, T g, T b, T a) :
+	_CXX11_CONSTEXPR Color(T r, T g, T b, T a) :
 		R(r), G(g), B(b), A(a)
 	{
 
@@ -124,18 +124,18 @@ struct Color
 		_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U2),
 		_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U3)
 	>
-		Color(U r, U1 g, U2 b, U3 a) :
+	_CXX11_CONSTEXPR Color(U r, U1 g, U2 b, U3 a) :
 		R(static_cast<T>(r)), G(static_cast<T>(g)), B(static_cast<T>(b)), A(static_cast<T>(a))
 	{
 
 	}
 	template <typename U>
-	Color(const Color<U>& c) :
+	_CXX11_CONSTEXPR Color(const Color<U>& c) :
 		R(static_cast<T>(c.R)), G(static_cast<T>(c.G)), B(static_cast<U>(c.B)), A(static_cast<U>(c.A))
 	{
 
 	}
-	Color(uint32_t bytes) :
+	_CXX11_CONSTEXPR Color(uint32_t bytes) :
 		R(Color::byte_to_float_r(bytes)),
 		G(Color::byte_to_float_g(bytes)),
 		B(Color::byte_to_float_b(bytes)),
@@ -143,7 +143,7 @@ struct Color
 	{
 
 	}
-	explicit Color(T a) :
+	_CXX11_CONSTEXPR explicit Color(T a) :
 		R(math_type::One),
 		G(math_type::One),
 		B(math_type::One),
@@ -214,21 +214,21 @@ struct Color
 	/*---------------------------------------------------------------------
 	* 値が等しいか
 	*---------------------------------------------------------------------*/
-	bool is_near(const Color& q) const
+	_CXX11_CONSTEXPR bool is_near(const Color& q) const
 	{
 		return (math_type::is_near(R, q.R) && math_type::is_near(G, q.G) && math_type::is_near(B, q.B) && math_type::is_near(A, q.A));
 	}
 	/*---------------------------------------------------------------------
 	* 値がすべてゼロに等しいか
 	*---------------------------------------------------------------------*/
-	bool is_near_zero() const
+	_CXX11_CONSTEXPR bool is_near_zero() const
 	{
 		return (math_type::is_near_zero(R) && math_type::is_near_zero(G) && math_type::is_near_zero(B) && math_type::is_near_zero(A));
 	}
 	/*---------------------------------------------------------------------
 	* 値がすべてゼロか
 	*---------------------------------------------------------------------*/
-	bool is_zero() const
+	_CXX11_CONSTEXPR bool is_zero() const
 	{
 		return (R == math_type::Zero && G == math_type::Zero && B == math_type::Zero && A == math_type::Zero);
 	}
@@ -286,43 +286,35 @@ struct Color
 	/*---------------------------------------------------------------------
 	* html形式のバイトへ変換
 	*---------------------------------------------------------------------*/
-	uint32_t to_bytes() const
+	_CXX11_CONSTEXPR uint32_t to_bytes() const
 	{
 		return ((Color::float_to_byte(R) << 24) | (Color::float_to_byte(G) << 16) | (Color::float_to_byte(B) << 8) | Color::float_to_byte(A));
 	}
 
-
 	/*---------------------------------------------------------------------
 	* 浮動小数からバイトへ変換（0～255）
 	*---------------------------------------------------------------------*/
-	static inline uint8_t float_to_byte(T f)
+	static _CXX11_CONSTEXPR inline uint8_t float_to_byte(T f)
 	{
-		if (f >= math_type::One)
-		{
-			return static_cast<uint8_t>(0xFFU);
-		}
-		if (f <= math_type::Zero)
-		{
-			return static_cast<uint8_t>(0x00U);
-		}
-		return static_cast<uint8_t>(f * Color::Float2Byte);
+		return f >= math_type::One ? static_cast<uint8_t>(0xFFU) :
+				f <= math_type::Zero ? static_cast<uint8_t>(0x00U) : static_cast<uint8_t>(f * Color::Float2Byte);
 	}
 	/*---------------------------------------------------------------------
 	* html形式配色値から値の変換
 	*---------------------------------------------------------------------*/
-	static inline T byte_to_float_r(uint32_t bytes)
+	static _CXX11_CONSTEXPR inline T byte_to_float_r(uint32_t bytes)
 	{
 		return static_cast<T>((bytes >> 24) & 0xFF) * Color::Byte2Float;
 	}
-	static inline T byte_to_float_g(uint32_t bytes)
+	static _CXX11_CONSTEXPR inline T byte_to_float_g(uint32_t bytes)
 	{
 		return static_cast<T>((bytes >> 16) & 0xFF) * Color::Byte2Float;
 	}
-	static inline T byte_to_float_b(uint32_t bytes)
+	static _CXX11_CONSTEXPR inline T byte_to_float_b(uint32_t bytes)
 	{
 		return static_cast<T>((bytes >> 8) & 0xFF) * Color::Byte2Float;
 	}
-	static inline T byte_to_float_a(uint32_t bytes)
+	static _CXX11_CONSTEXPR inline T byte_to_float_a(uint32_t bytes)
 	{
 		return static_cast<T>(bytes & 0xFF) * Color::Byte2Float;
 	}
@@ -341,7 +333,7 @@ struct Color
 		return Data[i];
 #else
 		return (&R)[i];
-#endif /* _USE_ANONYMOUS */
+#endif // _USE_ANONYMOUS
 	}
 	const T& operator [] (int i) const
 	{
@@ -350,14 +342,14 @@ struct Color
 		return Data[i];
 #else
 		return (&R)[i];
-#endif /* _USE_ANONYMOUS */
+#endif // _USE_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------
 	* 変換演算子
 	*---------------------------------------------------------------------*/
 	template <typename U>
-	_CXX11_EXPLICIT operator Color<U>() const
+	_CXX11_CONSTEXPR _CXX11_EXPLICIT operator Color<U>() const
 	{
 		return Color<U>(static_cast<U>(R), static_cast<U>(G), static_cast<U>(B), static_cast<U>(A));
 	}
@@ -367,7 +359,7 @@ struct Color
 		return &Data[0];
 #else
 		return &R;
-#endif /* _USE_ANONYMOUS */
+#endif // _USE_ANONYMOUS
 	}
 	_CXX11_EXPLICIT operator const T* () const
 	{
@@ -375,7 +367,7 @@ struct Color
 		return &Data[0];
 #else
 		return &R;
-#endif /* _USE_ANONYMOUS */
+#endif // _USE_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------
@@ -501,15 +493,15 @@ const Color<T> Color<T>::None(math_type::Zero, math_type::Zero, math_type::Zero,
 #ifndef _UNUSING_MATH_INT_FLOAT
 template <> const float Color<float>::Float2Byte = 255.0f;
 template <> const float Color<float>::Byte2Float = 1.0f / 255.0f;
-#endif /* _UNUSING_MATH_INT_FLOAT */
+#endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
 template <> const double Color<double>::Float2Byte = 255.0;
 template <> const double Color<double>::Byte2Float = 1.0 / 255.0;
-#endif /* _USING_MATH_DOUBLE */
+#endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
 template <> const long double Color<long double>::Float2Byte = 255.0L;
 template <> const long double Color<long double>::Byte2Float = 1.0L / 255.0L;
-#endif /* _USING_MATH_LONG_DOUBLE */
+#endif // _USING_MATH_LONG_DOUBLE
 
 #ifdef _USING_MATH_IO
 template <typename CharT, typename CharTraits, typename T> inline
@@ -558,8 +550,8 @@ std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, 
 	is.ignore();
 	return is;
 }
-#endif /* _USING_MATH_IO */
+#endif // _USING_MATH_IO
 
 } // namespace pocket
 
-#endif /* __MATH_COLOR_H__ */
+#endif // __MATH_COLOR_H__

@@ -4,14 +4,14 @@
 #include "config.h"
 #ifdef _USE_PRAGMA_ONCE
 #pragma once
-#endif /* _USE_PRAGMA_ONCE */
+#endif // _USE_PRAGMA_ONCE
 
 #include "Vector2.h"
 #include "Vector3.h"
 #include "Ray.h"
 #ifdef _USING_MATH_IO
 #include "io.h"
-#endif /* _USING_MATH_IO */
+#endif // _USING_MATH_IO
 
 namespace pocket
 {
@@ -22,15 +22,15 @@ template <typename> struct Plane;
 #ifndef _UNUSING_MATH_INT_FLOAT
 typedef Line<float, Vector2> Line2f;
 typedef Line<float, Vector3> Line3f;
-#endif /* _UNUSING_MATH_INT_FLOAT */
+#endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
 typedef Line<double, Vector2> Line2d;
 typedef Line<double, Vector3> Line3d;
-#endif /* _USING_MATH_DOUBLE */
+#endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
 typedef Line<long double, Vector2> Line2ld;
 typedef Line<long double, Vector3> Line3ld;
-#endif /* _USING_MATH_LONG_DOUBLE */
+#endif // _USING_MATH_LONG_DOUBLE
 
 #ifdef _USE_CXX11
 template <typename T, template <typename> class VN>
@@ -38,16 +38,16 @@ using line = Line<T, VN>;
 #ifndef _UNUSING_MATH_INT_FLOAT
 using line2f = line<float, Vector2>;
 using line3f = line<float, Vector3>;
-#endif /* _UNUSING_MATH_INT_FLOAT */
+#endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
 using line2d = line<double, Vector2>;
 using line3d = line<double, Vector3>;
-#endif /* _USING_MATH_DOUBLE */
+#endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
 using line2ld = line<long double, Vector2>;
 using line3ld = line<long double, Vector3>;
-#endif /* _USING_MATH_LONG_DOUBLE */
-#endif /* _USE_CXX11 */
+#endif // _USING_MATH_LONG_DOUBLE
+#endif // _USE_CXX11
 
 template <typename T, template <typename> class VectorN>
 struct Line
@@ -76,8 +76,8 @@ struct Line
 	* Members
 	*-----------------------------------------------------------------------------------------*/
 
-	vector_type Begin; /* 開始位置 */
-	vector_type End; /* 終了位置 */
+	vector_type Begin; // 開始位置
+	vector_type End; // 終了位置
 
 	template <typename, template <typename> class> friend struct Line;
 
@@ -85,12 +85,12 @@ struct Line
 	* Constants
 	*-----------------------------------------------------------------------------------------*/
 
-	static const Line Up; /* [0.0, 0.0, 0.0], [0.0, 1.0, 0.0] */
-	static const Line Down; /* [0.0, 0.0, 0.0], [0.0, -1.0, 0.0] */
-	static const Line Right; /* [0.0, 0.0, 0.0], [1.0, 0.0, 0.0] */
-	static const Line Left; /* [0.0, 0.0, 0.0], [-1.0, 0.0, 0.0] */
-	static const Line Front; /* [0.0, 0.0, 0.0], [0.0, 0.0, 1.0] */
-	static const Line Back; /* [0.0, 0.0, 0.0], [0.0, 0.0, -1.0] */
+	static const Line Up; // [0.0, 0.0, 0.0], [0.0, 1.0, 0.0]
+	static const Line Down; // [0.0, 0.0, 0.0], [0.0, -1.0, 0.0]
+	static const Line Right; // [0.0, 0.0, 0.0], [1.0, 0.0, 0.0]
+	static const Line Left; // [0.0, 0.0, 0.0], [-1.0, 0.0, 0.0]
+	static const Line Front; // [0.0, 0.0, 0.0], [0.0, 0.0, 1.0]
+	static const Line Back; // [0.0, 0.0, 0.0], [0.0, 0.0, -1.0]
 
 	/*-----------------------------------------------------------------------------------------
 	* Constructors
@@ -157,7 +157,7 @@ struct Line
 	/*---------------------------------------------------------------------
 	* 線分が平面と交差しているか
 	*---------------------------------------------------------------------*/
-	bool is_intersect(const plane_type&) const; /* Plane.h */
+	bool is_intersect(const plane_type&) const; // Plane.h
 
 	/*-----------------------------------------------------------------------------------------
 	* Operators
@@ -192,7 +192,7 @@ struct Line
 	*---------------------------------------------------------------------*/
 	Line operator + (const vector_type& p) const
 	{
-		/* 渡されてきた座標分どちらもずらす */
+		// 渡されてきた座標分どちらもずらす
 		return Line(Begin + p, End + p);
 	}
 	Line operator - (const vector_type& p) const
@@ -269,7 +269,7 @@ Ray<T, VectorN>& Ray<T, VectorN>::from_line(const Line<T, VectorN>& l)
 template <typename CharT, typename CharTraits, typename T, template <typename> class VectorN> inline
 std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const Line<T, VectorN>& v)
 {
-	/* (Begin, End) */
+	// (Begin, End)
 	os << out_char::parentheses_left << v.Begin << out_char::comma_space << v.End << out_char::parentheses_right;
 	return os;
 }
@@ -299,8 +299,8 @@ std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, 
 	is.ignore();
 	return is;
 }
-#endif /* _USING_MATH_IO */
+#endif // _USING_MATH_IO
 
-} /* namespace pocket */
+} // namespace pocket
 
-#endif /* __MATH_LINE_H__ */
+#endif // __MATH_LINE_H__

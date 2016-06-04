@@ -4,14 +4,14 @@
 #include "config.h"
 #ifdef _USE_PRAGMA_ONCE
 #pragma once
-#endif /* _USE_PRAGMA_ONCE */
+#endif // _USE_PRAGMA_ONCE
 
 #include "fwd.h"
 #include "array.h"
 #include "Math.h"
 #ifdef _USING_MATH_IO
 #include "io.h"
-#endif /* _USING_MATH_IO */
+#endif // _USING_MATH_IO
 
 namespace pocket
 {
@@ -20,13 +20,13 @@ template <typename> struct __template_struct;
 
 #ifndef _UNUSING_MATH_INT_FLOAT
 typedef __template_struct<float> __template_structf;
-#endif /* _UNUSING_MATH_INT_FLOAT */
+#endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
 typedef __template_struct<double> __template_structd;
-#endif /* _USING_MATH_DOUBLE */
+#endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
 typedef __template_struct<long double> __template_structld;
-#endif /* _USING_MATH_LONG_DOUBLE */
+#endif // _USING_MATH_LONG_DOUBLE
 
 template <typename T>
 struct __template_struct
@@ -54,16 +54,16 @@ struct __template_struct
 	{
 		struct
 		{
-#endif /* _USE_ANONYMOUS */
+#endif // _USE_ANONYMOUS
 
-			/* Noen */
+			// Noen
 
 #ifdef _USE_ANONYMOUS
 		};
 
-		/* None */
+		// None
 	};
-#endif /* _USE_ANONYMOUS */
+#endif // _USE_ANONYMOUS
 
 	template <typename> friend struct __template_struct;
 
@@ -71,7 +71,7 @@ struct __template_struct
 	* Constants
 	*------------------------------------------------------------------------------------------*/
 
-	/* None */
+	// None
 
 	/*------------------------------------------------------------------------------------------
 	* Constructors
@@ -87,7 +87,7 @@ struct __template_struct
 	* Functions
 	*------------------------------------------------------------------------------------------*/
 
-	/* None */
+	// None
 
 	/*------------------------------------------------------------------------------------------
 	* Operators
@@ -101,7 +101,7 @@ struct __template_struct
 		return Data[i];
 #else
 		return (&X)[i];
-#endif /* _USE_ANONYMOUS */
+#endif // _USE_ANONYMOUS
 	}
 	const T& operator [] (int i) const
 	{
@@ -110,7 +110,7 @@ struct __template_struct
 		return Data[i];
 #else
 		return (&X)[i];
-#endif /* _USE_ANONYMOUS */
+#endif // _USE_ANONYMOUS
 	}
 
 	template <typename U>
@@ -124,7 +124,7 @@ struct __template_struct
 		return &Data[0];
 #else
 		return &X;
-#endif /* _USE_ANONYMOUS */
+#endif // _USE_ANONYMOUS
 	}
 	_CXX11_EXPLICIT operator const T* () const
 	{
@@ -132,7 +132,7 @@ struct __template_struct
 		return &Data[0];
 #else
 		return &X;
-#endif /* _USE_ANONYMOUS */
+#endif // _USE_ANONYMOUS
 	}
 #endif
 
@@ -170,8 +170,8 @@ std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, 
 {
 	return is;
 }
-#endif /* _USING_MATH_IO */
+#endif // _USING_MATH_IO
 
-} /* namespace pocket */
+} // namespace pocket
 
-#endif /* __MATH_TEMPLATE_H__ */
+#endif // __MATH_TEMPLATE_H__

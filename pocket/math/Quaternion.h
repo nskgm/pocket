@@ -4,14 +4,14 @@
 #include "config.h"
 #ifdef _USE_PRAGMA_ONCE
 #pragma once
-#endif /* _USE_PRAGMA_ONCE */
+#endif // _USE_PRAGMA_ONCE
 
 #include "Math.h"
 #include "Vector3.h"
 #include "Vector4.h"
 #ifdef _USING_MATH_IO
 #include "io.h"
-#endif /* _USING_MATH_IO */
+#endif // _USING_MATH_IO
 
 namespace pocket
 {
@@ -22,27 +22,27 @@ template <typename> struct Matrix4x4;
 
 #ifndef _UNUSING_MATH_INT_FLOAT
 typedef Quaternion<float> Quaternionf;
-#endif /* _UNUSING_MATH_INT_FLOAT */
+#endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
 typedef Quaternion<double> Quaterniond;
-#endif /* _USING_MATH_DOUBLE */
+#endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
 typedef Quaternion<long double> Quaternionld;
-#endif /* _USING_MATH_LONG_DOUBLE */
+#endif // _USING_MATH_LONG_DOUBLE
 
 #ifdef _USE_CXX11
 template <typename T>
 using quat = Quaternion<T>;
 #ifndef _UNUSING_MATH_INT_FLOAT
 using quatf = quat<float>;
-#endif /* _UNUSING_MATH_INT_FLOAT */
+#endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
 using quatd = quat<double>;
-#endif /* _USING_MATH_DOUBLE */
+#endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
 using quatld = quat<long double>;
-#endif /* _USING_MATH_LONG_DOUBLE */
-#endif /* _USE_CXX11 */
+#endif // _USING_MATH_LONG_DOUBLE
+#endif // _USE_CXX11
 
 template <typename T>
 struct Quaternion
@@ -73,18 +73,18 @@ struct Quaternion
 	{
 		struct
 		{
-#endif /* _USE_ANONYMOUS */
+#endif // _USE_ANONYMOUS
 
-			T X; /* X軸、虚部 */
-			T Y; /* Y軸、虚部 */
-			T Z; /* Z軸、虚部 */
-			T W; /* 回転量、実部 */
+			T X; // X軸、虚部
+			T Y; // Y軸、虚部
+			T Z; // Z軸、虚部
+			T W; // 回転量、実部
 
 #ifdef _USE_ANONYMOUS
 		};
 		array_type Data;
 	};
-#endif /* _USE_ANONYMOUS */
+#endif // _USE_ANONYMOUS
 
 	template <typename> friend struct Quaternion;
 
@@ -92,9 +92,9 @@ struct Quaternion
 	* Constants
 	*-----------------------------------------------------------------------------------------*/
 
-	static const T ErrorSlerp; /* 0.001, 誤差 */
-	static const Quaternion Zero; /* 0.0, 0.0, 0.0, 0.0 */
-	static const Quaternion Identity; /* 0.0, 0.0, 0.0, 1.0 */
+	static const T ErrorSlerp; // 0.001, 誤差
+	static const Quaternion Zero; // 0.0, 0.0, 0.0, 0.0
+	static const Quaternion Identity; // 0.0, 0.0, 0.0, 1.0
 
 	/*-----------------------------------------------------------------------------------------
 	* Constructors
@@ -175,8 +175,8 @@ struct Quaternion
 	}
 	Quaternion& multiply(const Quaternion& q, Quaternion& result) const
 	{
-		/* W -> W要素と内積、XYZ -> 外積*W */
-		/* (W*q.W - V・q.V, (W * q.V) + (q.W * V) + (V×q.V)) */
+		// W -> W要素と内積、XYZ -> 外積*W
+		// (W*q.W - V・q.V, (W * q.V) + (q.W * V) + (V×q.V))
 		result.X = W * q.X + X * q.W + Y * q.Z - Z * q.Y;
 		result.Y = W * q.Y - X * q.Z + Y * q.W + Z * q.X;
 		result.Z = W * q.Z + X * q.Y - Y * q.X + Z * q.W;
@@ -228,9 +228,9 @@ struct Quaternion
 	*---------------------------------------------------------------------*/
 	Quaternion& from_axis(const Vector3<T>& axis, T deg)
 	{
-		/* 軸ベクトルは正規化されていなければいけない */
+		// 軸ベクトルは正規化されていなければいけない
 
-		/* 値を半分 */
+		// 値を半分
 		deg *= math_type::Half;
 		T s = math_type::sin(deg);
 
@@ -243,8 +243,8 @@ struct Quaternion
 	/*---------------------------------------------------------------------
 	* 行列から求める
 	*---------------------------------------------------------------------*/
-	Quaternion& from_matrix(const Matrix3x3<T>&); /* Matrix3x3.h */
-	Quaternion& from_matrix(const Matrix4x4<T>&); /* Matrix4x4.h */
+	Quaternion& from_matrix(const Matrix3x3<T>&); // Matrix3x3.h
+	Quaternion& from_matrix(const Matrix4x4<T>&); // Matrix4x4.h
 
 	/*---------------------------------------------------------------------
 	* 単位クォータニオンにする
@@ -259,7 +259,7 @@ struct Quaternion
 	*---------------------------------------------------------------------*/
 	Quaternion& conjugate()
 	{
-		/* それぞれをただ反転させるのみ */
+		// それぞれをただ反転させるのみ
 		X = -X;
 		Y = -Y;
 		Z = -Z;
@@ -329,7 +329,7 @@ struct Quaternion
 	*---------------------------------------------------------------------*/
 	T angle() const
 	{
-		/* コサインで求めるのでその逆 */
+		// コサインで求めるのでその逆
 		return math_type::acos(W) * math_type::Two;
 	}
 	/*---------------------------------------------------------------------
@@ -472,15 +472,15 @@ struct Quaternion
 	}
 	Vector3<T>& rotate(const Vector3<T>& v, Vector3<T>& result) const
 	{
-		/* Q * V * Q^: 右手 */
-		/* Q^ * V * Q: 左手 */
+		// Q * V * Q^: 右手
+		// Q^ * V * Q: 左手
 
 		Quaternion conj(-X, -Y, -Z, W), vq(v.X, v.Y, v.Z, math_type::Zero), calc(behavior::noinitialize);
 
 		conj.multiply(vq, calc);
 		calc.multiply(*this, vq);
 
-		/* XYZに値が格納される */
+		// XYZに値が格納される
 		result.X = vq.X;
 		result.Y = vq.Y;
 		result.Z = vq.Z;
@@ -494,15 +494,15 @@ struct Quaternion
 	}
 	Vector4<T>& rotate(const Vector4<T>& v, Vector4<T>& result) const
 	{
-		/* Q * V * Q^: 右手 */
-		/* Q^ * V * Q: 左手 */
+		// Q * V * Q^: 右手
+		// Q^ * V * Q: 左手
 
 		Quaternion conj(-X, -Y, -Z, W), vq(v.X, v.Y, v.Z, math_type::Zero), calc(behavior::noinitialize);
 
 		conj.multiply(vq, calc);
 		calc.multiply(*this, vq);
 
-		/* XYZに値が格納される */
+		// XYZに値が格納される
 		result.X = vq.X;
 		result.Y = vq.Y;
 		result.Z = vq.Z;
@@ -525,7 +525,7 @@ struct Quaternion
 		return Data[i];
 #else
 		return (&X)[i];
-#endif /* _USE_ANONYMOUS */
+#endif // _USE_ANONYMOUS
 	}
 	const T& operator [] (int i) const
 	{
@@ -534,7 +534,7 @@ struct Quaternion
 		return Data[i];
 #else
 		return (&X)[i];
-#endif /* _USE_ANONYMOUS */
+#endif // _USE_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------
@@ -556,7 +556,7 @@ struct Quaternion
 		return &Data[0];
 #else
 		return &X;
-#endif /* _USE_ANONYMOUS */
+#endif // _USE_ANONYMOUS
 	}
 	_CXX11_EXPLICIT operator const T* () const
 	{
@@ -564,7 +564,7 @@ struct Quaternion
 		return &Data[0];
 #else
 		return &X;
-#endif /* _USE_ANONYMOUS */
+#endif // _USE_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------
@@ -847,13 +847,13 @@ template <typename T>
 const Quaternion<T> Quaternion<T>::Identity(math_type::Zero, math_type::Zero, math_type::Zero, math_type::One);
 #ifndef _UNUSING_MATH_INT_FLOAT
 template <> const float Quaternion<float>::ErrorSlerp = 0.001f;
-#endif /* _UNUSING_MATH_INT_FLOAT */
+#endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
 template <> const double Quaternion<double>::ErrorSlerp = 0.001;
-#endif /* _USING_MATH_DOUBLE */
+#endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
 template <> const long double Quaternion<long double>::ErrorSlerp = 0.001L;
-#endif /* _USING_MATH_LONG_DOUBLE */
+#endif // _USING_MATH_LONG_DOUBLE
 
 /*---------------------------------------------------------------------
 * Vector3.Rotate
@@ -915,7 +915,7 @@ Vector4<T> Vector4<T>::operator * (const Quaternion<T>& q) const
 template <typename CharT, typename CharTraits, typename T> inline
 std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const Quaternion<T>& v)
 {
-	/* (X, Y, Z, W) */
+	// (X, Y, Z, W)
 	os << out_char::parentheses_left << v.X << out_char::comma_space
 		<< v.Y << out_char::comma_space
 		<< v.Z << out_char::comma_space
@@ -959,8 +959,8 @@ std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, 
 	is.ignore();
 	return is;
 }
-#endif /* _USING_MATH_IO */
+#endif // _USING_MATH_IO
 
-} /* namespace pocket */
+} // namespace pocket
 
-#endif /* __MATH_QUATERNION_H__ */
+#endif // __MATH_QUATERNION_H__
