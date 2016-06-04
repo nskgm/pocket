@@ -19,7 +19,8 @@ namespace pocket
 {
 namespace container
 {
-using std::array;
+template <typename T, size_t N>
+using array = std::array<T, N>;
 }
 }
 
@@ -283,28 +284,28 @@ namespace std
 
 namespace pocket
 {
-#ifndef  _STATICAL_ASSERT_ARITHMETIC_CONDITIONAL
-#	define _STATICAL_ASSERT_ARITHMETIC_CONDITIONAL(T) type_traits::is_arithmetic< T >::value
-#endif // _STATICAL_ASSERT_ARITHMETIC_CONDITIONAL
-#ifndef  _STATICAL_ASSERT_ARITHMETIC
-#	define _STATICAL_ASSERT_ARITHMETIC(T) _STATICAL_ASSERT(_STATICAL_ASSERT_ARITHMETIC_CONDITIONAL(T), arithmetic_type_only)
-#endif // _STATICAL_ASSERT_ARITHMETIC
-
-template <typename T, size_t N>
-struct _ALIGNED_APPROPRIATE_SIZE(T, N) fixed_array
+template <typename T, size_t N> struct fixed_array
 {
-	_STATICAL_ASSERT_ARITHMETIC(T);
-
 	typedef container::array<T, N> array_type;
+	typedef typename array_type::reference reference;
+	typedef typename array_type::const_reference const_reference;
 
 	array_type Data;
-};
-template <typename T>
-struct _ALIGNED_APPROPRIATE_SIZE(T, 2) fixed_array<T, 2>
-{
-	_STATICAL_ASSERT_ARITHMETIC(T);
 
+	reference operator [] (int i)
+	{
+		return Data[i];
+	}
+	const_reference operator [] (int i) const
+	{
+		return Data[i];
+	}
+};
+template <typename T> struct fixed_array<T, 2>
+{
 	typedef container::array<T, 2> array_type;
+	typedef typename array_type::reference reference;
+	typedef typename array_type::const_reference const_reference;
 
 	union
 	{
@@ -315,13 +316,21 @@ struct _ALIGNED_APPROPRIATE_SIZE(T, 2) fixed_array<T, 2>
 		};
 		array_type Data;
 	};
-};
-template <typename T>
-struct _ALIGNED_APPROPRIATE_SIZE(T, 3) fixed_array<T, 3>
-{
-	_STATICAL_ASSERT_ARITHMETIC(T);
 
+	reference operator [] (int i)
+	{
+		return Data[i];
+	}
+	const_reference operator [] (int i) const
+	{
+		return Data[i];
+	}
+};
+template <typename T> struct fixed_array<T, 3>
+{
 	typedef container::array<T, 3> array_type;
+	typedef typename array_type::reference reference;
+	typedef typename array_type::const_reference const_reference;
 
 	union
 	{
@@ -339,13 +348,21 @@ struct _ALIGNED_APPROPRIATE_SIZE(T, 3) fixed_array<T, 3>
 		};
 		array_type Data;
 	};
-};
-template <typename T>
-struct _ALIGNED_APPROPRIATE_SIZE(T, 4) fixed_array<T, 4>
-{
-	_STATICAL_ASSERT_ARITHMETIC(T);
 
+	reference operator [] (int i)
+	{
+		return Data[i];
+	}
+	const_reference operator [] (int i) const
+	{
+		return Data[i];
+	}
+};
+template <typename T> struct fixed_array<T, 4>
+{
 	typedef container::array<T, 4> array_type;
+	typedef typename array_type::reference reference;
+	typedef typename array_type::const_reference const_reference;
 
 	union
 	{
@@ -365,6 +382,15 @@ struct _ALIGNED_APPROPRIATE_SIZE(T, 4) fixed_array<T, 4>
 		};
 		array_type Data;
 	};
+
+	reference operator [] (int i)
+	{
+		return Data[i];
+	}
+	const_reference operator [] (int i) const
+	{
+		return Data[i];
+	}
 };
 
 typedef fixed_array<bool, 2> bool2;

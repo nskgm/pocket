@@ -143,14 +143,14 @@ public:
 	/*---------------------------------------------------------------------
 	* 値がゼロに近いか
 	*---------------------------------------------------------------------*/
-	static _CXX11_CONSTEXPR inline bool is_near_zero(T f)
+	static inline bool is_near_zero(T f)
 	{
 		return (f >= -Math::Epsilon && f <= Math::Epsilon);
 	}
 	/*---------------------------------------------------------------------
 	* 値が１に近いか
 	*---------------------------------------------------------------------*/
-	static _CXX11_CONSTEXPR inline bool is_near_one(T f)
+	static inline bool is_near_one(T f)
 	{
 		return Math::is_near(f, Math::One);
 	}
@@ -158,7 +158,7 @@ public:
 	/*---------------------------------------------------------------------
 	* 値が指定の値に近いか
 	*---------------------------------------------------------------------*/
-	static _CXX11_CONSTEXPR inline bool is_near(T f, T value)
+	static inline bool is_near(T f, T value)
 	{
 		return (f <= (value + Math::Epsilon) && f >= (value - Math::Epsilon));
 	}
@@ -166,7 +166,7 @@ public:
 	* 整数部分が近いか
 	*---------------------------------------------------------------------*/
 	template <int N>
-	static _CXX11_CONSTEXPR inline bool is_near(T f)
+	static inline bool is_near(T f)
 	{
 		return (f <= (static_cast<T>(N) + Math::Epsilon) && f >= (static_cast<T>(N) - Math::Epsilon));
 	}
@@ -174,7 +174,7 @@ public:
 	/*---------------------------------------------------------------------
 	* 逆数を求める
 	*---------------------------------------------------------------------*/
-	static _CXX11_CONSTEXPR inline T reciprocal(T f)
+	static inline T reciprocal(T f)
 	{
 		_DEB_ASSERT(!Math::is_near_zero(f));
 		return (Math::One / f);
@@ -183,7 +183,7 @@ public:
 	/*---------------------------------------------------------------------
 	* 角度をラジアンへ変換
 	*---------------------------------------------------------------------*/
-	static _CXX11_CONSTEXPR inline T to_radian(T f)
+	static inline T to_radian(T f)
 	{
 		return (f * Math::Deg2Rad);
 	}
@@ -191,7 +191,7 @@ public:
 	/*---------------------------------------------------------------------
 	* ラジアンを角度へ変換
 	*---------------------------------------------------------------------*/
-	static _CXX11_CONSTEXPR inline T to_degree(T f)
+	static inline T to_degree(T f)
 	{
 		return (f * Math::Rad2Deg);
 	}
@@ -355,7 +355,7 @@ public:
 	/*---------------------------------------------------------------------
 	* ２乗を求める
 	*---------------------------------------------------------------------*/
-	static _CXX11_CONSTEXPR inline T sqr(T x)
+	static inline T sqr(T x)
 	{
 		return (x * x);
 	}
@@ -385,7 +385,7 @@ public:
 	/*---------------------------------------------------------------------
 	* 大きい方の値を返す
 	*---------------------------------------------------------------------*/
-	static _CXX11_CONSTEXPR inline const T& max(const T& x, const T& y)
+	static inline const T& max(const T& x, const T& y)
 	{
 		return x > y ? x : y;
 	}
@@ -398,7 +398,7 @@ public:
 	/*---------------------------------------------------------------------
 	* 小さい方の値を返す
 	*---------------------------------------------------------------------*/
-	static _CXX11_CONSTEXPR inline const T& min(const T& x, const T& y)
+	static inline const T& min(const T& x, const T& y)
 	{
 		return x < y ? x : y;
 	}
@@ -411,7 +411,7 @@ public:
 	/*---------------------------------------------------------------------
 	* 値をクランプ
 	*---------------------------------------------------------------------*/
-	static _CXX11_CONSTEXPR inline const T& clamp(const T& v, const T& min, const T& max)
+	static inline const T& clamp(const T& v, const T& min, const T& max)
 	{
 		return Math::max(min, Math::min(max, v));
 	}
@@ -423,7 +423,7 @@ public:
 	/*---------------------------------------------------------------------
 	* 値を0～1へクランプ
 	*---------------------------------------------------------------------*/
-	static _CXX11_CONSTEXPR inline const T& clamp01(const T& v)
+	static inline const T& clamp01(const T& v)
 	{
 		return clamp(v, Math::Zero, Math::One);
 	}
@@ -447,12 +447,12 @@ public:
 	/*---------------------------------------------------------------------
 	* 線形補間を求める
 	*---------------------------------------------------------------------*/
-	static _CXX11_CONSTEXPR inline T lerp(T from, T to, T t)
+	static inline T lerp(T from, T to, T t)
 	{
 		return (from * (Math::One - t)) + (to * t);
 	}
 	template <typename U>
-	static _CXX11_CONSTEXPR inline T lerp(T from, T to, U t)
+	static inline T lerp(T from, T to, U t)
 	{
 		return (from * (Math<U>::One - t)) + (to * t);
 	}
@@ -524,12 +524,12 @@ public:
 	/*---------------------------------------------------------------------
 	* 逆から線形補間を求める
 	*---------------------------------------------------------------------*/
-	static _CXX11_CONSTEXPR inline T lerp_invert(T from, T to, T t)
+	static inline T lerp_invert(T from, T to, T t)
 	{
 		return lerp(from, to, Math::One - t);
 	}
 	template <typename U>
-	static _CXX11_CONSTEXPR inline T lerp_invert(T from, T to, U t)
+	static inline T lerp_invert(T from, T to, U t)
 	{
 		return lerp<U>(from, to, Math<U>::One - t);
 	}
@@ -542,7 +542,7 @@ public:
 	/*---------------------------------------------------------------------
 	* 直線の方程式を求める
 	*---------------------------------------------------------------------*/
-	static _CXX11_CONSTEXPR inline T linear_equation(const T& p, const T& v, T t)
+	static inline T linear_equation(const T& p, const T& v, T t)
 	{
 		return (p + v * t);
 	}
@@ -558,11 +558,11 @@ public:
 	/*---------------------------------------------------------------------
 	* 型で使用されている先頭アドレスを求める
 	*---------------------------------------------------------------------*/
-	static _CXX11_CONSTEXPR inline T* to_pointer(T& t)
+	static inline T* to_pointer(T& t)
 	{
 		return &t;
 	}
-	static _CXX11_CONSTEXPR inline const T* to_pointer(const T& t)
+	static inline const T* to_pointer(const T& t)
 	{
 		return &t;
 	}
@@ -581,7 +581,7 @@ public:
 	* 指定の型へキャスト
 	*---------------------------------------------------------------------*/
 	template <typename U>
-	static _CXX11_CONSTEXPR inline U cast(const T& t)
+	static inline U cast(const T& t)
 	{
 		return static_cast<U>(t);
 	}
@@ -613,7 +613,7 @@ public:
 	/*---------------------------------------------------------------------
 	* 足し算
 	*---------------------------------------------------------------------*/
-	static _CXX11_CONSTEXPR inline T add(T x, T y)
+	static inline T add(T x, T y)
 	{
 		return (x + y);
 	}
@@ -786,28 +786,28 @@ public:
 * int特有の挙動
 *---------------------------------------------------------------------*/
 template <>
-_CXX11_CONSTEXPR inline bool Math<int>::is_near_zero(int f)
+inline bool Math<int>::is_near_zero(int f)
 {
 	return (f == 0);
 }
 template <>
-_CXX11_CONSTEXPR inline bool Math<int>::is_near_one(int f)
+inline bool Math<int>::is_near_one(int f)
 {
 	return (f == 1);
 }
 template <>
-_CXX11_CONSTEXPR inline bool Math<int>::is_near(int f, int value)
+inline bool Math<int>::is_near(int f, int value)
 {
 	return (f == value);
 }
 template <>
 template <int N>
-_CXX11_CONSTEXPR inline bool Math<int>::is_near(int f)
+inline bool Math<int>::is_near(int f)
 {
 	return (f == N);
 }
 template <>
-_CXX11_CONSTEXPR inline int Math<int>::reciprocal(int f)
+inline int Math<int>::reciprocal(int f)
 {
 	return 0;
 }
@@ -930,117 +930,6 @@ const T Math<T>::Rad2Deg = Math<T>::HalfAngle / Math<T>::PI;
 template <typename T>
 const T Math<T>::Deg2Rad = Math<T>::PI / Math<T>::HalfAngle;
 
-// 数学クラスの関数を＊演算子で呼び出す
-
-#ifdef _USE_CXX11
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
-T operator * (const T& f, const behavior::_sqr_t&)
-{
-	return Math<T>::sqr(f);
-}
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
-T operator * (const T& f, const behavior::_radians_t&)
-{
-	return Math<T>::to_radian(f);
-}
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
-T operator * (const T& f, const behavior::_degrees_t&)
-{
-	return Math<T>::to_degree(f);
-}
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
-T operator * (const T& f, const behavior::_sin_t&)
-{
-	return Math<T>::sin(f);
-}
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
-T operator * (const T& f, const behavior::_cos_t&)
-{
-	return Math<T>::cos(f);
-}
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
-T operator * (const T& f, const behavior::_tan_t&)
-{
-	return Math<T>::tan(f);
-}
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
-T operator * (const T& f, const behavior::_asin_t&)
-{
-	return Math<T>::asin(f);
-}
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
-T operator * (const T& f, const behavior::_acos_t&)
-{
-	return Math<T>::acos(f);
-}
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
-T operator * (const T& f, const behavior::_atan_t&)
-{
-	return Math<T>::atan(f);
-}
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
-typename Math<T>::SinCos operator * (const T& f, const behavior::_sin_cos_t&)
-{
-	return Math<T>::sin_cos(f);
-}
-
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
-T operator * (const T& f, const behavior::_round_t&)
-{
-	return Math<T>::round(f);
-}
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
-T operator * (const T& f, const behavior::_abs_t&)
-{
-	return Math<T>::abs(f);
-}
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
-T operator * (const T& f, const behavior::_ceil_t&)
-{
-	return Math<T>::ceil(f);
-}
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
-T operator * (const T& f, const behavior::_floor_t&)
-{
-	return Math<T>::floor(f);
-}
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
-T operator * (const T& f, const behavior::_sqrt_t&)
-{
-	return Math<T>::sqrt(f);
-}
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
-T operator * (const T& f, const behavior::_pot_t&)
-{
-	return Math<T>::power_of_two(f);
-}
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
-bool operator * (const T& f, const behavior::_is_pot_t&)
-{
-	return Math<T>::is_power_of_two(f);
-}
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
-T operator * (const T& f, const behavior::_clamp01_t&)
-{
-	return Math<T>::clamp01(f);
-}
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
-Vector2<T> operator * (const T& f, const behavior::_vec2_t&)
-{
-	return Vector2<T>(f);
-}
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
-Vector3<T> operator * (const T& f, const behavior::_vec3_t&)
-{
-	return Vector3<T>(f);
-}
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
-Vector4<T> operator * (const T& f, const behavior::_vec4_t&)
-{
-	return Vector4<T>(f, f);
-}
-#endif // _USE_CXX11
-
 #ifdef _USING_MATH_IO
 
 namespace detail
@@ -1090,5 +979,116 @@ _MATH_SIN_COS_OUTPUT_OPERATOR(detail::MathSinCosld);
 #endif // _USING_MATH_IO
 
 } // namespace pocket
+
+  // 数学クラスの関数を＊演算子で呼び出す
+
+#ifdef _USE_CXX11
+template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
+T operator * (const T& f, const pocket::behavior::_sqr_t&)
+{
+	return pocket::Math<T>::sqr(f);
+}
+template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
+T operator * (const T& f, const pocket::behavior::_radians_t&)
+{
+	return pocket::Math<T>::to_radian(f);
+}
+template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
+T operator * (const T& f, const pocket::behavior::_degrees_t&)
+{
+	return pocket::Math<T>::to_degree(f);
+}
+template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
+T operator * (const T& f, const pocket::behavior::_sin_t&)
+{
+	return pocket::Math<T>::sin(f);
+}
+template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
+T operator * (const T& f, const pocket::behavior::_cos_t&)
+{
+	return pocket::Math<T>::cos(f);
+}
+template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
+T operator * (const T& f, const pocket::behavior::_tan_t&)
+{
+	return pocket::Math<T>::tan(f);
+}
+template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
+T operator * (const T& f, const pocket::behavior::_asin_t&)
+{
+	return pocket::Math<T>::asin(f);
+}
+template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
+T operator * (const T& f, const pocket::behavior::_acos_t&)
+{
+	return pocket::Math<T>::acos(f);
+}
+template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
+T operator * (const T& f, const pocket::behavior::_atan_t&)
+{
+	return pocket::Math<T>::atan(f);
+}
+template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
+typename pocket::Math<T>::SinCos operator * (const T& f, const pocket::behavior::_sin_cos_t&)
+{
+	return pocket::Math<T>::sin_cos(f);
+}
+
+template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
+T operator * (const T& f, const pocket::behavior::_round_t&)
+{
+	return pocket::Math<T>::round(f);
+}
+template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
+T operator * (const T& f, const pocket::behavior::_abs_t&)
+{
+	return pocket::Math<T>::abs(f);
+}
+template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
+T operator * (const T& f, const pocket::behavior::_ceil_t&)
+{
+	return pocket::Math<T>::ceil(f);
+}
+template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
+T operator * (const T& f, const pocket::behavior::_floor_t&)
+{
+	return pocket::Math<T>::floor(f);
+}
+template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
+T operator * (const T& f, const pocket::behavior::_sqrt_t&)
+{
+	return pocket::Math<T>::sqrt(f);
+}
+template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
+T operator * (const T& f, const pocket::behavior::_pot_t&)
+{
+	return pocket::Math<T>::power_of_two(f);
+}
+template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
+bool operator * (const T& f, const pocket::behavior::_is_pot_t&)
+{
+	return pocket::Math<T>::is_power_of_two(f);
+}
+template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
+T operator * (const T& f, const pocket::behavior::_clamp01_t&)
+{
+	return pocket::Math<T>::clamp01(f);
+}
+template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
+pocket::Vector2<T> operator * (const T& f, const pocket::behavior::_vec2_t&)
+{
+	return pocket::Vector2<T>(f);
+}
+template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
+pocket::Vector3<T> operator * (const T& f, const pocket::behavior::_vec3_t&)
+{
+	return pocket::Vector3<T>(f);
+}
+template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
+pocket::Vector4<T> operator * (const T& f, const pocket::behavior::_vec4_t&)
+{
+	return pocket::Vector4<T>(f, f);
+}
+#endif // _USE_CXX11
 
 #endif // __MATH_MATH_H__

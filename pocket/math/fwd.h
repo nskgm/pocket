@@ -36,9 +36,9 @@ typedef long double f128;
 
 #ifndef _TEMPLATE_TYPE_VALIDATE
 #	ifdef _USE_CXX11
-#		define _TEMPLATE_TYPE_VALIDATE(VALID_TYPE, T) typename = typename type_traits::enable_if< VALID_TYPE < T >::value, T >::type
+#		define _TEMPLATE_TYPE_VALIDATE(VALID_TYPE, T) typename = typename pocket::type_traits::enable_if< VALID_TYPE < T >::value, T >::type
 #	else
-#		define _TEMPLATE_TYPE_VALIDATE(VALID_TYPE, T) typename type_traits::enable_if< VALID_TYPE < T >::value, T >::type
+#		define _TEMPLATE_TYPE_VALIDATE(VALID_TYPE, T) typename pocket::type_traits::enable_if< VALID_TYPE < T >::value, T >::type
 #	endif
 #endif // _TEMPLATE_TYPE_VALIDATE
 
@@ -46,14 +46,14 @@ typedef long double f128;
 * テンプレートの型チェックの設定（算術型か？）
 *---------------------------------------------------------------------------------------*/
 #ifndef _TEMPLATE_TYPE_VALIDATE_ARITHMETIC
-#	define _TEMPLATE_TYPE_VALIDATE_ARITHMETIC(T) _TEMPLATE_TYPE_VALIDATE(type_traits::is_arithmetic, T)
+#	define _TEMPLATE_TYPE_VALIDATE_ARITHMETIC(T) _TEMPLATE_TYPE_VALIDATE(pocket::type_traits::is_arithmetic, T)
 #endif // _TEMPLATE_TYPE_VALIDATE_ARITHMETIC
 
 /*---------------------------------------------------------------------------------------
 * テンプレートの型チェックの設定（数学クラスで使用できるか？）
 *---------------------------------------------------------------------------------------*/
 #ifndef _TEMPLATE_TYPE_VALIDATE_MATH_TYPE
-#	define _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T) _TEMPLATE_TYPE_VALIDATE(type_traits::is_math_type, T)
+#	define _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T) _TEMPLATE_TYPE_VALIDATE(pocket::type_traits::is_math_type, T)
 #endif // _TEMPLATE_TYPE_VALIDATE_MATH_TYPE
 
 #ifndef _DECL_CHANGE_BEHAVIOR

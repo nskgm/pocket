@@ -109,11 +109,11 @@ struct Color
 	*------------------------------------------------------------------------------------------*/
 
 	_DEFAULT_CONSTRUCTOR(Color);
-	_CXX11_CONSTEXPR explicit Color(const behavior::_noinitialize_t&)
+	explicit Color(const behavior::_noinitialize_t&)
 	{
 
 	}
-	_CXX11_CONSTEXPR Color(T r, T g, T b, T a) :
+	Color(T r, T g, T b, T a) :
 		R(r), G(g), B(b), A(a)
 	{
 
@@ -124,18 +124,18 @@ struct Color
 		_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U2),
 		_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U3)
 	>
-	_CXX11_CONSTEXPR Color(U r, U1 g, U2 b, U3 a) :
+	Color(U r, U1 g, U2 b, U3 a) :
 		R(static_cast<T>(r)), G(static_cast<T>(g)), B(static_cast<T>(b)), A(static_cast<T>(a))
 	{
 
 	}
 	template <typename U>
-	_CXX11_CONSTEXPR Color(const Color<U>& c) :
+	Color(const Color<U>& c) :
 		R(static_cast<T>(c.R)), G(static_cast<T>(c.G)), B(static_cast<U>(c.B)), A(static_cast<U>(c.A))
 	{
 
 	}
-	_CXX11_CONSTEXPR Color(uint32_t bytes) :
+	Color(uint32_t bytes) :
 		R(Color::byte_to_float_r(bytes)),
 		G(Color::byte_to_float_g(bytes)),
 		B(Color::byte_to_float_b(bytes)),
@@ -143,7 +143,7 @@ struct Color
 	{
 
 	}
-	_CXX11_CONSTEXPR explicit Color(T a) :
+	explicit Color(T a) :
 		R(math_type::One),
 		G(math_type::One),
 		B(math_type::One),
@@ -214,21 +214,21 @@ struct Color
 	/*---------------------------------------------------------------------
 	* 値が等しいか
 	*---------------------------------------------------------------------*/
-	_CXX11_CONSTEXPR bool is_near(const Color& q) const
+	bool is_near(const Color& q) const
 	{
 		return (math_type::is_near(R, q.R) && math_type::is_near(G, q.G) && math_type::is_near(B, q.B) && math_type::is_near(A, q.A));
 	}
 	/*---------------------------------------------------------------------
 	* 値がすべてゼロに等しいか
 	*---------------------------------------------------------------------*/
-	_CXX11_CONSTEXPR bool is_near_zero() const
+	bool is_near_zero() const
 	{
 		return (math_type::is_near_zero(R) && math_type::is_near_zero(G) && math_type::is_near_zero(B) && math_type::is_near_zero(A));
 	}
 	/*---------------------------------------------------------------------
 	* 値がすべてゼロか
 	*---------------------------------------------------------------------*/
-	_CXX11_CONSTEXPR bool is_zero() const
+	bool is_zero() const
 	{
 		return (R == math_type::Zero && G == math_type::Zero && B == math_type::Zero && A == math_type::Zero);
 	}
@@ -286,7 +286,7 @@ struct Color
 	/*---------------------------------------------------------------------
 	* html形式のバイトへ変換
 	*---------------------------------------------------------------------*/
-	_CXX11_CONSTEXPR uint32_t to_bytes() const
+	uint32_t to_bytes() const
 	{
 		return ((Color::float_to_byte(R) << 24) | (Color::float_to_byte(G) << 16) | (Color::float_to_byte(B) << 8) | Color::float_to_byte(A));
 	}
@@ -294,7 +294,7 @@ struct Color
 	/*---------------------------------------------------------------------
 	* 浮動小数からバイトへ変換（0～255）
 	*---------------------------------------------------------------------*/
-	static _CXX11_CONSTEXPR inline uint8_t float_to_byte(T f)
+	static inline uint8_t float_to_byte(T f)
 	{
 		return f >= math_type::One ? static_cast<uint8_t>(0xFFU) :
 				f <= math_type::Zero ? static_cast<uint8_t>(0x00U) : static_cast<uint8_t>(f * Color::Float2Byte);
@@ -302,19 +302,19 @@ struct Color
 	/*---------------------------------------------------------------------
 	* html形式配色値から値の変換
 	*---------------------------------------------------------------------*/
-	static _CXX11_CONSTEXPR inline T byte_to_float_r(uint32_t bytes)
+	static inline T byte_to_float_r(uint32_t bytes)
 	{
 		return static_cast<T>((bytes >> 24) & 0xFF) * Color::Byte2Float;
 	}
-	static _CXX11_CONSTEXPR inline T byte_to_float_g(uint32_t bytes)
+	static inline T byte_to_float_g(uint32_t bytes)
 	{
 		return static_cast<T>((bytes >> 16) & 0xFF) * Color::Byte2Float;
 	}
-	static _CXX11_CONSTEXPR inline T byte_to_float_b(uint32_t bytes)
+	static inline T byte_to_float_b(uint32_t bytes)
 	{
 		return static_cast<T>((bytes >> 8) & 0xFF) * Color::Byte2Float;
 	}
-	static _CXX11_CONSTEXPR inline T byte_to_float_a(uint32_t bytes)
+	static inline T byte_to_float_a(uint32_t bytes)
 	{
 		return static_cast<T>(bytes & 0xFF) * Color::Byte2Float;
 	}
@@ -349,7 +349,7 @@ struct Color
 	* 変換演算子
 	*---------------------------------------------------------------------*/
 	template <typename U>
-	_CXX11_CONSTEXPR _CXX11_EXPLICIT operator Color<U>() const
+	_CXX11_EXPLICIT operator Color<U>() const
 	{
 		return Color<U>(static_cast<U>(R), static_cast<U>(G), static_cast<U>(B), static_cast<U>(A));
 	}

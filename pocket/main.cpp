@@ -106,8 +106,5 @@ int main(int argc, char** argv)
 	cout << v2 << endl;
 #endif
 
-	_CXX11_CONSTEXPR pocket::Colorf c = pocket::Colorf(2.0f, 5.0f, 1.0f, 0.0f);
-	cout << c << endl;
-
 	return 0;
 }

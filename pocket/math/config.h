@@ -315,13 +315,21 @@
 /*---------------------------------------------------------------------------------------
 * デフォルトコンストラクタを定義するための設定
 *---------------------------------------------------------------------------------------*/
+#ifndef _DEFAULT_DECLARE_RVALUES
+#	if (defined(_MSC_VER) && _VCXX_VER(14)) || _CXX_VER(11)
+#		define _DEFAULT_DECLARE_RVALUES(CLASS) CLASS(CLASS&&) = default;\
+												CLASS& operator = (CLASS&&) = default
+#	else
+#		define _DEFAULT_DECLARE_RVALUES(CLASS)
+#	endif // 
+#endif // _DEFAULT_DECLARE_RVALUES
+
 #ifndef _DEFAULT_CONSTRUCTOR
 #	ifdef _USE_CXX11
-#		define _DEFAULT_CONSTRUCTOR(CLASS) CLASS () = default;\
-											CLASS (CLASS&&) = default;\
-											CLASS (const CLASS&) = default;\
+#		define _DEFAULT_CONSTRUCTOR(CLASS) CLASS() = default;\
+											CLASS(const CLASS&) = default;\
 											CLASS& operator = (const CLASS&) = default;\
-											CLASS& operator = (CLASS&&) = default
+											_DEFAULT_DECLARE_RVALUES(CLASS)
 #	else
 #		define _DEFAULT_CONSTRUCTOR(CLASS) CLASS () {}
 #	endif // _USE_CXX11
@@ -346,7 +354,7 @@
 #		if _MSC_VER >= 1900
 #			define _ALIGNED(N) alignas((N))
 #		else
-#			define _ALIGNED(N) __declspec(align((N))
+#			define _ALIGNED(N) __declspec(align(N))
 #		endif
 #	else
 #		ifdef _USE_CXX11
@@ -374,9 +382,22 @@
 											(N) <= _ALIGNED_SIZE_INT_COUNT(8) ? _ALIGNED_SIZE_INT_COUNT(8) :\
 											(N) <= _ALIGNED_SIZE_INT_COUNT(16) ? _ALIGNED_SIZE_INT_COUNT(16) : _ALIGNED_SIZE_INT_COUNT(0))
 #endif // _ALIGNED_SIZEABLE_POT_MAX_64
-#ifndef _ALIGNED_APPROPRIATE_SIZE
-#	define _ALIGNED_APPROPRIATE_SIZE(T, N) _ALIGNED(_ALIGNED_SIZEABLE_POT_MAX_64((sizeof(T)*(N))))
-#endif // _ALIGNED_APPROPRIATE_SIZE
+
+#ifndef _DECLARE_ALIGNED_STRUCT
+#	if defined(_MSC_VER)
+#		if _MSC_VER >= 1900
+#			define _DECLARE_ALIGNED_STRUCT(N) struct _ALIGNED(N)
+#		else
+#			define _DECLARE_ALIGNED_STRUCT(N) _ALIGNED(N) struct
+#		endif
+#	else
+#		define _DECLARE_ALIGNED_STRUCT(N) struct _ALIGNED(N)
+#	endif
+#endif // _DECLARE_ALIGNED_STRUCT
+
+#ifndef _DECLARE_ALIGNED_APPROPRIATE_STRUCT
+#	define _DECLARE_ALIGNED_APPROPRIATE_STRUCT(N) _DECLARE_ALIGNED_STRUCT(_ALIGNED_SIZEABLE_POT_MAX_64(N))
+#endif // _DECLARE_ALIGNED_APPROPRIATE_STRUCT
 
 /*---------------------------------------------------------------------------------------
 * 数学クラスで使用する静的アサーションの設定
