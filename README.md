@@ -1,15 +1,15 @@
-# ***pocket library***
+# pocket library
 ちょこちょこ追加していく小さなライブラリ.
 
-## ***test compiler***
+## test compiler
 ***
 * VisualC++ : 12, 14
 
 * GCC : 5.2
 
-## ***simd***
+## simd
 ***
-#### ***※ float128: true, float256: falseの環境で, Vector4d を使用すると遅くなると思う.***
+#### ※ float128: true, float256: falseの環境で, Vector4d を使用すると遅くなると思う.
 
 * 使用できるか確かめる方法.
 ```cpp
@@ -35,7 +35,7 @@ std::cout << std::boolalpha <<
 #include "math/SIMD.h"
 ```
 
-## ***user defines***
+## user defines
 ***
 ```cpp
 // int, float型を使用しない
@@ -50,7 +50,7 @@ std::cout << std::boolalpha <<
 #define _UNUSING_SIMD
 ```
 
-## ***behavior***
+## behavior
 ***
 ```cpp
 namespace behavior = pocket::behavior;
