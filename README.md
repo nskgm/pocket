@@ -9,15 +9,20 @@
 
 ## simd
 ***
-#### ※ float128: true, float256: falseの環境で, Vector4d を使用すると遅くなると思う.
+#### ※ float128: true, float256: falseの環境で, Vector4d を使用すると遅くなる（未実装）
+####    SSE2が使用できてAVXが使用できない場合にdoubleの実装は__m128d[2]を使用する予定
 
 * 使用できるか確かめる方法.
 ```cpp
+#include "math/SIMD.h"
+
 std::cout << std::boolalpha <<
-	"float128: " << pocket::simd_t<float>::is_vectorize() << std::endl <<
-	"float256: " << pocket::simd_t<double>::is_vectorize() << std::endl;
+	"float128: " << pocket::SIMD<float>::is_vectorize() << std::endl <<
+	"float256: " << pocket::SIMD<double>::is_vectorize() << std::endl;
 ```
 ```cpp
+#include "math/SIMD.h"
+
 // SSE
 // SSE2
 // SSE3
@@ -53,11 +58,13 @@ std::cout << std::boolalpha <<
 ## behavior
 ***
 ```cpp
+#include "math/all.h"
+
 namespace behavior = pocket::behavior;
 pocket::Vector3<float> v, v2(4.0f, 1.0f, 5.0f);
 std::cout << v(behavior::from_pitch_yaw, 45.0f, 20.0f)(behavior::add, v2)(behavior::normalize)(behavior::dot, v2) << std::endl;
 
 #ifdef _USE_CXX11
-std::cout << 30.0f * behavior::radians * behavior::degrees * behavior::sin * behavior::asin << endl;
+std::cout << 30.0f * behavior::sin * behavior::vec2 << endl;
 #endif // _USE_CXX11
 ```
