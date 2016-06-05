@@ -9,7 +9,8 @@
 
 ## simd
 ***
-#### ※ float128: true, float256: falseの環境で, Vector4d を使用すると遅くなると思う.
+#### ※ float128: true, float256: falseの環境で, Vector4d を使用すると遅くなる（未実装）
+####    SSE2が使用できてAVXが使用できない場合にdoubleの実装は__m128d[2]を使用する予定
 
 * 使用できるか確かめる方法.
 ```cpp
