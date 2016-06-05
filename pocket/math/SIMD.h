@@ -1577,19 +1577,19 @@ private:
 * SIMDが使用できる場合の特殊化
 *---------------------------------------------------------------------*/
 
-#	if _USE_SIMD_TYPE == _SIMD_TYPE_AVX2
+#if (_USE_SIMD_TYPE == _SIMD_TYPE_AVX2) || (_USE_SIMD_TYPE == _SIMD_TYPE_AVX)
 #include <immintrin.h>
-#	elif _USE_SIMD_TYPE == _SIMD_TYPE_AVX
-#include <immintrin.h>
-#	elif _USE_SIMD_TYPE == _SIMD_TYPE_SSE4
+#elif _USE_SIMD_TYPE == _SIMD_TYPE_SSE4_2
+#include <nmmintrin.h>
+#elif (_USE_SIMD_TYPE == _SIMD_TYPE_SSE4) || (_USE_SIMD_TYPE == _SIMD_TYPE_SSE4_1)
 #include <smmintrin.h>
-#	elif _USE_SIMD_TYPE == _SIMD_TYPE_SSE3
+#elif _USE_SIMD_TYPE == _SIMD_TYPE_SSE3
 #include <pmmintrin.h>
-#	elif _USE_SIMD_TYPE == _SIMD_TYPE_SSE2
+#elif _USE_SIMD_TYPE == _SIMD_TYPE_SSE2
 #include <emmintrin.h>
-#	elif _USE_SIMD_TYPE == _SIMD_TYPE_SSE
+#elif _USE_SIMD_TYPE == _SIMD_TYPE_SSE
 #include <xmmintrin.h>
-#	endif
+#endif // _USE_SIMD_TYPE == _SIMD_TYPE_XXX
 
 namespace pocket
 {
@@ -1992,6 +1992,10 @@ struct SIMD<float, 4>
 	*---------------------------------------------------------------------*/
 	static _INLINE_FORCE type dot(type mm1, type mm2)
 	{
+		// SSE4.1以上はサポートされている
+#if _USE_SIMD_TYPE >= _SIMD_TYPE_SSE4_1
+		return _mm_dp_ps(mm1, mm2, 0xFF);
+#else
 		// X*X, Y*Y, Z*Z, W*W
 		type r = _mm_mul_ps(mm1, mm2);
 		// W*W, Z*Z, Y*Y, X*X
@@ -2002,6 +2006,7 @@ struct SIMD<float, 4>
 		perm = _mm_shuffle_ps(r, r, _MM_SHUFFLE(1, 0, 3, 2));
 		// X*X+W*W+Z*Z+Y*Y, Y*Y+Z*Z+W*W+X*X, Z*Z+Y*Y+X*X+W*W, W*W+X*X+Y*Y+Z*Z
 		return _mm_add_ps(r, perm);
+#endif // _USE_SIMD_TYPE >= _SIMD_TYPE_SSE4_1
 	}
 	static _INLINE_FORCE type length_sq(type mm)
 	{

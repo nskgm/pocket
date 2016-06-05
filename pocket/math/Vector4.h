@@ -1251,7 +1251,7 @@ struct Vector4
 	{
 		return subtract<U>(v, *this);
 	}
-	Vector4& operator += (const Vector3<T>& v)
+	Vector4& operator -= (const Vector3<T>& v)
 	{
 		return subtract(v, *this);
 	}

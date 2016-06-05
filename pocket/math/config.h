@@ -68,66 +68,59 @@
 #endif // __CXX14
 
 #ifndef __VCXX10
-#	define __VCXX10 1600
+#	define __VCXX10 (1600)
 #endif // __VCXX10
 #ifndef __VCXX11
-#	define __VCXX11 1700
+#	define __VCXX11 (1700)
 #endif // __VCXX11
 #ifndef __VCXX12
-#	define __VCXX12 1800
+#	define __VCXX12 (1800)
 #endif // __VCXX12
 #ifndef __VCXX14
-#	define __VCXX14 1900
+#	define __VCXX14 (1900)
 #endif // __VCXX14
 
-#ifndef __VS2010
-#	define __VS2010 1600
-#endif // __VS2010
-#ifndef __VS2012
-#	define __VS2012 1700
-#endif // __VS2012
-#ifndef __VS2013
-#	define __VS2013 1800
-#endif // __VS2013
-#ifndef __VS2015
-#	define __VS2015 1900
-#endif // __VS2015
+// ?
+#ifndef __VCXX15
+#	define __VCXX15 (2000)
+#endif // __VCXX15
 
 /*---------------------------------------------------------------------
 * C++バージョンチェック
 *---------------------------------------------------------------------*/
 #ifndef _CXX_VER
-#	define _CXX_VER(N) (__cplusplus >= __CXX##N)
+#	ifdef __cplusplus
+#		define _CXX_VER(N) (__cplusplus >= __CXX##N)
+#	else
+#		define _CXX_VER(N) (0)
+#	endif // __cplusplus
 #endif // _CXX_VER
 
 /*---------------------------------------------------------------------
 * VC++バージョンチェック
 *---------------------------------------------------------------------*/
 #ifndef _VCXX_VER
-#	define _VCXX_VER(N) (_MSC_VER >= __VCXX##N)
+#	if defined(_MSC_VER)
+#		define _VCXX_VER(N) (_MSC_VER >= __VCXX##N)
+#	else
+#		define _VCXX_VER(N) (0)
+#	endif // defined(_MSC_VER)
 #endif // _VCXX_VER
-
-/*---------------------------------------------------------------------
-* Visual Studioバージョンチェック
-*---------------------------------------------------------------------*/
-#ifndef _VS_VER
-#	define _VS_VER(N) (_MSC_VER >= __VS##N)
-#endif // _VS_VER
 
 /*---------------------------------------------------------------------------------------
 * C++11が使用できるか設定. VC++の場合はVC++12以上
 *---------------------------------------------------------------------------------------*/
 #ifndef _USE_CXX11
-#	if ((defined(_MSC_VER) && (_MSC_VER >= 1800)) || _CXX_VER(11))
+#	if _VCXX_VER(12) || _CXX_VER(11)
 #		define _USE_CXX11
-#	endif
+#	endif // 
 #endif // _USE_CXX11
 
 /*---------------------------------------------------------------------------------------
 * C++14が使用できるか設定. VC++の場合は不明
 *---------------------------------------------------------------------------------------*/
 #ifndef _USE_CXX14
-#	if (defined(_MSC_VER) && _MSC_VER >= 2000) || _CXX_VER(14)
+#	if _VCXX_VER(15) || _CXX_VER(14)
 #		define _USE_CXX14
 #	endif
 #endif // _USE_CXX14
@@ -252,57 +245,33 @@
 * const または constexprを定義するための設定
 *---------------------------------------------------------------------------------------*/
 #ifndef _CONST_OR_CONSTEXPR
-#	ifdef _MSC_VER
-#		if _MSC_VER >= 1900
-#			define _CONST_OR_CONSTEXPR constexpr
-#		else
-#			define _CONST_OR_CONSTEXPR const
-#		endif // _MSC_VER >= 1900
+#	if _VCXX_VER(14) || _CXX_VER(11)
+#		define _CONST_OR_CONSTEXPR constexpr
 #	else
-#		ifdef _USE_CXX11 // C++11以上
-#			define _CONST_OR_CONSTEXPR constexpr
-#		else
-#			define _CONST_OR_CONSTEXPR const
-#		endif // _USE_CXX11
-#	endif // _MSC_VER
+#		define _CONST_OR_CONSTEXPR const
+#	endif
 #endif // _CONST_OR_CONSTEXPR
 
 /*---------------------------------------------------------------------------------------
 * C++11のconstexprが使用できるか
 *---------------------------------------------------------------------------------------*/
 #ifndef _CXX11_CONSTEXPR
-#	ifdef _MSC_VER
-#		if _MSC_VER >= 1900 // VC++14以上
-#			define _CXX11_CONSTEXPR constexpr
-#		else
-#			define _CXX11_CONSTEXPR
-#		endif // _MSC_VER > 1800
+#	if _VCXX_VER(14) || _CXX_VER(11)
+#		define _CXX11_CONSTEXPR constexpr
 #	else
-#		ifdef _USE_CXX11 // C++11以上
-#			define _CXX11_CONSTEXPR constexpr
-#		else
-#			define _CXX11_CONSTEXPR
-#		endif // _USE_CXX11
-#	endif // _MSC_VER
+#		define _CXX11_CONSTEXPR
+#	endif
 #endif // _CXX11_CONSTEXPR
 
 /*---------------------------------------------------------------------------------------
 * C++14のconstexprが使用できるか
 *---------------------------------------------------------------------------------------*/
 #ifndef _CXX14_CONSTEXPR
-#	ifdef _MSC_VER
-#		if _MSC_VER >= 2000
-#			define _CXX14_CONSTEXPR constexpr
-#		else
-#			define _CXX14_CONSTEXPR
-#		endif // _MSC_VER > 1800
+#	if _VCXX_VER(15) || _CXX_VER(14)
+#		define _CXX14_CONSTEXPR constexpr
 #	else
-#		ifdef _USE_CXX14
-#			define _CXX14_CONSTEXPR constexpr
-#		else
-#			define _CXX14_CONSTEXPR
-#		endif // _USE_CXX14
-#	endif // _MSC_VER
+#		define _CXX14_CONSTEXPR
+#	endif
 #endif // _CXX14_CONSTEXPR
 
 /*---------------------------------------------------------------------------------------
@@ -316,7 +285,7 @@
 * デフォルトコンストラクタを定義するための設定
 *---------------------------------------------------------------------------------------*/
 #ifndef _DEFAULT_DECLARE_RVALUES
-#	if (defined(_MSC_VER) && _VCXX_VER(14)) || _CXX_VER(11)
+#	if _VCXX_VER(14) || _CXX_VER(11)
 #		define _DEFAULT_DECLARE_RVALUES(CLASS) CLASS(CLASS&&) = default;\
 												CLASS& operator = (CLASS&&) = default
 #	else
@@ -331,7 +300,7 @@
 											CLASS& operator = (const CLASS&) = default;\
 											_DEFAULT_DECLARE_RVALUES(CLASS)
 #	else
-#		define _DEFAULT_CONSTRUCTOR(CLASS) CLASS () {}
+#		define _DEFAULT_CONSTRUCTOR(CLASS) CLASS() {}
 #	endif // _USE_CXX11
 #endif // _DEFAULT_CONSTRUCTOR
 
@@ -351,7 +320,7 @@
 *---------------------------------------------------------------------------------------*/
 #ifndef _ALIGNED
 #	if defined(_MSC_VER)
-#		if _MSC_VER >= 1900
+#		if _VCXX_VER(14)
 #			define _ALIGNED(N) alignas((N))
 #		else
 #			define _ALIGNED(N) __declspec(align(N))
@@ -385,7 +354,7 @@
 
 #ifndef _DECLARE_ALIGNED_STRUCT
 #	if defined(_MSC_VER)
-#		if _MSC_VER >= 1900
+#		if _VCXX_VER(14)
 #			define _DECLARE_ALIGNED_STRUCT(N) struct _ALIGNED(N)
 #		else
 #			define _DECLARE_ALIGNED_STRUCT(N) _ALIGNED(N) struct
@@ -542,11 +511,17 @@
 #ifndef _SIMD_TYPE_SSE4
 #	define _SIMD_TYPE_SSE4 (3)
 #endif // _SIMD_TYPE_SSE4
+#ifndef _SIMD_TYPE_SSE4_1
+#	define _SIMD_TYPE_SSE4_1 (4)
+#endif // _SIMD_TYPE_SSE4_1
+#ifndef _SIMD_TYPE_SSE4_2
+#	define _SIMD_TYPE_SSE4_2 (5)
+#endif // _SIMD_TYPE_SSE4_2
 #ifndef _SIMD_TYPE_AVX
-#	define _SIMD_TYPE_AVX (4)
+#	define _SIMD_TYPE_AVX (6)
 #endif // _SIMD_TYPE_AVX
 #ifndef _SIMD_TYPE_AVX2
-#	define _SIMD_TYPE_AVX2 (5)
+#	define _SIMD_TYPE_AVX2 (7)
 #endif // _SIMD_TYPE_AVX2
 
 // _UNUSING_SIMDを定義されていたら使用しない
@@ -583,7 +558,11 @@
 #	elif defined(__GNUC__) || defined(__clang__)
 #		if defined(__SSE4_2__) || defined(__SSE4_1__) || defined(__SSE4__) || defined(__SSE3__) || defined(__SSE2__)
 #			define _USE_SIMD
-#			if defined(__SSE4_2__) || defined(__SSE4_1__) || defined(__SSE4__)
+#			if defined(__SSE4_2__)
+#				define _USE_SIMD_TYPE _SIMD_TYPE_SSE4_2
+#			elif defined(__SSE4_1__)
+#				define _USE_SIMD_TYPE _SIMD_TYPE_SSE4_1
+#			elif defined(__SSE4__)
 #				define _USE_SIMD_TYPE _SIMD_TYPE_SSE4
 #			elif defined(__SSE3__)
 #				define _USE_SIMD_TYPE _SIMD_TYPE_SSE3
@@ -619,6 +598,10 @@
 #		define _USE_SIMD_TYPE_STRING "AVX2"
 #	elif _USE_SIMD_TYPE == _SIMD_TYPE_AVX
 #		define _USE_SIMD_TYPE_STRING "AVX"
+#	elif _USE_SIMD_TYPE == _SIMD_TYPE_SSE4_2
+#		define _USE_SIMD_TYPE_STRING "SSE4.2"
+#	elif _USE_SIMD_TYPE == _SIMD_TYPE_SSE4_1
+#		define _USE_SIMD_TYPE_STRING "SSE4.1"
 #	elif _USE_SIMD_TYPE == _SIMD_TYPE_SSE4
 #		define _USE_SIMD_TYPE_STRING "SSE4"
 #	elif _USE_SIMD_TYPE == _SIMD_TYPE_SSE3
