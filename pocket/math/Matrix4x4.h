@@ -18,7 +18,7 @@
 #include <initializer_list>
 #endif // _USE_CXX11
 #ifdef _USING_MATH_IO
-#include <iostream>
+#include "io.h"
 #endif // _USING_MATH_IO
 
 namespace pocket
@@ -65,8 +65,8 @@ struct Matrix4x4
 	typedef Vector4<T> column_type;
 
 #ifdef _USE_SIMD_ANONYMOUS
-	typedef simd_t<T> simd_type;
-	typedef typename simd_type::type simd_value_type;
+	typedef typename Vector4<T>::simd simd;
+	typedef typename simd::type simd_type;
 #endif // _USE_SIMD_ANONYMOUS
 
 	typedef container::array<Vector4<T>, 4> array4x4_type;
@@ -104,7 +104,6 @@ struct Matrix4x4
 
 #ifdef _USE_ANONYMOUS_NON_POD
 		};
-		// 1行ごと
 		struct
 		{
 			row_type MV0;
@@ -112,7 +111,6 @@ struct Matrix4x4
 			row_type MV2;
 			row_type MV3;
 		};
-		// 行列内ベクトル
 		struct
 		{
 			Vector3<T> Right; // X方向ベクトル
@@ -124,7 +122,6 @@ struct Matrix4x4
 			Vector3<T> Position; // 座標ベクトル
 			T _PositionW; // 座標ベクトルW
 		};
-		// それぞれの要素へアクセス
 		struct
 		{
 			T M11; T M12; T M13; T M14;
@@ -362,24 +359,24 @@ struct Matrix4x4
 		const_iterator j;
 		for (const_iterator i = M.begin(), end = M.end(); i != end; ++i, ++ri)
 		{
-			simd_value_type mx = simd_type::template permute<0>(i->mm);
-			simd_value_type my = simd_type::template permute<1>(i->mm);
-			simd_value_type mz = simd_type::template permute<2>(i->mm);
-			simd_value_type mw = simd_type::template permute<3>(i->mm);
+			simd_type mx = simd::template permute<0>(i->mm);
+			simd_type my = simd::template permute<1>(i->mm);
+			simd_type mz = simd::template permute<2>(i->mm);
+			simd_type mw = simd::template permute<3>(i->mm);
 
 			j = mi;
-			mx = simd_type::mul(mx, j->mm);
+			mx = simd::mul(mx, j->mm);
 			++j;
-			my = simd_type::mul(my, j->mm);
+			my = simd::mul(my, j->mm);
 			++j;
-			mz = simd_type::mul(mz, j->mm);
+			mz = simd::mul(mz, j->mm);
 			++j;
-			mw = simd_type::mul(mw, j->mm);
+			mw = simd::mul(mw, j->mm);
 
-			mx = simd_type::add(mx, mz);
-			my = simd_type::add(my, mw);
+			mx = simd::add(mx, mz);
+			my = simd::add(my, mw);
 
-			ri->mm = simd_type::add(mx, my);
+			ri->mm = simd::add(mx, my);
 		}
 #else // _USE_SIMD_ANONYMOUS
 
@@ -431,11 +428,11 @@ struct Matrix4x4
 	Matrix4x4& divide(T s, Matrix4x4& result) const
 	{
 #ifdef _USE_SIMD_ANONYMOUS
-		simd_value_type rcp = simd_type::set(math_type::reciprocal(s));
+		simd_type rcp = simd::set(math_type::reciprocal(s));
 		iterator ri = result.M.begin();
 		for (const_iterator i = M.begin(), end = M.end(); i != end; ++i, ++ri)
 		{
-			ri->mm = simd_type::mul(i->mm, rcp);
+			ri->mm = simd::mul(i->mm, rcp);
 		}
 #else
 		_DEB_ASSERT(s != math_type::Zero);

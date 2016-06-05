@@ -95,7 +95,7 @@ public:
 	typedef const T& const_reference;
 
 	typedef detail::math_int_t<T> int_type;
-	typedef typename int_type::type int_value_type;
+	typedef typename int_type::type value_int_type;
 
 	/*-----------------------------------------------------------------------------------------
 	* Members
@@ -365,7 +365,6 @@ public:
 	*---------------------------------------------------------------------*/
 	static inline T power_of_two(T x)
 	{
-		// マイナス対応
 		T r = x >= Math::Zero ? Math::Two : -Math::Two;
 		while (r < x)
 		{
@@ -785,70 +784,70 @@ public:
 /*---------------------------------------------------------------------
 * int特有の挙動
 *---------------------------------------------------------------------*/
-template <>
-inline bool Math<int>::is_near_zero(int f)
+template <> inline
+bool Math<int>::is_near_zero(int f)
 {
 	return (f == 0);
 }
-template <>
-inline bool Math<int>::is_near_one(int f)
+template <> inline
+bool Math<int>::is_near_one(int f)
 {
 	return (f == 1);
 }
-template <>
-inline bool Math<int>::is_near(int f, int value)
+template <> inline
+bool Math<int>::is_near(int f, int value)
 {
 	return (f == value);
 }
 template <>
-template <int N>
-inline bool Math<int>::is_near(int f)
+template <int N> inline
+bool Math<int>::is_near(int f)
 {
 	return (f == N);
 }
-template <>
-inline int Math<int>::reciprocal(int f)
+template <> inline
+int Math<int>::reciprocal(int f)
 {
 	return 0;
 }
-template <>
-inline int Math<int>::round(int x)
+template <> inline
+int Math<int>::round(int x)
 {
 	return x;
 }
-template <>
-inline int Math<int>::round_to_int(int x)
+template <> inline
+int Math<int>::round_to_int(int x)
 {
 	return x;
 }
-template <>
-inline int Math<int>::ceil(int x)
+template <> inline
+int Math<int>::ceil(int x)
 {
 	return x;
 }
-template <>
-inline int Math<int>::ceil_to_int(int x)
+template <> inline
+int Math<int>::ceil_to_int(int x)
 {
 	return x;
 }
-template <>
-inline int Math<int>::floor(int x)
+template <> inline
+int Math<int>::floor(int x)
 {
 	return x;
 }
-template <>
-inline int Math<int>::floor_to_int(int x)
+template <> inline
+int Math<int>::floor_to_int(int x)
 {
 	return x;
 }
-template <>
-inline int Math<int>::remainder(int x, int y)
+template <> inline
+int Math<int>::remainder(int x, int y)
 {
 	_DEB_ASSERT(y > 0);
 	return (x % y);
 }
-template <>
-inline int& Math<int>::remainder_assign(int& x, int y)
+template <> inline
+int& Math<int>::remainder_assign(int& x, int y)
 {
 	_DEB_ASSERT(y > 0);
 	x %= y;
@@ -983,108 +982,108 @@ _MATH_SIN_COS_OUTPUT_OPERATOR(detail::MathSinCosld);
   // 数学クラスの関数を＊演算子で呼び出す
 
 #ifdef _USE_CXX11
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
+template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 T operator * (const T& f, const pocket::behavior::_sqr_t&)
 {
 	return pocket::Math<T>::sqr(f);
 }
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
+template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 T operator * (const T& f, const pocket::behavior::_radians_t&)
 {
 	return pocket::Math<T>::to_radian(f);
 }
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
+template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 T operator * (const T& f, const pocket::behavior::_degrees_t&)
 {
 	return pocket::Math<T>::to_degree(f);
 }
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
+template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 T operator * (const T& f, const pocket::behavior::_sin_t&)
 {
 	return pocket::Math<T>::sin(f);
 }
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
+template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 T operator * (const T& f, const pocket::behavior::_cos_t&)
 {
 	return pocket::Math<T>::cos(f);
 }
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
+template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 T operator * (const T& f, const pocket::behavior::_tan_t&)
 {
 	return pocket::Math<T>::tan(f);
 }
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
+template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 T operator * (const T& f, const pocket::behavior::_asin_t&)
 {
 	return pocket::Math<T>::asin(f);
 }
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
+template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 T operator * (const T& f, const pocket::behavior::_acos_t&)
 {
 	return pocket::Math<T>::acos(f);
 }
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
+template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 T operator * (const T& f, const pocket::behavior::_atan_t&)
 {
 	return pocket::Math<T>::atan(f);
 }
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
+template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 typename pocket::Math<T>::SinCos operator * (const T& f, const pocket::behavior::_sin_cos_t&)
 {
 	return pocket::Math<T>::sin_cos(f);
 }
 
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
+template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 T operator * (const T& f, const pocket::behavior::_round_t&)
 {
 	return pocket::Math<T>::round(f);
 }
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
+template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 T operator * (const T& f, const pocket::behavior::_abs_t&)
 {
 	return pocket::Math<T>::abs(f);
 }
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
+template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 T operator * (const T& f, const pocket::behavior::_ceil_t&)
 {
 	return pocket::Math<T>::ceil(f);
 }
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
+template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 T operator * (const T& f, const pocket::behavior::_floor_t&)
 {
 	return pocket::Math<T>::floor(f);
 }
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
+template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 T operator * (const T& f, const pocket::behavior::_sqrt_t&)
 {
 	return pocket::Math<T>::sqrt(f);
 }
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
+template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 T operator * (const T& f, const pocket::behavior::_pot_t&)
 {
 	return pocket::Math<T>::power_of_two(f);
 }
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
+template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 bool operator * (const T& f, const pocket::behavior::_is_pot_t&)
 {
 	return pocket::Math<T>::is_power_of_two(f);
 }
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
+template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 T operator * (const T& f, const pocket::behavior::_clamp01_t&)
 {
 	return pocket::Math<T>::clamp01(f);
 }
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
+template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 pocket::Vector2<T> operator * (const T& f, const pocket::behavior::_vec2_t&)
 {
 	return pocket::Vector2<T>(f);
 }
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
+template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 pocket::Vector3<T> operator * (const T& f, const pocket::behavior::_vec3_t&)
 {
 	return pocket::Vector3<T>(f);
 }
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)>
+template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 pocket::Vector4<T> operator * (const T& f, const pocket::behavior::_vec4_t&)
 {
 	return pocket::Vector4<T>(f, f);

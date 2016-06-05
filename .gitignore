@@ -6,3 +6,5 @@
 *.opendb
 *.exe
 *.db
+/pocket/g++compile.bat
+/pocket/log.txt

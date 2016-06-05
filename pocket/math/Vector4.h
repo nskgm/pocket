@@ -69,15 +69,15 @@ struct Vector4
 	typedef typename array_type::const_reference const_reference;
 
 #ifdef _USE_SIMD_ANONYMOUS
-	typedef simd_t<T> simd_type;
-	typedef typename simd_type::type simd_value_type;
+	typedef SIMD<T, 4> simd;
+	typedef typename simd::type simd_type;
 #endif // _USE_SIMD_ANONYMOUS_ANONYMOUS
 
 	/*-----------------------------------------------------------------------------------------
 	* Members
 	*-----------------------------------------------------------------------------------------*/
 
-	// 匿名は使用できないがsimd_typeは使用できる
+	// 匿名は使用できないがsimdは使用できる
 #ifdef _USE_ANONYMOUS
 	union
 	{
@@ -105,8 +105,8 @@ struct Vector4
 #endif // _USE_ANONYMOUS_NON_POD
 
 #ifdef _USE_SIMD_ANONYMOUS
-		// simd_typeが使用できる場合は演算に使用する
-		simd_value_type mm;
+		// simdが使用できる場合は演算に使用する
+		simd_type mm;
 #endif // _USE_SIMD_ANONYMOUS_ANONYMOUS
 
 		array_type Data;
@@ -142,113 +142,169 @@ struct Vector4
 
 	}
 	explicit Vector4(const behavior::_zero_t&) :
-#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
-		X(math_type::Zero), Y(math_type::Zero), Z(math_type::Zero),
+#ifdef _USE_SIMD_ANONYMOUS
+		mm(simd::zero())
 #else
+#	ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+		X(math_type::Zero), Y(math_type::Zero), Z(math_type::Zero),
+#	else
 		XYZ(math_type::Zero, math_type::Zero, math_type::Zero),
-#endif
+#	endif
 		W(math_type::Zero)
+#endif
 	{
 
 	}
 	explicit Vector4(const behavior::_zero_t&, const behavior::_direction_t&) :
-#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
-		X(math_type::Zero), Y(math_type::Zero), Z(math_type::Zero),
+#ifdef _USE_SIMD_ANONYMOUS
+		mm(simd::zero())
 #else
+#	ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+		X(math_type::Zero), Y(math_type::Zero), Z(math_type::Zero),
+#	else
 		XYZ(math_type::Zero, math_type::Zero, math_type::Zero),
-#endif
+#	endif
 		W(math_type::Zero)
+#endif
 	{
 
 	}
 	explicit Vector4(const behavior::_zero_t&, const behavior::_position_t&) :
-#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
-		X(math_type::Zero), Y(math_type::Zero), Z(math_type::Zero),
+#ifdef _USE_SIMD_ANONYMOUS
+		mm(simd::zero())
 #else
+#	ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+		X(math_type::Zero), Y(math_type::Zero), Z(math_type::Zero),
+#	else
 		XYZ(math_type::Zero, math_type::Zero, math_type::Zero),
+#	endif
+		W(math_type::Zero)
 #endif
-		W(math_type::One)
 	{
-
+#ifdef _USE_SIMD_ANONYMOUS
+		w1();
+#endif // _USE_SIMD_ANONYMOUS
 	}
 	explicit Vector4(const behavior::_one_t&) :
-#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
-		X(math_type::One), Y(math_type::One), Z(math_type::One),
+#ifdef _USE_SIMD_ANONYMOUS
+		mm(simd::one())
 #else
+#	ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+		X(math_type::One), Y(math_type::One), Z(math_type::One),
+#	else
 		XYZ(math_type::One, math_type::One, math_type::One),
-#endif
+#	endif
 		W(math_type::One)
+#endif
 	{
 
 	}
 	explicit Vector4(const behavior::_one_t&, const behavior::_direction_t&) :
-#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
-		X(math_type::One), Y(math_type::One), Z(math_type::One),
+#ifdef _USE_SIMD_ANONYMOUS
+		mm(simd::one())
 #else
+#	ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+		X(math_type::One), Y(math_type::One), Z(math_type::One),
+#	else
 		XYZ(math_type::One, math_type::One, math_type::One),
-#endif
+#	endif
 		W(math_type::Zero)
+#endif
 	{
-
+#ifdef _USE_SIMD_ANONYMOUS
+		w0();
+#endif // _USE_SIMD_ANONYMOUS
 	}
 	explicit Vector4(const behavior::_one_t&, const behavior::_position_t&) :
-#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
-		X(math_type::One), Y(math_type::One), Z(math_type::One),
+#ifdef _USE_SIMD_ANONYMOUS
+		mm(simd::one())
 #else
+#	ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+		X(math_type::One), Y(math_type::One), Z(math_type::One),
+#	else
 		XYZ(math_type::One, math_type::One, math_type::One),
-#endif
+#	endif
 		W(math_type::One)
+#endif
 	{
 
 	}
 	explicit Vector4(const behavior::_half_t&, const behavior::_direction_t&) :
-#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
-		X(math_type::Half), Y(math_type::Half), Z(math_type::Half),
+#ifdef _USE_SIMD_ANONYMOUS
+		mm(simd::set(math_type::Half))
 #else
+#	ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+		X(math_type::Half), Y(math_type::Half), Z(math_type::Half),
+#	else
 		XYZ(math_type::Half, math_type::Half, math_type::Half),
-#endif
+#	endif
 		W(math_type::Zero)
+#endif // _USE_SIMD_ANONYMOUS
 	{
-
+#ifdef _USE_SIMD_ANONYMOUS
+		w0();
+#endif // _USE_SIMD_ANONYMOUS
 	}
 	explicit Vector4(const behavior::_half_t&, const behavior::_position_t&) :
-#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
-		X(math_type::Half), Y(math_type::Half), Z(math_type::Half),
+#ifdef _USE_SIMD_ANONYMOUS
+		mm(simd::set(math_type::Half))
 #else
+#	ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+		X(math_type::Half), Y(math_type::Half), Z(math_type::Half),
+#	else
 		XYZ(math_type::Half, math_type::Half, math_type::Half),
-#endif
+#	endif
 		W(math_type::One)
+#endif // _USE_SIMD_ANONYMOUS
 	{
-
+#ifdef _USE_SIMD_ANONYMOUS
+		w1();
+#endif // _USE_SIMD_ANONYMOUS
 	}
 	explicit Vector4(const behavior::_half_of_half_t&, const behavior::_direction_t&) :
-#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
-		X(math_type::HalfOfHalf), Y(math_type::HalfOfHalf), Z(math_type::HalfOfHalf),
+#ifdef _USE_SIMD_ANONYMOUS
+		mm(simd::set(math_type::HalfOfHalf))
 #else
+#	ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+		X(math_type::HalfOfHalf), Y(math_type::HalfOfHalf), Z(math_type::HalfOfHalf),
+#	else
 		XYZ(math_type::HalfOfHalf, math_type::HalfOfHalf, math_type::HalfOfHalf),
-#endif
+#	endif
 		W(math_type::Zero)
+#endif // _USE_SIMD_ANONYMOUS
 	{
-
+#ifdef _USE_SIMD_ANONYMOUS
+		w0();
+#endif // _USE_SIMD_ANONYMOUS
 	}
 	explicit Vector4(const behavior::_half_of_half_t&, const behavior::_position_t&) :
-#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
-		X(math_type::HalfOfHalf), Y(math_type::HalfOfHalf), Z(math_type::HalfOfHalf),
+#ifdef _USE_SIMD_ANONYMOUS
+		mm(simd::set(math_type::HalfOfHalf))
 #else
+#	ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+		X(math_type::HalfOfHalf), Y(math_type::HalfOfHalf), Z(math_type::HalfOfHalf),
+#	else
 		XYZ(math_type::HalfOfHalf, math_type::HalfOfHalf, math_type::HalfOfHalf),
-#endif
+#	endif
 		W(math_type::One)
+#endif // _USE_SIMD_ANONYMOUS
 	{
-
+#ifdef _USE_SIMD_ANONYMOUS
+		w1();
+#endif // _USE_SIMD_ANONYMOUS
 	}
 
 	Vector4(T X, T Y, T Z, T W) :
-#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
-		X(X), Y(Y), Z(Z),
+#ifdef _USE_SIMD_ANONYMOUS
+		mm(simd::set(X, Y, Z, W))
 #else
+#	ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+		X(X), Y(Y), Z(Z),
+#	else
 		XYZ(X, Y, Z),
-#endif
+#	endif
 		W(W)
+#endif // _USE_SIMD_ANONYMOUS
 	{
 
 	}
@@ -256,94 +312,125 @@ struct Vector4
 		_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U),
 		_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U1),
 		_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U2),
-		_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U3)
-	>
-		Vector4(U X, U1 Y, U2 Z, U3 W) :
-#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
-		X(static_cast<T>(X)), Y(static_cast<T>(Y)), Z(static_cast<T>(Z)),
+		_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U3)>
+	Vector4(U X, U1 Y, U2 Z, U3 W) :
+#ifdef _USE_SIMD_ANONYMOUS
+		mm(simd::set(static_cast<T>(X), static_cast<T>(Y), static_cast<T>(Z), static_cast<T>(W)))
 #else
+#	ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+		X(static_cast<T>(X)), Y(static_cast<T>(Y)), Z(static_cast<T>(Z)),
+#	else
 		XYZ(static_cast<T>(X), static_cast<T>(Y), static_cast<T>(Z)),
-#endif
+#	endif
 		W(static_cast<T>(W))
+#endif // _USE_SIMD_ANONYMOUS
 	{
 
 	}
 	explicit Vector4(T f, T w = math_type::One) :
-#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
-		X(f), Y(f), Z(f),
+#ifdef _USE_SIMD_ANONYMOUS
+		mm(simd::set(w, f, f, f))
 #else
+#	ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+		X(f), Y(f), Z(f),
+#	else
 		XYZ(f),
-#endif
+#	endif
 		W(w)
+#endif // _USE_SIMD_ANONYMOUS
 	{
 
 	}
 	template <typename U, _TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
 	explicit Vector4(U f, U w = Math<U>::One) :
-#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
-		X(static_cast<T>(f)), Y(static_cast<T>(f)), Z(static_cast<T>(f)),
+#ifdef _USE_SIMD_ANONYMOUS
+		mm(simd::set(static_cast<T>(f), static_cast<T>(f), static_cast<T>(f), w))
 #else
+#	ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+		X(static_cast<T>(f)), Y(static_cast<T>(f)), Z(static_cast<T>(f)),
+#	else
 		XYZ(static_cast<T>(f)),
-#endif
+#	endif
 		W(static_cast<T>(w))
+#endif // _USE_SIMD_ANONYMOUS
 	{
 
 	}
-	explicit Vector4(const Vector2<T>& v, T z, T w) :
-#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
-		X(v.X), Y(v.Y), Z(z),
+	Vector4(const Vector2<T>& v, T z, T w) :
+#ifdef _USE_SIMD_ANONYMOUS
+		mm(simd::set(v.X, v.Y, z, w))
 #else
+#	ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+		X(v.X), Y(v.Y), Z(z),
+#	else
 		XYZ(v, z),
-#endif
+#	endif
 		W(w)
+#endif // _USE_SIMD_ANONYMOUS
 	{
 
 	}
 	template <typename U>
-	explicit Vector4(const Vector2<U>& v, U z, U w) :
-#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
-		X(static_cast<T>(v.X)), Y(static_cast<T>(v.Y)), Z(static_cast<T>(z)),
+	Vector4(const Vector2<U>& v, U z, U w) :
+#ifdef _USE_SIMD_ANONYMOUS
+		mm(simd::set(static_cast<T>(v.X), static_cast<T>(v.Y), static_cast<T>(z), static_cast<T>(w)))
 #else
+#	ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+		X(static_cast<T>(v.X)), Y(static_cast<T>(v.Y)), Z(static_cast<T>(z)),
+#	else
 		XYZ(static_cast<T>(v.X), static_cast<T>(v.Y), static_cast<T>(z)),
-#endif
+#	endif
 		W(static_cast<T>(w))
+#endif // _USE_SIMD_ANONYMOUS
 	{
 
 	}
 	explicit Vector4(const Vector3<T>& v, T w) :
-#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
-		X(v.Z), Y(v.Y), Z(v.Z),
+#ifdef _USE_SIMD_ANONYMOUS
+		mm(simd::set(v.X, v.Y, v.Z, w))
 #else
+#	ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+		X(v.X), Y(v.Y), Z(v.Z),
+#	else
 		XYZ(v),
-#endif
+#	endif
 		W(w)
+#endif // _USE_SIMD_ANONYMOUS
 	{
 
 	}
 	template <typename U>
-	explicit Vector4(const Vector3<U>& v, U w) :
-#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
-		X(static_cast<T>(v.X)), Y(static_cast<T>(v.Y)), Z(static_cast<T>(v.Z)),
+	Vector4(const Vector3<U>& v, U w) :
+#ifdef _USE_SIMD_ANONYMOUS
+		mm(simd::set(static_cast<T>(v.X), static_cast<T>(v.Y), static_cast<T>(v.Z), static_cast<T>(w)))
 #else
+#	ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+		X(static_cast<T>(v.X)), Y(static_cast<T>(v.Y)), Z(static_cast<T>(v.Z)),
+#	else
 		XYZ(static_cast<T>(v.X), static_cast<T>(v.Y), static_cast<T>(v.Z)),
-#endif
+#	endif
 		W(static_cast<T>(w))
+#endif // _USE_SIMD_ANONYMOUS
 	{
 
 	}
 	template <typename U>
-	explicit Vector4(const Vector4<U>& v) :
-#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
-		X(static_cast<T>(v.X)), Y(static_cast<T>(v.Y)), Z(static_cast<T>(v.Z)),
+	Vector4(const Vector4<U>& v) :
+#ifdef _USE_SIMD_ANONYMOUS
+		mm(simd::set(static_cast<T>(v.X), static_cast<T>(v.Y), static_cast<T>(v.Z), static_cast<T>(v.W)))
 #else
+#	ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+		X(static_cast<T>(v.X)), Y(static_cast<T>(v.Y)), Z(static_cast<T>(v.Z)),
+#	else
 		XYZ(static_cast<T>(v.X), static_cast<T>(v.Y), static_cast<T>(v.Z)),
-#endif
+#	endif
 		W(static_cast<T>(v.W))
+#endif // _USE_SIMD_ANONYMOUS
 	{
 
 	}
 #ifdef _USE_SIMD_ANONYMOUS
-	explicit Vector4(simd_value_type mm) :
+	Vector4(simd_type mm) :
 		mm(mm)
 	{
 
@@ -371,7 +458,7 @@ struct Vector4
 	Vector4& add(const Vector4& v, Vector4& result) const
 	{
 #ifdef _USE_SIMD_ANONYMOUS
-		result.mm = simd_type::add(mm, v.mm);
+		result.mm = simd::add(mm, v.mm);
 #else
 		result.X = X + v.X;
 		result.Y = Y + v.Y;
@@ -383,7 +470,19 @@ struct Vector4
 	template <typename U>
 	Vector4& add(const Vector4<U>& v, Vector4& result) const
 	{
-		return add(Vector4(static_cast<T>(v.X), static_cast<T>(v.Y), static_cast<T>(v.Z), static_cast<T>(v.W)), result);
+		return add(Vector4(v), result);
+	}
+	Vector4& add(const Vector3<T>& v, Vector4& result) const
+	{
+#ifdef _USE_SIMD_ANONYMOUS
+		result.mm = simd::add(mm, simd::set(v.X, v.Y, v.Z, math_type::Zero));
+#else
+		result.X = X + v.X;
+		result.Y = Y + v.Y;
+		result.Z = Z + v.Z;
+		result.W = W;
+#endif // _USE_SIMD_ANONYMOUS
+		return result;
 	}
 	/*---------------------------------------------------------------------
 	* 引き算
@@ -391,7 +490,7 @@ struct Vector4
 	Vector4& subtract(const Vector4& v, Vector4& result) const
 	{
 #ifdef _USE_SIMD_ANONYMOUS
-		result.mm = simd_type::sub(mm, v.mm);
+		result.mm = simd::sub(mm, v.mm);
 #else
 		result.X = X - v.X;
 		result.Y = Y - v.Y;
@@ -403,7 +502,19 @@ struct Vector4
 	template <typename U>
 	Vector4& subtract(const Vector4<U>& v, Vector4& result) const
 	{
-		return subtract(Vector4(static_cast<T>(v.X), static_cast<T>(v.Y), static_cast<T>(v.Z), static_cast<T>(v.W)), result);
+		return subtract(Vector4(v), result);
+	}
+	Vector4& subtract(const Vector3<T>& v, Vector4& result) const
+	{
+#ifdef _USE_SIMD_ANONYMOUS
+		result.mm = simd::sub(mm, simd::set(v.X, v.Y, v.Z, math_type::Zero));
+#else
+		result.X = X - v.X;
+		result.Y = Y - v.Y;
+		result.Z = Z - v.Z;
+		result.W = W;
+#endif // _USE_SIMD_ANONYMOUS
+		return result;
 	}
 	/*---------------------------------------------------------------------
 	* 掛け算
@@ -411,7 +522,7 @@ struct Vector4
 	Vector4& multiply(T f, Vector4& result) const
 	{
 #ifdef _USE_SIMD_ANONYMOUS
-		result.mm = simd_type::mul(mm, simd_type::set(f));
+		result.mm = simd::mul(mm, simd::set(f));
 #else
 		result.X = X * f;
 		result.Y = Y * f;
@@ -432,7 +543,7 @@ struct Vector4
 	{
 		_DEB_ASSERT(f != math_type::Zero);
 #ifdef _USE_SIMD_ANONYMOUS
-		result.mm = simd_type::div(mm, simd_type::set(f));
+		result.mm = simd::div(mm, simd::set(f));
 		return result;
 #else
 		f = math_type::One / f;
@@ -466,14 +577,22 @@ struct Vector4
 	*---------------------------------------------------------------------*/
 	bool is_near(const Vector4& v) const
 	{
+#ifdef _USE_SIMD_ANONYMOUS
+		return simd::near_equal(mm, v.mm);
+#else
 		return (math_type::is_near(X, v.X) && math_type::is_near(Y, v.Y) && math_type::is_near(Z, v.Z) && math_type::is_near(W, v.W));
+#endif // _USE_SIMD_ANONYMOUS
 	}
 	/*---------------------------------------------------------------------
 	* 値がゼロに近いか
 	*---------------------------------------------------------------------*/
 	bool is_near_zero() const
 	{
+#ifdef _USE_SIMD_ANONYMOUS
+		return simd::near_equal_zero(mm);
+#else
 		return (math_type::is_near_zero(X) && math_type::is_near_zero(Y) && math_type::is_near_zero(Z) && math_type::is_near_zero(W));
+#endif // _USE_SIMD_ANONYMOUS
 	}
 	/*---------------------------------------------------------------------
 	* 値がゼロか
@@ -481,7 +600,7 @@ struct Vector4
 	bool is_zero() const
 	{
 #ifdef _USE_SIMD_ANONYMOUS
-		return simd_type::equal(mm, Vector4::Zero.mm);
+		return simd::equal(mm, Vector4::Zero.mm);
 #else
 		return (X == math_type::Zero && Y == math_type::Zero && Z == math_type::Zero && W == math_type::Zero);
 #endif // _USE_SIMD_ANONYMOUS_ANONYMOUS
@@ -510,7 +629,7 @@ struct Vector4
 	T length() const
 	{
 #ifdef _USE_SIMD_ANONYMOUS
-		return simd_type::first(simd_type::length(mm));
+		return simd::first(simd::length(mm));
 #else
 		return math_type::sqrt(dot(*this));
 #endif // _USE_SIMD_ANONYMOUS
@@ -536,10 +655,9 @@ struct Vector4
 	{
 #ifdef _USE_SIMD_ANONYMOUS
 		// 引き算したもののXYZのみを受け取る
-		Vector4 t(simd_type::select1110(simd_type::sub(mm, v.mm)));
+		const Vector4 t(simd::select1110(simd::sub(mm, v.mm)));
 #else
-
-		Vector4 t(X - v.X, Y - v.Y, Z - v.Z, math_type::Zero);
+		const Vector4 t(X - v.X, Y - v.Y, Z - v.Z, math_type::Zero);
 #endif // _USE_SIMD_ANONYMOUS_ANONYMOUS
 		return t.length();
 	}
@@ -549,9 +667,8 @@ struct Vector4
 	Vector4 direction(const Vector4& v) const
 	{
 #ifdef _USE_SIMD_ANONYMOUS
-		Vector4 t(simd_type::select1110(simd_type::sub(mm, v.mm)));
+		Vector4 t(simd::select1110(simd::sub(mm, v.mm)));
 #else
-
 		Vector4 t(X - v.X, Y - v.Y, Z - v.Z, math_type::Zero);
 #endif // _USE_SIMD_ANONYMOUS_ANONYMOUS
 		return t.normalize();
@@ -559,7 +676,7 @@ struct Vector4
 	Vector4& direction(const Vector4& v, Vector4& result) const
 	{
 #ifdef _USE_SIMD_ANONYMOUS
-		result.mm = simd_type::select1110(simd_type::sub(mm, v.mm));
+		result.mm = simd::select1110(simd::sub(mm, v.mm));
 #else
 		result.X = X - v.X;
 		result.Y = Y - v.Y;
@@ -576,7 +693,7 @@ struct Vector4
 		// |v1||v2|cos(θ)と同じになる
 		// 値が０のときは垂直
 #ifdef _USE_SIMD_ANONYMOUS
-		return simd_type::first(simd_type::dot(mm, v.mm));
+		return simd::first(simd::dot(mm, v.mm));
 #else
 		return X * v.X + Y * v.Y + Z * v.Z + W * v.W;
 #endif // _USE_SIMD_ANONYMOUS
@@ -597,13 +714,13 @@ struct Vector4
 	Vector4& cross(const Vector4& v, Vector4& result) const
 	{
 #ifdef _USE_SIMD_ANONYMOUS
-		simd_value_type syzx = simd_type::template permute<3, 0, 2, 1>(mm, mm);
-		simd_value_type szxy = simd_type::template permute<3, 1, 0, 2>(mm, mm);
-		simd_value_type tzxy = simd_type::template permute<3, 0, 2, 1>(v.mm, v.mm);
-		simd_value_type tyzx = simd_type::template permute<3, 1, 0, 2>(v.mm, v.mm);
-		simd_value_type m1 = simd_type::mul(syzx, tzxy);
-		simd_value_type m2 = simd_type::mul(szxy, tyzx);
-		result.mm = simd_type::sub(m1, m2);
+		simd_type syzx = simd::template permute<3, 0, 2, 1>(mm, mm);
+		simd_type szxy = simd::template permute<3, 1, 0, 2>(mm, mm);
+		simd_type tzxy = simd::template permute<3, 0, 2, 1>(v.mm, v.mm);
+		simd_type tyzx = simd::template permute<3, 1, 0, 2>(v.mm, v.mm);
+		simd_type m1 = simd::mul(syzx, tzxy);
+		simd_type m2 = simd::mul(szxy, tyzx);
+		result.mm = simd::sub(m1, m2);
 #else
 		result.X = Y * v.Z - Z * v.Y;
 		result.Y = Z * v.X - X * v.Z;
@@ -618,10 +735,10 @@ struct Vector4
 	Vector4& normalize()
 	{
 #ifdef _USE_SIMD_ANONYMOUS
-		simd_value_type r = simd_type::length_sq(mm);
+		simd_type r = simd::length_sq(mm);
 		// 1.0 / sqrt
-		r = simd_type::rsqrt(r);
-		mm = simd_type::mul(mm, r);
+		r = simd::rsqrt(r);
+		mm = simd::mul(mm, r);
 #else
 		T len = length_sq();
 		// ゼロ割対策
@@ -683,10 +800,10 @@ struct Vector4
 	{
 #ifdef _USE_SIMD_ANONYMOUS
 		// from*(1.0 - t) + to*t
-		simd_value_type ft = simd_type::set(math_type::One - t);
-		simd_value_type tt = simd_type::set(t);
-		result.mm = simd_type::mul(mm, ft);
-		result.mm = simd_type::add(result.mm, simd_type::mul(to.mm, tt));
+		simd_type ft = simd::set(math_type::One - t);
+		simd_type tt = simd::set(t);
+		result.mm = simd::mul(mm, ft);
+		result.mm = simd::add(result.mm, simd::mul(to.mm, tt));
 #else
 		result.X = math_type::lerp(X, to.X, t);
 		result.Y = math_type::lerp(Y, to.Y, t);
@@ -705,7 +822,7 @@ struct Vector4
 	Vector4& saturate()
 	{
 #ifdef _USE_SIMD_ANONYMOUS
-		mm = simd_type::clamp01(mm);
+		mm = simd::clamp01(mm);
 #else
 		X = math_type::clamp01(X);
 		Y = math_type::clamp01(Y);
@@ -891,7 +1008,7 @@ struct Vector4
 	bool operator == (const Vector4& v) const
 	{
 #ifdef _USE_SIMD_ANONYMOUS
-		return simd_type::equal(mm, v.mm);
+		return simd::equal(mm, v.mm);
 #else
 		return (X == v.X) && (Y == v.Y) && (Z == v.Z) && (W == v.W);
 #endif // _USE_SIMD_ANONYMOUS_ANONYMOUS
@@ -903,7 +1020,7 @@ struct Vector4
 	bool operator < (const Vector4& v) const
 	{
 #ifdef _USE_SIMD_ANONYMOUS
-		return simd_type::less(mm, v.mm);
+		return simd::less(mm, v.mm);
 #else
 		return length_sq() < v.length_sq();
 #endif // _USE_SIMD_ANONYMOUS_ANONYMOUS
@@ -911,7 +1028,7 @@ struct Vector4
 	bool operator <= (const Vector4& v) const
 	{
 #ifdef _USE_SIMD_ANONYMOUS
-		return simd_type::less_equal(mm, v.mm);
+		return simd::less_equal(mm, v.mm);
 #else
 		return length_sq() <= v.length_sq();
 #endif // _USE_SIMD_ANONYMOUS_ANONYMOUS
@@ -919,7 +1036,7 @@ struct Vector4
 	bool operator > (const Vector4& v) const
 	{
 #ifdef _USE_SIMD_ANONYMOUS
-		return simd_type::greater(mm, v.mm);
+		return simd::greater(mm, v.mm);
 #else
 		return length_sq() > v.length_sq();
 #endif // _USE_SIMD_ANONYMOUS_ANONYMOUS
@@ -927,7 +1044,7 @@ struct Vector4
 	bool operator >= (const Vector4& v) const
 	{
 #ifdef _USE_SIMD_ANONYMOUS
-		return simd_type::greater_equal(mm, v.mm);
+		return simd::greater_equal(mm, v.mm);
 #else
 		return length_sq() < v.length_sq();
 #endif // _USE_SIMD_ANONYMOUS_ANONYMOUS
@@ -947,7 +1064,7 @@ struct Vector4
 	Vector4& operator ++ ()
 	{
 #ifdef _USE_SIMD_ANONYMOUS
-		mm = simd_type::add(mm, simd_type::one());
+		mm = simd::add(mm, simd::one());
 #else
 		++X;
 		++Y;
@@ -965,7 +1082,7 @@ struct Vector4
 	Vector4& operator -- ()
 	{
 #ifdef _USE_SIMD_ANONYMOUS
-		mm = simd_type::sub(mm, simd_type::one());
+		mm = simd::sub(mm, simd::one());
 #else
 		--X;
 		--Y;
@@ -986,8 +1103,12 @@ struct Vector4
 	*---------------------------------------------------------------------*/
 	Vector4 operator + (const Vector4& v) const
 	{
+#ifdef _USE_SIMD_ANONYMOUS
+		return Vector4(simd::add(mm, v.mm));
+#else
 		Vector4 result(behavior::noinitialize);
 		return add(v, result);
+#endif // _USE_SIMD_ANONYMOUS
 	}
 	template <typename U, _TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
 	Vector4 operator + (const Vector4<U>& v) const
@@ -997,8 +1118,12 @@ struct Vector4
 	}
 	Vector4 operator - (const Vector4& v) const
 	{
+#ifdef _USE_SIMD_ANONYMOUS
+		return Vector4(simd::sub(mm, v.mm));
+#else
 		Vector4 result(behavior::noinitialize);
 		return subtract(v, result);
+#endif // _USE_SIMD_ANONYMOUS
 	}
 	template <typename U, _TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
 	Vector4 operator - (const Vector4<U>& v) const
@@ -1010,25 +1135,41 @@ struct Vector4
 	Vector4 operator * (const Quaternion<T>&) const; // Quaternion.h
 	Vector4 operator * (T f) const
 	{
+#ifdef _USE_SIMD_ANONYMOUS
+		return Vector4(simd::mul(mm, simd::set(f)));
+#else
 		Vector4 result(behavior::noinitialize);
 		return multiply(f, result);
+#endif // _USE_SIMD_ANONYMOUS
 	}
 	template <typename U, _TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
 	Vector4 operator * (U f) const
 	{
+#ifdef _USE_SIMD_ANONYMOUS
+		return Vector4(simd::mul(mm, simd::set(static_cast<T>(f))));
+#else
 		Vector4 result(behavior::noinitialize);
 		return multiply<U>(f, result);
+#endif // _USE_SIMD_ANONYMOUS
 	}
 	Vector4 operator / (T f) const
 	{
+#ifdef _USE_SIMD_ANONYMOUS
+		return Vector4(simd::div(mm, simd::set(f)));
+#else
 		Vector4 result(behavior::noinitialize);
 		return divide(f, result);
+#endif // _USE_SIMD_ANONYMOUS
 	}
 	template <typename U, _TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
 	Vector4 operator / (U f) const
 	{
+#ifdef _USE_SIMD_ANONYMOUS
+		return Vector4(simd::div(mm, simd::set(static_cast<T>(f))));
+#else
 		Vector4 result(behavior::noinitialize);
 		return divide<U>(f, result);
+#endif // _USE_SIMD_ANONYMOUS
 	}
 	Vector4 operator % (T f) const
 	{
@@ -1045,7 +1186,7 @@ struct Vector4
 	Vector4& operator = (T f)
 	{
 #ifdef _USE_SIMD_ANONYMOUS
-		mm = simd_type::set(f);
+		mm = simd::set(f);
 #else
 		X = Y = Z = W = f;
 #endif // _USE_SIMD_ANONYMOUS_ANONYMOUS
@@ -1073,6 +1214,17 @@ struct Vector4
 	{
 		return operator=(math_type::HalfOfHalf);
 	}
+	Vector4& operator = (const Vector3<T>& v)
+	{
+#ifdef _USE_SIMD_ANONYMOUS
+		mm = simd::set(v.X, v.Y, v.Z, W);
+#else
+		X = v.X;
+		Y = v.Y;
+		Z = v.Z;
+#endif // _USE_SIMD_ANONYMOUS
+		return *this;
+	}
 
 	/*---------------------------------------------------------------------
 	* 複合演算子
@@ -1086,6 +1238,10 @@ struct Vector4
 	{
 		return add<U>(v, *this);
 	}
+	Vector4& operator += (const Vector3<T>& v)
+	{
+		return add(v, *this);
+	}
 	Vector4& operator -= (const Vector4& v)
 	{
 		return subtract(v, *this);
@@ -1094,6 +1250,10 @@ struct Vector4
 	Vector4& operator -= (const Vector4<U>& v)
 	{
 		return subtract<U>(v, *this);
+	}
+	Vector4& operator += (const Vector3<T>& v)
+	{
+		return subtract(v, *this);
 	}
 	Vector4& operator *= (T f)
 	{

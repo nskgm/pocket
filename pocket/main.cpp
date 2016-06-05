@@ -62,7 +62,7 @@ private:
 int main(int argc, char** argv)
 {
 	cout << std::fixed << std::boolalpha << std::showpos;
-	const long N = LONG_MAX / 10;
+	//const long N = LONG_MAX / 10;
 
 	pocket::container::array<int, 3> ary = {0, 1, 20};
 	cout << ary << endl;
@@ -85,26 +85,25 @@ int main(int argc, char** argv)
 
 	cout << s * r * t << endl;
 
-	typedef pocket::simd_t<float> simdf;
-	cout << simdf::is_vectorize() << endl;
-	simdf::type zero = simdf::zero();
-	simdf::type one = simdf::one();
-	cout << simdf::equal(zero, zero) << endl;
-	cout << simdf::greater_equal(zero, one) << endl;
-	cout << simdf::less_equal(zero, one) << endl;
+	typedef pocket::SIMD<float, 4> simd;
+	cout << simd::is_vectorize() << endl;
+	simd::type zero = simd::zero();
+	simd::type one = simd::one();
+	cout << simd::equal(zero, zero) << endl;
+	cout << simd::greater_equal(zero, one) << endl;
+	cout << simd::less_equal(zero, one) << endl;
 
 	pocket::Vector4f v, d(2.0f, 5.0f, 4.0f, 0.0f);
 	v.from_pitch_yaw(45.0f, 15.0f);
 	cout << v << endl;
 	v += d;
 	cout << v << endl;
-
-#ifdef _USE_SIMD
+#ifdef _USE_SIMD_ANONYMOUS
 	v.w1();
 	cout << v << endl;
-	pocket::Vector4f v2(simdf::select(v.mm, simdf::select1110()));
+	pocket::Vector4f v2(simd::select(v.mm, simd::select1110()));
 	cout << v2 << endl;
-#endif
+#endif // _USE_SIMD_ANONYMOUS
 
 	return 0;
 }
