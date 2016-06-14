@@ -332,7 +332,7 @@ struct Vector4
 	}
 	explicit Vector4(T f, T w = math_type::One) :
 #ifdef _USE_SIMD_ANONYMOUS
-		mm(simd::set(w, f, f, f))
+		mm(simd::set(f, f, f, w))
 #else
 #	ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
 		X(f), Y(f), Z(f),
@@ -667,23 +667,23 @@ struct Vector4
 	/*---------------------------------------------------------------------
 	* 方向を求める
 	*---------------------------------------------------------------------*/
-	Vector4 direction(const Vector4& v) const
+	Vector4 direction(const Vector4& to) const
 	{
 #ifdef _USE_SIMD_ANONYMOUS
-		Vector4 t(simd::select1110(simd::sub(mm, v.mm)));
+		Vector4 t(simd::select1110(simd::sub(to.mm, mm)));
 #else
-		Vector4 t(X - v.X, Y - v.Y, Z - v.Z, math_type::Zero);
+		Vector4 t(to.X - X, to.Y - Y, to.Z - Z, math_type::Zero);
 #endif // _USE_SIMD_ANONYMOUS_ANONYMOUS
 		return t.normalize();
 	}
-	Vector4& direction(const Vector4& v, Vector4& result) const
+	Vector4& direction(const Vector4& to, Vector4& result) const
 	{
 #ifdef _USE_SIMD_ANONYMOUS
-		result.mm = simd::select1110(simd::sub(mm, v.mm));
+		result.mm = simd::select1110(simd::sub(to.mm, mm));
 #else
-		result.X = X - v.X;
-		result.Y = Y - v.Y;
-		result.Z = Z - v.Z;
+		result.X = to.X - X;
+		result.Y = to.Y - Y;
+		result.Z = to.Z - Z;
 		result.W = math_type::Zero;
 #endif // _USE_SIMD_ANONYMOUS_ANONYMOUS
 		return result.normalize();
@@ -1098,7 +1098,11 @@ struct Vector4
 	}
 	Vector4 operator - () const
 	{
+#ifdef _USE_SIMD_ANONYMOUS
+		return Vector4(simd::negate(mm));
+#else
 		return Vector4(-X, -Y, -Z, -W);
+#endif // _USE_SIMD_ANONYMOUS
 	}
 	Vector4& operator ++ ()
 	{
@@ -1114,7 +1118,7 @@ struct Vector4
 	}
 	Vector4 operator ++ (int)
 	{
-		Vector4 r = *this;
+		const Vector4 r = *this;
 		++*this;
 		return r;
 	}
@@ -1132,7 +1136,7 @@ struct Vector4
 	}
 	Vector4 operator -- (int)
 	{
-		Vector4 r = *this;
+		const Vector4 r = *this;
 		--*this;
 		return r;
 	}

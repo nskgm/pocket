@@ -283,6 +283,20 @@ struct Matrix4x4
 
 		M[3] = Vector4<T>::UnitW;
 	}
+#ifdef _USE_SIMD_ANONYMOUS
+	Matrix4x4(simd_type mm1, simd_type mm2, simd_type mm3, simd_type mm4)
+#ifdef _USE_ANONYMOUS_NON_POD
+		: MV0(mm1), MV1(mm2), MV2(mm3), MV3(mm4)
+#endif // _USE_ANONYMOUS_NON_POD
+	{
+#ifndef _USE_ANONYMOUS_NON_POD
+		M[0].mm = mm1;
+		M[1].mm = mm2;
+		M[2].mm = mm3;
+		M[3].mm = mm4;
+#endif // _USE_ANONYMOUS_NON_POD
+	}
+#endif // _USE_SIMD_ANONYMOUS
 
 	/*-----------------------------------------------------------------------------------------
 	* Functions
@@ -357,8 +371,8 @@ struct Matrix4x4
 		*------------------------------*/
 
 		iterator ri = result.M.begin();
-		const_iterator mi = m.M.begin();
-		const_iterator j;
+		const_pointer mi = &m.M[0];
+		const_pointer j;
 		for (const_iterator i = M.begin(), end = M.end(); i != end; ++i, ++ri)
 		{
 			simd_type mx = simd::template permute<0>(i->mm);
@@ -485,8 +499,7 @@ struct Matrix4x4
 #ifdef _USE_ANONYMOUS_NON_POD
 		return Right;
 #else
-		const Vector4<T>& m = M[0];
-		return reinterpret_cast<const Vector3<T>&>(m);
+		return reinterpret_cast<const Vector3<T>&>(M[0]);
 #endif // _USE_ANONYMOUS_NON_POD
 	}
 	Matrix4x4& right(const Vector3<T>& v)
@@ -510,8 +523,7 @@ struct Matrix4x4
 #ifdef _USE_ANONYMOUS_NON_POD
 		return Up;
 #else
-		const Vector4<T>& m = M[1];
-		return reinterpret_cast<const Vector3<T>&>(m);
+		return reinterpret_cast<const Vector3<T>&>(M[1]);
 #endif // _USE_ANONYMOUS_NON_POD
 	}
 	Matrix4x4& up(const Vector3<T>& v)
@@ -535,8 +547,7 @@ struct Matrix4x4
 #ifdef _USE_ANONYMOUS_NON_POD
 		return Forward;
 #else
-		const Vector4<T>& m = M[2];
-		return reinterpret_cast<const Vector3<T>&>(m);
+		return reinterpret_cast<const Vector3<T>&>(M[2]);
 #endif // _USE_ANONYMOUS_NON_POD
 	}
 	Matrix4x4& forward(const Vector3<T>& v)
@@ -560,8 +571,7 @@ struct Matrix4x4
 #ifdef _USE_ANONYMOUS_NON_POD
 		return Position;
 #else
-		const Vector4<T>& m = M[3];
-		return reinterpret_cast<const Vector3<T>&>(m);
+		return reinterpret_cast<const Vector3<T>&>(M[3]);
 #endif // _USE_ANONYMOUS_NON_POD
 	}
 	Matrix4x4& position(const Vector3<T>& v)
@@ -582,19 +592,13 @@ struct Matrix4x4
 	*---------------------------------------------------------------------*/
 	Vector3<T> scale() const
 	{
-		const Vector3<T>& r = right();
-		const Vector3<T>& u = up();
-		const Vector3<T>& f = forward();
-		return Vector3<T>(r.length(), u.length(), f.length());
+		return Vector3<T>(right().length(), up().length(), forward().length());
 	}
 	Vector3<T>& scale(Vector3<T>& result) const
 	{
-		const Vector3<T>& r = right();
-		const Vector3<T>& u = up();
-		const Vector3<T>& f = forward();
-		result.X = r.length();
-		result.Y = u.length();
-		result.Z = f.length();
+		result.X = right().length();
+		result.Y = up().length();
+		result.Z = forward().length();
 		return result;
 	}
 
@@ -1071,7 +1075,8 @@ struct Matrix4x4
 	Matrix4x4& load_lookat(const Vector3<T>& eye, const Vector3<T>& center, const Vector3<T>& up = Vector3<T>::Up)
 	{
 		// 向きを求める
-		return load_lookto(eye, eye.direction(center), up);
+		Vector3<T> dir(behavior::noinitialize);
+		return load_lookto(eye, center.direction(eye, dir), up);
 	}
 	Matrix4x4& load_lookat(T ex, T ey, T ez, T cx, T cy, T cz, T ux = math_type::Zero, T uy = math_type::One, T uz = math_type::Zero)
 	{
@@ -1529,7 +1534,11 @@ struct Matrix4x4
 	}
 	Matrix4x4 operator - () const
 	{
+#ifdef _USE_SIMD_ANONYMOUS
+		return Matrix4x4(simd::negate(M[0].mm), simd::negate(M[1].mm), simd::negate(M[2].mm), simd::negate(M[3].mm));
+#else
 		return Matrix4x4(-M[0], -M[1], -M[2], -M[3]);
+#endif // _USE_SIMD_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------
@@ -1537,13 +1546,21 @@ struct Matrix4x4
 	*---------------------------------------------------------------------*/
 	Matrix4x4 operator + (const Matrix4x4& m) const
 	{
+#ifdef _USE_SIMD_ANONYMOUS
+		return Matrix4x4(simd::add(M[0].mm, m.M[0].mm), simd::add(M[1].mm, m.M[1].mm), simd::add(M[2].mm, m.M[2].mm), simd::add(M[3].mm, m.M[3].mm));
+#else
 		Matrix4x4 result(behavior::noinitialize);
 		return add(m, result);
+#endif // _USE_SIMD_ANONYMOUS
 	}
 	Matrix4x4 operator - (const Matrix4x4& m) const
 	{
+#ifdef _USE_SIMD_ANONYMOUS
+		return Matrix4x4(simd::sub(M[0].mm, m.M[0].mm), simd::sub(M[1].mm, m.M[1].mm), simd::sub(M[2].mm, m.M[2].mm), simd::sub(M[3].mm, m.M[3].mm));
+#else
 		Matrix4x4 result(behavior::noinitialize);
 		return subtract(m, result);
+#endif // _USE_SIMD_ANONYMOUS
 	}
 	Matrix4x4 operator * (const Matrix4x4& m) const
 	{
@@ -1552,13 +1569,24 @@ struct Matrix4x4
 	}
 	Matrix4x4 operator * (T f) const
 	{
+#ifdef _USE_SIMD_ANONYMOUS
+		const simd_type factor = simd::set(f);
+		return Matrix4x4(simd::mul(M[0].mm, factor), simd::mul(M[1].mm, factor), simd::mul(M[2].mm, factor), simd::mul(M[3].mm, factor));
+#else
 		Matrix4x4 result(behavior::noinitialize);
 		return multiply(f, result);
+#endif // _USE_SIMD_ANONYMOUS
 	}
 	Matrix4x4 operator / (T f) const
 	{
+#ifdef _USE_SIMD_ANONYMOUS
+		_DEB_ASSERT(f != math_type::Zero);
+		const simd_type factor = simd::set(math_type::reciprocal(f));
+		return Matrix4x4(simd::mul(M[0].mm, factor), simd::mul(M[1].mm, factor), simd::mul(M[2].mm, factor), simd::mul(M[3].mm, factor));
+#else
 		Matrix4x4 result(behavior::noinitialize);
 		return divide(f, result);
+#endif // _USE_SIMD_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------
@@ -1610,26 +1638,32 @@ struct Matrix4x4
 	}
 	Matrix4x4& operator *= (const Matrix4x4& m)
 	{
-		const Matrix4x4 c(*this);
+		const Matrix4x4 c = *this;
 		c.multiply(m, *this);
 		return *this;
 	}
 	Matrix4x4& operator *= (T s)
 	{
+#ifdef _USE_SIMD_ANONYMOUS
+		simd_type factor = simd::set(s);
+#endif // _USE_SIMD_ANONYMOUS
 		for (iterator i = M.begin(), end = M.end(); i != end; ++i)
 		{
+#ifdef _USE_SIMD_ANONYMOUS
+			i->mm = simd::mul(i->mm, factor);
+#else
 			i->X *= s;
 			i->Y *= s;
 			i->Z *= s;
 			i->W *= s;
+#endif // _USE_SIMD_ANONYMOUS
 		}
 		return *this;
 	}
 	Matrix4x4& operator /= (T s)
 	{
 		_DEB_ASSERT(s != math_type::Zero);
-		s = math_type::One / s;
-		return operator*=(s);
+		return operator*=(math_type::reciprocal(s));
 	}
 
 	/*------------------------------------------------------------------------------------------

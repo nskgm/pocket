@@ -317,15 +317,15 @@ struct Vector2
 	/*---------------------------------------------------------------------
 	* 方向を求める
 	*---------------------------------------------------------------------*/
-	Vector2 direction(const Vector2& v) const
+	Vector2 direction(const Vector2& to) const
 	{
-		Vector2 t(X - v.X, Y - v.Y);
+		Vector2 t(to.X - X, to.Y - Y);
 		return t.normalize();
 	}
-	Vector2& direction(const Vector2& v, Vector2& result) const
+	Vector2& direction(const Vector2& to, Vector2& result) const
 	{
-		result.X = X - v.X;
-		result.Y = Y - v.Y;
+		result.X = to.X - X;
+		result.Y = to.Y - Y;
 		return result.normalize();
 	}
 	/*---------------------------------------------------------------------

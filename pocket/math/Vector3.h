@@ -397,16 +397,16 @@ struct Vector3
 	/*---------------------------------------------------------------------
 	* 方向を求める
 	*---------------------------------------------------------------------*/
-	Vector3 direction(const Vector3& v) const
+	Vector3 direction(const Vector3& to) const
 	{
-		Vector3 t(X - v.X, Y - v.Y, Z - v.Z);
+		Vector3 t(to.X - X, to.Y - Y, to.Z - Z);
 		return t.normalize();
 	}
-	Vector3& direction(const Vector3& v, Vector3& result) const
+	Vector3& direction(const Vector3& to, Vector3& result) const
 	{
-		result.X = X - v.X;
-		result.Y = Y - v.Y;
-		result.Z = Z - v.Z;
+		result.X = to.X - X;
+		result.Y = to.Y - Y;
+		result.Z = to.Z - Z;
 		return result.normalize();
 	}
 	/*---------------------------------------------------------------------
