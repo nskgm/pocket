@@ -1,13 +1,14 @@
-﻿#ifndef __MATH_MATH_H__
-#define __MATH_MATH_H__
+﻿#ifndef __POCKET_MATH_MATH_H__
+#define __POCKET_MATH_MATH_H__
 
-#include "config.h"
+#include "../config.h"
 #ifdef _USE_PRAGMA_ONCE
 #pragma once
 #endif // _USE_PRAGMA_ONCE
 
+#include "../debug.h"
+#include "../behavior.h"
 #include "fwd.h"
-#include "Debug.h"
 #include "array.h"
 #include <cmath>
 #include <cfloat>
@@ -1090,4 +1091,4 @@ pocket::Vector4<T> operator * (const T& f, const pocket::behavior::_vec4_t&)
 }
 #endif // _USE_CXX11
 
-#endif // __MATH_MATH_H__
+#endif // __POCKET_MATH_MATH_H__

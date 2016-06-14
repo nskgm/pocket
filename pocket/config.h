@@ -1,5 +1,5 @@
-﻿#ifndef __MATH_CONFIG_H__
-#define __MATH_CONFIG_H__
+﻿#ifndef __POCKET_CONFIG_H__
+#define __POCKET_CONFIG_H__
 
 /*---------------------------------------------------------------------------------------
 * #pragma onceが使用できるか設定
@@ -41,7 +41,7 @@
 * namespace pocketの使用
 *---------------------------------------------------------------------*/
 #ifndef _NS_USING_POCKET
-#	define _NS_USING_POCKET using namespace pocket
+#	define _NS_USING_POCKET using namespace pocket;
 #endif // _NS_USING_POCKET
 
 /*---------------------------------------------------------------------------------------
@@ -113,7 +113,7 @@
 #ifndef _USE_CXX11
 #	if _VCXX_VER(12) || _CXX_VER(11)
 #		define _USE_CXX11
-#	endif // 
+#	endif //
 #endif // _USE_CXX11
 
 /*---------------------------------------------------------------------------------------
@@ -290,7 +290,7 @@
 												CLASS& operator = (CLASS&&) = default
 #	else
 #		define _DEFAULT_DECLARE_RVALUES(CLASS)
-#	endif // 
+#	endif //
 #endif // _DEFAULT_DECLARE_RVALUES
 
 #ifndef _DEFAULT_CONSTRUCTOR
@@ -613,4 +613,4 @@
 #	endif
 #endif // _USE_SIMD_TYPE_STRING
 
-#endif // _MATH_CONFIG_H__
+#endif // __POCKET_CONFIG_H__

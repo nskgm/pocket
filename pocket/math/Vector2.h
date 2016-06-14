@@ -1,14 +1,17 @@
-﻿#ifndef __MATH_VECTOR2_H__
-#define __MATH_VECTOR2_H__
+﻿#ifndef __POCKET_MATH_VECTOR2_H__
+#define __POCKET_MATH_VECTOR2_H__
 
-#include "config.h"
+#include "../config.h"
 #ifdef _USE_PRAGMA_ONCE
 #pragma once
 #endif // _USE_PRAGMA_ONCE
 
+#include "../behavior.h"
+#include "../debug.h"
+#include "array.h"
 #include "Math.h"
 #ifdef _USING_MATH_IO
-#include "io.h"
+#include "../io.h"
 #endif // _USING_MATH_IO
 
 namespace pocket
@@ -1023,4 +1026,4 @@ std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, 
 
 } // namespace pocket
 
-#endif // __MATH_VECTOR2_H__
+#endif // __POCKET_MATH_VECTOR2_H__

@@ -1,11 +1,14 @@
-﻿#ifndef __MATH_VECTOR4_H__
-#define __MATH_VECTOR4_H__
+﻿#ifndef __POCKET_MATH_VECTOR4_H__
+#define __POCKET_MATH_VECTOR4_H__
 
-#include "config.h"
+#include "../config.h"
 #ifdef _USE_PRAGMA_ONCE
 #pragma once
 #endif // _USE_PRAGMA_ONCE
 
+#include "../behavior.h"
+#include "../debug.h"
+#include "array.h"
 #include "Math.h"
 #include "Vector2.h"
 #include "Vector3.h"
@@ -13,7 +16,7 @@
 #include "SIMD.h"
 #endif // _USE_SIMD_ANONYMOUS_ANONYMOUS
 #ifdef _USING_MATH_IO
-#include "io.h"
+#include "../io.h"
 #endif // _USING_MATH_IO
 
 namespace pocket
@@ -69,7 +72,7 @@ struct Vector4
 	typedef typename array_type::const_reference const_reference;
 
 #ifdef _USE_SIMD_ANONYMOUS
-	typedef SIMD<T, 4> simd;
+	typedef SIMD<T> simd;
 	typedef typename simd::type simd_type;
 #endif // _USE_SIMD_ANONYMOUS_ANONYMOUS
 
@@ -705,8 +708,29 @@ struct Vector4
 	{
 		// Vector3分でW成分は0とする
 #ifdef _USE_SIMD_ANONYMOUS
-		Vector4 result(behavior::noinitialize);
-		return cross(v, result);
+
+// 3, 0, 2, 1
+#ifndef __Y_Z_X
+#define __Y_Z_X 1, 2, 0, 3
+#endif // __Y_Z_X
+
+// 3, 1, 0, 2
+#ifndef __Z_X_Y
+#define __Z_X_Y 2, 0, 1, 3
+#endif // __Z_X_Y
+
+		simd_type syzx = simd::template permute<__Y_Z_X>(mm);
+		simd_type szxy = simd::template permute<__Z_X_Y>(mm);
+		simd_type tzxy = simd::template permute<__Z_X_Y>(v.mm);
+		simd_type tyzx = simd::template permute<__Y_Z_X>(v.mm);
+		simd_type m1 = simd::mul(syzx, tzxy);
+		simd_type m2 = simd::mul(szxy, tyzx);
+
+		return Vector4(simd::select1110(simd::sub(m1, m2)));
+
+#undef __Z_X_Y
+#undef __Y_Z_X
+
 #else
 		return Vector4(Y * v.Z - Z * v.Y, Z * v.X - X * v.Z, X * v.Y - Y * v.X, math_type::Zero);
 #endif // _USE_SIMD_ANONYMOUS
@@ -714,13 +738,28 @@ struct Vector4
 	Vector4& cross(const Vector4& v, Vector4& result) const
 	{
 #ifdef _USE_SIMD_ANONYMOUS
-		simd_type syzx = simd::template permute<3, 0, 2, 1>(mm, mm);
-		simd_type szxy = simd::template permute<3, 1, 0, 2>(mm, mm);
-		simd_type tzxy = simd::template permute<3, 0, 2, 1>(v.mm, v.mm);
-		simd_type tyzx = simd::template permute<3, 1, 0, 2>(v.mm, v.mm);
+
+#ifndef __Y_Z_X
+// 3, 0, 2, 1
+#define __Y_Z_X 1, 2, 0, 3
+#endif // __Y_Z_X
+
+#ifndef __Z_X_Y
+// 3, 1, 0, 2
+#define __Z_X_Y 2, 0, 1, 3
+#endif // __Z_X_Y
+
+		simd_type syzx = simd::template permute<__Y_Z_X>(mm);
+		simd_type szxy = simd::template permute<__Z_X_Y>(mm);
+		simd_type tzxy = simd::template permute<__Z_X_Y>(v.mm);
+		simd_type tyzx = simd::template permute<__Y_Z_X>(v.mm);
 		simd_type m1 = simd::mul(syzx, tzxy);
 		simd_type m2 = simd::mul(szxy, tyzx);
-		result.mm = simd::sub(m1, m2);
+		result.mm = simd::select1110(simd::sub(m1, m2));
+
+#undef __Z_X_Y
+#undef __Y_Z_X
+
 #else
 		result.X = Y * v.Z - Z * v.Y;
 		result.Y = Z * v.X - X * v.Z;
@@ -1658,4 +1697,4 @@ std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, 
 
 } // namespace pocket
 
-#endif // __MATH_VECTOR4_H__
+#endif // __POCKET_MATH_VECTOR4_H__

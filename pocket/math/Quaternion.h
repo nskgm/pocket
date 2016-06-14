@@ -1,11 +1,14 @@
-﻿#ifndef __MATH_QUATERNION_H__
-#define __MATH_QUATERNION_H__
+﻿#ifndef __POCKET_MATH_QUATERNION_H__
+#define __POCKET_MATH_QUATERNION_H__
 
-#include "config.h"
+#include "../config.h"
 #ifdef _USE_PRAGMA_ONCE
 #pragma once
 #endif // _USE_PRAGMA_ONCE
 
+#include "../behavior.h"
+#include "../debug.h"
+#include "array.h"
 #include "Math.h"
 #include "Vector3.h"
 #include "Vector4.h"
@@ -963,4 +966,4 @@ std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, 
 
 } // namespace pocket
 
-#endif // __MATH_QUATERNION_H__
+#endif // __POCKET_MATH_QUATERNION_H__

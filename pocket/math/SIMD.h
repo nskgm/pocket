@@ -1,15 +1,15 @@
-﻿#ifndef __MATH_SIMD_H__
-#define __MATH_SIMD_H__
+﻿#ifndef __POCKET_MATH_SIMD_H__
+#define __POCKET_MATH_SIMD_H__
 
-#include "config.h"
+#include "../config.h"
 #ifdef _USE_PRAGMA_ONCE
 #pragma once
 #endif // _USE_PRAGMA_ONCE
 
 #include "Math.h"
-#include <numeric>
+#include <limits>
 #ifdef _USING_MATH_IO
-#include "io.h"
+#include "../io.h"
 #endif // _USING_MATH_IO
 
 namespace pocket
@@ -85,923 +85,8 @@ struct up_type<double>
 /*---------------------------------------------------------------------
 * 空の宣言のみで特殊化で中身を実装していく
 *---------------------------------------------------------------------*/
-template <typename T, size_t N>
-struct SIMD;
-
 template <typename T>
-struct SIMD<T, 2>
-{
-	/*---------------------------------------------------------------------------------------
-	* Types
-	*---------------------------------------------------------------------------------------*/
-
-	typedef Math<T> math_type;
-	typedef detail::_mvector<T, 2> type;
-	typedef typename math_type::int_value_type value_int_type;
-	typedef typename type::int_t type_int;
-	typedef typename detail::up_type<T>::type type_up;
-
-	typedef T value_type;
-	typedef value_type& reference;
-	typedef const value_type& const_reference;
-	typedef type& type_reference;
-	typedef const type& type_const_reference;
-
-	/*---------------------------------------------------------------------------------------
-	* Members
-	*---------------------------------------------------------------------------------------*/
-
-	// None
-
-	/*---------------------------------------------------------------------------------------
-	* Constants
-	*---------------------------------------------------------------------------------------*/
-
-	// None
-
-	/*---------------------------------------------------------------------------------------
-	* Functions
-	*---------------------------------------------------------------------------------------*/
-
-	/*---------------------------------------------------------------------
-	* 並列計算はできない
-	*---------------------------------------------------------------------*/
-	static _INLINE_FORCE bool is_vectorize()
-	{
-		return false;
-	}
-
-	/*---------------------------------------------------------------------
-	* 整数型に変換
-	*---------------------------------------------------------------------*/
-	static _INLINE_FORCE type_int to_i(type_const_reference mm)
-	{
-		type_int result = {
-			static_cast<value_int_type>(mm.mm[0]),
-			static_cast<value_int_type>(mm.mm[1])
-		};
-		return result;
-	}
-	/*---------------------------------------------------------------------
-	* 浮動小数型に変換
-	*---------------------------------------------------------------------*/
-	static _INLINE_FORCE type to_f(const type_int& mm)
-	{
-		type result = {
-			static_cast<value_type>(mm.mm[0]),
-			static_cast<value_type>(mm.mm[1])
-		};
-		return result;
-	}
-
-	/*---------------------------------------------------------------------
-	* 数値反転
-	*---------------------------------------------------------------------*/
-	static _INLINE_FORCE type negate(type_const_reference mm)
-	{
-		type result = {
-			-mm.mm[0],
-			-mm.mm[1]
-		};
-		return result;
-	}
-
-	/*---------------------------------------------------------------------
-	* 絶対値
-	*---------------------------------------------------------------------*/
-	static _INLINE_FORCE type abs(type_const_reference mm)
-	{
-		type result = {
-			math_type::abs(mm.mm[0]),
-			math_type::abs(mm.mm[1])
-		};
-		return result;
-	}
-
-	/*---------------------------------------------------------------------
-	* 定数生成
-	*---------------------------------------------------------------------*/
-	static _INLINE_FORCE type zero()
-	{
-		type result = {
-			math_type::Zero,
-			math_type::Zero
-		};
-		return result;
-	}
-	static _INLINE_FORCE type one()
-	{
-		type result = {
-			math_type::One,
-			math_type::One
-		};
-		return result;
-	}
-	static _INLINE_FORCE type set(value_type f)
-	{
-		type result = {
-			f, f
-		};
-		return result;
-	}
-	static _INLINE_FORCE type set(value_type x, value_type y)
-	{
-		type result = {
-			x, y
-		};
-		return result;
-	}
-
-	/*---------------------------------------------------------------------
-	* 演算
-	*---------------------------------------------------------------------*/
-	static _INLINE_FORCE type add(type_const_reference mm1, type_const_reference mm2)
-	{
-		type result = {
-			_SIMD_BINOMIAL_OPERATOR_2(+)
-		};
-		return result;
-	}
-	static _INLINE_FORCE type sub(type_const_reference mm1, type_const_reference mm2)
-	{
-		type result = {
-			_SIMD_BINOMIAL_OPERATOR_2(-)
-		};
-		return result;
-	}
-	static _INLINE_FORCE type mul(type_const_reference mm1, type_const_reference mm2)
-	{
-		type result = {
-			_SIMD_BINOMIAL_OPERATOR_2(*)
-		};
-		return result;
-	}
-	static _INLINE_FORCE type mad(type_const_reference mm1, type_const_reference mm2, type_const_reference mm3)
-	{
-		type result = {
-			mm1.mm[0] * mm2.mm[0] + mm3.mm[0],
-			mm1.mm[1] * mm2.mm[1] + mm3.mm[1]
-		};
-		return result;
-	}
-	static _INLINE_FORCE type div(type_const_reference mm1, type_const_reference mm2)
-	{
-		type result = {
-			_SIMD_BINOMIAL_OPERATOR_2(/ )
-		};
-		return result;
-	}
-	static _INLINE_FORCE type or_(type_const_reference mm1, type_const_reference mm2)
-	{
-		type result = {
-			_SIMD_BINOMIAL_OPERATOR_2(| )
-		};
-		return result;
-	}
-	static _INLINE_FORCE type and_(type_const_reference mm1, type_const_reference mm2)
-	{
-		type result = {
-			_SIMD_BINOMIAL_OPERATOR_2(&)
-		};
-		return result;
-	}
-	static _INLINE_FORCE type xor_(type_const_reference mm1, type_const_reference mm2)
-	{
-		type result = {
-			_SIMD_BINOMIAL_OPERATOR_2(^)
-		};
-		return result;
-	}
-	static _INLINE_FORCE type rem(type_const_reference mm1, type_const_reference mm2)
-	{
-		type result = {
-			_SIMD_BINOMIAL_OPERATOR_2(%)
-		};
-		return result;
-	}
-	static _INLINE_FORCE type sqrt(type_const_reference mm)
-	{
-		type result = {
-			math_type::sqrt(mm.mm[0]),
-			math_type::sqrt(mm.mm[1])
-		};
-		return result;
-	}
-	static _INLINE_FORCE type rsqrt(type_const_reference mm)
-	{
-		type result = {
-			math_type::rsqrt(mm.mm[0]),
-			math_type::rsqrt(mm.mm[1])
-		};
-		return result;
-	}
-	static _INLINE_FORCE type(max)(type_const_reference mm1, type_const_reference mm2)
-	{
-		type result = {
-			math_type::max(mm1.mm[0], mm2.mm[0]),
-			math_type::max(mm1.mm[1], mm2.mm[1])
-		};
-		return result;
-	}
-	static _INLINE_FORCE type(min)(type_const_reference mm1, type_const_reference mm2)
-	{
-		type result = {
-			math_type::min(mm1.mm[0], mm2.mm[0]),
-			math_type::min(mm1.mm[1], mm2.mm[1])
-		};
-		return result;
-	}
-	static _INLINE_FORCE type clamp(type_const_reference mm, type_const_reference mn, type_const_reference mx)
-	{
-		type result = {
-			math_type::clamp(mm.mm[0], mn.mm[0], mx.mm[0]),
-			math_type::clamp(mm.mm[1], mn.mm[1], mx.mm[1])
-		};
-		return result;
-	}
-	static _INLINE_FORCE type clamp01(type_const_reference mm)
-	{
-		type result = {
-			math_type::clamp01(mm.mm[0]),
-			math_type::clamp01(mm.mm[1])
-		};
-		return result;
-	}
-	static _INLINE_FORCE type reciprocal(type_const_reference mm)
-	{
-		type result = {
-			math_type::reciprocal(mm.mm[0]),
-			math_type::reciprocal(mm.mm[1])
-		};
-		return result;
-	}
-
-	/*---------------------------------------------------------------------
-	* 指定の部分を取得
-	*---------------------------------------------------------------------*/
-	static _INLINE_FORCE value_type first(type_const_reference mm)
-	{
-		return mm.mm[0];
-	}
-	template <int INDEX>
-	static _INLINE_FORCE value_type at(type_const_reference mm)
-	{
-		return mm.mm[INDEX];
-	}
-	template <int Y, int X>
-	static _INLINE_FORCE type permute(type_const_reference mm)
-	{
-		type result = {
-			mm.mm[X],
-			mm.mm[Y]
-		};
-		return result;
-	}
-	template <int I>
-	static _INLINE_FORCE type permute(type_const_reference mm)
-	{
-		type result = {
-			mm.mm[I],
-			mm.mm[I]
-		};
-		return result;
-	}
-	static _INLINE_FORCE type select(type_const_reference mm1, type_const_reference mm2, type_const_reference mm_select)
-	{
-		type result = {
-			(mm1.i.mm[0] & ~mm_select.i.mm[0]) | (mm2.i.mm[0] & mm_select.i.mm[0]),
-			(mm1.i.mm[1] & ~mm_select.i.mm[1]) | (mm2.i.mm[1] & mm_select.i.mm[1])
-		};
-		return result;
-	}
-	static _INLINE_FORCE type select(type_const_reference mm, type_const_reference mm_select)
-	{
-		return select(mm, zero(), mm_select);
-	}
-	static _INLINE_FORCE type select01()
-	{
-		type result = {
-			0,
-			std::numeric_limits<value_int_type>::max()
-		};
-		return result;
-	}
-	static _INLINE_FORCE type select01(type_const_reference mm1, type_const_reference mm2)
-	{
-		return select(mm1, mm2, select01());
-	}
-	static _INLINE_FORCE type select01(type_const_reference mm)
-	{
-		return select(mm, select01());
-	}
-	static _INLINE_FORCE type select10()
-	{
-		type result = {
-			std::numeric_limits<value_int_type>::max(),
-			0
-		};
-		return result;
-	}
-	static _INLINE_FORCE type select101(type_const_reference mm1, type_const_reference mm2)
-	{
-		return select(mm1, mm2, select10());
-	}
-	static _INLINE_FORCE type select10(type_const_reference mm)
-	{
-		return select(mm, select10());
-	}
-
-	/*---------------------------------------------------------------------
-	* 比較
-	*---------------------------------------------------------------------*/
-	static _INLINE_FORCE bool equal(type_const_reference mm1, type_const_reference mm2)
-	{
-		return mm1.mm[0] == mm2.mm[0] &&
-			mm1.mm[1] == mm2.mm[1];
-	}
-	static _INLINE_FORCE bool not_equal(type_const_reference mm1, type_const_reference mm2)
-	{
-		return mm1.mm[0] != mm2.mm[0] &&
-			mm1.mm[1] != mm2.mm[1];
-	}
-	static _INLINE_FORCE bool greater(type_const_reference mm1, type_const_reference mm2)
-	{
-		return mm1.mm[0] > mm2.mm[0] &&
-			mm1.mm[1] > mm2.mm[1];
-	}
-	static _INLINE_FORCE bool greater_equal(type_const_reference mm1, type_const_reference mm2)
-	{
-		return mm1.mm[0] >= mm2.mm[0] &&
-			mm1.mm[1] >= mm2.mm[1];
-	}
-	static _INLINE_FORCE bool less(type_const_reference mm1, type_const_reference mm2)
-	{
-		return mm1.mm[0] < mm2.mm[0] &&
-			mm1.mm[1] < mm2.mm[1];
-	}
-	static _INLINE_FORCE bool less_equal(type_const_reference mm1, type_const_reference mm2)
-	{
-		return mm1.mm[0] <= mm2.mm[0] &&
-			mm1.mm[1] <= mm2.mm[1];
-	}
-	static _INLINE_FORCE bool near_equal_zero(type_const_reference mm1)
-	{
-		return math_type::is_near_zero(mm1.mm[0]) &&
-			math_type::is_near_zero(mm1.mm[1]);
-	}
-	static _INLINE_FORCE bool near_equal(type_const_reference mm1, type_const_reference mm2)
-	{
-		return math_type::is_near(mm1.mm[0], mm2.mm[0]) &&
-			math_type::is_near(mm1.mm[1], mm2.mm[1]);
-	}
-
-	/*---------------------------------------------------------------------
-	* load, store
-	*---------------------------------------------------------------------*/
-	static _INLINE_FORCE type load1(const value_type* f)
-	{
-		type result = {
-			*f, math_type::Zero
-		};
-		return result;
-	}
-	static _INLINE_FORCE type load(const value_type* f)
-	{
-		type result = {
-			f[0], f[1]
-		};
-		return result;
-	}
-	static _INLINE_FORCE void store1(value_type* f, type_const_reference mm)
-	{
-		*f = mm.mm[0];
-	}
-	static _INLINE_FORCE void store(value_type* f, type_const_reference mm)
-	{
-		*f = mm.mm[0];
-		++f;
-		*f = mm.mm[1];
-	}
-
-	/*---------------------------------------------------------------------
-	* 計算
-	*---------------------------------------------------------------------*/
-	static _INLINE_FORCE type dot(type_const_reference mm1, type_const_reference mm2)
-	{
-		value_type d = mm1.mm[0] * mm2.mm[0] + mm1.mm[1] * mm2.mm[1];
-		type result = {
-			d, d
-		};
-		return result;
-	}
-	static _INLINE_FORCE type length_sq(type_const_reference mm)
-	{
-		return dot(mm, mm);
-	}
-	static _INLINE_FORCE type length(type_const_reference mm)
-	{
-		value_type d = mm.mm[0] * mm.mm[0] + mm.mm[1] * mm.mm[1];
-		value_type l = math_type::sqrt(d);
-		type result = {
-			l, l
-		};
-		return result;
-	}
-
-	/*---------------------------------------------------------------------------------------
-	* Operators
-	*---------------------------------------------------------------------------------------*/
-
-	// None
-};
-
-template <typename T>
-struct SIMD<T, 3>
-{
-	/*---------------------------------------------------------------------------------------
-	* Types
-	*---------------------------------------------------------------------------------------*/
-
-	typedef Math<T> math_type;
-	typedef detail::_mvector<T, 3> type;
-	typedef typename math_type::int_value_type value_int_type;
-	typedef typename type::int_t type_int;
-	typedef typename detail::up_type<T>::type type_up;
-
-	typedef T value_type;
-	typedef value_type& reference;
-	typedef const value_type& const_reference;
-	typedef type& type_reference;
-	typedef const type& type_const_reference;
-
-	/*---------------------------------------------------------------------------------------
-	* Members
-	*---------------------------------------------------------------------------------------*/
-
-	// None
-
-	/*---------------------------------------------------------------------------------------
-	* Constants
-	*---------------------------------------------------------------------------------------*/
-
-	// None
-
-	/*---------------------------------------------------------------------------------------
-	* Functions
-	*---------------------------------------------------------------------------------------*/
-
-	/*---------------------------------------------------------------------
-	* 並列計算はできない
-	*---------------------------------------------------------------------*/
-	static _INLINE_FORCE bool is_vectorize()
-	{
-		return false;
-	}
-
-	/*---------------------------------------------------------------------
-	* 整数型に変換
-	*---------------------------------------------------------------------*/
-	static _INLINE_FORCE type_int to_i(type_const_reference mm)
-	{
-		type_int result = {
-			static_cast<value_int_type>(mm.mm[0]),
-			static_cast<value_int_type>(mm.mm[1]),
-			static_cast<value_int_type>(mm.mm[2])
-		};
-		return result;
-	}
-	/*---------------------------------------------------------------------
-	* 浮動小数型に変換
-	*---------------------------------------------------------------------*/
-	static _INLINE_FORCE type to_f(const type_int& mm)
-	{
-		type result = {
-			static_cast<value_type>(mm.mm[0]),
-			static_cast<value_type>(mm.mm[1]),
-			static_cast<value_type>(mm.mm[2])
-		};
-		return result;
-	}
-
-	/*---------------------------------------------------------------------
-	* 数値反転
-	*---------------------------------------------------------------------*/
-	static _INLINE_FORCE type negate(type_const_reference mm)
-	{
-		type result = {
-			-mm.mm[0],
-			-mm.mm[1],
-			-mm.mm[2]
-		};
-		return result;
-	}
-
-	/*---------------------------------------------------------------------
-	* 絶対値
-	*---------------------------------------------------------------------*/
-	static _INLINE_FORCE type abs(type_const_reference mm)
-	{
-		type result = {
-			math_type::abs(mm.mm[0]),
-			math_type::abs(mm.mm[1]),
-			math_type::abs(mm.mm[2])
-		};
-		return result;
-	}
-
-	/*---------------------------------------------------------------------
-	* 定数生成
-	*---------------------------------------------------------------------*/
-	static _INLINE_FORCE type zero()
-	{
-		type result = {
-			math_type::Zero,
-			math_type::Zero,
-			math_type::Zero
-		};
-		return result;
-	}
-	static _INLINE_FORCE type one()
-	{
-		type result = {
-			math_type::One,
-			math_type::One,
-			math_type::One
-		};
-		return result;
-	}
-	static _INLINE_FORCE type set(value_type f)
-	{
-		type result = {
-			f, f, f
-		};
-		return result;
-	}
-	static _INLINE_FORCE type set(value_type x, value_type y, value_type z)
-	{
-		type result = {
-			x, y, z
-		};
-		return result;
-	}
-
-	/*---------------------------------------------------------------------
-	* 演算
-	*---------------------------------------------------------------------*/
-	static _INLINE_FORCE type add(type_const_reference mm1, type_const_reference mm2)
-	{
-		type result = {
-			_SIMD_BINOMIAL_OPERATOR_3(+)
-		};
-		return result;
-	}
-	static _INLINE_FORCE type sub(type_const_reference mm1, type_const_reference mm2)
-	{
-		type result = {
-			_SIMD_BINOMIAL_OPERATOR_3(-)
-		};
-		return result;
-	}
-	static _INLINE_FORCE type mul(type_const_reference mm1, type_const_reference mm2)
-	{
-		type result = {
-			_SIMD_BINOMIAL_OPERATOR_3(*)
-		};
-		return result;
-	}
-	static _INLINE_FORCE type mad(type_const_reference mm1, type_const_reference mm2, type_const_reference mm3)
-	{
-		type result = {
-			mm1.mm[0] * mm2.mm[0] + mm3.mm[0],
-			mm1.mm[1] * mm2.mm[1] + mm3.mm[1],
-			mm1.mm[2] * mm2.mm[2] + mm3.mm[2]
-		};
-		return result;
-	}
-	static _INLINE_FORCE type div(type_const_reference mm1, type_const_reference mm2)
-	{
-		type result = {
-			_SIMD_BINOMIAL_OPERATOR_3(/ )
-		};
-		return result;
-	}
-	static _INLINE_FORCE type or_(type_const_reference mm1, type_const_reference mm2)
-	{
-		type result = {
-			_SIMD_BINOMIAL_OPERATOR_3(| )
-		};
-		return result;
-	}
-	static _INLINE_FORCE type and_(type_const_reference mm1, type_const_reference mm2)
-	{
-		type result = {
-			_SIMD_BINOMIAL_OPERATOR_3(&)
-		};
-		return result;
-	}
-	static _INLINE_FORCE type xor_(type_const_reference mm1, type_const_reference mm2)
-	{
-		type result = {
-			_SIMD_BINOMIAL_OPERATOR_3(^)
-		};
-		return result;
-	}
-	static _INLINE_FORCE type rem(type_const_reference mm1, type_const_reference mm2)
-	{
-		type result = {
-			_SIMD_BINOMIAL_OPERATOR_3(%)
-		};
-		return result;
-	}
-	static _INLINE_FORCE type sqrt(type_const_reference mm)
-	{
-		type result = {
-			math_type::sqrt(mm.mm[0]),
-			math_type::sqrt(mm.mm[1]),
-			math_type::sqrt(mm.mm[2])
-		};
-		return result;
-	}
-	static _INLINE_FORCE type rsqrt(type_const_reference mm)
-	{
-		type result = {
-			math_type::rsqrt(mm.mm[0]),
-			math_type::rsqrt(mm.mm[1]),
-			math_type::rsqrt(mm.mm[2])
-		};
-		return result;
-	}
-	static _INLINE_FORCE type(max)(type_const_reference mm1, type_const_reference mm2)
-	{
-		type result = {
-			math_type::max(mm1.mm[0], mm2.mm[0]),
-			math_type::max(mm1.mm[1], mm2.mm[1]),
-			math_type::max(mm1.mm[2], mm2.mm[2])
-		};
-		return result;
-	}
-	static _INLINE_FORCE type(min)(type_const_reference mm1, type_const_reference mm2)
-	{
-		type result = {
-			math_type::min(mm1.mm[0], mm2.mm[0]),
-			math_type::min(mm1.mm[1], mm2.mm[1]),
-			math_type::min(mm1.mm[2], mm2.mm[2])
-		};
-		return result;
-	}
-	static _INLINE_FORCE type clamp(type_const_reference mm, type_const_reference mn, type_const_reference mx)
-	{
-		type result = {
-			math_type::clamp(mm.mm[0], mn.mm[0], mx.mm[0]),
-			math_type::clamp(mm.mm[1], mn.mm[1], mx.mm[1]),
-			math_type::clamp(mm.mm[2], mn.mm[2], mx.mm[2])
-		};
-		return result;
-	}
-	static _INLINE_FORCE type clamp01(type_const_reference mm)
-	{
-		type result = {
-			math_type::clamp01(mm.mm[0]),
-			math_type::clamp01(mm.mm[1]),
-			math_type::clamp01(mm.mm[2])
-		};
-		return result;
-	}
-	static _INLINE_FORCE type reciprocal(type_const_reference mm)
-	{
-		type result = {
-			math_type::reciprocal(mm.mm[0]),
-			math_type::reciprocal(mm.mm[1]),
-			math_type::reciprocal(mm.mm[2])
-		};
-		return result;
-	}
-
-	/*---------------------------------------------------------------------
-	* 指定の部分を取得
-	*---------------------------------------------------------------------*/
-	static _INLINE_FORCE value_type first(type_const_reference mm)
-	{
-		return mm.mm[0];
-	}
-	template <int INDEX>
-	static _INLINE_FORCE value_type at(type_const_reference mm)
-	{
-		return mm.mm[INDEX];
-	}
-	template <int Z, int Y, int X>
-	static _INLINE_FORCE type permute(type_const_reference mm)
-	{
-		type result = {
-			mm.mm[X],
-			mm.mm[Y],
-			mm.mm[Z]
-		};
-		return result;
-	}
-	template <int I>
-	static _INLINE_FORCE type permute(type_const_reference mm)
-	{
-		type result = {
-			mm.mm[I],
-			mm.mm[I],
-			mm.mm[I]
-		};
-		return result;
-	}
-	static _INLINE_FORCE type select(type_const_reference mm1, type_const_reference mm2, type_const_reference mm_select)
-	{
-		type result = {
-			(mm1.i.mm[0] & ~mm_select.i.mm[0]) | (mm2.i.mm[0] & mm_select.i.mm[0]),
-			(mm1.i.mm[1] & ~mm_select.i.mm[1]) | (mm2.i.mm[1] & mm_select.i.mm[1]),
-			(mm1.i.mm[2] & ~mm_select.i.mm[2]) | (mm2.i.mm[2] & mm_select.i.mm[2])
-		};
-		return result;
-	}
-	static _INLINE_FORCE type select(type_const_reference mm, type_const_reference mm_select)
-	{
-		return select(mm, zero(), mm_select);
-	}
-	static _INLINE_FORCE type select011()
-	{
-		type result = {
-			0,
-			std::numeric_limits<value_int_type>::max(),
-			std::numeric_limits<value_int_type>::max()
-		};
-		return result;
-	}
-	static _INLINE_FORCE type select011(type_const_reference mm1, type_const_reference mm2)
-	{
-		return select(mm1, mm2, select011());
-	}
-	static _INLINE_FORCE type select011(type_const_reference mm)
-	{
-		return select(mm, select011());
-	}
-	static _INLINE_FORCE type select101()
-	{
-		type result = {
-			std::numeric_limits<value_int_type>::max(),
-			0,
-			std::numeric_limits<value_int_type>::max()
-		};
-		return result;
-	}
-	static _INLINE_FORCE type select101(type_const_reference mm1, type_const_reference mm2)
-	{
-		return select(mm1, mm2, select101());
-	}
-	static _INLINE_FORCE type select101(type_const_reference mm)
-	{
-		return select(mm, select101());
-	}
-	static _INLINE_FORCE type select110()
-	{
-		type result = {
-			std::numeric_limits<value_int_type>::max(),
-			std::numeric_limits<value_int_type>::max(),
-			0
-		};
-		return result;
-	}
-	static _INLINE_FORCE type select110(type_const_reference mm1, type_const_reference mm2)
-	{
-		return select(mm1, mm2, select110());
-	}
-	static _INLINE_FORCE type select110(type_const_reference mm)
-	{
-		return select(mm, select110());
-	}
-
-	/*---------------------------------------------------------------------
-	* 比較
-	*---------------------------------------------------------------------*/
-	static _INLINE_FORCE bool equal(type_const_reference mm1, type_const_reference mm2)
-	{
-		return mm1.mm[0] == mm2.mm[0] &&
-			mm1.mm[1] == mm2.mm[1] &&
-			mm1.mm[2] == mm2.mm[2];
-	}
-	static _INLINE_FORCE bool not_equal(type_const_reference mm1, type_const_reference mm2)
-	{
-		return mm1.mm[0] != mm2.mm[0] &&
-			mm1.mm[1] != mm2.mm[1] &&
-			mm1.mm[2] != mm2.mm[2];
-	}
-	static _INLINE_FORCE bool greater(type_const_reference mm1, type_const_reference mm2)
-	{
-		return mm1.mm[0] > mm2.mm[0] &&
-			mm1.mm[1] > mm2.mm[1] &&
-			mm1.mm[2] > mm2.mm[2];
-	}
-	static _INLINE_FORCE bool greater_equal(type_const_reference mm1, type_const_reference mm2)
-	{
-		return mm1.mm[0] >= mm2.mm[0] &&
-			mm1.mm[1] >= mm2.mm[1] &&
-			mm1.mm[2] >= mm2.mm[2];
-	}
-	static _INLINE_FORCE bool less(type_const_reference mm1, type_const_reference mm2)
-	{
-		return mm1.mm[0] < mm2.mm[0] &&
-			mm1.mm[1] < mm2.mm[1] &&
-			mm1.mm[2] < mm2.mm[2];
-	}
-	static _INLINE_FORCE bool less_equal(type_const_reference mm1, type_const_reference mm2)
-	{
-		return mm1.mm[0] <= mm2.mm[0] &&
-			mm1.mm[1] <= mm2.mm[1] &&
-			mm1.mm[2] <= mm2.mm[2];
-	}
-	static _INLINE_FORCE bool near_equal_zero(type_const_reference mm1)
-	{
-		return math_type::is_near_zero(mm1.mm[0]) &&
-			math_type::is_near_zero(mm1.mm[1]) &&
-			math_type::is_near_zero(mm1.mm[2]);
-	}
-	static _INLINE_FORCE bool near_equal(type_const_reference mm1, type_const_reference mm2)
-	{
-		return math_type::is_near(mm1.mm[0], mm2.mm[0]) &&
-			math_type::is_near(mm1.mm[1], mm2.mm[1]) &&
-			math_type::is_near(mm1.mm[2], mm2.mm[2]);
-	}
-
-	/*---------------------------------------------------------------------
-	* load, store
-	*---------------------------------------------------------------------*/
-	static _INLINE_FORCE type load1(const value_type* f)
-	{
-		type result = {
-			*f, math_type::Zero, math_type::Zero
-		};
-		return result;
-	}
-	static _INLINE_FORCE type load2(const value_type* f)
-	{
-		type result = {
-			f[0], f[1], math_type::Zero
-		};
-		return result;
-	}
-	static _INLINE_FORCE type load(const value_type* f)
-	{
-		type result = {
-			f[0], f[1], f[2]
-		};
-		return result;
-	}
-	static _INLINE_FORCE void store1(value_type* f, type_const_reference mm)
-	{
-		*f = mm.mm[0];
-	}
-	static _INLINE_FORCE void store2(value_type* f1, value_type* f2, type_const_reference mm)
-	{
-		*f1 = mm.mm[0];
-		*f2 = mm.mm[1];
-	}
-	static _INLINE_FORCE void store(value_type* f, type_const_reference mm)
-	{
-		*f = mm.mm[0];
-		++f;
-		*f = mm.mm[1];
-		++f;
-		*f = mm.mm[2];
-	}
-
-	/*---------------------------------------------------------------------
-	* 計算
-	*---------------------------------------------------------------------*/
-	static _INLINE_FORCE type dot(type_const_reference mm1, type_const_reference mm2)
-	{
-		value_type d = mm1.mm[0] * mm2.mm[0] + mm1.mm[1] * mm2.mm[1] + mm1.mm[2] * mm2.mm[2];
-		type result = {
-			d, d, d
-		};
-		return result;
-	}
-	static _INLINE_FORCE type length_sq(type_const_reference mm)
-	{
-		return dot(mm, mm);
-	}
-	static _INLINE_FORCE type length(type_const_reference mm)
-	{
-		value_type d = mm.mm[0] * mm.mm[0] + mm.mm[1] * mm.mm[1] + mm.mm[2] * mm.mm[2];
-		value_type l = math_type::sqrt(d);
-		type result = {
-			l, l, l
-		};
-		return result;
-	}
-
-	/*---------------------------------------------------------------------------------------
-	* Operators
-	*---------------------------------------------------------------------------------------*/
-
-	// None
-};
-
-template <typename T>
-struct SIMD<T, 4>
+struct SIMD
 {
 	/*---------------------------------------------------------------------------------------
 	* Types
@@ -1009,7 +94,7 @@ struct SIMD<T, 4>
 
 	typedef Math<T> math_type;
 	typedef detail::_mvector<T, 4> type;
-	typedef typename math_type::int_value_type value_int_type;
+	typedef typename math_type::value_int_type value_int_type;
 	typedef typename type::int_t type_int;
 	typedef typename detail::up_type<T>::type type_up;
 
@@ -1288,7 +373,7 @@ struct SIMD<T, 4>
 	{
 		return mm.mm[INDEX];
 	}
-	template <int W, int Z, int Y, int X>
+	template <int X, int Y, int Z, int W>
 	static _INLINE_FORCE type permute(type_const_reference mm)
 	{
 		type result = {
@@ -1307,6 +392,31 @@ struct SIMD<T, 4>
 			mm.mm[I],
 			mm.mm[I],
 			mm.mm[I]
+		};
+		return result;
+	}
+
+	/*---------------------------------------------------------------------
+	* 選択 [0より大きい値を選択できるようにする]
+	*---------------------------------------------------------------------*/
+	static _INLINE_FORCE type selector(value_type x, value_type y, value_type z, value_type w)
+	{
+		type result = {
+			x >= math_type::Zero ? std::numeric_limits<value_int_type>::max() : 0,
+			y >= math_type::Zero ? std::numeric_limits<value_int_type>::max() : 0,
+			z >= math_type::Zero ? std::numeric_limits<value_int_type>::max() : 0,
+			w >= math_type::Zero ? std::numeric_limits<value_int_type>::max() : 0
+		};
+		return result;
+	}
+	template <int X, int Y, int Z, int W>
+	static _INLINE_FORCE type selector()
+	{
+		const type result = {
+			X >= 0 ? std::numeric_limits<value_int_type>::max() : 0,
+			Y >= 0 ? std::numeric_limits<value_int_type>::max() : 0,
+			Z >= 0 ? std::numeric_limits<value_int_type>::max() : 0,
+			W >= 0 ? std::numeric_limits<value_int_type>::max() : 0
 		};
 		return result;
 	}
@@ -1627,7 +737,7 @@ struct __mvec3<double>
 }
 
 template <>
-struct SIMD<float, 4>
+struct SIMD<float>
 {
 	/*---------------------------------------------------------------------------------------
 	* Types
@@ -1810,7 +920,7 @@ struct SIMD<float, 4>
 	{
 		return _mm_cvtss_f32(SIMD::template permute<INDEX>(mm));
 	}
-	template <int W, int Z, int Y, int X>
+	template <int X, int Y, int Z, int W>
 	static _INLINE_FORCE type permute(type mm)
 	{
 #ifdef _USE_SIMD_256
@@ -1827,6 +937,25 @@ struct SIMD<float, 4>
 #else
 		return _mm_shuffle_ps(mm, mm, _MM_SHUFFLE(I, I, I, I));
 #endif // _USE_SIMD_256
+	}
+
+	/*---------------------------------------------------------------------
+	* 選択
+	*---------------------------------------------------------------------*/
+	static _INLINE_FORCE type selector(value_type x, value_type y, value_type z, value_type w)
+	{
+		// ゼロより大きいものをマスクとする
+		const type mask = set(x, y, z, w);
+		const type zero = _mm_setzero_ps();
+		return _mm_cmpgt_ps(zero, mask);
+	}
+	template <int X, int Y, int Z, int W>
+	static _INLINE_FORCE type selector()
+	{
+		// ゼロより大きいものをマスクとする
+		const type mask = set(X, Y, Z, W);
+		const type zero = _mm_setzero_ps();
+		return _mm_cmpgt_ps(zero, mask);
 	}
 	static _INLINE_FORCE type select(type mm1, type mm2, type mm_select)
 	{
@@ -2050,17 +1179,10 @@ private:
 		// 2進で1111が入るので0x0F
 		return _mm_movemask_ps(mm) == 0x0F;
 	}
-	static _INLINE_FORCE type selector(value_type x, value_type y, value_type z, value_type w)
-	{
-		// ゼロより大きいものをマスクとする
-		const type mask = set(x, y, z, w);
-		const type zero = _mm_setzero_ps();
-		return _mm_cmpgt_ps(zero, mask);
-	}
 };
 
 template <>
-struct SIMD<int32_t, 4>
+struct SIMD<int32_t>
 {
 	/*---------------------------------------------------------------------------------------
 	* Types
@@ -2076,7 +1198,7 @@ struct SIMD<int32_t, 4>
 	typedef const type& type_const_reference;
 };
 template <>
-struct SIMD<uint32_t, 4>
+struct SIMD<uint32_t>
 {
 	/*---------------------------------------------------------------------------------------
 	* Types
@@ -2094,7 +1216,7 @@ struct SIMD<uint32_t, 4>
 
 #ifdef _USE_SIMD_256
 template <>
-struct SIMD<double, 4>
+struct SIMD<double>
 {
 	/*---------------------------------------------------------------------------------------
 	* Types
@@ -2110,7 +1232,7 @@ struct SIMD<double, 4>
 	typedef const type& type_const_reference;
 };
 template <>
-struct SIMD<int64_t, 4>
+struct SIMD<int64_t>
 {
 	/*---------------------------------------------------------------------------------------
 	* Types
@@ -2126,7 +1248,7 @@ struct SIMD<int64_t, 4>
 	typedef const type& type_const_reference;
 };
 template <>
-struct SIMD<uint64_t, 4>
+struct SIMD<uint64_t>
 {
 	/*---------------------------------------------------------------------------------------
 	* Types
@@ -2147,4 +1269,4 @@ struct SIMD<uint64_t, 4>
 
 #endif // _USE_SIMD
 
-#endif // __MATH_SIMD_H__
+#endif // __POCKET_MATH_SIMD_H__

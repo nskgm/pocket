@@ -1,7 +1,7 @@
-﻿#ifndef __MATH_MATRIX3X3_H__
-#define __MATH_MATRIX3X3_H__
+﻿#ifndef __POCKET_MATH_MATRIX3X3_H__
+#define __POCKET_MATH_MATRIX3X3_H__
 
-#include "config.h"
+#include "../config.h"
 #ifdef _USE_PRAGMA_ONCE
 #pragma once
 #endif // _USE_PRAGMA_ONCE
@@ -12,7 +12,7 @@
 #include "Vector3.h"
 #include "Quaternion.h"
 #ifdef _USING_MATH_IO
-#include "io.h"
+#include "../io.h"
 #endif // _USING_MATH_IO
 
 namespace pocket
@@ -1369,4 +1369,4 @@ std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, 
 
 } // namespace pocket
 
-#endif // __MATH_MATRIX3X3_H__
+#endif // __POCKET_MATH_MATRIX3X3_H__

@@ -1,11 +1,13 @@
 ﻿#ifndef __MATH_MATRIX4X4_H__
 #define __MATH_MATRIX4X4_H__
 
-#include "config.h"
+#include "../config.h"
 #ifdef _USE_PRAGMA_ONCE
 #pragma once
 #endif // _USE_PRAGMA_ONCE
 
+#include "../debug.h"
+#include "../behavior.h"
 #include "Math.h"
 #include "Vector3.h"
 #include "Vector4.h"
@@ -18,7 +20,7 @@
 #include <initializer_list>
 #endif // _USE_CXX11
 #ifdef _USING_MATH_IO
-#include "io.h"
+#include "../io.h"
 #endif // _USING_MATH_IO
 
 namespace pocket
@@ -427,6 +429,7 @@ struct Matrix4x4
 	*---------------------------------------------------------------------*/
 	Matrix4x4& divide(T s, Matrix4x4& result) const
 	{
+		_DEB_ASSERT(s != math_type::Zero);
 #ifdef _USE_SIMD_ANONYMOUS
 		simd_type rcp = simd::set(math_type::reciprocal(s));
 		iterator ri = result.M.begin();
@@ -435,7 +438,6 @@ struct Matrix4x4
 			ri->mm = simd::mul(i->mm, rcp);
 		}
 #else
-		_DEB_ASSERT(s != math_type::Zero);
 		s = math_type::One / s;
 		return multiply(s, result);
 #endif // _USE_SIMD_ANONYMOUS

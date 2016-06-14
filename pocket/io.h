@@ -1,5 +1,5 @@
-﻿#ifndef __MATH_IO_H__
-#define __MATH_IO_H__
+﻿#ifndef __POCKET_IO_H__
+#define __POCKET_IO_H__
 
 #include "config.h"
 #ifdef _USE_PRAGMA_ONCE
@@ -81,4 +81,4 @@ std::basic_iostream<CharT, CharTraits>& ignore(std::basic_iostream<CharT, CharTr
 } // namespace skip_char
 } // namespace pocket
 
-#endif // __MATH_IO_H__
+#endif // __POCKET_IO_H__

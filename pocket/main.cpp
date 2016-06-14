@@ -3,12 +3,12 @@
 * _USING_MATH_DOUBLE		: double型を使用する
 * _USING_MATH_LONG_DOUBLE	: long double型を使用する
 * _USING_MATH_IO			: 数学クラスの入出力オペレーターを使用する
-* _USING_MATH_EXTERN_TYPE	: 数学クラスの暗黙定義を抑制する
 * _UNUSING_SIMD				: SIMDが使用できる環境でも使用しないようにする
 *---------------------------------------------------------------------*/
 
 #define _USING_MATH_IO
 //#define _UNUSING_SIMD
+//#define _USING_MATH_DOUBLE
 
 #include "math/all.h"
 #include <string>
@@ -85,7 +85,7 @@ int main(int argc, char** argv)
 
 	cout << s * r * t << endl;
 
-	typedef pocket::SIMD<float, 4> simd;
+	typedef pocket::SIMD<float> simd;
 	cout << simd::is_vectorize() << endl;
 	simd::type zero = simd::zero();
 	simd::type one = simd::one();
@@ -101,9 +101,16 @@ int main(int argc, char** argv)
 #ifdef _USE_SIMD_ANONYMOUS
 	v.w1();
 	cout << v << endl;
-	pocket::Vector4f v2(simd::select(v.mm, simd::select1110()));
+	pocket::Vector4f v2(simd::select1110(v.mm));
 	cout << v2 << endl;
 #endif // _USE_SIMD_ANONYMOUS
+
+	cout << v.cross(d) << endl;
+
+	pocket::bool2 b = {true, false};
+	cout << b << endl;
+	pocket::float3 f = {4.0f, 1.0f, 5.0f};
+	cout << f << endl;
 
 	return 0;
 }

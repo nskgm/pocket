@@ -1,5 +1,5 @@
-﻿#ifndef __MATH_DEBUG_H__
-#define __MATH_DEBUG_H__
+﻿#ifndef __POCKET_DEBUG_H__
+#define __POCKET_DEBUG_H__
 
 #include "config.h"
 #ifdef _USE_PRAGMA_ONCE
@@ -102,4 +102,4 @@
 #	endif // __DEBUG
 #endif // _DEB_OUTPUT_STDERR_LINE
 
-#endif // __MATH_DEBUG_H__
+#endif // __POCKET_DEBUG_H__

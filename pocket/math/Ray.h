@@ -1,8 +1,12 @@
-﻿#ifndef __MATH_RAY_H__
-#define __MATH_RAY_H__
+﻿#ifndef __POCKET_MATH_RAY_H__
+#define __POCKET_MATH_RAY_H__
 
 #pragma once
 
+#include "../behavior.h"
+#include "../debug.h"
+#include "array.h"
+#include "Math.h"
 #include "Vector2.h"
 #include "Vector3.h"
 #ifdef _USING_MATH_IO
@@ -312,4 +316,4 @@ std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, 
 } // namespace pocket
 
 
-#endif // __MATH_RAY_H__
+#endif // __POCKET_MATH_RAY_H__

@@ -1,13 +1,12 @@
-#ifndef __MATH_ALL_H__
-#define __MATH_ALL_H__
+#ifndef __POCKET_MATH_ALL_H__
+#define __POCKET_MATH_ALL_H__
 
-#include "config.h"
+#include "../config.h"
 #ifdef _USE_PRAGMA_ONCE
 #pragma once
 #endif // _USE_PRAGMA_ONCE
 
 #include "fwd.h"
-#include "Debug.h"
 #include "array.h"
 #include "Math.h"
 #include "SIMD.h"
@@ -24,4 +23,4 @@
 #include "Color.h"
 #include "Rectangle.h"
 
-#endif // __MATH_ALL_H__
+#endif // __POCKET_MATH_ALL_H__

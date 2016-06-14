@@ -148,14 +148,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="behavior.h" />
+    <ClInclude Include="config.h" />
+    <ClInclude Include="debug.h" />
+    <ClInclude Include="io.h" />
     <ClInclude Include="math\all.h" />
     <ClInclude Include="math\array.h" />
     <ClInclude Include="math\Color.h" />
-    <ClInclude Include="math\config.h" />
-    <ClInclude Include="math\Debug.h" />
     <ClInclude Include="math\Frustum.h" />
     <ClInclude Include="math\fwd.h" />
-    <ClInclude Include="math\io.h" />
     <ClInclude Include="math\Line.h" />
     <ClInclude Include="math\Math.h" />
     <ClInclude Include="math\Matrix3x3.h" />

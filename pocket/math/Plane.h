@@ -1,18 +1,21 @@
-﻿#ifndef __MATH_PLANE_H__
-#define __MATH_PLANE_H__
+﻿#ifndef __POCKET_MATH_PLANE_H__
+#define __POCKET_MATH_PLANE_H__
 
-#include "config.h"
+#include "../config.h"
 #ifdef _USE_PRAGMA_ONCE
 #pragma once
 #endif // _USE_PRAGMA_ONCE
 
+#include "../debug.h"
+#include "../behavior.h"
+#include "array.h"
 #include "Math.h"
 #include "Vector3.h"
 #include "Vector4.h"
 #include "Line.h"
 #include "Ray.h"
 #ifdef _USING_MATH_IO
-#include "io.h"
+#include "../io.h"
 #endif // _USING_MATH_IO
 
 namespace pocket
@@ -791,4 +794,4 @@ std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, 
 
 } // namespace pocket
 
-#endif // __MATH_PLANE_H__
+#endif // __POCKET_MATH_PLANE_H__

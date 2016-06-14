@@ -1,16 +1,17 @@
 ﻿#ifndef __MATH_TEMPLATE_H__
 #define __MATH_TEMPLATE_H__
 
-#include "config.h"
+#include "../config.h"
 #ifdef _USE_PRAGMA_ONCE
 #pragma once
 #endif // _USE_PRAGMA_ONCE
 
+#include "../behavior.h"
 #include "fwd.h"
 #include "array.h"
 #include "Math.h"
 #ifdef _USING_MATH_IO
-#include "io.h"
+#include "../io.h"
 #endif // _USING_MATH_IO
 
 namespace pocket
