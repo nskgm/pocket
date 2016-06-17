@@ -151,6 +151,7 @@
     <ClInclude Include="behavior.h" />
     <ClInclude Include="config.h" />
     <ClInclude Include="debug.h" />
+    <ClInclude Include="fwd.h" />
     <ClInclude Include="io.h" />
     <ClInclude Include="math\all.h" />
     <ClInclude Include="math\array.h" />
@@ -165,7 +166,7 @@
     <ClInclude Include="math\Quaternion.h" />
     <ClInclude Include="math\Ray.h" />
     <ClInclude Include="math\Rectangle.h" />
-    <ClInclude Include="math\SIMD.h" />
+    <ClInclude Include="math\simd_traits.h" />
     <ClInclude Include="math\template.h" />
     <ClInclude Include="math\Vector2.h" />
     <ClInclude Include="math\Vector3.h" />

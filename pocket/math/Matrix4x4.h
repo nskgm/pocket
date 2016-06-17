@@ -14,7 +14,7 @@
 #include "Quaternion.h"
 #include "Matrix3x3.h"
 #ifdef _USE_SIMD_ANONYMOUS
-#include "SIMD.h"
+#include "simd_traits.h"
 #endif // _USE_SIMD_ANONYMOUS
 #ifdef _USE_CXX11
 #include <initializer_list>

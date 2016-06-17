@@ -85,7 +85,7 @@ int main(int argc, char** argv)
 
 	cout << s * r * t << endl;
 
-	typedef pocket::SIMD<float> simd;
+	typedef pocket::simd_traits<float> simd;
 	cout << simd::is_vectorize() << endl;
 	simd::type zero = simd::zero();
 	simd::type one = simd::one();

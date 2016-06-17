@@ -9,7 +9,7 @@
 #include "fwd.h"
 #include "array.h"
 #include "Math.h"
-#include "SIMD.h"
+#include "simd_traits.h"
 #include "Vector2.h"
 #include "Vector3.h"
 #include "Vector4.h"

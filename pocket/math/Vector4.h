@@ -13,7 +13,7 @@
 #include "Vector2.h"
 #include "Vector3.h"
 #ifdef _USE_SIMD_ANONYMOUS
-#include "SIMD.h"
+#include "simd_traits.h"
 #endif // _USE_SIMD_ANONYMOUS_ANONYMOUS
 #ifdef _USING_MATH_IO
 #include "../io.h"
@@ -72,7 +72,7 @@ struct Vector4
 	typedef typename array_type::const_reference const_reference;
 
 #ifdef _USE_SIMD_ANONYMOUS
-	typedef SIMD<T> simd;
+	typedef simd_traits<T> simd;
 	typedef typename simd::type simd_type;
 #endif // _USE_SIMD_ANONYMOUS_ANONYMOUS
 

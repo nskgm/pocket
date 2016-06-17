@@ -86,7 +86,7 @@ struct up_type<double>
 * 空の宣言のみで特殊化で中身を実装していく
 *---------------------------------------------------------------------*/
 template <typename T>
-struct SIMD
+struct simd_traits
 {
 	/*---------------------------------------------------------------------------------------
 	* Types
@@ -402,10 +402,10 @@ struct SIMD
 	static _INLINE_FORCE type selector(value_type x, value_type y, value_type z, value_type w)
 	{
 		type result = {
-			x >= math_type::Zero ? std::numeric_limits<value_int_type>::max() : 0,
-			y >= math_type::Zero ? std::numeric_limits<value_int_type>::max() : 0,
-			z >= math_type::Zero ? std::numeric_limits<value_int_type>::max() : 0,
-			w >= math_type::Zero ? std::numeric_limits<value_int_type>::max() : 0
+			x > math_type::Zero ? std::numeric_limits<value_int_type>::max() : 0,
+			y > math_type::Zero ? std::numeric_limits<value_int_type>::max() : 0,
+			z > math_type::Zero ? std::numeric_limits<value_int_type>::max() : 0,
+			w > math_type::Zero ? std::numeric_limits<value_int_type>::max() : 0
 		};
 		return result;
 	}
@@ -413,10 +413,10 @@ struct SIMD
 	static _INLINE_FORCE type selector()
 	{
 		const type result = {
-			X >= 0 ? std::numeric_limits<value_int_type>::max() : 0,
-			Y >= 0 ? std::numeric_limits<value_int_type>::max() : 0,
-			Z >= 0 ? std::numeric_limits<value_int_type>::max() : 0,
-			W >= 0 ? std::numeric_limits<value_int_type>::max() : 0
+			X > 0 ? std::numeric_limits<value_int_type>::max() : 0,
+			Y > 0 ? std::numeric_limits<value_int_type>::max() : 0,
+			Z > 0 ? std::numeric_limits<value_int_type>::max() : 0,
+			W > 0 ? std::numeric_limits<value_int_type>::max() : 0
 		};
 		return result;
 	}
@@ -677,6 +677,28 @@ private:
 
 } // namespace pocket
 
+#ifdef _USING_MATH_IO
+template <typename CharT, typename CharTraits, typename T, size_t N> inline
+std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const pocket::detail::_mvector<T, N>& v)
+{
+	// [X, Y, Z, W]
+	os << out_char::box_brackets_left << v.mm[0] << out_char::comma_space
+		<< v.mm[1] << out_char::comma_space
+		<< v.mm[2] << out_char::comma_space
+		<< v.mm[3] << out_char::box_brackets_right;
+	return os;
+}
+template <typename CharT, typename CharTraits, typename T, size_t N> inline
+std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, CharTraits>& os, const pocket::detail::_mvector<T, N>& v)
+{
+	os << out_char::box_brackets_left << v.mm[0] << out_char::comma_space
+		<< v.mm[1] << out_char::comma_space
+		<< v.mm[2] << out_char::comma_space
+		<< v.mm[3] << out_char::box_brackets_right;
+	return os;
+}
+#endif // _USING_MATH_IO
+
 #undef _SIMD_BINOMIAL_OPERATOR_2
 #undef _SIMD_BINOMIAL_OPERATOR_3
 #undef _SIMD_BINOMIAL_OPERATOR_4
@@ -684,7 +706,7 @@ private:
 #ifdef _USE_SIMD // ファイル終端まで
 
 /*---------------------------------------------------------------------
-* SIMDが使用できる場合の特殊化
+* simd_traitsが使用できる場合の特殊化
 *---------------------------------------------------------------------*/
 
 #if (_USE_SIMD_TYPE == _SIMD_TYPE_AVX2) || (_USE_SIMD_TYPE == _SIMD_TYPE_AVX)
@@ -737,7 +759,7 @@ struct __mvec3<double>
 }
 
 template <>
-struct SIMD<float>
+struct simd_traits<float>
 {
 	/*---------------------------------------------------------------------------------------
 	* Types
@@ -918,7 +940,7 @@ struct SIMD<float>
 	template <int INDEX>
 	static _INLINE_FORCE float at(type mm)
 	{
-		return _mm_cvtss_f32(SIMD::template permute<INDEX>(mm));
+		return _mm_cvtss_f32(simd_traits::template permute<INDEX>(mm));
 	}
 	template <int X, int Y, int Z, int W>
 	static _INLINE_FORCE type permute(type mm)
@@ -952,9 +974,8 @@ struct SIMD<float>
 	template <int X, int Y, int Z, int W>
 	static _INLINE_FORCE type selector()
 	{
-		// ゼロより大きいものをマスクとする
-		const type mask = set(X, Y, Z, W);
-		const type zero = _mm_setzero_ps();
+		const type mask = _mm_set_ps(static_cast<float>(W), static_cast<float>(Z), static_cast<float>(Y), static_cast<float>(X));
+		const type zero = _mm_set_ps1(math_type::Half);
 		return _mm_cmpgt_ps(zero, mask);
 	}
 	static _INLINE_FORCE type select(type mm1, type mm2, type mm_select)
@@ -1064,13 +1085,13 @@ struct SIMD<float>
 	static _INLINE_FORCE bool near_equal_zero(type mm)
 	{
 		const type z = _mm_setzero_ps();
-		return SIMD::near_equal(z, mm);
+		return simd_traits::near_equal(z, mm);
 	}
 	static _INLINE_FORCE bool near_equal(type mm1, type mm2)
 	{
 		const type epsilon = _mm_set_ps1(math_type::Epsilon);
 		type delta = _mm_sub_ps(mm1, mm2);
-		delta = SIMD::abs(delta);
+		delta = simd_traits::abs(delta);
 		return mask_all(_mm_cmple_ps(delta, epsilon));
 	}
 
@@ -1182,7 +1203,7 @@ private:
 };
 
 template <>
-struct SIMD<int32_t>
+struct simd_traits<int32_t>
 {
 	/*---------------------------------------------------------------------------------------
 	* Types
@@ -1198,7 +1219,7 @@ struct SIMD<int32_t>
 	typedef const type& type_const_reference;
 };
 template <>
-struct SIMD<uint32_t>
+struct simd_traits<uint32_t>
 {
 	/*---------------------------------------------------------------------------------------
 	* Types
@@ -1216,7 +1237,7 @@ struct SIMD<uint32_t>
 
 #ifdef _USE_SIMD_256
 template <>
-struct SIMD<double>
+struct simd_traits<double>
 {
 	/*---------------------------------------------------------------------------------------
 	* Types
@@ -1232,7 +1253,7 @@ struct SIMD<double>
 	typedef const type& type_const_reference;
 };
 template <>
-struct SIMD<int64_t>
+struct simd_traits<int64_t>
 {
 	/*---------------------------------------------------------------------------------------
 	* Types
@@ -1248,7 +1269,7 @@ struct SIMD<int64_t>
 	typedef const type& type_const_reference;
 };
 template <>
-struct SIMD<uint64_t>
+struct simd_traits<uint64_t>
 {
 	/*---------------------------------------------------------------------------------------
 	* Types
@@ -1266,6 +1287,34 @@ struct SIMD<uint64_t>
 #endif // _USE_SIMD_256
 
 } // namespace pocket
+
+#ifdef _USING_MATH_IO
+template <typename CharT, typename CharTraits> inline
+std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const __m128& v)
+{
+	_ALIGNED(16) float mm[4];
+	_mm_store_ps(&mm[0], v);
+
+	// [X, Y, Z, W]
+	os << pocket::out_char::box_brackets_left << mm[0] << pocket::out_char::comma_space
+		<< mm[1] << pocket::out_char::comma_space
+		<< mm[2] << pocket::out_char::comma_space
+		<< mm[3] << pocket::out_char::box_brackets_right;
+	return os;
+}
+template <typename CharT, typename CharTraits> inline
+std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, CharTraits>& os, const __m128& v)
+{
+	_ALIGNED(16) float mm[4];
+	_mm_store_ps(&mm[0], v);
+
+	os << pocket::out_char::box_brackets_left << mm[0] << pocket::out_char::comma_space
+		<< mm[1] << pocket::out_char::comma_space
+		<< mm[2] << pocket::out_char::comma_space
+		<< mm[3] << pocket::out_char::box_brackets_right;
+	return os;
+}
+#endif // _USING_MATH_IO
 
 #endif // _USE_SIMD
 
