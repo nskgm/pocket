@@ -423,10 +423,10 @@ struct matrix4x4
 	*---------------------------------------------------------------------*/
 	bool is_near_identity() const
 	{
-		return (M[0].is_near(row_type::unit_x) &&
+		return M[0].is_near(row_type::unit_x) &&
 			M[1].is_near(row_type::unit_y) &&
 			M[2].is_near(row_type::unit_z) &&
-			M[3].is_near(row_type::unit_w));
+			M[3].is_near(row_type::unit_w);
 	}
 
 	/*---------------------------------------------------------------------
@@ -436,7 +436,7 @@ struct matrix4x4
 	{
 		//return vector3<T>(m.x, m.y, m.z);
 #ifdef _USE_ANONYMOUS_NON_POD
-		return right;
+		return _right;
 #else
 		return reinterpret_cast<vector3<T>&>(M[0]);
 #endif // _USE_ANONYMOUS_NON_POD
@@ -457,7 +457,7 @@ struct matrix4x4
 	{
 		//return vector3<T>(m.x, m.y, m.z);
 #ifdef _USE_ANONYMOUS_NON_POD
-		return up;
+		return _up;
 #else
 		return reinterpret_cast<vector3<T>&>(M[1]);
 #endif // _USE_ANONYMOUS_NON_POD
@@ -928,21 +928,7 @@ struct matrix4x4
 
 		return *this;
 	}
-	/*---------------------------------------------------------------------
-	* 転置行列を求める
-	*---------------------------------------------------------------------*/
-	matrix4x4 transposed() const
-	{
-		const row_type& v0 = M[0];
-		const row_type& v1 = M[1];
-		const row_type& v2 = M[2];
-		const row_type& v3 = M[3];
-		return matrix4x4(v0.x, v1.x, v2.x, v3.x,
-			v0.y, v1.y, v2.y, v3.y,
-			v0.z, v1.z, v2.z, v3.z,
-			v0.w, v1.w, v2.w, v3.w);
-	}
-	matrix4x4& transposed(matrix4x4& result) const
+	matrix4x4& transpose(matrix4x4& result) const
 	{
 		const row_type& v0 = M[0];
 		const row_type& v1 = M[1];
@@ -978,6 +964,20 @@ struct matrix4x4
 		r3.w = v3.w;
 
 		return result;
+	}
+	/*---------------------------------------------------------------------
+	* 転置行列を求める
+	*---------------------------------------------------------------------*/
+	matrix4x4 transposed() const
+	{
+		const row_type& v0 = M[0];
+		const row_type& v1 = M[1];
+		const row_type& v2 = M[2];
+		const row_type& v3 = M[3];
+		return matrix4x4(v0.x, v1.x, v2.x, v3.x,
+			v0.y, v1.y, v2.y, v3.y,
+			v0.z, v1.z, v2.z, v3.z,
+			v0.w, v1.w, v2.w, v3.w);
 	}
 	/*---------------------------------------------------------------------
 	* 行列式を求める

@@ -149,4 +149,6 @@ _DECL_CHANGE_BEHAVIOR(inverse);
 } // namespace behavior
 } // namespace pocket
 
+#undef _DECL_CHANGE_BEHAVIOR
+
 #endif // __POCKET_BEHAVIOR_H__

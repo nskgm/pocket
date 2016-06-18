@@ -237,63 +237,44 @@ struct frustum
 	/*---------------------------------------------------------------------
 	* クリップ座標変換行列から求める
 	*---------------------------------------------------------------------*/
-	frustum& from_clip_matrix(const matrix4x4<T>& clip)
+	frustum& from_clip_matrix(const matrix4x4_type& clip)
 	{
-		const vector4<T>* v0 = &clip[0];
-		const vector4<T>* v1 = &clip[1];
-		const vector4<T>* v2 = &clip[2];
-		const vector4<T>* v3 = &clip[3];
+		const vector4<T>& v0 = clip[0];
+		const vector4<T>& v1 = clip[1];
+		const vector4<T>& v2 = clip[2];
+		const vector4<T>& v3 = clip[3];
 
 		// それぞれの面情報を計算
-		plane_type* p = &planes[0];
 
 		// 左
-		p->normal.X = v0->W + v0->X;
-		p->normal.Y = v1->W + v1->X;
-		p->normal.Z = v2->W + v2->X;
-		p->D = v3->W + v3->X;
-		p->normalize();
+		plane_type& p0 = planes[0];
+		p0 = plane_type(v0.w + v0.x, v1.w + v1.x, v2.w + v2.x, v3.w + v3.x);
+		p0.normalize();
 
 		// 右
-		p = &planes[1];
-		p->normal.X = v0->W - v0->X;
-		p->normal.Y = v1->W - v1->X;
-		p->normal.Z = v2->W - v2->X;
-		p->D = v3->W - v3->X;
-		p->normalize();
+		plane_type& p1 = planes[1];
+		p1 = plane_type(v0.w - v0.x, v1.w - v1.x, v2.w - v2.x, v3.w - v3.x);
+		p1.normalize();
 
 		// 上
-		p = &planes[2];
-		p->normal.X = v0->W - v0->Y;
-		p->normal.Y = v1->W - v1->Y;
-		p->normal.Z = v2->W - v2->Y;
-		p->D = v3->W - v3->Y;
-		p->normalize();
+		plane_type& p2 = planes[2];
+		p2 = plane_type(v0.w - v0.y, v1.w - v1.y, v2.w - v2.y; v3.w - v3.y);
+		p2.normalize();
 
 		// 下
-		p = &planes[3];
-		p->normal.X = v0->W + v0->Y;
-		p->normal.Y = v1->W + v1->Y;
-		p->normal.Z = v2->W + v2->Y;
-		p->D = v3->W + v3->Y;
-		p->normalize();
+		plane_type& p3 = planes[3];
+		p3 = plane_type(v0.w + v0.y, v1.w + v1.y, v2.w + v2.y; v3.w + v3.y);
+		p3.normalize();
 
 		// 近
-		p = &planes[4];
-		p->normal.X = v0->W - v0->Z;
-		p->normal.Y = v1->W - v1->Z;
-		p->normal.Z = v2->W - v2->Z;
-		p->D = v3->W - v3->Z;
-		p->normalize();
+		plane_type& p4 = planes[4];
+		p4 = plane_type(v0.w - v0.z, v1.w - v1.z, v2.w - v2.z, v3.w - v3.z);
+		p4.normalize();
 
 		// 遠
-		p = &planes[5];
-		p->normal.X = v0->W + v0->Z;
-		p->normal.Y = v1->W + v1->Z;
-		p->normal.Z = v2->W + v2->Z;
-		p->D = v3->W + v3->Z;
-		p->normalize();
-
+		plane_type& p5 = planes[5];
+		p5 = plane_type(v0.w + v0.z, v1.w + v1.z, v2.w + v2.z, v3.w + v3.z);
+		p5.normalize();
 		return *this;
 	}
 
@@ -432,17 +413,17 @@ struct frustum
 	_CXX11_EXPLICIT operator T* ()
 	{
 #ifdef _USE_ANONYMOUS_NON_POD
-		return &left.normal.X;
+		return &left.normal.x;
 #else
-		return &planes[0].normal.X;
+		return &planes[0].normal.x;
 #endif // _USE_ANONYMOUS_NON_POD
 	}
 	_CXX11_EXPLICIT operator const T* () const
 	{
 #ifdef _USE_ANONYMOUS_NON_POD
-		return &left.normal.X;
+		return &left.normal.x;
 #else
-		return &planes[0].normal.X;
+		return &planes[0].normal.x;
 #endif // _USE_ANONYMOUS_NON_POD
 	}
 

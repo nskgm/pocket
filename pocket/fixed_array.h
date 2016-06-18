@@ -418,7 +418,16 @@ struct bool_reference
 	{
 		return (a & bit) != 0x00;
 	}
+	bool operator () () const
+	{
+		return (a & bit) != 0x00;
+	}
 };
+
+inline _CXX11_CONSTEXPR int or_bit(bool a, int shift)
+{
+	return a ? 0x01 << shift : 0x00;
+}
 }
 
 template <>
@@ -439,16 +448,9 @@ struct fixed_array<bool, 2>
 
 	}
 	fixed_array(bool a, bool b) :
-		data(0)
+		data(detail::or_bit(a, 0) | detail::or_bit(b, 1))
 	{
-		if (a)
-		{
-			data |= 0x01;
-		}
-		if (b)
-		{
-			data |= 0x02;
-		}
+
 	}
 	fixed_array(const fixed_array<bool, 3>&);
 	fixed_array(const fixed_array<bool, 4>&);
@@ -500,33 +502,19 @@ struct fixed_array<bool, 3>
 
 	}
 	fixed_array(bool a, bool b, bool c) :
-		data(0)
+		data(detail::or_bit(a, 0) | detail::or_bit(b, 1) | detail::or_bit(c, 2))
 	{
-		if (a)
-		{
-			data |= 0x01;
-		}
-		if (b)
-		{
-			data |= 0x02;
-		}
-		if (c)
-		{
-			data |= 0x04;
-		}
+
 	}
 	fixed_array(const fixed_array<bool, 2>& a, bool c) :
-		data(a.data)
+		data((a.data & 0x03) | detail::or_bit(c, 2))
 	{
-		if (c)
-		{
-			data |= 0x04;
-		}
+
 	}
 	fixed_array(bool a, const fixed_array<bool, 2>& b) :
-		data(a ? 0x01 : 0x00)
+		data(detail::or_bit(a, 0) | ((b.data & 0x03) << 1))
 	{
-		data |= b.data << 1;
+
 	}
 	fixed_array(const fixed_array<bool, 4>&);
 
@@ -577,67 +565,34 @@ struct fixed_array<bool, 4>
 
 	}
 	fixed_array(bool a, bool b, bool c, bool d) :
-		data(0)
+		data(detail::or_bit(a, 0) | detail::or_bit(b, 1) | detail::or_bit(c, 2) | detail::or_bit(d, 3))
 	{
-		if (a)
-		{
-			data |= 0x01;
-		}
-		if (b)
-		{
-			data |= 0x02;
-		}
-		if (c)
-		{
-			data |= 0x04;
-		}
-		if (d)
-		{
-			data |= 0x08;
-		}
+
 	}
 	fixed_array(const fixed_array<bool, 2>& a, bool c, bool d) :
-		data(a.data)
+		data((a.data & 0x03) | detail::or_bit(c, 2) | detail::or_bit(d, 3))
 	{
-		if (c)
-		{
-			data |= 0x04;
-		}
-		if (d)
-		{
-			data |= 0x08;
-		}
+
 	}
 	fixed_array(bool a, const fixed_array<bool, 2>& b, bool d) :
-		data(a ? 0x01 : 0x00)
+		data(detail::or_bit(a, 0) | ((b.data & 0x03) << 1) | detail::or_bit(d, 3))
 	{
-		data |= b.data << 1;
-		if (d)
-		{
-			data |= 0x08;
-		}
+
 	}
 	fixed_array(bool a, bool b, fixed_array<bool, 2>& c) :
-		data(a ? 0x01 : 0x00)
+		data(detail::or_bit(a, 0) | detail::or_bit(b, 1) | ((c.data & 0x03) << 2))
 	{
-		if (b)
-		{
-			data |= 0x02;
-		}
-		data |= c.data << 2;
+
 	}
 	fixed_array(const fixed_array<bool, 3>& a, bool b) :
-		data(a.data)
+		data((a.data & 0x07) | detail::or_bit(b, 3))
 	{
-		if (b)
-		{
-			data |= 0x08;
-		}
+
 	}
 	fixed_array(bool a, const fixed_array<bool, 3>& b) :
-		data(a ? 0x01 : 0x00)
+		data(detail::or_bit(a, 0) | ((b.data & 0x07) << 1))
 	{
-		data |= b.data << 1;
+
 	}
 
 	bool all() const
@@ -713,19 +668,19 @@ fixed_array<T, 3>& fixed_array<T, 3>::operator = (const fixed_array<T, 4>& a)
 
 inline
 fixed_array<bool, 2>::fixed_array(const fixed_array<bool, 3>& a) :
-	data(a.data & ~0x04)
+	data(a.data & 0x03)
 {
 
 }
 inline
 fixed_array<bool, 2>::fixed_array(const fixed_array<bool, 4>& a) :
-	data(a.data & ~0x0C)
+	data(a.data & 0x03)
 {
 
 }
 inline
 fixed_array<bool, 3>::fixed_array(const fixed_array<bool, 4>& a) :
-	data(a.data & ~0x08)
+	data(a.data & 0x07)
 {
 
 }

@@ -230,7 +230,7 @@ struct color
 		a = math_type::clamp01(a);
 		return *this;
 	}
-	color& saturated(color& result) const
+	color& saturate(color& result) const
 	{
 		result.r = math_type::clamp01(r);
 		result.g = math_type::clamp01(g);
