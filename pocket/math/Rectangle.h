@@ -8,9 +8,9 @@
 
 #include "../behavior.h"
 #include "../debug.h"
-#include "array.h"
-#include "Math.h"
-#include "Vector2.h"
+#include "../container/array.h"
+#include "math_traits.h"
+#include "vector2.h"
 #ifdef _USING_MATH_IO
 #include "../io.h"
 #endif // _USING_MATH_IO
@@ -18,40 +18,26 @@
 namespace pocket
 {
 
-template <typename> struct Range;
-template <typename> struct Rectangle;
+template <typename> struct range;
+template <typename> struct rectangle;
 
 #ifndef _UNUSING_MATH_INT_FLOAT
-typedef Range<int> Rangei;
-typedef Range<float> Rangef;
-typedef Rectangle<int> Rectanglei;
-typedef Rectangle<float> Rectanglef;
+typedef range<int> rangei;
+typedef range<float> rangef;
+typedef rectangle<int> rectanglei;
+typedef rectangle<float> rectanglef;
 #endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
-typedef Range<double> Ranged;
-typedef Rectangle<double> Rectangled;
+typedef range<double> ranged;
+typedef rectangle<double> rectangled;
 #endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
-typedef Range<long double> Rangeld;
-typedef Rectangle<long double> Rectangleld;
+typedef range<long double> rangeld;
+typedef rectangle<long double> rectangleld;
 #endif // _USING_MATH_LONG_DOUBLE
 
-#ifdef _USE_CXX11
 template <typename T>
-using rect = Rectangle<T>;
-#ifndef _UNUSING_MATH_INT_FLOAT
-using rectf = rect<float>;
-#endif // _UNUSING_MATH_INT_FLOAT
-#ifdef _USING_MATH_DOUBLE
-using rectd = rect<double>;
-#endif // _USING_MATH_DOUBLE
-#ifdef _USING_MATH_LONG_DOUBLE
-using rectld = rect<long double>;
-#endif // _USING_MATH_LONG_DOUBLE
-#endif // _USE_CXX11
-
-template <typename T>
-struct Range
+struct range
 {
 	_MATH_STATICAL_ASSERT(T);
 
@@ -59,7 +45,7 @@ struct Range
 	* Types
 	*------------------------------------------------------------------------------------------*/
 
-	typedef Math<T> math_type;
+	typedef math_traits<T> math_type;
 
 	typedef container::array<T, 2> array_type;
 	typedef typename array_type::value_type value_type;
@@ -81,41 +67,41 @@ struct Range
 		{
 #endif // _USE_ANONYMOUS
 
-			T Min;
-			T Max;
+			T minimum;
+			T maximum;
 
 #ifdef _USE_ANONYMOUS
 		};
 
-		array_type Data;
+		array_type data;
 	};
 #endif // _USE_ANONYMOUS
 
-	template <typename> friend struct Range;
+	template <typename> friend struct range;
 
 	/*-----------------------------------------------------------------------------------------
 	* Constantors
 	*-----------------------------------------------------------------------------------------*/
 
-	// None
+	// none
 
 	/*------------------------------------------------------------------------------------------
 	* Constantors
 	*------------------------------------------------------------------------------------------*/
 
-	_DEFAULT_CONSTRUCTOR(Range);
-	explicit Range(const behavior::_noinitialize_t&)
+	_DEFAULT_CONSTRUCTOR(range);
+	explicit range(const behavior::_noinitialize_t&)
 	{
 
 	}
-	Range(T min, T max) :
-		Min(min), Max(max)
+	range(T min, T max) :
+		minimum(min), maximum(max)
 	{
 
 	}
 	template <typename U>
-	Range(const Range<U>& r) :
-		Min(static_cast<T>(r.Min)), Max(static_cast<T>(r.Max))
+	range(const range<U>& r) :
+		minimum(static_cast<T>(r.minimum)), maximum(static_cast<T>(r.maximum))
 	{
 
 	}
@@ -123,8 +109,8 @@ struct Range
 		_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U),
 		_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U1)
 	>
-		Range(U min, U1 max) :
-		Min(static_cast<T>(min)), Max(static_cast<T>(max))
+		range(U min, U1 max) :
+		minimum(static_cast<T>(min)), maximum(static_cast<T>(max))
 	{
 
 	}
@@ -138,18 +124,18 @@ struct Range
 	*---------------------------------------------------------------------*/
 	bool is_in_range(T f) const
 	{
-		return f >= Min && f <= Max;
+		return f >= minimum && f <= maximum;
 	}
-	bool is_in_range(const Range& r) const
+	bool is_in_range(const range& r) const
 	{
-		return Min <= r.Min && Max >= r.Max;
+		return minimum <= r.minimum && maximum >= r.maximum;
 	}
 	/*---------------------------------------------------------------------
 	* 最大と最小の差を求める
 	*---------------------------------------------------------------------*/
 	T difference() const
 	{
-		return Max - Min;
+		return maximum - minimum;
 	}
 
 	/*------------------------------------------------------------------------------------------
@@ -163,18 +149,18 @@ struct Range
 	{
 		_DEB_RANGE_ASSERT(i, 0, 1);
 #ifdef _USE_ANONYMOUS
-		return Data[i];
+		return data[i];
 #else
-		return (&Min)[i];
+		return (&minimum)[i];
 #endif // _USE_ANONYMOUS
 	}
 	const T& operator [] (int i) const
 	{
 		_DEB_RANGE_ASSERT(i, 0, 1);
 #ifdef _USE_ANONYMOUS
-		return Data[i];
+		return data[i];
 #else
-		return (&Min)[i];
+		return (&minimum)[i];
 #endif // _USE_ANONYMOUS
 	}
 
@@ -182,35 +168,35 @@ struct Range
 	* 型変換演算子
 	*---------------------------------------------------------------------*/
 	template <typename U>
-	_CXX11_EXPLICIT operator Range<U>() const
+	_CXX11_EXPLICIT operator range<U>() const
 	{
-		return Range<U>(static_cast<U>(Min), static_cast<U>(Max));
+		return range<U>(static_cast<U>(minimum), static_cast<U>(maximum));
 	}
 	_CXX11_EXPLICIT operator T* ()
 	{
 #ifdef _USE_ANONYMOUS
-		return &Data[0];
+		return &data[0];
 #else
-		return &Min;
+		return &minimum;
 #endif // _USE_ANONYMOUS
 	}
 	_CXX11_EXPLICIT operator const T* () const
 	{
 #ifdef _USE_ANONYMOUS
-		return &Data[0];
+		return &data[0];
 #else
-		return &Min;
+		return &minimum;
 #endif // _USE_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------
 	* 比較演算子
 	*---------------------------------------------------------------------*/
-	bool operator == (const Range& r) const
+	bool operator == (const range& r) const
 	{
-		return Min == r.Min && Max == r.Max;
+		return minimum == r.minimum && maximum == r.maximum;
 	}
-	bool operator != (const Range& r) const
+	bool operator != (const range& r) const
 	{
 		return !(*this == r);
 	}
@@ -218,37 +204,37 @@ struct Range
 
 #ifdef _USING_MATH_IO
 template <typename CharT, typename CharTraits, typename T> inline
-std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const Range<T>& r)
+std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const range<T>& r)
 {
-	// (Min, Max)
-	os << out_char::parentheses_left << r.Min << out_char::comma_space
-		<< r.Max << out_char::parentheses_right;
+	// (minimum, maximum)
+	os << io::parentheses_left << r.minimum << io::comma_space
+		<< r.maximum << io::parentheses_right;
 	return os;
 }
 template <typename CharT, typename CharTraits, typename T> inline
-std::basic_istream<CharT, CharTraits>& operator >> (std::basic_istream<CharT, CharTraits>& is, Range<T>& r)
+std::basic_istream<CharT, CharTraits>& operator >> (std::basic_istream<CharT, CharTraits>& is, range<T>& r)
 {
 	is.ignore();
-	is >> r.Min;
+	is >> r.minimum;
 	is.ignore();
-	is >> r.Max;
+	is >> r.maximum;
 	is.ignore();
 	return is;
 }
 template <typename CharT, typename CharTraits, typename T> inline
-std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, CharTraits>& os, const Range<T>& r)
+std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, CharTraits>& os, const range<T>& r)
 {
-	os << out_char::parentheses_left << r.Min << out_char::comma_space
-		<< r.Max << out_char::parentheses_right;
+	os << io::parentheses_left << r.minimum << io::comma_space
+		<< r.maximum << io::parentheses_right;
 	return os;
 }
 template <typename CharT, typename CharTraits, typename T> inline
-std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, CharTraits>& is, Range<T>& r)
+std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, CharTraits>& is, range<T>& r)
 {
 	is.ignore();
-	is >> r.Min;
+	is >> r.minimum;
 	is.ignore();
-	is >> r.Max;
+	is >> r.maximum;
 	is.ignore();
 	return is;
 }
@@ -256,7 +242,7 @@ std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, 
 
 
 template <typename T>
-struct Rectangle
+struct rectangle
 {
 	_MATH_STATICAL_ASSERT(T);
 
@@ -264,7 +250,8 @@ struct Rectangle
 	* Types
 	*------------------------------------------------------------------------------------------*/
 
-	typedef Math<T> math_type;
+	typedef math_traits<T> math_type;
+	typedef range<T> range_type;
 
 	typedef container::array<T, 4> array_type;
 	typedef typename array_type::value_type value_type;
@@ -286,59 +273,59 @@ struct Rectangle
 		{
 #endif // _USE_ANONYMOUS_NON_POD
 
-			Range<T> X;
-			Range<T> Y;
+			range_type x;
+			range_type y;
 
 #ifdef _USE_ANONYMOUS_NON_POD
 		};
 
-		array_type Data;
+		array_type data;
 	};
 #endif // _USE_ANONYMOUS_NON_POD
 
-	template <typename> friend struct Rectangle;
+	template <typename> friend struct rectangle;
 
 	/*-----------------------------------------------------------------------------------------
 	* Constants
 	*-----------------------------------------------------------------------------------------*/
 
-	// None
+	// none
 
 	/*------------------------------------------------------------------------------------------
 	* Constantors
 	*------------------------------------------------------------------------------------------*/
 
-	_DEFAULT_CONSTRUCTOR(Rectangle);
-	explicit Rectangle(const behavior::_noinitialize_t&)
+	_DEFAULT_CONSTRUCTOR(rectangle);
+	explicit rectangle(const behavior::_noinitialize_t&)
 	{
 
 	}
-	Rectangle(T l, T r, T t, T b) :
-		X(l, r), Y(t, b)
+	rectangle(T l, T r, T t, T b) :
+		x(l, r), y(t, b)
 	{
 
 	}
-	Rectangle(T r, T b) :
-		X(Math<T>::Zero, r), Y(Math<T>::Zero, b)
+	rectangle(T r, T b) :
+		x(math_type::zero, r), y(math_type::zero, b)
 	{
 
 	}
-	Rectangle(const Range<T>& x, const Range<T>& y) :
-		X(x), Y(y)
-	{
-
-	}
-	template <typename U>
-	Rectangle(const Rectangle<U>& r) :
-		X(static_cast<Range<T> >(r.X)),
-		Y(static_cast<Range<T> >(r.Y))
+	rectangle(const range_type& x, const range_type& y) :
+		x(x), y(y)
 	{
 
 	}
 	template <typename U>
-	Rectangle(const Range<U>& x, const Range<U>& y) :
-		X(static_cast<Range<T> >(x)),
-		Y(static_cast<Range<T> >(y))
+	rectangle(const rectangle<U>& r) :
+		x(static_cast<range_type>(r.x)),
+		y(static_cast<range_type>(r.y))
+	{
+
+	}
+	template <typename U>
+	rectangle(const range<U>& x, const range<U>& y) :
+		x(static_cast<range<T> >(x)),
+		y(static_cast<range<T> >(y))
 	{
 
 	}
@@ -348,9 +335,14 @@ struct Rectangle
 		_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U2),
 		_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U3)
 	>
-		Rectangle(U l, U1 r, U2 t, U3 b) :
-		X(static_cast<T>(l), static_cast<T>(r)),
-		Y(static_cast<T>(t), static_cast<T>(b))
+		rectangle(U l, U1 r, U2 t, U3 b) :
+		x(static_cast<T>(l), static_cast<T>(r)),
+		y(static_cast<T>(t), static_cast<T>(b))
+	{
+
+	}
+	rectangle(const vector2<T>& x, const vector2<T>& y) :
+		x(x.x, y.x), y(x.y, y.y)
 	{
 
 	}
@@ -362,13 +354,13 @@ struct Rectangle
 	/*---------------------------------------------------------------------
 	* 範囲に入っているか
 	*---------------------------------------------------------------------*/
-	bool is_in_inside(const Vector2<T>& v) const
+	bool is_in_inside(const vector2<T>& v) const
 	{
-		return X.is_in_range(v.X) && Y.is_in_range(v.Y);
+		return x.is_in_range(v.x) && y.is_in_range(v.y);
 	}
-	bool is_in_inside(const Rectangle& r) const
+	bool is_in_inside(const rectangle& r) const
 	{
-		return X.is_in_range(r.X) && Y.is_in_range(r.Y);
+		return x.is_in_range(r.x) && y.is_in_range(r.y);
 	}
 
 	/*---------------------------------------------------------------------
@@ -376,51 +368,51 @@ struct Rectangle
 	*---------------------------------------------------------------------*/
 	T aspect() const
 	{
-		return X.difference() / Y.difference();
+		return x.difference() / y.difference();
 	}
 	/*---------------------------------------------------------------------
-	* X方向の差を求める
+	* x方向の差を求める
 	*---------------------------------------------------------------------*/
 	T difference_x() const
 	{
-		return X.difference();
+		return x.difference();
 	}
 	/*---------------------------------------------------------------------
-	* Y方向の差を求める
+	* y方向の差を求める
 	*---------------------------------------------------------------------*/
 	T difference_y() const
 	{
-		return Y.difference();
+		return y.difference();
 	}
 
-	const Range<T>& range_x() const
+	const range<T>& range_x() const
 	{
-		return X;
+		return x;
 	}
-	const Range<T>& range_y() const
+	const range<T>& range_y() const
 	{
-		return Y;
+		return y;
 	}
 
 	// 左上の座標取得
-	Vector2<T> left_top() const
+	vector2<T> left_top() const
 	{
-		return Vector2<T>(X.Min, Y.Min);
+		return vector2<T>(x.minimum, y.minimum);
 	}
 	// 左下の座標取得
-	Vector2<T> left_bottom() const
+	vector2<T> left_bottom() const
 	{
-		return Vector2<T>(X.Min, Y.Max);
+		return vector2<T>(x.minimum, y.maximum);
 	}
 	// 右上の座標取得
-	Vector2<T> right_top() const
+	vector2<T> right_top() const
 	{
-		return Vector2<T>(X.Max, Y.Min);
+		return vector2<T>(x.maximum, y.minimum);
 	}
 	// 右下の座標取得
-	Vector2<T> right_bottom() const
+	vector2<T> right_bottom() const
 	{
-		return Vector2<T>(X.Max, X.Max);
+		return vector2<T>(x.maximum, x.maximum);
 	}
 
 	/*------------------------------------------------------------------------------------------
@@ -434,18 +426,18 @@ struct Rectangle
 	{
 		_DEB_RANGE_ASSERT(i, 0, 3);
 #ifdef _USE_ANONYMOUS_NON_POD
-		return Data[i];
+		return data[i];
 #else
-		return (&X.Min)[i];
+		return (&x.minimum)[i];
 #endif // _USE_ANONYMOUS_NON_POD
 	}
 	const T& operator [] (int i) const
 	{
 		_DEB_RANGE_ASSERT(i, 0, 3);
 #ifdef _USE_ANONYMOUS_NON_POD
-		return Data[i];
+		return data[i];
 #else
-		return (&X.Min)[i];
+		return (&x.minimum)[i];
 #endif // _USE_ANONYMOUS_NON_POD
 	}
 
@@ -453,35 +445,36 @@ struct Rectangle
 	* 型変換演算子
 	*---------------------------------------------------------------------*/
 	template <typename U>
-	_CXX11_EXPLICIT operator Rectangle<U>() const
+	_CXX11_EXPLICIT operator rectangle<U>() const
 	{
-		return Rectangle<U>(static_cast<Range<U> >(X), static_cast<Range<U> >(Y));
+		typedef range<U> other_range_type;
+		return rectangle<U>(static_cast<other_range_type>(x), static_cast<other_range_type>(y));
 	}
 	_CXX11_EXPLICIT operator T* ()
 	{
 #ifdef _USE_ANONYMOUS_NON_POD
-		return &Data[0];
+		return &data[0];
 #else
-		return &X.Min;
+		return &x.minimum;
 #endif // _USE_ANONYMOUS_NON_POD
 	}
 	_CXX11_EXPLICIT operator const T* () const
 	{
 #ifdef _USE_ANONYMOUS_NON_POD
-		return &Data[0];
+		return &data[0];
 #else
-		return &X.Min;
+		return &x.minimum;
 #endif // _USE_ANONYMOUS_NON_POD
 	}
 
 	/*---------------------------------------------------------------------
 	* 比較演算子
 	*---------------------------------------------------------------------*/
-	bool operator == (const Rectangle& r) const
+	bool operator == (const rectangle& r) const
 	{
-		return X == r.X && Y == r.Y;
+		return x == r.x && y == r.y;
 	}
-	bool operator != (const Rectangle& r) const
+	bool operator != (const rectangle& r) const
 	{
 		return !(*this == r);
 	}
@@ -489,36 +482,36 @@ struct Rectangle
 
 #ifdef _USING_MATH_IO
 template <typename CharT, typename CharTraits, typename T> inline
-std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const Rectangle<T>& r)
+std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const rectangle<T>& r)
 {
-	os << out_char::parentheses_left << r.X << out_char::comma_space
-		<< r.Y << out_char::parentheses_right;
+	os << io::parentheses_left << r.x << io::comma_space
+		<< r.y << io::parentheses_right;
 	return os;
 }
 template <typename CharT, typename CharTraits, typename T> inline
-std::basic_istream<CharT, CharTraits>& operator >> (std::basic_istream<CharT, CharTraits>& is, Rectangle<T>& r)
+std::basic_istream<CharT, CharTraits>& operator >> (std::basic_istream<CharT, CharTraits>& is, rectangle<T>& r)
 {
 	is.ignore();
-	is >> r.X;
+	is >> r.x;
 	is.ignore();
-	is >> r.Y;
+	is >> r.y;
 	is.ignore();
 	return is;
 }
 template <typename CharT, typename CharTraits, typename T> inline
-std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, CharTraits>& os, const Rectangle<T>& r)
+std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, CharTraits>& os, const rectangle<T>& r)
 {
-	os << out_char::parentheses_left << r.X << out_char::comma_space
-		<< r.Y << out_char::parentheses_right;
+	os << io::parentheses_left << r.x << io::comma_space
+		<< r.y << io::parentheses_right;
 	return os;
 }
 template <typename CharT, typename CharTraits, typename T> inline
-std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, CharTraits>& is, Rectangle<T>& r)
+std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, CharTraits>& is, rectangle<T>& r)
 {
 	is.ignore();
-	is >> r.X;
+	is >> r.x;
 	is.ignore();
-	is >> r.Y;
+	is >> r.y;
 	is.ignore();
 	return is;
 }

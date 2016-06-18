@@ -8,10 +8,10 @@
 
 #include "../behavior.h"
 #include "../debug.h"
-#include "array.h"
-#include "Math.h"
-#include "Vector3.h"
-#include "Vector4.h"
+#include "../container/array.h"
+#include "math_traits.h"
+#include "vector3.h"
+#include "vector4.h"
 #ifdef _USING_MATH_IO
 #include "io.h"
 #endif // _USING_MATH_IO
@@ -19,36 +19,22 @@
 namespace pocket
 {
 
-template <typename> struct Quaternion;
-template <typename> struct Matrix3x3;
-template <typename> struct Matrix4x4;
+template <typename> struct quaternion;
+template <typename> struct matrix3x3;
+template <typename> struct matrix4x4;
 
 #ifndef _UNUSING_MATH_INT_FLOAT
-typedef Quaternion<float> Quaternionf;
+typedef quaternion<float> quaternionf;
 #endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
-typedef Quaternion<double> Quaterniond;
+typedef quaternion<double> quaterniond;
 #endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
-typedef Quaternion<long double> Quaternionld;
+typedef quaternion<long double> quaternionld;
 #endif // _USING_MATH_LONG_DOUBLE
 
-#ifdef _USE_CXX11
 template <typename T>
-using quat = Quaternion<T>;
-#ifndef _UNUSING_MATH_INT_FLOAT
-using quatf = quat<float>;
-#endif // _UNUSING_MATH_INT_FLOAT
-#ifdef _USING_MATH_DOUBLE
-using quatd = quat<double>;
-#endif // _USING_MATH_DOUBLE
-#ifdef _USING_MATH_LONG_DOUBLE
-using quatld = quat<long double>;
-#endif // _USING_MATH_LONG_DOUBLE
-#endif // _USE_CXX11
-
-template <typename T>
-struct Quaternion
+struct quaternion
 {
 	_MATH_STATICAL_ASSERT_FLOATING(T);
 
@@ -56,7 +42,7 @@ struct Quaternion
 	* Types
 	*-----------------------------------------------------------------------------------------*/
 
-	typedef Math<T> math_type;
+	typedef math_traits<T> math_type;
 
 	typedef container::array<T, 4> array_type;
 	typedef typename array_type::value_type value_type;
@@ -78,63 +64,63 @@ struct Quaternion
 		{
 #endif // _USE_ANONYMOUS
 
-			T X; // X軸、虚部
-			T Y; // Y軸、虚部
-			T Z; // Z軸、虚部
-			T W; // 回転量、実部
+			T x; // x軸、虚部
+			T y; // y軸、虚部
+			T z; // z軸、虚部
+			T w; // 回転量、実部
 
 #ifdef _USE_ANONYMOUS
 		};
-		array_type Data;
+		array_type data;
 	};
 #endif // _USE_ANONYMOUS
 
-	template <typename> friend struct Quaternion;
+	template <typename> friend struct quaternion;
 
 	/*-----------------------------------------------------------------------------------------
 	* Constants
 	*-----------------------------------------------------------------------------------------*/
 
-	static const T ErrorSlerp; // 0.001, 誤差
-	static const Quaternion Zero; // 0.0, 0.0, 0.0, 0.0
-	static const Quaternion Identity; // 0.0, 0.0, 0.0, 1.0
+	static const T error_slerp_value; // 0.001, 誤差
+	static const quaternion zero; // 0.0, 0.0, 0.0, 0.0
+	static const quaternion identity; // 0.0, 0.0, 0.0, 1.0
 
 	/*-----------------------------------------------------------------------------------------
 	* Constructors
 	*-----------------------------------------------------------------------------------------*/
 
-	_DEFAULT_CONSTRUCTOR(Quaternion);
-	explicit Quaternion(const behavior::_noinitialize_t&)
+	_DEFAULT_CONSTRUCTOR(quaternion);
+	explicit quaternion(const behavior::_noinitialize_t&)
 	{
 
 	}
-	explicit Quaternion(const behavior::_zero_t&) :
-		X(math_type::Zero), Y(math_type::Zero), Z(math_type::Zero),
-		W(math_type::Zero)
+	explicit quaternion(const behavior::_zero_t&) :
+		x(math_type::zero), y(math_type::zero), z(math_type::zero),
+		w(math_type::zero)
 	{
 
 	}
-	explicit Quaternion(const behavior::_identity_t&) :
-		X(math_type::Zero), Y(math_type::Zero), Z(math_type::Zero),
-		W(math_type::One)
+	explicit quaternion(const behavior::_identity_t&) :
+		x(math_type::zero), y(math_type::zero), z(math_type::zero),
+		w(math_type::one)
 	{
 
 	}
-	Quaternion(T x, T y, T z, T w) :
-		X(x), Y(y), Z(z), W(w)
+	quaternion(T x, T y, T z, T w) :
+		x(x), y(y), z(z), w(w)
 	{
 
 	}
-	explicit Quaternion(T f) :
-		X(f), Y(f), Z(f), W(f)
+	explicit quaternion(T f) :
+		x(f), y(f), z(f), w(f)
 	{
 
 	}
-	explicit Quaternion(const Vector3<T>& axis, T deg)
+	explicit quaternion(const vector3<T>& axis, T deg)
 	{
 		from_axis(axis, deg);
 	}
-	explicit Quaternion(const Matrix4x4<T>& m)
+	explicit quaternion(const matrix4x4<T>& m)
 	{
 		from_matrix(m);
 	}
@@ -146,76 +132,75 @@ struct Quaternion
 	/*---------------------------------------------------------------------
 	* 足し算
 	*---------------------------------------------------------------------*/
-	Quaternion& add(const Quaternion& q, Quaternion& result) const
+	quaternion& add(const quaternion& q, quaternion& result) const
 	{
-		result.X = X + q.X;
-		result.Y = Y + q.Y;
-		result.Z = Z + q.Z;
-		result.W = W + q.W;
+		result.x = x + q.x;
+		result.y = y + q.y;
+		result.z = z + q.z;
+		result.w = w + q.w;
 		return result;
 	}
 	/*---------------------------------------------------------------------
 	* 引き算
 	*---------------------------------------------------------------------*/
-	Quaternion& subtract(const Quaternion& q, Quaternion& result) const
+	quaternion& subtract(const quaternion& q, quaternion& result) const
 	{
-		result.X = X - q.X;
-		result.Y = Y - q.Y;
-		result.Z = Z - q.Z;
-		result.W = W - q.W;
+		result.x = x - q.x;
+		result.y = y - q.y;
+		result.z = z - q.z;
+		result.w = w - q.w;
 		return result;
 	}
 	/*---------------------------------------------------------------------
 	* 掛け算
 	*---------------------------------------------------------------------*/
-	Quaternion& multiply(T f, Quaternion& result) const
+	quaternion& multiply(T f, quaternion& result) const
 	{
-		result.X = X * f;
-		result.Y = Y * f;
-		result.Z = Z * f;
-		result.W = W * f;
+		result.x = x * f;
+		result.y = y * f;
+		result.z = z * f;
+		result.w = w * f;
 		return result;
 	}
-	Quaternion& multiply(const Quaternion& q, Quaternion& result) const
+	quaternion& multiply(const quaternion& q, quaternion& result) const
 	{
-		// W -> W要素と内積、XYZ -> 外積*W
-		// (W*q.W - V・q.V, (W * q.V) + (q.W * V) + (V×q.V))
-		result.X = W * q.X + X * q.W + Y * q.Z - Z * q.Y;
-		result.Y = W * q.Y - X * q.Z + Y * q.W + Z * q.X;
-		result.Z = W * q.Z + X * q.Y - Y * q.X + Z * q.W;
-		result.W = W * q.W - X * q.X - Y * q.Y - Z * q.Z;
+		// w -> w要素と内積、XYZ -> 外積*w
+		// (w*q.w - V・q.V, (w * q.V) + (q.w * V) + (V×q.V))
+		result.x = w * q.x + x * q.w + y * q.z - z * q.y;
+		result.y = w * q.y - x * q.z + y * q.w + z * q.x;
+		result.z = w * q.z + x * q.y - y * q.x + z * q.w;
+		result.w = w * q.w - x * q.x - y * q.y - z * q.z;
 		return result;
 	}
 	/*---------------------------------------------------------------------
 	* 割り算
 	*---------------------------------------------------------------------*/
-	Quaternion& divide(T f, Quaternion& result) const
+	quaternion& divide(T f, quaternion& result) const
 	{
-		_DEB_ASSERT(f != math_type::Zero);
-		f = math_type::One / f;
-		return multiply(f, result);
+		_DEB_ASSERT(f != math_type::zero);
+		return multiply(math_type::reciprocal(f), result);
 	}
 
 	/*---------------------------------------------------------------------
 	* 値が近いか
 	*---------------------------------------------------------------------*/
-	bool is_near(const Quaternion& q) const
+	bool is_near(const quaternion& q) const
 	{
-		return (math_type::is_near(X, q.X) && math_type::is_near(Y, q.Y) && math_type::is_near(Z, q.Z) && math_type::is_near(W, q.W));
+		return (math_type::is_near(x, q.x) && math_type::is_near(y, q.y) && math_type::is_near(z, q.z) && math_type::is_near(w, q.w));
 	}
 	/*---------------------------------------------------------------------
 	* 値がゼロに近いか
 	*---------------------------------------------------------------------*/
 	bool is_near_zero() const
 	{
-		return (math_type::is_near_zero(X) && math_type::is_near_zero(Y) && math_type::is_near_zero(Z) && math_type::is_near_zero(W));
+		return (math_type::is_near_zero(x) && math_type::is_near_zero(y) && math_type::is_near_zero(z) && math_type::is_near_zero(w));
 	}
 	/*---------------------------------------------------------------------
 	* 値がゼロか
 	*---------------------------------------------------------------------*/
 	bool is_zero() const
 	{
-		return (X == math_type::Zero && Y == math_type::Zero && Z == math_type::Zero && W == math_type::Zero);
+		return (x == math_type::zero && y == math_type::zero && z == math_type::zero && w == math_type::zero);
 	}
 
 	/*---------------------------------------------------------------------
@@ -223,109 +208,108 @@ struct Quaternion
 	*---------------------------------------------------------------------*/
 	bool is_near_identity() const
 	{
-		return is_near(Quaternion::Identity);
+		return is_near(quaternion::identity);
 	}
 
 	/*---------------------------------------------------------------------
 	* 任意軸と角度から求める
 	*---------------------------------------------------------------------*/
-	Quaternion& from_axis(const Vector3<T>& axis, T deg)
+	quaternion& from_axis(const vector3<T>& axis, T deg)
 	{
 		// 軸ベクトルは正規化されていなければいけない
 
 		// 値を半分
-		deg *= math_type::Half;
+		deg *= math_type::half;
 		T s = math_type::sin(deg);
 
-		X = axis.X * s;
-		Y = axis.Y * s;
-		Z = axis.Z * s;
-		W = math_type::cos(deg);
+		x = axis.x * s;
+		y = axis.y * s;
+		z = axis.z * s;
+		w = math_type::cos(deg);
 		return *this;
 	}
 	/*---------------------------------------------------------------------
 	* 行列から求める
 	*---------------------------------------------------------------------*/
-	Quaternion& from_matrix(const Matrix3x3<T>&); // Matrix3x3.h
-	Quaternion& from_matrix(const Matrix4x4<T>&); // Matrix4x4.h
+	quaternion& from_matrix(const matrix3x3<T>&); // matrix3x3.h
+	quaternion& from_matrix(const matrix4x4<T>&); // matrix4x4.h
 
 	/*---------------------------------------------------------------------
 	* 単位クォータニオンにする
 	*---------------------------------------------------------------------*/
-	Quaternion& load_identity()
+	quaternion& load_identity()
 	{
-		*this = Quaternion::Identity;
+		*this = quaternion::identity;
 		return *this;
 	}
 	/*---------------------------------------------------------------------
 	* 共役クォータニオンにする
 	*---------------------------------------------------------------------*/
-	Quaternion& conjugate()
+	quaternion& conjugate()
 	{
 		// それぞれをただ反転させるのみ
-		X = -X;
-		Y = -Y;
-		Z = -Z;
+		x = -x;
+		y = -y;
+		z = -z;
 		return *this;
+	}
+	quaternion& conjugate(quaternion& result) const
+	{
+		result.x = -x;
+		result.y = -y;
+		result.z = -z;
+		result.w = w;
+		return result;
 	}
 	/*---------------------------------------------------------------------
 	* 共役クォータニオンを求める
 	*---------------------------------------------------------------------*/
-	Quaternion conjugated() const
+	quaternion conjugated() const
 	{
-		return Quaternion(-X, -Y, -Z, W);
-	}
-	Quaternion& conjugated(Quaternion& result) const
-	{
-		result.X = -X;
-		result.Y = -Y;
-		result.Z = -Z;
-		result.W = W;
-		return result;
+		return quaternion(-x, -y, -z, w);
 	}
 	/*---------------------------------------------------------------------
 	* 逆クォータニオンにする
 	*---------------------------------------------------------------------*/
-	bool inverse()
+	quaternion inverse()
 	{
 		T len = length_sq();
 		if (math_type::is_near_zero(len))
 		{
-			return false;
+			return *this;
 		}
 
 		len = math_type::reciprocal(len);
-		X = -X * len;
-		Y = -Y * len;
-		Z = -Z * len;
-		W = W * len;
+		x = -x * len;
+		y = -y * len;
+		z = -z * len;
+		w = w * len;
 
-		return true;
+		return *this;
+	}
+	quaternion& inverse(quaternion& result) const
+	{
+		T len = length_sq();
+		if (math_type::is_near_zero(len))
+		{
+			return result.load_identity();
+		}
+
+		len = math_type::reciprocal(len);
+		result.x = -x * len;
+		result.y = -y * len;
+		result.z = -z * len;
+		result.w = w * len;
+
+		return result;
 	}
 	/*---------------------------------------------------------------------
 	* 逆クォータニオンを求める
 	*---------------------------------------------------------------------*/
-	Quaternion inversed() const
+	quaternion inversed() const
 	{
-		Quaternion r(behavior::noinitialize);
-		inversed(r);
-		return r;
-	}
-	bool inversed(Quaternion& result) const
-	{
-		T len = length_sq();
-		if (math_type::is_near_zero(len))
-		{
-			return false;
-		}
-
-		len = math_type::reciprocal(len);
-		result.X = -X * len;
-		result.Y = -Y * len;
-		result.Z = -Z * len;
-		result.W = W * len;
-
-		return true;
+		quaternion r(behavior::noinitialize);
+		return inverse(r);
 	}
 	/*---------------------------------------------------------------------
 	* 保持している回転量を求める
@@ -333,22 +317,22 @@ struct Quaternion
 	T angle() const
 	{
 		// コサインで求めるのでその逆
-		return math_type::acos(W) * math_type::Two;
+		return math_type::acos(w) * math_type::two;
 	}
 	/*---------------------------------------------------------------------
 	* 保持している軸（ベクトル）を求める
 	*---------------------------------------------------------------------*/
-	Vector3<T> axis() const
+	vector3<T> axis() const
 	{
-		Vector3<T> r(behavior::noinitialize);
+		vector3<T> r(behavior::noinitialize);
 		return axis(r);
 	}
-	Vector3<T>& axis(Vector3<T>& result) const
+	vector3<T>& axis(vector3<T>& result) const
 	{
-		T as = math_type::asin(angle() * math_type::Half);
-		result.X = X * as;
-		result.Y = Y * as;
-		result.Z = Z * as;
+		T as = math_type::asin(angle() * math_type::half);
+		result.x = x * as;
+		result.y = y * as;
+		result.z = z * as;
 		return result;
 	}
 	/*---------------------------------------------------------------------
@@ -356,7 +340,7 @@ struct Quaternion
 	*---------------------------------------------------------------------*/
 	T length() const
 	{
-		return math_type::sqrt(dot(*this));
+		return math_type::sqrt(length_sq());
 	}
 	/*---------------------------------------------------------------------
 	* 長さを求める（二乗）
@@ -368,74 +352,74 @@ struct Quaternion
 	/*---------------------------------------------------------------------
 	* 内積を求める
 	*---------------------------------------------------------------------*/
-	T dot(const Quaternion& q) const
+	T dot(const quaternion& q) const
 	{
-		return X * q.X + Y * q.Y + Z * q.Z + W * q.W;
+		return x * q.x + y * q.y + z * q.z + w * q.w;
 	}
 	/*---------------------------------------------------------------------
 	* 正規化
 	*---------------------------------------------------------------------*/
-	Quaternion& normalize()
+	quaternion& normalize()
 	{
 		T len = length_sq();
-		if (len != math_type::Zero)
+		if (len > math_type::zero)
 		{
 			len = math_type::rsqrt(len);
-			X *= len;
-			Y *= len;
-			Z *= len;
-			W *= len;
+			x *= len;
+			y *= len;
+			z *= len;
+			w *= len;
 		}
 		return *this;
 	}
-	/*---------------------------------------------------------------------
-	* 正規化を求める
-	*---------------------------------------------------------------------*/
-	Quaternion normalized() const
-	{
-		Quaternion v(*this);
-		return v.normalize();
-	}
-	Quaternion& normalized(Quaternion& result) const
+	quaternion& normalize(quaternion& result) const
 	{
 		result = *this;
 		return result.normalize();
 	}
 	/*---------------------------------------------------------------------
+	* 正規化を求める
+	*---------------------------------------------------------------------*/
+	quaternion normalized() const
+	{
+		quaternion v(*this);
+		return v.normalize();
+	}
+	/*---------------------------------------------------------------------
 	* 線形補間
 	*---------------------------------------------------------------------*/
-	Quaternion lerp(const Quaternion& to, T t) const
+	quaternion lerp(const quaternion& to, T t) const
 	{
-		return Quaternion(math_type::lerp(X, to.X, t),
-			math_type::lerp(Y, to.Y, t),
-			math_type::lerp(Z, to.Z, t),
-			math_type::lerp(W, to.W, t));
+		return quaternion(math_type::lerp(x, to.x, t),
+			math_type::lerp(y, to.y, t),
+			math_type::lerp(z, to.z, t),
+			math_type::lerp(w, to.w, t));
 	}
-	Quaternion& lerp(const Quaternion& to, T t, Quaternion& result) const
+	quaternion& lerp(const quaternion& to, T t, quaternion& result) const
 	{
-		result.X = math_type::lerp(X, to.X, t);
-		result.Y = math_type::lerp(Y, to.Y, t);
-		result.Z = math_type::lerp(Z, to.Z, t);
-		result.W = math_type::lerp(W, to.W, t);
+		result.x = math_type::lerp(x, to.x, t);
+		result.y = math_type::lerp(y, to.y, t);
+		result.z = math_type::lerp(z, to.z, t);
+		result.w = math_type::lerp(w, to.w, t);
 		return result;
 	}
-	Quaternion& lerp(const Quaternion& from, const Quaternion& to, T t)
+	quaternion& lerp(const quaternion& from, const quaternion& to, T t)
 	{
 		return from.lerp(to, t, *this);
 	}
 	/*---------------------------------------------------------------------
 	* 球面線形補間
 	*---------------------------------------------------------------------*/
-	Quaternion slerp(const Quaternion& to, T t) const
+	quaternion slerp(const quaternion& to, T t) const
 	{
-		Quaternion result(behavior::noinitialize);
+		quaternion result(behavior::noinitialize);
 		return slerp(to, t, result);
 	}
-	Quaternion& slerp(const Quaternion& to, T t, Quaternion& result) const
+	quaternion& slerp(const quaternion& to, T t, quaternion& result) const
 	{
 		T c = dot(to);
-		Quaternion tmp(behavior::noinitialize);
-		if (c < math_type::Zero)
+		quaternion tmp(behavior::noinitialize);
+		if (c < math_type::zero)
 		{
 			c = -c;
 			tmp = -to;
@@ -444,12 +428,12 @@ struct Quaternion
 		{
 			tmp = to;
 		}
-		T k0 = math_type::One - t;
+		T k0 = math_type::one - t;
 		T k1 = t;
-		if ((math_type::One - c) > Quaternion::ErrorSlerp)
+		if ((math_type::one - c) > quaternion::error_slerp_value)
 		{
 			T theta = math_type::acos(c);
-			T s = math_type::One / math_type::sin(theta);
+			T s = math_type::one / math_type::sin(theta);
 			k0 = math_type::sin(theta * k0) * s;
 			k1 = math_type::sin(theta * k1) * s;
 		}
@@ -460,7 +444,7 @@ struct Quaternion
 
 		return result;
 	}
-	Quaternion& slerp(const Quaternion& from, const Quaternion& to, T t)
+	quaternion& slerp(const quaternion& from, const quaternion& to, T t)
 	{
 		return from.slerp(to, t, *this);
 	}
@@ -468,48 +452,48 @@ struct Quaternion
 	/*---------------------------------------------------------------------
 	* ベクトル回転
 	*---------------------------------------------------------------------*/
-	Vector3<T> rotate(const Vector3<T>& v) const
+	vector3<T> rotate(const vector3<T>& v) const
 	{
-		Vector3<T> r(behavior::noinitialize);
+		vector3<T> r(behavior::noinitialize);
 		return rotate(v, r);
 	}
-	Vector3<T>& rotate(const Vector3<T>& v, Vector3<T>& result) const
+	vector3<T>& rotate(const vector3<T>& v, vector3<T>& result) const
 	{
 		// Q * V * Q^: 右手
 		// Q^ * V * Q: 左手
 
-		Quaternion conj(-X, -Y, -Z, W), vq(v.X, v.Y, v.Z, math_type::Zero), calc(behavior::noinitialize);
+		quaternion conj(-x, -y, -z, w), vq(v.x, v.y, v.z, math_type::zero), calc(behavior::noinitialize);
 
 		conj.multiply(vq, calc);
 		calc.multiply(*this, vq);
 
 		// XYZに値が格納される
-		result.X = vq.X;
-		result.Y = vq.Y;
-		result.Z = vq.Z;
+		result.x = vq.x;
+		result.y = vq.y;
+		result.z = vq.z;
 
 		return result;
 	}
-	Vector4<T> rotate(const Vector4<T>& v) const
+	vector4<T> rotate(const vector4<T>& v) const
 	{
-		Vector4<T> r(behavior::noinitialize);
+		vector4<T> r(behavior::noinitialize);
 		return rotate(v, r);
 	}
-	Vector4<T>& rotate(const Vector4<T>& v, Vector4<T>& result) const
+	vector4<T>& rotate(const vector4<T>& v, vector4<T>& result) const
 	{
 		// Q * V * Q^: 右手
 		// Q^ * V * Q: 左手
 
-		Quaternion conj(-X, -Y, -Z, W), vq(v.X, v.Y, v.Z, math_type::Zero), calc(behavior::noinitialize);
+		quaternion conj(-x, -y, -z, w), vq(v.x, v.y, v.z, math_type::zero), calc(behavior::noinitialize);
 
 		conj.multiply(vq, calc);
 		calc.multiply(*this, vq);
 
 		// XYZに値が格納される
-		result.X = vq.X;
-		result.Y = vq.Y;
-		result.Z = vq.Z;
-		result.W = v.W;
+		result.x = vq.x;
+		result.y = vq.y;
+		result.z = vq.z;
+		result.w = v.w;
 
 		return result;
 	}
@@ -525,18 +509,18 @@ struct Quaternion
 	{
 		_DEB_RANGE_ASSERT(i, 0, 3);
 #ifdef _USE_ANONYMOUS
-		return Data[i];
+		return data[i];
 #else
-		return (&X)[i];
+		return (&x)[i];
 #endif // _USE_ANONYMOUS
 	}
 	const T& operator [] (int i) const
 	{
 		_DEB_RANGE_ASSERT(i, 0, 3);
 #ifdef _USE_ANONYMOUS
-		return Data[i];
+		return data[i];
 #else
-		return (&X)[i];
+		return (&x)[i];
 #endif // _USE_ANONYMOUS
 	}
 
@@ -544,40 +528,40 @@ struct Quaternion
 	* 型変換演算子
 	*---------------------------------------------------------------------*/
 	template <typename U>
-	_CXX11_EXPLICIT operator Quaternion<U>() const
+	_CXX11_EXPLICIT operator quaternion<U>() const
 	{
-		return Quaternion<U>(static_cast<U>(X), static_cast<U>(Y), static_cast<U>(Z), static_cast<U>(W));
+		return quaternion<U>(static_cast<U>(x), static_cast<U>(y), static_cast<U>(z), static_cast<U>(w));
 	}
-	_CXX11_EXPLICIT operator Vector3<T>() const
+	_CXX11_EXPLICIT operator vector3<T>() const
 	{
-		Vector3<T> r(behavior::noinitialize);
+		vector3<T> r(behavior::noinitialize);
 		return axis(r);
 	}
 	_CXX11_EXPLICIT operator T* ()
 	{
 #ifdef _USE_ANONYMOUS
-		return &Data[0];
+		return &data[0];
 #else
-		return &X;
+		return &x;
 #endif // _USE_ANONYMOUS
 	}
 	_CXX11_EXPLICIT operator const T* () const
 	{
 #ifdef _USE_ANONYMOUS
-		return &Data[0];
+		return &data[0];
 #else
-		return &X;
+		return &x;
 #endif // _USE_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------
 	* 比較演算子
 	*---------------------------------------------------------------------*/
-	bool operator == (const Quaternion& q) const
+	bool operator == (const quaternion& q) const
 	{
-		return (X == q.X) && (Y == q.Y) && (Z == q.Z) && (W == q.W);
+		return (x == q.x) && (y == q.y) && (z == q.z) && (w == q.w);
 	}
-	bool operator != (const Quaternion& q) const
+	bool operator != (const quaternion& q) const
 	{
 		return !(*this == q);
 	}
@@ -585,63 +569,63 @@ struct Quaternion
 	/*---------------------------------------------------------------------
 	* 単項演算子
 	*---------------------------------------------------------------------*/
-	Quaternion operator + () const
+	quaternion operator + () const
 	{
 		return *this;
 	}
-	Quaternion operator - () const
+	quaternion operator - () const
 	{
-		return Quaternion(-X, -Y, -Z, -W);
+		return quaternion(-x, -y, -z, -w);
 	}
 
 	/*---------------------------------------------------------------------
 	* 二項演算子
 	*---------------------------------------------------------------------*/
-	Quaternion operator + (const Quaternion& q) const
+	quaternion operator + (const quaternion& q) const
 	{
-		Quaternion result(behavior::noinitialize);
+		quaternion result(behavior::noinitialize);
 		return add(q, result);
 	}
-	Quaternion operator - (const Quaternion& q) const
+	quaternion operator - (const quaternion& q) const
 	{
-		Quaternion result(behavior::noinitialize);
+		quaternion result(behavior::noinitialize);
 		return subtract(q, result);
 	}
-	Quaternion operator * (T f) const
+	quaternion operator * (T f) const
 	{
-		Quaternion result(behavior::noinitialize);
+		quaternion result(behavior::noinitialize);
 		return multiply(f, result);
 	}
-	Quaternion operator * (const Quaternion& q) const
+	quaternion operator * (const quaternion& q) const
 	{
-		Quaternion result(behavior::noinitialize);
+		quaternion result(behavior::noinitialize);
 		return multiply(q, result);
 	}
-	Vector3<T> operator * (const Vector3<T>& v) const
+	vector3<T> operator * (const vector3<T>& v) const
 	{
-		Vector3<T> r(behavior::noinitialize);
+		vector3<T> r(behavior::noinitialize);
 		return rotate(v, r);
 	}
-	Vector4<T> operator * (const Vector4<T>& v) const
+	vector4<T> operator * (const vector4<T>& v) const
 	{
-		Vector4<T> r(behavior::noinitialize);
+		vector4<T> r(behavior::noinitialize);
 		return rotate(v, r);
 	}
-	Quaternion operator / (T f) const
+	quaternion operator / (T f) const
 	{
-		Quaternion result(behavior::noinitialize);
+		quaternion result(behavior::noinitialize);
 		return divide(f, result);
 	}
 
 	/*---------------------------------------------------------------------
 	* 代入演算子
 	*---------------------------------------------------------------------*/
-	Quaternion& operator = (const behavior::_zero_t&)
+	quaternion& operator = (const behavior::_zero_t&)
 	{
-		X = Y = Z = W = math_type::Zero;
+		x = y = z = w = math_type::zero;
 		return *this;
 	}
-	Quaternion& operator = (const behavior::_identity_t&)
+	quaternion& operator = (const behavior::_identity_t&)
 	{
 		return load_identity();
 	}
@@ -649,102 +633,101 @@ struct Quaternion
 	/*---------------------------------------------------------------------
 	* 複合演算子
 	*---------------------------------------------------------------------*/
-	Quaternion& operator += (const Quaternion& q)
+	quaternion& operator += (const quaternion& q)
 	{
-		X += q.X;
-		Y += q.Y;
-		Z += q.Z;
-		W += q.W;
+		x += q.x;
+		y += q.y;
+		z += q.z;
+		w += q.w;
 		return *this;
 	}
-	Quaternion& operator -= (const Quaternion& q)
+	quaternion& operator -= (const quaternion& q)
 	{
-		X -= q.X;
-		Y -= q.Y;
-		Z -= q.Z;
-		W -= q.W;
+		x -= q.x;
+		y -= q.y;
+		z -= q.z;
+		w -= q.w;
 		return *this;
 	}
-	Quaternion& operator *= (T f)
+	quaternion& operator *= (T f)
 	{
-		X *= f;
-		Y *= f;
-		Z *= f;
-		W *= f;
+		x *= f;
+		y *= f;
+		z *= f;
+		w *= f;
 		return *this;
 	}
-	Quaternion& operator *= (const Quaternion& q)
+	quaternion& operator *= (const quaternion& q)
 	{
-		const Quaternion c(*this);
+		const quaternion c = *this;
 		return c.multiply(q, *this);
 	}
-	Quaternion& operator /= (T f)
+	quaternion& operator /= (T f)
 	{
-		_DEB_ASSERT(f != math_type::Zero);
-		f = math_type::One / f;
-		return *this *= f;
+		_DEB_ASSERT(f != math_type::zero);
+		return *this *= math_type::reciprocal(f);
 	}
 
 	/*------------------------------------------------------------------------------------------
 	* タグでの関数呼び出し
 	*------------------------------------------------------------------------------------------*/
 
-	Quaternion& operator () (const behavior::_zero_t&)
+	quaternion& operator () (const behavior::_zero_t&)
 	{
-		X = Y = Z = W = math_type::Zero;
+		x = y = z = w = math_type::zero;
 		return *this;
 	}
-	Quaternion& operator () (const behavior::_identity_t&)
+	quaternion& operator () (const behavior::_identity_t&)
 	{
 		return load_identity();
 	}
 
-	Quaternion operator () (const behavior::_plus_t&) const
+	quaternion operator () (const behavior::_plus_t&) const
 	{
 		return operator+();
 	}
-	Quaternion operator () (const behavior::_negate_t&) const
+	quaternion operator () (const behavior::_negate_t&) const
 	{
 		return operator-();
 	}
-	Quaternion operator () (const behavior::_add_t&, const Quaternion& q) const
+	quaternion operator () (const behavior::_add_t&, const quaternion& q) const
 	{
 		return operator+(q);
 	}
-	Quaternion operator () (const behavior::_sub_t&, const Quaternion& q) const
+	quaternion operator () (const behavior::_sub_t&, const quaternion& q) const
 	{
 		return operator-(q);
 	}
-	Quaternion operator () (const behavior::_mul_t&, T f) const
+	quaternion operator () (const behavior::_mul_t&, T f) const
 	{
 		return operator*(f);
 	}
-	Quaternion operator () (const behavior::_mul_t&, const Quaternion& q) const
+	quaternion operator () (const behavior::_mul_t&, const quaternion& q) const
 	{
 		return operator*(q);
 	}
-	Quaternion operator () (const behavior::_div_t&, T f) const
+	quaternion operator () (const behavior::_div_t&, T f) const
 	{
 		return operator/(f);
 	}
 
-	Quaternion& operator () (const behavior::_add_assign_t&, const Quaternion& q)
+	quaternion& operator () (const behavior::_add_assign_t&, const quaternion& q)
 	{
 		return operator+=(q);
 	}
-	Quaternion& operator () (const behavior::_sub_assign_t&, const Quaternion& q)
+	quaternion& operator () (const behavior::_sub_assign_t&, const quaternion& q)
 	{
 		return operator-=(q);
 	}
-	Quaternion& operator () (const behavior::_mul_assign_t&, T f)
+	quaternion& operator () (const behavior::_mul_assign_t&, T f)
 	{
 		return operator*=(f);
 	}
-	Quaternion& operator () (const behavior::_mul_assign_t&, const Quaternion& q)
+	quaternion& operator () (const behavior::_mul_assign_t&, const quaternion& q)
 	{
 		return operator*=(q);
 	}
-	Quaternion& operator () (const behavior::_div_assign_t&, T f)
+	quaternion& operator () (const behavior::_div_assign_t&, T f)
 	{
 		return operator/=(f);
 	}
@@ -765,15 +748,15 @@ struct Quaternion
 		return operator const T*();
 	}
 
-	bool operator () (const behavior::_equal_t&, const Quaternion& q) const
+	bool operator () (const behavior::_equal_t&, const quaternion& q) const
 	{
 		return operator==(q);
 	}
-	bool operator () (const behavior::_not_equal_t&, const Quaternion& q) const
+	bool operator () (const behavior::_not_equal_t&, const quaternion& q) const
 	{
 		return operator!=(q);
 	}
-	bool operator () (const behavior::_near_t&, const Quaternion& q) const
+	bool operator () (const behavior::_near_t&, const quaternion& q) const
 	{
 		return is_near(q);
 	}
@@ -790,23 +773,23 @@ struct Quaternion
 	{
 		return length_sq();
 	}
-	T operator () (const behavior::_dot_t&, const Quaternion& q) const
+	T operator () (const behavior::_dot_t&, const quaternion& q) const
 	{
 		return dot(q);
 	}
-	Quaternion& operator () (const behavior::_normalize_t&)
+	quaternion& operator () (const behavior::_normalize_t&)
 	{
 		return normalize();
 	}
-	Quaternion operator () (const behavior::_normalized_t&) const
+	quaternion operator () (const behavior::_normalized_t&) const
 	{
 		return normalized();
 	}
-	Quaternion operator () (const behavior::_conjugate_t&) const
+	quaternion operator () (const behavior::_conjugate_t&) const
 	{
 		return conjugated();
 	}
-	Vector3<T> operator () (const behavior::_axis_t&) const
+	vector3<T> operator () (const behavior::_axis_t&) const
 	{
 		return axis();
 	}
@@ -814,151 +797,151 @@ struct Quaternion
 	{
 		return angle();
 	}
-	Quaternion operator () (const behavior::_inverse_t&) const
+	quaternion operator () (const behavior::_inverse_t&) const
 	{
 		return inversed();
 	}
-	Quaternion operator () (const behavior::_slerp_t&, const Quaternion& q, T t) const
+	quaternion operator () (const behavior::_slerp_t&, const quaternion& q, T t) const
 	{
 		return slerp(q, t);
 	}
-	Quaternion operator () (const behavior::_lerp_t&, const Quaternion& q, T t) const
+	quaternion operator () (const behavior::_lerp_t&, const quaternion& q, T t) const
 	{
 		return lerp(q, t);
 	}
-	Vector3<T> operator () (const behavior::_rotate_t&, const Vector3<T>& v) const
+	vector3<T> operator () (const behavior::_rotate_t&, const vector3<T>& v) const
 	{
 		return rotate(v);
 	}
-	Vector4<T> operator () (const behavior::_rotate_t&, const Vector4<T>& v) const
+	vector4<T> operator () (const behavior::_rotate_t&, const vector4<T>& v) const
 	{
 		return rotate(v);
 	}
-	Quaternion& operator () (const behavior::_from_matrix_t&, const Matrix4x4<T>& m)
+	quaternion& operator () (const behavior::_from_matrix_t&, const matrix4x4<T>& m)
 	{
 		return from_matrix(m);
 	}
-	Quaternion& operator () (const behavior::_from_axis_angle_t&, const Vector3<T>& axis, T angle)
+	quaternion& operator () (const behavior::_from_axis_angle_t&, const vector3<T>& axis, T angle)
 	{
 		return from_axis(axis, angle);
 	}
 };
 
 template <typename T>
-const Quaternion<T> Quaternion<T>::Zero(math_type::Zero, math_type::Zero, math_type::Zero, math_type::Zero);
+const quaternion<T> quaternion<T>::zero(math_type::zero, math_type::zero, math_type::zero, math_type::zero);
 template <typename T>
-const Quaternion<T> Quaternion<T>::Identity(math_type::Zero, math_type::Zero, math_type::Zero, math_type::One);
+const quaternion<T> quaternion<T>::identity(math_type::zero, math_type::zero, math_type::zero, math_type::one);
 #ifndef _UNUSING_MATH_INT_FLOAT
-template <> const float Quaternion<float>::ErrorSlerp = 0.001f;
+template <> const float quaternion<float>::error_slerp_value = 0.001f;
 #endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
-template <> const double Quaternion<double>::ErrorSlerp = 0.001;
+template <> const double quaternion<double>::error_slerp_value = 0.001;
 #endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
-template <> const long double Quaternion<long double>::ErrorSlerp = 0.001L;
+template <> const long double quaternion<long double>::error_slerp_value = 0.001L;
 #endif // _USING_MATH_LONG_DOUBLE
 
 /*---------------------------------------------------------------------
-* Vector3.Rotate
+* vector3.Rotate
 *---------------------------------------------------------------------*/
 template <typename T> inline
-Vector3<T> Vector3<T>::rotated(const Quaternion<T>& q) const
+vector3<T> vector3<T>::rotated(const quaternion<T>& q) const
 {
-	Vector3<T> r(behavior::noinitialize);
+	vector3<T> r(behavior::noinitialize);
 	return q.rotate(*this, r);
 }
 template <typename T> inline
-Vector3<T>& Vector3<T>::rotated(const Quaternion<T>& q, Vector3<T>& result) const
+vector3<T>& vector3<T>::rotate(const quaternion<T>& q, vector3<T>& result) const
 {
 	return q.rotate(*this, result);
 }
 template <typename T> inline
-Vector3<T>& Vector3<T>::rotate(const Quaternion<T>& q)
+vector3<T>& vector3<T>::rotate(const quaternion<T>& q)
 {
-	Vector3<T> c(*this);
+	const vector3<T> c = *this;
 	return q.rotate(c, *this);
 }
 
 template <typename T> inline
-Vector3<T> Vector3<T>::operator * (const Quaternion<T>& q) const
+vector3<T> vector3<T>::operator * (const quaternion<T>& q) const
 {
-	Vector3<T> r(behavior::noinitialize);
+	vector3<T> r(behavior::noinitialize);
 	return q.rotate(*this, r);
 }
 
 /*---------------------------------------------------------------------
-* Vector4.Rotate
+* vector4.Rotate
 *---------------------------------------------------------------------*/
 template <typename T> inline
-Vector4<T> Vector4<T>::rotated(const Quaternion<T>& q) const
+vector4<T> vector4<T>::rotated(const quaternion<T>& q) const
 {
-	Vector4<T> r(behavior::noinitialize);
+	vector4<T> r(behavior::noinitialize);
 	return q.rotate(*this, r);
 }
 template <typename T> inline
-Vector4<T>& Vector4<T>::rotated(const Quaternion<T>& q, Vector4<T>& result) const
+vector4<T>& vector4<T>::rotate(const quaternion<T>& q, vector4<T>& result) const
 {
 	return q.rotate(*this, result);
 }
 template <typename T> inline
-Vector4<T>& Vector4<T>::rotate(const Quaternion<T>& q)
+vector4<T>& vector4<T>::rotate(const quaternion<T>& q)
 {
-	Vector4<T> c(*this);
+	const vector4<T> c = *this;
 	return q.rotate(c, *this);
 }
 
 template <typename T> inline
-Vector4<T> Vector4<T>::operator * (const Quaternion<T>& q) const
+vector4<T> vector4<T>::operator * (const quaternion<T>& q) const
 {
-	Vector4<T> r(behavior::noinitialize);
+	vector4<T> r(behavior::noinitialize);
 	return q.rotate(*this, r);
 }
 
 #ifdef _USING_MATH_IO
 template <typename CharT, typename CharTraits, typename T> inline
-std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const Quaternion<T>& v)
+std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const quaternion<T>& v)
 {
-	// (X, Y, Z, W)
-	os << out_char::parentheses_left << v.X << out_char::comma_space
-		<< v.Y << out_char::comma_space
-		<< v.Z << out_char::comma_space
-		<< v.W << out_char::parentheses_right;
+	// (x, y, z, w)
+	os << io::parentheses_left << v.x << io::comma_space
+		<< v.y << io::comma_space
+		<< v.z << io::comma_space
+		<< v.w << io::parentheses_right;
 	return os;
 }
 template <typename CharT, typename CharTraits, typename T> inline
-std::basic_istream<CharT, CharTraits>& operator >> (std::basic_istream<CharT, CharTraits>& is, Quaternion<T>& v)
+std::basic_istream<CharT, CharTraits>& operator >> (std::basic_istream<CharT, CharTraits>& is, quaternion<T>& v)
 {
 	is.ignore();
-	is >> v.X;
+	is >> v.x;
 	is.ignore();
-	is >> v.Y;
+	is >> v.y;
 	is.ignore();
-	is >> v.Z;
+	is >> v.z;
 	is.ignore();
-	is >> v.W;
+	is >> v.w;
 	is.ignore();
 	return is;
 }
 template <typename CharT, typename CharTraits, typename T> inline
-std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, CharTraits>& os, const Quaternion<T>& v)
+std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, CharTraits>& os, const quaternion<T>& v)
 {
-	os << out_char::parentheses_left << v.X << out_char::comma_space
-		<< v.Y << out_char::comma_space
-		<< v.Z << out_char::comma_space
-		<< v.W << out_char::parentheses_right;
+	os << io::parentheses_left << v.x << io::comma_space
+		<< v.y << io::comma_space
+		<< v.z << io::comma_space
+		<< v.w << io::parentheses_right;
 	return os;
 }
 template <typename CharT, typename CharTraits, typename T> inline
-std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, CharTraits>& is, Quaternion<T>& v)
+std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, CharTraits>& is, quaternion<T>& v)
 {
 	is.ignore();
-	is >> v.X;
+	is >> v.x;
 	is.ignore();
-	is >> v.Y;
+	is >> v.y;
 	is.ignore();
-	is >> v.Z;
+	is >> v.z;
 	is.ignore();
-	is >> v.W;
+	is >> v.w;
 	is.ignore();
 	return is;
 }

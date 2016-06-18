@@ -7,182 +7,181 @@
 #endif // _USE_PRAGMA_ONCE
 
 #include "../fwd.h"
-#include <complex>
 
 namespace pocket
 {
 
 /*------------------------------------------------------------------------------------------
-* Math
+* math_traits
 *------------------------------------------------------------------------------------------*/
-template <typename> class Math;
+template <typename> struct math_traits;
 #ifndef _UNUSING_MATH_INT_FLOAT
-typedef Math<int> Mathi;
-typedef Math<float> Mathf;
+typedef math_traits<int> math_traitsi;
+typedef math_traits<float> math_traitsf;
 #endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
-typedef Math<double> Mathd;
+typedef math_traits<double> math_traitsd;
 #endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
-typedef Math<long double> Mathld;
+typedef math_traits<long double> math_traitsld;
 #endif // _USING_MATH_LONG_DOUBLE
 
 /*------------------------------------------------------------------------------------------
-* Vector2
+* vector2
 *------------------------------------------------------------------------------------------*/
-template <typename> struct Vector2;
+template <typename> struct vector2;
 #ifndef _UNUSING_MATH_INT_FLOAT
-typedef Vector2<int> Point2;
-typedef Vector2<int> Vector2i;
-typedef Vector2<float> Vector2f;
+typedef vector2<int> Point2;
+typedef vector2<int> vector2i;
+typedef vector2<float> vector2f;
 #endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
-typedef Vector2<double> Vector2d;
+typedef vector2<double> vector2d;
 #endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
-typedef Vector2<long double> Vector2ld;
+typedef vector2<long double> vector2ld;
 #endif // _USING_MATH_LONG_DOUBLE
 
 /*------------------------------------------------------------------------------------------
-* Vector3
+* vector3
 *------------------------------------------------------------------------------------------*/
-template <typename> struct Vector3;
+template <typename> struct vector3;
 #ifndef _UNUSING_MATH_INT_FLOAT
-typedef Vector3<int> Point3;
-typedef Vector3<int> Vector3i;
-typedef Vector3<float> Vector3f;
+typedef vector3<int> Point3;
+typedef vector3<int> vector3i;
+typedef vector3<float> vector3f;
 #endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
-typedef Vector3<double> Vector3d;
+typedef vector3<double> vector3d;
 #endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
-typedef Vector3<long double> Vector3ld;
+typedef vector3<long double> vector3ld;
 #endif // _USING_MATH_LONG_DOUBLE
 
 /*------------------------------------------------------------------------------------------
-* Vector4
+* vector4
 *------------------------------------------------------------------------------------------*/
-template <typename> struct Vector4;
+template <typename> struct vector4;
 #ifndef _UNUSING_MATH_INT_FLOAT
-typedef Vector4<int> Point4;
-typedef Vector4<int> Vector4i;
-typedef Vector4<float> Vector4f;
+typedef vector4<int> Point4;
+typedef vector4<int> vector4i;
+typedef vector4<float> vector4f;
 #endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
-typedef Vector4<double> Vector4d;
+typedef vector4<double> vector4d;
 #endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
-typedef Vector4<long double> Vector4ld;
+typedef vector4<long double> vector4ld;
 #endif // _USING_MATH_LONG_DOUBLE
 
 /*------------------------------------------------------------------------------------------
-* Matrix4x4
+* matrix4x4
 *------------------------------------------------------------------------------------------*/
-template <typename> struct Matrix4x4;
+template <typename> struct matrix4x4;
 #ifndef _UNUSING_MATH_INT_FLOAT
-typedef Matrix4x4<float> Matrix4x4f;
+typedef matrix4x4<float> matrix4x4f;
 #endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
-typedef Matrix4x4<double> Matrix4x4d;
+typedef matrix4x4<double> matrix4x4d;
 #endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
-typedef Matrix4x4<long double> Matrix4x4ld;
+typedef matrix4x4<long double> matrix4x4ld;
 #endif // _USING_MATH_LONG_DOUBLE
 
 /*------------------------------------------------------------------------------------------
-* Quaternion
+* quaternion
 *------------------------------------------------------------------------------------------*/
-template <typename> struct Quaternion;
+template <typename> struct quaternion;
 #ifndef _UNUSING_MATH_INT_FLOAT
-typedef Quaternion<float> Quaternionf;
+typedef quaternion<float> quaternionf;
 #endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
-typedef Quaternion<double> Quaterniond;
+typedef quaternion<double> quaterniond;
 #endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
-typedef Quaternion<long double> Quaternionld;
+typedef quaternion<long double> quaternionld;
 #endif // _USING_MATH_LONG_DOUBLE
 
 /*------------------------------------------------------------------------------------------
-* Plane
+* plane
 *------------------------------------------------------------------------------------------*/
-template <typename> struct Plane;
+template <typename> struct plane;
 #ifndef _UNUSING_MATH_INT_FLOAT
-typedef Plane<float> Planef;
+typedef plane<float> planef;
 #endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
-typedef Plane<double> Planed;
+typedef plane<double> planed;
 #endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
-typedef Plane<long double> Planeld;
+typedef plane<long double> planeld;
 #endif // _USING_MATH_LONG_DOUBLE
 
 /*------------------------------------------------------------------------------------------
-* Color
+* color
 *------------------------------------------------------------------------------------------*/
-template <typename> struct Color;
+template <typename> struct color;
 #ifndef _UNUSING_MATH_INT_FLOAT
-typedef Color<float> Colorf;
+typedef color<float> colorf;
 #endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
-typedef Color<double> Colord;
+typedef color<double> colord;
 #endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
-typedef Color<long double> Colorld;
+typedef color<long double> colorld;
 #endif // _USING_MATH_LONG_DOUBLE
 
 /*------------------------------------------------------------------------------------------
 * Range, Rectangle
 *------------------------------------------------------------------------------------------*/
-template <typename> struct Range;
-template <typename> struct Rectangle;
+template <typename> struct range;
+template <typename> struct rectangle;
 #ifndef _UNUSING_MATH_INT_FLOAT
-typedef Range<int> Rangei;
-typedef Range<float> Rangef;
-typedef Rectangle<int> Rectanglei;
-typedef Rectangle<float> Rectanglef;
+typedef range<int> rangei;
+typedef range<float> rangef;
+typedef rectangle<int> rectanglei;
+typedef rectangle<float> rectanglef;
 #endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
-typedef Range<double> Ranged;
-typedef Rectangle<double> Rectangled;
+typedef range<double> ranged;
+typedef rectangle<double> rectangled;
 #endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
-typedef Range<long double> Rangeld;
-typedef Rectangle<long double> Rectangleld;
+typedef range<long double> rangeld;
+typedef rectangle<long double> rectangleld;
 #endif // _USING_MATH_LONG_DOUBLE
 
 /*------------------------------------------------------------------------------------------
-* Line
+* line
 *------------------------------------------------------------------------------------------*/
-template <typename, template<typename> class> struct Line;
+template <typename, template<typename> class> struct line;
 #ifndef _UNUSING_MATH_INT_FLOAT
-typedef Line<float, Vector2> Line2f;
-typedef Line<float, Vector3> Line3f;
+typedef line<float, vector2> line2f;
+typedef line<float, vector3> line3f;
 #endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
-typedef Line<double, Vector2> Line2d;
-typedef Line<double, Vector3> Line3d;
+typedef line<double, vector2> line2d;
+typedef line<double, vector3> line3d;
 #endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
-typedef Line<long double, Vector2> Line2ld;
-typedef Line<long double, Vector3> Line3ld;
+typedef line<long double, vector2> line2ld;
+typedef line<long double, vector3> line3ld;
 #endif // _USING_MATH_LONG_DOUBLE
 
 /*------------------------------------------------------------------------------------------
-* Ray
+* ray
 *------------------------------------------------------------------------------------------*/
-template <typename, template<typename> class> struct Ray;
+template <typename, template<typename> class> struct ray;
 #ifndef _UNUSING_MATH_INT_FLOAT
-typedef Ray<float, Vector2> Ray2f;
-typedef Ray<float, Vector3> Ray3f;
+typedef ray<float, vector2> ray2f;
+typedef ray<float, vector3> ray3f;
 #endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
-typedef Ray<double, Vector2> Ray2d;
-typedef Ray<double, Vector3> Ray3d;
+typedef ray<double, vector2> ray2d;
+typedef ray<double, vector3> ray3d;
 #endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
-typedef Ray<long double, Vector2> Ray2ld;
-typedef Ray<long double, Vector3> Ray3ld;
+typedef ray<long double, vector2> ray2ld;
+typedef ray<long double, vector3> ray3ld;
 #endif // _USING_MATH_LONG_DOUBLE
 
 } // namespace pocket

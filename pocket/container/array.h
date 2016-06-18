@@ -7,7 +7,7 @@
 #endif // _USE_PRAGMA_ONCE
 
 #include "../debug.h"
-#include "fwd.h"
+#include "../fwd.h"
 #ifdef _USING_MATH_IO
 #include "../io.h"
 #endif // _USING_MATH_IO
@@ -30,32 +30,32 @@ template <typename CharT, typename CharTraits, typename T, size_t N> inline
 std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const std::array<T, N>& ary)
 {
 	typedef typename std::array<T, N>::const_iterator const_iterator;
-	os << pocket::out_char::box_brackets_left;
+	os << pocket::io::box_brackets_left;
 	for (const_iterator i = ary.begin(), end = ary.end(), line = end - 1; i != end; ++i)
 	{
 		os << *i;
 		if (i != line)
 		{
-			os << pocket::out_char::space;
+			os << pocket::io::space;
 		}
 	}
-	os << pocket::out_char::box_brackets_right;
+	os << pocket::io::box_brackets_right;
 	return os;
 }
 template <typename CharT, typename CharTraits, typename T, size_t N> inline
 std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, CharTraits>& os, const std::array<T, N>& ary)
 {
 	typedef typename std::array<T, N>::const_iterator const_iterator;
-	os << pocket::out_char::box_brackets_left;
+	os << pocket::io::box_brackets_left;
 	for (const_iterator i = ary.begin(), end = ary.end(), line = end - 1; i != end; ++i)
 	{
 		os << *i;
 		if (i != line)
 		{
-			os << pocket::out_char::space;
+			os << pocket::io::space;
 		}
 	}
-	os << pocket::out_char::box_brackets_right;
+	os << pocket::io::box_brackets_right;
 	return os;
 }
 #endif // _USING_MATH_IO
@@ -111,7 +111,7 @@ public:
 	// None
 
 	/*---------------------------------------------------------------------------------------
-	* Mathods
+	* math_traitsods
 	*---------------------------------------------------------------------------------------*/
 
 	void assign(const T& t)
@@ -238,32 +238,32 @@ template <typename CharT, typename CharTraits, typename T, size_t N> inline
 std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const pocket::container::array<T, N>& ary)
 {
 	typedef typename pocket::container::array<T, N>::const_iterator const_iterator;
-	os << pocket::out_char::box_brackets_left;
+	os << pocket::io::box_brackets_left;
 	for (const_iterator i = ary.begin(), end = ary.end(), line = end - 1; i != end; ++i)
 	{
 		os << *i;
 		if (i != line)
 		{
-			os << pocket::out_char::space;
+			os << pocket::io::space;
 		}
 	}
-	os << pocket::out_char::box_brackets_right;
+	os << pocket::io::box_brackets_right;
 	return os;
 }
 template <typename CharT, typename CharTraits, typename T, size_t N> inline
 std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, CharTraits>& os, const pocket::container::array<T, N>& ary)
 {
 	typedef typename pocket::container::array<T, N>::const_iterator const_iterator;
-	os << pocket::out_char::box_brackets_left;
+	os << pocket::io::box_brackets_left;
 	for (const_iterator i = ary.begin(), end = ary.end(), line = end - 1; i != end; ++i)
 	{
 		os << *i;
 		if (i != line)
 		{
-			os << pocket::out_char::space;
+			os << pocket::io::space;
 		}
 	}
-	os << pocket::out_char::box_brackets_right;
+	os << pocket::io::box_brackets_right;
 	return os;
 }
 #endif // _USING_MATH_IO
@@ -293,15 +293,20 @@ struct fixed_array
 	typedef typename array_type::reference reference;
 	typedef typename array_type::const_reference const_reference;
 
-	array_type Data;
+	array_type data;
 
+	fixed_array& operator = (value_type a)
+	{
+		data[0] = a;
+		return *this;
+	}
 	reference operator [] (int i)
 	{
-		return Data[i];
+		return data[i];
 	}
 	const_reference operator [] (int i) const
 	{
-		return Data[i];
+		return data[i];
 	}
 };
 template <typename T>
@@ -316,30 +321,34 @@ struct fixed_array<T, 2>
 	{
 		struct
 		{
-			T X;
-			T Y;
+			T x;
+			T y;
 		};
-		array_type Data;
+		array_type data;
 	};
 
+	fixed_array& operator = (value_type a)
+	{
+		x = a;
+		return *this;
+	}
 	fixed_array& operator = (const fixed_array<T, 3>&);
 	fixed_array& operator = (const fixed_array<T, 4>&);
 	template <size_t N>
 	fixed_array& operator = (const fixed_array<T, N>& a)
 	{
-		_DEB_ASSERT(N >= 2);
-		X = a[0];
-		Y = a[1];
+		x = a[0];
+		y = a[1];
 		return *this;
 	}
 
 	reference operator [] (int i)
 	{
-		return Data[i];
+		return data[i];
 	}
 	const_reference operator [] (int i) const
 	{
-		return Data[i];
+		return data[i];
 	}
 };
 template <typename T>
@@ -354,43 +363,47 @@ struct fixed_array<T, 3>
 	{
 		struct
 		{
-			T X;
-			T Y;
-			T Z;
+			T x;
+			T y;
+			T z;
 		};
 		struct
 		{
-			T R;
-			T G;
-			T B;
+			T r;
+			T g;
+			T b;
 		};
-		array_type Data;
+		array_type data;
 	};
 
+	fixed_array& operator = (value_type a)
+	{
+		x = a;
+		return *this;
+	}
 	fixed_array& operator = (const fixed_array<T, 2>& a)
 	{
-		X = a.X;
-		Y = a.Y;
+		x = a.x;
+		y = a.y;
 		return *this;
 	}
 	fixed_array& operator = (const fixed_array<T, 4>&);
 	template <size_t N>
 	fixed_array& operator = (const fixed_array<T, N>& a)
 	{
-		_DEB_ASSERT(N >= 3);
-		X = a[0];
-		Y = a[1];
-		Z = a[2];
+		x = a[0];
+		y = a[1];
+		z = a[2];
 		return *this;
 	}
 
 	reference operator [] (int i)
 	{
-		return Data[i];
+		return data[i];
 	}
 	const_reference operator [] (int i) const
 	{
-		return Data[i];
+		return data[i];
 	}
 };
 template <typename T>
@@ -405,75 +418,79 @@ struct fixed_array<T, 4>
 	{
 		struct
 		{
-			T X;
-			T Y;
-			T Z;
-			T W;
+			T x;
+			T y;
+			T z;
+			T w;
 		};
 		struct
 		{
-			T R;
-			T G;
-			T B;
-			T A;
+			T r;
+			T g;
+			T b;
+			T a;
 		};
-		array_type Data;
+		array_type data;
 	};
 
+	fixed_array& operator = (value_type a)
+	{
+		x = a;
+		return *this;
+	}
 	fixed_array& operator = (const fixed_array<T, 2>& a)
 	{
-		X = a.X;
-		Y = a.Y;
+		x = a.x;
+		y = a.y;
 		return *this;
 	}
 	fixed_array& operator = (const fixed_array<T, 3>& a)
 	{
-		X = a.X;
-		Y = a.Y;
-		Z = a.Z;
+		x = a.x;
+		y = a.y;
+		z = a.z;
 		return *this;
 	}
 	template <size_t N>
 	fixed_array& operator = (const fixed_array<T, N>& a)
 	{
-		_DEB_ASSERT(N >= 4);
-		X = a[0];
-		Y = a[1];
-		Z = a[2];
-		W = a[3];
+		x = a[0];
+		y = a[1];
+		z = a[2];
+		w = a[3];
 		return *this;
 	}
 
 	reference operator [] (int i)
 	{
-		return Data[i];
+		return data[i];
 	}
 	const_reference operator [] (int i) const
 	{
-		return Data[i];
+		return data[i];
 	}
 };
 
-template <typename T>
+template <typename T> inline
 fixed_array<T, 2>& fixed_array<T, 2>::operator = (const fixed_array<T, 3>& a)
 {
-	X = a.X;
-	Y = a.Y;
+	x = a.x;
+	y = a.y;
 	return *this;
 }
-template <typename T>
+template <typename T> inline
 fixed_array<T, 2>& fixed_array<T, 2>::operator = (const fixed_array<T, 4>& a)
 {
-	X = a.X;
-	Y = a.Y;
+	x = a.x;
+	y = a.y;
 	return *this;
 }
-template <typename T>
+template <typename T> inline
 fixed_array<T, 3>& fixed_array<T, 3>::operator = (const fixed_array<T, 4>& a)
 {
-	X = a.X;
-	Y = a.Y;
-	Z = a.Z;
+	x = a.x;
+	y = a.y;
+	z = a.z;
 	return *this;
 }
 
@@ -523,13 +540,13 @@ typedef fixed_array<f64, 4> double4;
 template <typename CharT, typename CharTraits, typename T, size_t N> inline
 std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const pocket::fixed_array<T, N>& ary)
 {
-	os << ary.Data;
+	os << ary.data;
 	return os;
 }
 template <typename CharT, typename CharTraits, typename T, size_t N> inline
 std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, CharTraits>& os, const pocket::fixed_array<T, N>& ary)
 {
-	os << ary.Data;
+	os << ary.data;
 	return os;
 }
 #endif // _USING_MATH_IO

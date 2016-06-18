@@ -150,27 +150,27 @@
   <ItemGroup>
     <ClInclude Include="behavior.h" />
     <ClInclude Include="config.h" />
+    <ClInclude Include="container\array.h" />
     <ClInclude Include="debug.h" />
     <ClInclude Include="fwd.h" />
     <ClInclude Include="io.h" />
     <ClInclude Include="math\all.h" />
-    <ClInclude Include="math\array.h" />
-    <ClInclude Include="math\Color.h" />
-    <ClInclude Include="math\Frustum.h" />
+    <ClInclude Include="math\color.h" />
+    <ClInclude Include="math\frustum.h" />
     <ClInclude Include="math\fwd.h" />
-    <ClInclude Include="math\Line.h" />
-    <ClInclude Include="math\Math.h" />
-    <ClInclude Include="math\Matrix3x3.h" />
-    <ClInclude Include="math\Matrix4x4.h" />
-    <ClInclude Include="math\Plane.h" />
-    <ClInclude Include="math\Quaternion.h" />
-    <ClInclude Include="math\Ray.h" />
-    <ClInclude Include="math\Rectangle.h" />
+    <ClInclude Include="math\line.h" />
+    <ClInclude Include="math\math_traits.h" />
+    <ClInclude Include="math\matrix3x3.h" />
+    <ClInclude Include="math\matrix4x4.h" />
+    <ClInclude Include="math\plane.h" />
+    <ClInclude Include="math\quaternion.h" />
+    <ClInclude Include="math\ray.h" />
+    <ClInclude Include="math\rectangle.h" />
     <ClInclude Include="math\simd_traits.h" />
     <ClInclude Include="math\template.h" />
-    <ClInclude Include="math\Vector2.h" />
-    <ClInclude Include="math\Vector3.h" />
-    <ClInclude Include="math\Vector4.h" />
+    <ClInclude Include="math\vector2.h" />
+    <ClInclude Include="math\vector3.h" />
+    <ClInclude Include="math\vector4.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />

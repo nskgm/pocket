@@ -8,12 +8,12 @@
 
 #include "../debug.h"
 #include "../behavior.h"
-#include "array.h"
-#include "Math.h"
-#include "Vector3.h"
-#include "Vector4.h"
-#include "Line.h"
-#include "Ray.h"
+#include "../container/array.h"
+#include "math_traits.h"
+#include "vector3.h"
+#include "vector4.h"
+#include "line.h"
+#include "ray.h"
 #ifdef _USING_MATH_IO
 #include "../io.h"
 #endif // _USING_MATH_IO
@@ -21,34 +21,20 @@
 namespace pocket
 {
 
-template <typename> struct Plane;
+template <typename> struct plane;
 
 #ifndef _UNUSING_MATH_INT_FLOAT
-typedef Plane<float> Planef;
+typedef plane<float> planef;
 #endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
-typedef Plane<double> Planed;
+typedef plane<double> planed;
 #endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
-typedef Plane<long double> Planeld;
+typedef plane<long double> planeld;
 #endif // _USING_MATH_LONG_DOUBLE
 
-#ifdef _USE_CXX11
 template <typename T>
-using plane = Plane<T>;
-#ifndef _UNUSING_MATH_INT_FLOAT
-using planef = plane<float>;
-#endif // _UNUSING_MATH_INT_FLOAT
-#ifdef _USING_MATH_DOUBLE
-using planed = plane<double>;
-#endif // _USING_MATH_DOUBLE
-#ifdef _USING_MATH_LONG_DOUBLE
-using planeld = plane<long double>;
-#endif // _USING_MATH_LONG_DOUBLE
-#endif // _USE_CXX11
-
-template <typename T>
-struct Plane
+struct plane
 {
 	_MATH_STATICAL_ASSERT_FLOATING(T);
 
@@ -56,10 +42,11 @@ struct Plane
 	* Types
 	*-----------------------------------------------------------------------------------------*/
 
-	typedef Math<T> math_type;
-	typedef Vector3<T> notmal_type;
-	typedef Line<T, Vector3> line_type;
-	typedef Ray<T, Vector3> ray_type;
+	typedef math_traits<T> math_type;
+	typedef vector3<T> notmal_type;
+	typedef vector3<T> point_type;
+	typedef line<T, vector3> line_type;
+	typedef ray<T, vector3> ray_type;
 
 	typedef container::array<T, 4> array_type;
 	typedef typename array_type::value_type value_type;
@@ -70,11 +57,11 @@ struct Plane
 	typedef typename array_type::reference reference;
 	typedef typename array_type::const_reference const_reference;
 
-	enum IntersectType
+	enum intersect_result
 	{
-		eOnForward, // 前面
-		eOnBackward, // 背面
-		eOnPlane // 平面上
+		on_forward, // 前面
+		on_backward, // 背面
+		on_plane // 平面上
 	};
 
 	/*-----------------------------------------------------------------------------------------
@@ -88,19 +75,19 @@ struct Plane
 		{
 #endif // _USE_ANONYMOUS_NON_POD
 
-			Vector3<T> Normal; // 法線
-			T D; // 原点からの距離
+			vector3<T> normal; // 法線
+			T d; // 原点からの距離
 
 #ifdef _USE_ANONYMOUS_NON_POD
 		};
 		struct
 		{
-			T A; // 法線X成分
-			T B; // 法線Y成分
-			T C; // 法線Z成分
-			T Distance;
+			T a; // 法線x成分
+			T b; // 法線y成分
+			T c; // 法線z成分
+			T distance;
 		};
-		array_type Data;
+		array_type data;
 	};
 #endif // _USE_ANONYMOUS_NON_POD
 
@@ -108,79 +95,79 @@ struct Plane
 	* Constants
 	*-----------------------------------------------------------------------------------------*/
 
-	static const Plane Up; // 0.0, 1.0, 0.0, 0.0
-	static const Plane Down; // 0.0, -1.0, 0.0, 0.0
-	static const Plane Right; // 1.0, 0.0, 0.0, 0.0
-	static const Plane Left; // -1.0, 0.0, 0.0, 0.0
-	static const Plane Front; // 0.0, 0.0, 1.0, 0.0
-	static const Plane Back; // 0.0, 0.0, -1.0, 0.0
+	static const plane up; // 0.0, 1.0, 0.0, 0.0
+	static const plane down; // 0.0, -1.0, 0.0, 0.0
+	static const plane right; // 1.0, 0.0, 0.0, 0.0
+	static const plane left; // -1.0, 0.0, 0.0, 0.0
+	static const plane forward; // 0.0, 0.0, 1.0, 0.0
+	static const plane backward; // 0.0, 0.0, -1.0, 0.0
 
 	/*-----------------------------------------------------------------------------------------
 	* Constructors
 	*-----------------------------------------------------------------------------------------*/
 
-	_DEFAULT_CONSTRUCTOR(Plane);
-	explicit Plane(const behavior::_noinitialize_t&)
+	_DEFAULT_CONSTRUCTOR(plane);
+	explicit plane(const behavior::_noinitialize_t&)
 	{
 
 	}
-	explicit Plane(const behavior::_right_t&, T d) :
-		Normal(math_type::One, math_type::Zero, math_type::Zero),
-		D(-d)
+	explicit plane(const behavior::_right_t&, T d) :
+		normal(math_type::one, math_type::zero, math_type::zero),
+		d(-d)
 	{
 
 	}
-	explicit Plane(const behavior::_left_t&, T d) :
-		Normal(-math_type::One, math_type::Zero, math_type::Zero),
-		D(-d)
+	explicit plane(const behavior::_left_t&, T d) :
+		normal(-math_type::one, math_type::zero, math_type::zero),
+		d(-d)
 	{
 
 	}
-	explicit Plane(const behavior::_up_t&, T d) :
-		Normal(math_type::Zero, math_type::One, math_type::Zero),
-		D(-d)
+	explicit plane(const behavior::_up_t&, T d) :
+		normal(math_type::zero, math_type::one, math_type::zero),
+		d(-d)
 	{
 
 	}
-	explicit Plane(const behavior::_down_t&, T d) :
-		Normal(math_type::Zero, -math_type::One, math_type::Zero),
-		D(-d)
+	explicit plane(const behavior::_down_t&, T d) :
+		normal(math_type::zero, -math_type::one, math_type::zero),
+		d(-d)
 	{
 
 	}
-	explicit Plane(const behavior::_front_t&, T d) :
-		Normal(math_type::Zero, math_type::Zero, math_type::One),
-		D(-d)
+	explicit plane(const behavior::_front_t&, T d) :
+		normal(math_type::zero, math_type::zero, math_type::one),
+		d(-d)
 	{
 
 	}
-	explicit Plane(const behavior::_back_t&, T d) :
-		Normal(math_type::Zero, math_type::Zero, -math_type::One),
-		D(-d)
+	explicit plane(const behavior::_back_t&, T d) :
+		normal(math_type::zero, math_type::zero, -math_type::one),
+		d(-d)
 	{
 
 	}
-	Plane(T a, T b, T c, T d) :
-		Normal(a, b, c), D(d)
+	plane(T a, T b, T c, T d) :
+		normal(a, b, c), d(d)
 	{
 
 	}
-	Plane(const Vector3<T>& n, T d) :
-		Normal(n), D(d)
+	plane(const vector3<T>& n, T d) :
+		normal(n), d(d)
 	{
 
 	}
-	explicit Plane(T d) : // 上方向での距離を渡すのみ
-		Normal(math_type::Zero, math_type::One, math_type::Zero),
-		D(-d)
+	explicit plane(T d) : // 上方向での距離を渡すのみ
+		normal(math_type::zero, math_type::one, math_type::zero),
+		d(-d)
 	{
 
 	}
-	Plane(const Vector3<T>& v0, const Vector3<T>& v1, const Vector3<T>& v2)
+	plane(const vector3<T>& v0, const vector3<T>& v1, const vector3<T>& v2)
 	{
 		from_points(v0, v1, v2);
 	}
-	Plane(const Vector3<T>& normal, const Vector3<T>& p)
+	plane(const vector3<T>& normal, const vector3<T>& p)
 	{
 		from_normal_point(normal, p);
 	}
@@ -192,129 +179,129 @@ struct Plane
 	/*---------------------------------------------------------------------
 	* 値が近いか
 	*---------------------------------------------------------------------*/
-	bool is_near(const Plane& p) const
+	bool is_near(const plane& p) const
 	{
-		return (Normal.is_near(p.Normal) && math_type::is_near(D, p.D));
+		return (normal.is_near(p.normal) && math_type::is_near(d, p.d));
 	}
 	/*---------------------------------------------------------------------
 	* 値がゼロに近いか
 	*---------------------------------------------------------------------*/
 	bool is_near_zero() const
 	{
-		return (Normal.is_near_zero() && math_type::is_near_zero(D));
+		return (normal.is_near_zero() && math_type::is_near_zero(d));
 	}
 	/*---------------------------------------------------------------------
 	* 値がゼロか
 	*---------------------------------------------------------------------*/
 	bool is_zero() const
 	{
-		return (Normal.is_zero() && D == math_type::Zero);
+		return (normal.is_zero() && d == math_type::zero);
 	}
 
 	/*---------------------------------------------------------------------
 	* 3つの点から求める（0～2：反時計回り）
 	*---------------------------------------------------------------------*/
-	Plane& from_points(const Vector3<T>& v0, const Vector3<T>& v1, const Vector3<T>& v2)
+	plane& from_points(const vector3<T>& v0, const vector3<T>& v1, const vector3<T>& v2)
 	{
 		// v0からv1へのベクトル
-		Vector3<T> d1(behavior::noinitialize);
+		vector3<T> d1(behavior::noinitialize);
 		v1.subtract(v0, d1);
 		// v1からv2へのベクトル
-		Vector3<T> d2(behavior::noinitialize);
+		vector3<T> d2(behavior::noinitialize);
 		v2.subtract(v0, d2);
 		// 二つのベクトルから外積と基点となるv0を渡す
-		return from_normal_point(d1.Cross(d2), v0);
+		return from_normal_point(d1.cross(d2), v0);
 	}
 	/*---------------------------------------------------------------------
 	* 法線と座標から求める
 	*---------------------------------------------------------------------*/
-	Plane& from_normal_point(const Vector3<T>& normal, const Vector3<T>& p)
+	plane& from_normal_point(const vector3<T>& normal, const vector3<T>& p)
 	{
 		// 正規化されていないことを考慮して渡されてきた法線ベクトルを正規化
-		normal.normalized(Normal);
+		normal.normalize(this->normal);
 		// dotという名の平面の方程式から求められる値, [ax + by + cz + d] -> [d = -(ax + by + cz)]
 		// [a b c] = n
-		D = -Normal.dot(p);
+		d = -this->normal.dot(p);
 		return *this;
 	}
 	/*---------------------------------------------------------------------
 	* 内積を求める
 	*---------------------------------------------------------------------*/
-	T dot(const Vector4<T>& v) const
+	T dot(const vector4<T>& v) const
 	{
-		return Normal.X * v.X + Normal.Y * v.Y + Normal.Z * v.Z + D * v.W;
+		return normal.x * v.x + normal.y * v.y + normal.z * v.z + d * v.W;
 	}
 	/*---------------------------------------------------------------------
 	* 法線との内積を求める
 	*---------------------------------------------------------------------*/
-	T dot_normal(const Vector3<T>& v) const
+	T dot_normal(const vector3<T>& v) const
 	{
-		return Normal.dot(v);
+		return normal.dot(v);
 	}
 	/*---------------------------------------------------------------------
 	* 内積を求める（W=1）
 	*---------------------------------------------------------------------*/
-	T dot_coord(const Vector3<T>& v) const
+	T dot_coord(const vector3<T>& v) const
 	{
-		return Normal.dot(v) + D;
+		return normal.dot(v) + d;
 	}
 	/*---------------------------------------------------------------------
 	* 正規化
 	*---------------------------------------------------------------------*/
-	Plane& normalize()
+	plane& normalize()
 	{
-		// 法線の長さでDも正規化を行う
-		T length = Normal.length_sq();
-		if (length != math_type::Zero)
+		// 法線の長さでdも正規化を行う
+		T length = normal.length_sq();
+		if (length > math_type::zero)
 		{
 			length = math_type::rsqrt(length);
-			Normal *= length;
-			D *= length;
+			normal *= length;
+			d *= length;
 		}
 		return *this;
+	}
+	plane& normalize(plane& result) const
+	{
+		result = *this;
+		return result.normalize();
 	}
 	/*---------------------------------------------------------------------
 	* 正規化を求める
 	*---------------------------------------------------------------------*/
-	Plane normalized() const
+	plane normalized() const
 	{
-		Plane r = *this;
+		plane r = *this;
 		return r.normalize();
-	}
-	Plane& normalized(Plane& result) const
-	{
-		result = *this;
-		return result.normalize();
 	}
 
 	/*---------------------------------------------------------------------
 	* 平面が置かれている座標を求める
 	*---------------------------------------------------------------------*/
-	Vector3<T> point() const
+	vector3<T> point() const
 	{
-		// Dは負の値になっているので反転
-		return Normal * -D;
+		// dは負の値になっているので反転
+		return normal * -d;
 	}
-	Vector3<T>& point(Vector3<T>& result) const
+	vector3<T>& point(vector3<T>& result) const
 	{
-		result = Normal;
-		result *= -D;
+		result = normal;
+		result *= -d;
 		return result;
 	}
 	/*---------------------------------------------------------------------
 	* 線形補間
 	*---------------------------------------------------------------------*/
-	Plane lerp(const Plane& to, T t) const
+	plane lerp(const plane& to, T t) const
 	{
-		return Plane(Normal.lerp(to.Normal, t), math_type::lerp(D, to.D, t));
+		return plane(normal.lerp(to.normal, t), math_type::lerp(d, to.d, t));
 	}
-	Plane& lerp(const Plane& to, T t, Plane& result) const
+	plane& lerp(const plane& to, T t, plane& result) const
 	{
-		Normal.lerp(to.Normal, t, result.Normal);
-		result.D = math_type::lerp(D, to.D, t);
+		normal.lerp(to.normal, t, result.normal);
+		result.d = math_type::lerp(d, to.d, t);
 		return result;
 	}
-	Plane& lerp(const Plane& from, const Plane& to, T t)
+	plane& lerp(const plane& from, const plane& to, T t)
 	{
 		return from.lerp(to, t, *this);
 	}
@@ -323,24 +310,24 @@ struct Plane
 	*---------------------------------------------------------------------*/
 	bool is_intersect(const line_type& line) const
 	{
-		return is_intersect_line(line.Begin, line.End);
+		return is_intersect_line(line.begin, line.end);
 	}
 	bool is_intersect(const ray_type& ray) const
 	{
-		return is_intersect_ray(ray.Position, ray.Direction);
+		return is_intersect_ray(ray.origin, ray.direction);
 	}
 	/*---------------------------------------------------------------------
 	* 線分との交差状態か
 	*---------------------------------------------------------------------*/
-	bool is_intersect_line(const Vector3<T>& begin, const Vector3<T>& end) const
+	bool is_intersect_line(const vector3<T>& begin, const vector3<T>& end) const
 	{
 #if 0
 		// 始点から終点へのベクトルを求める
-		Vector3<T> dir(behavior::noinitialize);
+		vector3<T> dir(behavior::noinitialize);
 		end.Direction(begin, dir);
 
 		// 法線ベクトルとの内積が0の場合は垂直になっているので交差していない
-		if (math_type::is_near_zero(Normal.dot(dir)))
+		if (math_type::is_near_zero(normal.dot(dir)))
 		{
 			// 交差なし
 			return false;
@@ -348,77 +335,78 @@ struct Plane
 
 		// 法線と線分の始点終点の射影を求める（内積）
 		// これで単位ベクトルからの長さが求まる
-		T b = Normal.dot(begin);
-		T e = Normal.dot(end);
+		T b = normal.dot(begin);
+		T e = normal.dot(end);
 
-		// 射影で求めた間に存在しているか, Dを基準点として考える
-		//return ((b - D) >= math_type::Zero) && ((e - D) <= math_type::Zero);
-		return (b * e) <= math_type::Zero; // 同符号の場合は衝突していない, 表裏関係なし
+		// 射影で求めた間に存在しているか, dを基準点として考える
+		//return ((b - d) >= math_type::zero) && ((e - d) <= math_type::zero);
+		return (b * e) <= math_type::zero; // 同符号の場合は衝突していない, 表裏関係なし
 #else
 		// 同符号の場合は交差していない
-		return dot_coord(begin) * dot_coord(end) <= math_type::Zero;
+		return dot_coord(begin) * dot_coord(end) <= math_type::zero;
 #endif
 	}
 	bool is_intersect_line(const line_type& line) const
 	{
-		return is_intersect_line(line.Begin, line.End);
+		return is_intersect_line(line.begin, line.end);
 	}
 	/*---------------------------------------------------------------------
 	* 無限線分と交差状態か
 	*---------------------------------------------------------------------*/
-	bool is_intersect_ray(const Vector3<T>& position, const Vector3<T>& direction) const
+	bool is_intersect_ray(const vector3<T>& position, const vector3<T>& direction) const
 	{
 		// 法線との内積を行って0じゃなければいずれ交差する
-		return Normal.dot(direction) != math_type::Zero;
+		static_cast<void>(position);
+		return normal.dot(direction) != math_type::zero;
 	}
 	bool is_intersect_ray(const ray_type& ray) const
 	{
-		return is_intersect_ray(ray.Position, ray.Direction);
+		return is_intersect_ray(ray.origin, ray.direction);
 	}
 	/*---------------------------------------------------------------------
 	* 座標との交差状態を求める
 	*---------------------------------------------------------------------*/
-	IntersectType intersect_point(const Vector3<T>& point) const
+	intersect_result intersect_point(const vector3<T>& point) const
 	{
 		// 法線上の点との距離を計算
 		T distance = dot_coord(point);
 
-		if (distance >= math_type::Epsilon)
+		if (distance >= math_type::epsilon)
 		{
-			return eOnForward;
+			return on_forward;
 		}
-		if (distance <= -math_type::Epsilon)
+		if (distance <= -math_type::epsilon)
 		{
-			return eOnBackward;
+			return on_backward;
 		}
-		return eOnPlane;
+		return on_plane;
 	}
-	bool is_intersect_point(const Vector3<T>& point) const
+	bool is_intersect_point(const vector3<T>& point) const
 	{
-		return intersect_point(point) == eOnPlane;
+		return intersect_point(point) == on_plane;
 	}
 	/*---------------------------------------------------------------------
 	* 球との交差状態を求める
 	*---------------------------------------------------------------------*/
-	IntersectType intersect_sphere(const Vector3<T>& center, T radius) const
+	intersect_result intersect_sphere(const vector3<T>& center, T radius) const
 	{
 		T distance = dot_coord(center);
 
 		// 半径より小さかったら平面上に存在している
 		if (math_type::abs(distance) <= radius)
 		{
-			return eOnPlane;
+			return on_plane;
 		}
 		// 半径より大きい場合は前面
 		if (distance > radius)
 		{
-			return eOnForward;
+			return on_forward;
 		}
-		return eOnBackward;
+		return on_backward;
 	}
-	bool is_intersect_sphere(const Vector3<T>& center, T radius) const
+	bool is_intersect_sphere(const vector3<T>& center, T radius) const
 	{
-		return intersect_sphere(center, radius) == eOnPlane;
+		return intersect_sphere(center, radius) == on_plane;
 	}
 
 	/*-----------------------------------------------------------------------------------------
@@ -432,18 +420,18 @@ struct Plane
 	{
 		_DEB_RANGE_ASSERT(i, 0, 3);
 #ifdef _USE_ANONYMOUS_NON_POD
-		return Data[i];
+		return data[i];
 #else
-		return (&Normal.X)[i];
+		return (&normal.x)[i];
 #endif // _USE_ANONYMOUS_NON_POD
 	}
 	const T& operator [] (int i) const
 	{
 		_DEB_RANGE_ASSERT(i, 0, 3);
 #ifdef _USE_ANONYMOUS_NON_POD
-		return Data[i];
+		return data[i];
 #else
-		return (&Normal.X)[i];
+		return (&normal.x)[i];
 #endif // _USE_ANONYMOUS_NON_POD
 	}
 
@@ -451,35 +439,35 @@ struct Plane
 	* 型変換演算子
 	*---------------------------------------------------------------------*/
 	template <typename U>
-	_CXX11_EXPLICIT operator Plane<U>() const
+	_CXX11_EXPLICIT operator plane<U>() const
 	{
-		return Plane<U>(static_cast<U>(Normal.X), static_cast<U>(Normal.Y), static_cast<U>(Normal.Z), static_cast<U>(D));
+		return plane<U>(static_cast<U>(normal.x), static_cast<U>(normal.y), static_cast<U>(normal.z), static_cast<U>(d));
 	}
 	_CXX11_EXPLICIT operator T* ()
 	{
 #ifdef _USE_ANONYMOUS_NON_POD
-		return &Data[0];
+		return &data[0];
 #else
-		return &Normal.X;
+		return &normal.x;
 #endif // _USE_ANONYMOUS_NON_POD
 	}
 	_CXX11_EXPLICIT operator const T* () const
 	{
 #ifdef _USE_ANONYMOUS_NON_POD
-		return &Data[0];
+		return &data[0];
 #else
-		return &Normal.X;
+		return &normal.x;
 #endif // _USE_ANONYMOUS_NON_POD
 	}
 
 	/*---------------------------------------------------------------------
 	* 比較演算子
 	*---------------------------------------------------------------------*/
-	bool operator == (const Plane& p) const
+	bool operator == (const plane& p) const
 	{
-		return Normal == p.Normal && D == p.D;
+		return normal == p.normal && d == p.d;
 	}
-	bool operator != (const Plane& p) const
+	bool operator != (const plane& p) const
 	{
 		return !(*this == p);
 	}
@@ -487,91 +475,91 @@ struct Plane
 	/*---------------------------------------------------------------------
 	* 単項演算子
 	*---------------------------------------------------------------------*/
-	Plane operator + () const
+	plane operator + () const
 	{
 		return *this;
 	}
-	Plane operator - () const
+	plane operator - () const
 	{
-		return Plane(-Normal, -D);
+		return plane(-normal, -d);
 	}
 
 	/*---------------------------------------------------------------------
 	* 二項演算子
 	*---------------------------------------------------------------------*/
-	Plane operator + (T d)
+	plane operator + (T d)
 	{
-		return Plane(Normal.X, Normal.Y, Normal.Z, D - d);
+		return plane(normal.x, normal.y, normal.z, d - d);
 	}
-	Plane operator - (T d)
+	plane operator - (T d)
 	{
-		return Plane(Normal.X, Normal.Y, Normal.Z, D + d);
+		return plane(normal.x, normal.y, normal.z, d + d);
 	}
-	Plane operator * (T s)
+	plane operator * (T s)
 	{
-		return Plane(Normal.X, Normal.Y, Normal.Z, D * s);
+		return plane(normal.x, normal.y, normal.z, d * s);
 	}
-	Plane operator / (T s)
+	plane operator / (T s)
 	{
-		return Plane(Normal.X, Normal.Y, Normal.Z, D / s);
+		return plane(normal.x, normal.y, normal.z, d / s);
 	}
 
 	/*---------------------------------------------------------------------
 	* 代入演算子
 	*---------------------------------------------------------------------*/
-	Plane& operator = (const behavior::_right_t&)
+	plane& operator = (const behavior::_right_t&)
 	{
-		Normal = Vector3<T>::Right;
+		normal = vector3<T>::right;
 		return *this;
 	}
-	Plane& operator = (const behavior::_left_t&)
+	plane& operator = (const behavior::_left_t&)
 	{
-		Normal = Vector3<T>::Left;
+		normal = vector3<T>::left;
 		return *this;
 	}
-	Plane& operator = (const behavior::_up_t&)
+	plane& operator = (const behavior::_up_t&)
 	{
-		Normal = Vector3<T>::Up;
+		normal = vector3<T>::up;
 		return *this;
 	}
-	Plane& operator = (const behavior::_down_t&)
+	plane& operator = (const behavior::_down_t&)
 	{
-		Normal = Vector3<T>::Down;
+		normal = vector3<T>::down;
 		return *this;
 	}
-	Plane& operator = (const behavior::_front_t&)
+	plane& operator = (const behavior::_front_t&)
 	{
-		Normal = Vector3<T>::Front;
+		normal = vector3<T>::forward;
 		return *this;
 	}
-	Plane& operator = (const behavior::_back_t&)
+	plane& operator = (const behavior::_back_t&)
 	{
-		Normal = Vector3<T>::Back;
+		normal = vector3<T>::backward;
 		return *this;
 	}
 
 	/*---------------------------------------------------------------------
 	* 複合演算子
 	*---------------------------------------------------------------------*/
-	Plane& operator += (T d)
+	plane& operator += (T d)
 	{
 		// 距離のみを変化させる
-		D -= d;
+		d -= d;
 		return *this;
 	}
-	Plane& operator -= (T d)
+	plane& operator -= (T d)
 	{
-		D += d;
+		d += d;
 		return *this;
 	}
-	Plane& operator *= (T s)
+	plane& operator *= (T s)
 	{
-		D *= s;
+		d *= s;
 		return *this;
 	}
-	Plane& operator /= (T s)
+	plane& operator /= (T s)
 	{
-		D /= s;
+		d /= s;
 		return *this;
 	}
 
@@ -579,66 +567,66 @@ struct Plane
 	* タグでの関数呼び出し
 	*------------------------------------------------------------------------------------------*/
 
-	Plane& operator () (const behavior::_right_t&)
+	plane& operator () (const behavior::_right_t&)
 	{
-		Normal = Vector3<T>::Right;
+		normal = vector3<T>::right;
 		return *this;
 	}
-	Plane& operator () (const behavior::_left_t&)
+	plane& operator () (const behavior::_left_t&)
 	{
-		Normal = Vector3<T>::Left;
+		normal = vector3<T>::left;
 		return *this;
 	}
-	Plane& operator () (const behavior::_up_t&)
+	plane& operator () (const behavior::_up_t&)
 	{
-		Normal = Vector3<T>::Up;
+		normal = vector3<T>::up;
 		return *this;
 	}
-	Plane& operator () (const behavior::_down_t&)
+	plane& operator () (const behavior::_down_t&)
 	{
-		Normal = Vector3<T>::Down;
+		normal = vector3<T>::down;
 		return *this;
 	}
-	Plane& operator () (const behavior::_front_t&)
+	plane& operator () (const behavior::_front_t&)
 	{
-		Normal = Vector3<T>::Front;
+		normal = vector3<T>::forward;
 		return *this;
 	}
-	Plane& operator () (const behavior::_back_t&)
+	plane& operator () (const behavior::_back_t&)
 	{
-		Normal = Vector3<T>::Back;
+		normal = vector3<T>::backward;
 		return *this;
 	}
-	Plane operator () (const behavior::_add_t&, T f) const
+	plane operator () (const behavior::_add_t&, T f) const
 	{
 		return operator+(f);
 	}
-	Plane operator () (const behavior::_sub_t&, T f) const
+	plane operator () (const behavior::_sub_t&, T f) const
 	{
 		return operator-(f);
 	}
-	Plane operator () (const behavior::_mul_t&, T f) const
+	plane operator () (const behavior::_mul_t&, T f) const
 	{
 		return operator*(f);
 	}
-	Plane operator () (const behavior::_div_t&, T f) const
+	plane operator () (const behavior::_div_t&, T f) const
 	{
 		return operator/(f);
 	}
 
-	Plane& operator () (const behavior::_add_assign_t&, T f)
+	plane& operator () (const behavior::_add_assign_t&, T f)
 	{
 		return operator+=(f);
 	}
-	Plane& operator () (const behavior::_sub_assign_t&, T f)
+	plane& operator () (const behavior::_sub_assign_t&, T f)
 	{
 		return operator-=(f);
 	}
-	Plane& operator () (const behavior::_mul_assign_t&, T f)
+	plane& operator () (const behavior::_mul_assign_t&, T f)
 	{
 		return operator*=(f);
 	}
-	Plane& operator () (const behavior::_div_assign_t&, T f)
+	plane& operator () (const behavior::_div_assign_t&, T f)
 	{
 		return operator/=(f);
 	}
@@ -659,15 +647,15 @@ struct Plane
 		return operator const T*();
 	}
 
-	bool operator () (const behavior::_equal_t&, const Plane& q) const
+	bool operator () (const behavior::_equal_t&, const plane& q) const
 	{
 		return operator==(q);
 	}
-	bool operator () (const behavior::_not_equal_t&, const Plane& q) const
+	bool operator () (const behavior::_not_equal_t&, const plane& q) const
 	{
 		return operator!=(q);
 	}
-	bool operator () (const behavior::_near_t&, const Plane& q) const
+	bool operator () (const behavior::_near_t&, const plane& q) const
 	{
 		return is_near(q);
 	}
@@ -676,117 +664,117 @@ struct Plane
 		return is_near_zero();
 	}
 
-	Plane& operator () (const behavior::_normalize_t&)
+	plane& operator () (const behavior::_normalize_t&)
 	{
 		return normalize();
 	}
-	Plane operator () (const behavior::_normalized_t&) const
+	plane operator () (const behavior::_normalized_t&) const
 	{
 		return normalized();
 	}
-	Plane operator () (const behavior::_lerp_t&, const Plane& p, T t) const
+	plane operator () (const behavior::_lerp_t&, const plane& p, T t) const
 	{
 		return lerp(p, t);
 	}
 
-	T operator () (const behavior::_dot_t&, const Vector4<T>& v) const
+	T operator () (const behavior::_dot_t&, const vector4<T>& v) const
 	{
 		return dot(v);
 	}
-	T operator () (const behavior::_dot_normal_t&, const Vector3<T>& v) const
+	T operator () (const behavior::_dot_normal_t&, const vector3<T>& v) const
 	{
 		return dot_normal(v);
 	}
-	T operator () (const behavior::_dot_coord_t&, const Vector3<T>& v) const
+	T operator () (const behavior::_dot_coord_t&, const vector3<T>& v) const
 	{
 		return dot_coord(v);
 	}
-	Vector3<T> operator () (const behavior::_point_t&) const
+	vector3<T> operator () (const behavior::_point_t&) const
 	{
 		return point();
 	}
-	bool operator () (const behavior::_intersect_t&, const Ray<T, Vector3>& r) const
+	bool operator () (const behavior::_intersect_t&, const ray<T, vector3>& r) const
 	{
 		return is_intersect_ray(r);
 	}
-	bool operator () (const behavior::_intersect_t&, const Line<T, Vector3>& l) const
+	bool operator () (const behavior::_intersect_t&, const line<T, vector3>& l) const
 	{
 		return is_intersect_line(l);
 	}
-	bool operator () (const behavior::_intersect_ray_t&, const Ray<T, Vector3>& r) const
+	bool operator () (const behavior::_intersect_ray_t&, const ray<T, vector3>& r) const
 	{
 		return is_intersect_ray(r);
 	}
-	bool operator () (const behavior::_intersect_ray_t&, const Vector3<T>& position, const Vector3<T>& direction) const
+	bool operator () (const behavior::_intersect_ray_t&, const vector3<T>& position, const vector3<T>& direction) const
 	{
 		return is_intersect_ray(position, direction);
 	}
-	bool operator () (const behavior::_intersect_line_t&, const Line<T, Vector3>& l) const
+	bool operator () (const behavior::_intersect_line_t&, const line<T, vector3>& l) const
 	{
 		return is_intersect_line(l);
 	}
-	bool operator () (const behavior::_intersect_line_t&, const Vector3<T>& begin, const Vector3<T>& end) const
+	bool operator () (const behavior::_intersect_line_t&, const vector3<T>& begin, const vector3<T>& end) const
 	{
 		return is_intersect_line(begin, end);
 	}
 };
 
 template <typename T>
-const Plane<T> Plane<T>::Up(math_type::Zero, math_type::One, math_type::Zero, math_type::Zero);
+const plane<T> plane<T>::up(math_type::zero, math_type::one, math_type::zero, math_type::zero);
 template <typename T>
-const Plane<T> Plane<T>::Down(math_type::Zero, -math_type::One, math_type::Zero, math_type::Zero);
+const plane<T> plane<T>::down(math_type::zero, -math_type::one, math_type::zero, math_type::zero);
 template <typename T>
-const Plane<T> Plane<T>::Right(math_type::One, math_type::Zero, math_type::Zero, math_type::Zero);
+const plane<T> plane<T>::right(math_type::one, math_type::zero, math_type::zero, math_type::zero);
 template <typename T>
-const Plane<T> Plane<T>::Left(-math_type::One, math_type::Zero, math_type::Zero, math_type::Zero);
+const plane<T> plane<T>::left(-math_type::one, math_type::zero, math_type::zero, math_type::zero);
 template <typename T>
-const Plane<T> Plane<T>::Front(math_type::Zero, math_type::Zero, math_type::One, math_type::Zero);
+const plane<T> plane<T>::forward(math_type::zero, math_type::zero, math_type::one, math_type::zero);
 template <typename T>
-const Plane<T> Plane<T>::Back(math_type::Zero, math_type::Zero, -math_type::One, math_type::Zero);
+const plane<T> plane<T>::backward(math_type::zero, math_type::zero, -math_type::one, math_type::zero);
 
 template <typename T, template <typename> class VectorN> inline
-bool Line<T, VectorN>::is_intersect(const Plane<T>& p) const
+bool line<T, VectorN>::is_intersect(const plane<T>& p) const
 {
-	return p.is_intersect_line(Begin, End);
+	return p.is_intersect_line(begin, end);
 }
 
 template <typename T, template <typename> class VectorN> inline
-bool Ray<T, VectorN>::is_intersect(const Plane<T>& p) const
+bool ray<T, VectorN>::is_intersect(const plane<T>& p) const
 {
-	return p.is_intersect_ray(Position, Direction);
+	return p.is_intersect_ray(origin, direction);
 }
 
 #ifdef _USING_MATH_IO
 template <typename CharT, typename CharTraits, typename T> inline
-std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const Plane<T>& p)
+std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const plane<T>& p)
 {
-	// (Normal, D)
-	os << out_char::parentheses_left << p.Normal << out_char::comma_space << p.D << out_char::parentheses_right;
+	// (normal, d)
+	os << io::parentheses_left << p.normal << io::comma_space << p.d << io::parentheses_right;
 	return os;
 }
 template <typename CharT, typename CharTraits, typename T> inline
-std::basic_istream<CharT, CharTraits>& operator >> (std::basic_istream<CharT, CharTraits>& is, Plane<T>& p)
+std::basic_istream<CharT, CharTraits>& operator >> (std::basic_istream<CharT, CharTraits>& is, plane<T>& p)
 {
 	is.ignore();
-	is >> p.Normal;
+	is >> p.normal;
 	is.ignore();
-	is >> p.D;
+	is >> p.d;
 	is.ignore();
 	return is;
 }
 template <typename CharT, typename CharTraits, typename T> inline
-std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, CharTraits>& os, const Plane<T>& p)
+std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, CharTraits>& os, const plane<T>& p)
 {
-	os << out_char::parentheses_left << p.Normal << out_char::comma_space << p.D << out_char::parentheses_right;
+	os << io::parentheses_left << p.normal << io::comma_space << p.d << io::parentheses_right;
 	return os;
 }
 template <typename CharT, typename CharTraits, typename T> inline
-std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, CharTraits>& is, Plane<T>& p)
+std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, CharTraits>& is, plane<T>& p)
 {
 	is.ignore();
-	is >> p.Normal;
+	is >> p.normal;
 	is.ignore();
-	is >> p.D;
+	is >> p.d;
 	is.ignore();
 	return is;
 }

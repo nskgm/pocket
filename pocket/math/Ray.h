@@ -5,10 +5,10 @@
 
 #include "../behavior.h"
 #include "../debug.h"
-#include "array.h"
-#include "Math.h"
-#include "Vector2.h"
-#include "Vector3.h"
+#include "../container/array.h"
+#include "math_traits.h"
+#include "vector2.h"
+#include "vector3.h"
 #ifdef _USING_MATH_IO
 #include <iostream>
 #endif // _USING_MATH_IO
@@ -16,42 +16,25 @@
 namespace pocket
 {
 
-template <typename, template <typename> class> struct Ray;
-template <typename, template <typename> class> struct Line;
-template <typename> struct Plane;
+template <typename, template <typename> class> struct ray;
+template <typename, template <typename> class> struct line;
+template <typename> struct plane;
 
 #ifndef _UNUSING_MATH_INT_FLOAT
-typedef Ray<float, Vector2> Ray2f;
-typedef Ray<float, Vector3> Ray3f;
+typedef ray<float, vector2> ray2f;
+typedef ray<float, vector3> ray3f;
 #endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
-typedef Ray<double, Vector2> Ray2d;
-typedef Ray<double, Vector3> Ray3d;
+typedef ray<double, vector2> ray2d;
+typedef ray<double, vector3> ray3d;
 #endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
-typedef Ray<long double, Vector2> Ray2ld;
-typedef Ray<long double, Vector3> Ray3ld;
+typedef ray<long double, vector2> ray2ld;
+typedef ray<long double, vector3> ray3ld;
 #endif // _USING_MATH_LONG_DOUBLE
-
-#ifdef _USE_CXX11
-template <typename T, template <typename> class VN>
-using ray = Ray<T, VN>;
-#ifndef _UNUSING_MATH_INT_FLOAT
-using ray2f = ray<float, Vector2>;
-using ray3f = ray<float, Vector3>;
-#endif // _UNUSING_MATH_INT_FLOAT
-#ifdef _USING_MATH_DOUBLE
-using ray2d = ray<double, Vector2>;
-using ray3d = ray<double, Vector3>;
-#endif // _USING_MATH_DOUBLE
-#ifdef _USING_MATH_LONG_DOUBLE
-using ray2ld = ray<long double, Vector2>;
-using ray3ld = ray<long double, Vector3>;
-#endif // _USING_MATH_LONG_DOUBLE
-#endif // _USE_CXX11
 
 template <typename T, template <typename> class VectorN>
-struct Ray
+struct ray
 {
 	_MATH_STATICAL_ASSERT_FLOATING(T);
 
@@ -59,8 +42,9 @@ struct Ray
 	* Types
 	*-----------------------------------------------------------------------------------------*/
 
-	typedef Math<T> math_type;
+	typedef math_traits<T> math_type;
 	typedef VectorN<T> vector_type;
+	typedef plane<T> plane_type;
 
 	typedef container::array<vector_type, 2> array_type;
 	typedef typename array_type::value_type value_type;
@@ -75,44 +59,44 @@ struct Ray
 	* Members
 	*-----------------------------------------------------------------------------------------*/
 
-	vector_type Position; // 基点
-	vector_type Direction; // 方向
+	vector_type origin; // 基点
+	vector_type direction; // 方向
 
-	template <typename, template <typename> class> friend struct Ray;
+	template <typename, template <typename> class> friend struct ray;
 
 	/*-----------------------------------------------------------------------------------------
 	* Constants
 	*-----------------------------------------------------------------------------------------*/
 
-	static const Ray Up; // [0.0, 0.0, 0.0], [0.0, 1.0, 0.0]
-	static const Ray Down; // [0.0, 0.0, 0.0], [0.0, -1.0, 0.0]
-	static const Ray Right; // [0.0, 0.0, 0.0], [1.0, 0.0, 0.0]
-	static const Ray Left; // [0.0, 0.0, 0.0], [-1.0, 0.0, 0.0]
-	static const Ray Front; // [0.0, 0.0, 0.0], [0.0, 0.0, 1.0]
-	static const Ray Back; // [0.0, 0.0, 0.0], [0.0, 0.0, -1.0]
+	static const ray up; // [0.0, 0.0, 0.0], [0.0, 1.0, 0.0]
+	static const ray down; // [0.0, 0.0, 0.0], [0.0, -1.0, 0.0]
+	static const ray right; // [0.0, 0.0, 0.0], [1.0, 0.0, 0.0]
+	static const ray left; // [0.0, 0.0, 0.0], [-1.0, 0.0, 0.0]
+	static const ray forward; // [0.0, 0.0, 0.0], [0.0, 0.0, 1.0]
+	static const ray backward; // [0.0, 0.0, 0.0], [0.0, 0.0, -1.0]
 
 	/*-----------------------------------------------------------------------------------------
 	* Constructors
 	*-----------------------------------------------------------------------------------------*/
 
-	_DEFAULT_CONSTRUCTOR(Ray);
-	explicit Ray(const behavior::_noinitialize_t&)
+	_DEFAULT_CONSTRUCTOR(ray);
+	explicit ray(const behavior::_noinitialize_t&)
 	{
 
 	}
-	explicit Ray(const vector_type& dir) :
-		Position(vector_type::Zero),
-		Direction(dir)
+	explicit ray(const vector_type& dir) :
+		origin(vector_type::zero),
+		direction(dir)
 	{
-
+		direction.normalize();
 	}
-	Ray(const vector_type& p, const vector_type& d) :
-		Position(p), Direction(d)
+	ray(const vector_type& p, const vector_type& d) :
+		origin(p), direction(d)
 	{
-
+		direction.normalize();
 	}
 
-	explicit Ray(const Line<T, VectorN>&); // Line.h
+	explicit ray(const line<T, VectorN>&); // line.h
 
 	/*-----------------------------------------------------------------------------------------
 	* Functions
@@ -121,43 +105,43 @@ struct Ray
 	/*---------------------------------------------------------------------
 	* 座標と注視点から求める
 	*---------------------------------------------------------------------*/
-	Ray& from_lookat(const vector_type& position, const vector_type& center)
+	ray& from_lookat(const vector_type& position, const vector_type& center)
 	{
-		Position = position;
-		center.direction(position, Direction);
+		origin = position;
+		position.direction(center, direction);
 		return *this;
 	}
 	/*---------------------------------------------------------------------
 	* 線分から求める
 	*---------------------------------------------------------------------*/
-	Ray& from_line(const Line<T, VectorN>&); // Line.h
+	ray& from_line(const line<T, VectorN>&); // line.h
 
 	/*---------------------------------------------------------------------
 	* 座標を求める
 	*---------------------------------------------------------------------*/
 	vector_type point(T s) const
 	{
-		return Position + Direction * s;
+		return origin + direction * s;
 	}
 	vector_type& point(T s, vector_type& result) const
 	{
-		result = Position;
-		result += Direction * s;
+		result = origin;
+		result += direction * s;
 		return result;
 	}
 
 	/*---------------------------------------------------------------------
 	* 正規化
 	*---------------------------------------------------------------------*/
-	Ray& normalize()
+	ray& normalize()
 	{
-		Direction.normalize();
+		direction.normalize();
 		return *this;
 	}
 	/*---------------------------------------------------------------------
 	* 平面と交差しているか
 	*---------------------------------------------------------------------*/
-	bool is_intersect(const Plane<T>&) const; // Plane.h
+	bool is_intersect(const plane_type&) const; // plane.h
 
 	/*-----------------------------------------------------------------------------------------
 	* Operators
@@ -166,11 +150,11 @@ struct Ray
 	/*---------------------------------------------------------------------
 	* 比較演算子
 	*---------------------------------------------------------------------*/
-	bool operator == (const Ray& r) const
+	bool operator == (const ray& r) const
 	{
-		return Position == r.Position && Direction == r.Direction;
+		return origin == r.origin && direction == r.direction;
 	}
-	bool operator != (const Ray& r) const
+	bool operator != (const ray& r) const
 	{
 		return !(*this == r);
 	}
@@ -178,136 +162,136 @@ struct Ray
 	/*---------------------------------------------------------------------
 	* 単項演算子
 	*---------------------------------------------------------------------*/
-	Ray operator + () const
+	ray operator + () const
 	{
 		return *this;
 	}
-	Ray operator - () const
+	ray operator - () const
 	{
 		// 反対の方向を示す
-		return Ray(Position, -Direction);
+		return ray(origin, -direction);
 	}
 
 	/*---------------------------------------------------------------------
 	* 二項演算子
 	*---------------------------------------------------------------------*/
-	Ray operator + (const vector_type& p) const
+	ray operator + (const vector_type& p) const
 	{
 		// 座標のみ合わせる
-		return Ray(Position + p, Direction);
+		return ray(origin + p, direction);
 	}
-	Ray operator + (const Ray& r) const
+	ray operator + (const ray& r) const
 	{
 		// 座標は足し、方向は中間を求める
-		Vector3<T> d = Direction + r.Direction;
+		vector3<T> d = direction + r.direction;
 		d.normalize();
-		return Ray(Position + r.Position, d);
+		return ray(origin + r.origin, d);
 	}
-	Ray operator - (const vector_type& p) const
+	ray operator - (const vector_type& p) const
 	{
-		return Ray(Position - p, Direction);
+		return ray(origin - p, direction);
 	}
-	Ray operator - (const Ray& r) const
+	ray operator - (const ray& r) const
 	{
 		// 座標は引き、方向は逆の中間を求める
-		Vector3<T> d = Direction - r.Direction;
+		vector3<T> d = direction - r.direction;
 		d.normalize();
-		return Ray(Position - r.Position, d);
+		return ray(origin - r.origin, d);
 	}
-	Ray operator * (T s) const
+	ray operator * (T s) const
 	{
 		// 座標へかける
-		return Ray(Position * s, Direction);
+		return ray(origin * s, direction);
 	}
-	Ray operator / (T s) const
+	ray operator / (T s) const
 	{
-		return Ray(Position / s, Direction);
+		return ray(origin / s, direction);
 	}
 
 	/*---------------------------------------------------------------------
 	* 複合演算子
 	*---------------------------------------------------------------------*/
-	Ray& operator += (const vector_type& p)
+	ray& operator += (const vector_type& p)
 	{
-		Position += p;
-		// Directionはなし
+		origin += p;
+		// directionはなし
 		return *this;
 	}
-	Ray& operator += (const Ray& r)
+	ray& operator += (const ray& r)
 	{
-		Position += r.Position;
-		Direction += r.Direction;
-		Direction.normalize();
+		origin += r.origin;
+		direction += r.direction;
+		direction.normalize();
 		return *this;
 	}
-	Ray& operator -= (const vector_type& p)
+	ray& operator -= (const vector_type& p)
 	{
-		Position -= p;
+		origin -= p;
 		return *this;
 	}
-	Ray& operator -= (const Ray& r)
+	ray& operator -= (const ray& r)
 	{
-		Position -= r.Position;
-		Direction -= r.Direction;
-		Direction.normalize();
+		origin -= r.origin;
+		direction -= r.direction;
+		direction.normalize();
 		return *this;
 	}
-	Ray& operator *= (T s)
+	ray& operator *= (T s)
 	{
-		Position *= s;
+		origin *= s;
 		return *this;
 	}
-	Ray& operator /= (T s)
+	ray& operator /= (T s)
 	{
-		Position /= s;
+		origin /= s;
 		return *this;
 	}
 };
 
 template <typename T, template <typename> class VectorN>
-const Ray<T, VectorN> Ray<T, VectorN>::Up(vector_type::Up);
+const ray<T, VectorN> ray<T, VectorN>::up(vector_type::up);
 template <typename T, template <typename> class VectorN>
-const Ray<T, VectorN> Ray<T, VectorN>::Down(vector_type::Down);
+const ray<T, VectorN> ray<T, VectorN>::down(vector_type::down);
 template <typename T, template <typename> class VectorN>
-const Ray<T, VectorN> Ray<T, VectorN>::Right(vector_type::Right);
+const ray<T, VectorN> ray<T, VectorN>::right(vector_type::right);
 template <typename T, template <typename> class VectorN>
-const Ray<T, VectorN> Ray<T, VectorN>::Left(vector_type::Left);
+const ray<T, VectorN> ray<T, VectorN>::left(vector_type::left);
 template <typename T, template <typename> class VectorN>
-const Ray<T, VectorN> Ray<T, VectorN>::Front(vector_type::Front);
+const ray<T, VectorN> ray<T, VectorN>::forward(vector_type::forward);
 template <typename T, template <typename> class VectorN>
-const Ray<T, VectorN> Ray<T, VectorN>::Back(vector_type::Back);
+const ray<T, VectorN> ray<T, VectorN>::backward(vector_type::backward);
 
 #ifdef _USING_MATH_IO
 template <typename CharT, typename CharTraits, typename T, template <typename> class VectorN> inline
-std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const Ray<T, VectorN>& v)
+std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const ray<T, VectorN>& v)
 {
-	// (Position, Direction)
-	os << out_char::parentheses_left << v.Position << out_char::comma_space << v.Direction << out_char::parentheses_right;
+	// (origin, direction)
+	os << io::parentheses_left << v.origin << io::comma_space << v.direction << io::parentheses_right;
 	return os;
 }
 template <typename CharT, typename CharTraits, typename T, template <typename> class VectorN> inline
-std::basic_istream<CharT, CharTraits>& operator >> (std::basic_istream<CharT, CharTraits>& is, Ray<T, VectorN>& v)
+std::basic_istream<CharT, CharTraits>& operator >> (std::basic_istream<CharT, CharTraits>& is, ray<T, VectorN>& v)
 {
 	is.ignore();
-	is >> v.Position;
+	is >> v.origin;
 	is.ignore();
-	is >> v.Direction;
+	is >> v.direction;
 	is.ignore();
 	return is;
 }
 template <typename CharT, typename CharTraits, typename T, template <typename> class VectorN> inline
-std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, CharTraits>& os, const Ray<T, VectorN>& v)
+std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, CharTraits>& os, const ray<T, VectorN>& v)
 {
-	os << out_char::parentheses_left << v.Position << out_char::comma_space << v.Direction << out_char::parentheses_right;
+	os << io::parentheses_left << v.origin << io::comma_space << v.direction << io::parentheses_right;
 	return os;
 }
 template <typename CharT, typename CharTraits, typename T, template <typename> class VectorN> inline
-std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, CharTraits>& is, Ray<T, VectorN>& v)
+std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, CharTraits>& is, ray<T, VectorN>& v)
 {
 	is.ignore();
-	is >> v.Position;
+	is >> v.origin;
 	is.ignore();
-	is >> v.Direction;
+	is >> v.direction;
 	is.ignore();
 	return is;
 }

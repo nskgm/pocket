@@ -8,9 +8,9 @@
 
 #include "../debug.h"
 #include "../behavior.h"
-#include "array.h"
-#include "Math.h"
-#include "Vector2.h"
+#include "../container/array.h"
+#include "math_traits.h"
+#include "vector2.h"
 #ifdef _USING_MATH_IO
 #include "../io.h"
 #endif // _USING_MATH_IO
@@ -18,39 +18,25 @@
 namespace pocket
 {
 
-template <typename> struct Vector3;
-template <typename> struct Vector4;
-template <typename> struct Matrix4x4;
-template <typename> struct Quaternion;
+template <typename> struct vector3;
+template <typename> struct vector4;
+template <typename> struct matrix4x4;
+template <typename> struct quaternion;
 
 #ifndef _UNUSING_MATH_INT_FLOAT
-typedef Vector3<int> Point3;
-typedef Vector3<int> Vector3i;
-typedef Vector3<float> Vector3f;
+typedef vector3<int> Point3;
+typedef vector3<int> vector3i;
+typedef vector3<float> vector3f;
 #endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
-typedef Vector3<double> Vector3d;
+typedef vector3<double> vector3d;
 #endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
-typedef Vector3<long double> Vector3ld;
+typedef vector3<long double> vector3ld;
 #endif // _USING_MATH_LONG_DOUBLE
 
-#ifdef _USE_CXX11
 template <typename T>
-using vec3 = Vector3<T>;
-#ifndef _UNUSING_MATH_INT_FLOAT
-using vec3f = vec3<float>;
-#endif // _UNUSING_MATH_INT_FLOAT
-#ifdef _USING_MATH_DOUBLE
-using vec3d = vec3<double>;
-#endif // _USING_MATH_DOUBLE
-#ifdef _USING_MATH_LONG_DOUBLE
-using vec3ld = vec3<long double>;
-#endif // _USING_MATH_LONG_DOUBLE
-#endif // _USE_CXX11
-
-template <typename T>
-struct Vector3
+struct vector3
 {
 	_MATH_STATICAL_ASSERT(T);
 
@@ -58,7 +44,7 @@ struct Vector3
 	* Types
 	*-----------------------------------------------------------------------------------------*/
 
-	typedef Math<T> math_type;
+	typedef math_traits<T> math_type;
 
 	typedef container::array<T, 3> array_type;
 	typedef typename array_type::value_type value_type;
@@ -80,9 +66,9 @@ struct Vector3
 		{
 #endif // _USE_ANONYMOUS
 
-			T X;
-			T Y;
-			T Z;
+			T x;
+			T y;
+			T z;
 
 #ifdef _USE_ANONYMOUS
 		};
@@ -90,89 +76,89 @@ struct Vector3
 #ifdef _USE_ANONYMOUS_NON_POD
 		struct
 		{
-			Vector2<T> XY;
+			vector2<T> xy;
 		};
 #endif // _USE_ANONYMOUS_NON_POD
 
-		array_type Data;
+		array_type data;
 	};
 #endif // _USE_ANONYMOUS
 
-	template <typename> friend struct Vector3;
+	template <typename> friend struct vector3;
 
 	/*-----------------------------------------------------------------------------------------
 	* Constants
 	*-----------------------------------------------------------------------------------------*/
 
-	static const Vector3 Zero; // 0.0, 0.0, 0.0
-	static const Vector3 One; // 1.0, 1.0, 1.0
-	static const Vector3 UnitX; // 1.0, 0.0, 0.0
-	static const Vector3 UnitY; // 0.0, 1.0, 0.0
-	static const Vector3 UnitZ; // 0.0, 0.0, 1.0
-	static const Vector3 Up; // 0.0, 1.0, 0.0
-	static const Vector3 Down; // 0.0, -1.0, 0.0
-	static const Vector3 Right; // 1.0, 0.0, 0.0
-	static const Vector3 Left; // -1.0, 0.0, 0.0
-	static const Vector3 Front; // 0.0, 0.0, 1.0
-	static const Vector3 Back; // 0.0, 0.0, -1.0
+	static const vector3 zero; // 0.0, 0.0, 0.0
+	static const vector3 one; // 1.0, 1.0, 1.0
+	static const vector3 unit_x; // 1.0, 0.0, 0.0
+	static const vector3 unit_y; // 0.0, 1.0, 0.0
+	static const vector3 unit_z; // 0.0, 0.0, 1.0
+	static const vector3 up; // 0.0, 1.0, 0.0
+	static const vector3 down; // 0.0, -1.0, 0.0
+	static const vector3 right; // 1.0, 0.0, 0.0
+	static const vector3 left; // -1.0, 0.0, 0.0
+	static const vector3 forward; // 0.0, 0.0, 1.0
+	static const vector3 backward; // 0.0, 0.0, -1.0
 
 	/*-----------------------------------------------------------------------------------------
 	* Constructors
 	*-----------------------------------------------------------------------------------------*/
 
-	_DEFAULT_CONSTRUCTOR(Vector3);
-	explicit Vector3(const behavior::_noinitialize_t&)
+	_DEFAULT_CONSTRUCTOR(vector3);
+	explicit vector3(const behavior::_noinitialize_t&)
 	{
 
 	}
-	explicit Vector3(const behavior::_zero_t&) :
+	explicit vector3(const behavior::_zero_t&) :
 #ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
-		X(math_type::Zero), Y(math_type::Zero),
+		x(math_type::zero), y(math_type::zero),
 #else
-		XY(math_type::Zero, math_type::Zero),
+		xy(math_type::zero, math_type::zero),
 #endif
-		Z(math_type::Zero)
+		z(math_type::zero)
 	{
 
 	}
-	explicit Vector3(const behavior::_one_t&) :
+	explicit vector3(const behavior::_one_t&) :
 #ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
-		X(math_type::One), Y(math_type::One),
+		x(math_type::one), y(math_type::one),
 #else
-		XY(math_type::One, math_type::One),
+		xy(math_type::one, math_type::one),
 #endif
-		Z(math_type::One)
+		z(math_type::one)
 	{
 
 	}
-	explicit Vector3(const behavior::_half_t&) :
+	explicit vector3(const behavior::_half_t&) :
 #ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
-		X(math_type::Half), Y(math_type::Half),
+		x(math_type::half), y(math_type::half),
 #else
-		XY(math_type::Half, math_type::Half),
+		xy(math_type::half, math_type::half),
 #endif
-		Z(math_type::Half)
+		z(math_type::half)
 	{
 
 	}
-	explicit Vector3(const behavior::_half_of_half_t&) :
+	explicit vector3(const behavior::_half_of_half_t&) :
 #ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
-		X(math_type::HalfOfHalf), Y(math_type::HalfOfHalf),
+		x(math_type::half_of_half), y(math_type::half_of_half),
 #else
-		XY(math_type::HalfOfHalf, math_type::HalfOfHalf),
+		xy(math_type::half_of_half, math_type::half_of_half),
 #endif
-		Z(math_type::HalfOfHalf)
+		z(math_type::half_of_half)
 	{
 
 	}
 
-	Vector3(T x, T y, T z) :
+	vector3(T x, T y, T z) :
 #ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
-		X(x), Y(y),
+		x(x), y(y),
 #else
-		XY(x, y),
+		xy(x, y),
 #endif
-		Z(z)
+		z(z)
 	{
 
 	}
@@ -181,157 +167,156 @@ struct Vector3
 		_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U1),
 		_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U2)
 	>
-		Vector3(U X, U1 Y, U2 Z) :
+		vector3(U x, U1 y, U2 z) :
 #ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
-		X(static_cast<T>(X)), Y(static_cast<T>(Y)),
+		x(static_cast<T>(x)), y(static_cast<T>(y)),
 #else
-		XY(static_cast<T>(X), static_cast<T>(Y)),
+		xy(static_cast<T>(x), static_cast<T>(y)),
 #endif
-		Z(static_cast<T>(Z))
+		z(static_cast<T>(z))
 	{
 
 	}
-	explicit Vector3(T f) :
+	explicit vector3(T f) :
 #ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
-		X(f), Y(f),
+		x(f), y(f),
 #else
-		XY(f),
+		xy(f),
 #endif
-		Z(f)
+		z(f)
 	{
 
 	}
 	template <typename U, _TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
-	explicit Vector3(U f) :
+	explicit vector3(U f) :
 #ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
-		X(static_cast<T>(f)), Y(static_cast<T>(f)),
+		x(static_cast<T>(f)), y(static_cast<T>(f)),
 #else
-		XY(static_cast<T>(f)),
+		xy(static_cast<T>(f)),
 #endif
-		Z(static_cast<T>(f))
+		z(static_cast<T>(f))
 	{
 
 	}
-	Vector3(const Vector2<T>& v, T Z) :
+	vector3(const vector2<T>& v, T z) :
 #ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
-		X(v.X), Y(v.Y),
+		x(v.x), y(v.y),
 #else
-		XY(v),
+		xy(v),
 #endif
-		Z(Z)
-	{
-
-	}
-	template <typename U>
-	Vector3(const Vector2<U>& v, U Z) :
-#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
-		X(static_cast<T>(v.X)), Y(static_cast<T>(v.Y)),
-#else
-		XY(static_cast<T>(v.X), static_cast<T>(v.Y)),
-#endif
-		Z(static_cast<T>(Z))
+		z(z)
 	{
 
 	}
 	template <typename U>
-	Vector3(const Vector3<U>& v) :
+	vector3(const vector2<U>& v, U z) :
 #ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
-		X(static_cast<T>(v.X)), Y(static_cast<T>(v.Y)),
+		x(static_cast<T>(v.x)), y(static_cast<T>(v.y)),
 #else
-		XY(static_cast<T>(v.X), static_cast<T>(v.Y)),
+		xy(static_cast<T>(v.x), static_cast<T>(v.y)),
 #endif
-		Z(static_cast<T>(v.Z))
+		z(static_cast<T>(z))
+	{
+
+	}
+	template <typename U>
+	vector3(const vector3<U>& v) :
+#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+		x(static_cast<T>(v.x)), y(static_cast<T>(v.y)),
+#else
+		xy(static_cast<T>(v.x), static_cast<T>(v.y)),
+#endif
+		z(static_cast<T>(v.z))
 	{
 
 	}
 
-	explicit Vector3(const Vector4<T>&);
-	template <typename U> explicit Vector3(const Vector4<U>&); // Vector4.h
+	explicit vector3(const vector4<T>&);
+	template <typename U> explicit vector3(const vector4<U>&); // vector4.h
 
 	/*-----------------------------------------------------------------------------------------
 	* Functions
 	*-----------------------------------------------------------------------------------------*/
 
 	/*---------------------------------------------------------------------
-	* X軸回転角度とY軸回転角度から求める
+	* x軸回転角度とy軸回転角度から求める
 	*---------------------------------------------------------------------*/
-	Vector3& from_pitch_yaw(T pitch, T yaw)
+	vector3& from_pitch_yaw(T pitch, T yaw)
 	{
-		X = math_type::cos(pitch) * math_type::sin(yaw);
-		Y = math_type::sin(pitch);
-		Z = math_type::cos(pitch) * math_type::cos(yaw);
+		x = math_type::cos(pitch) * math_type::sin(yaw);
+		y = math_type::sin(pitch);
+		z = math_type::cos(pitch) * math_type::cos(yaw);
 		return *this;
 	}
 	/*---------------------------------------------------------------------
 	* 足し算
 	*---------------------------------------------------------------------*/
-	Vector3& add(const Vector3& v, Vector3& result) const
+	vector3& add(const vector3& v, vector3& result) const
 	{
-		result.X = X + v.X;
-		result.Y = Y + v.Y;
-		result.Z = Z + v.Z;
+		result.x = x + v.x;
+		result.y = y + v.y;
+		result.z = z + v.z;
 		return result;
 	}
 	template <typename U>
-	Vector3& add(const Vector3<U>& v, Vector3& result) const
+	vector3& add(const vector3<U>& v, vector3& result) const
 	{
-		result.X = X + static_cast<T>(v.X);
-		result.Y = Y + static_cast<T>(v.Y);
-		result.Z = Z + static_cast<T>(v.Z);
+		result.x = x + static_cast<T>(v.x);
+		result.y = y + static_cast<T>(v.y);
+		result.z = z + static_cast<T>(v.z);
 		return result;
 	}
 	/*---------------------------------------------------------------------
 	* 引き算
 	*---------------------------------------------------------------------*/
-	Vector3& subtract(const Vector3& v, Vector3& result) const
+	vector3& subtract(const vector3& v, vector3& result) const
 	{
-		result.X = X - v.X;
-		result.Y = Y - v.Y;
-		result.Z = Z - v.Z;
+		result.x = x - v.x;
+		result.y = y - v.y;
+		result.z = z - v.z;
 		return result;
 	}
 	template <typename U>
-	Vector3& subtract(const Vector3<U>& v, Vector3& result) const
+	vector3& subtract(const vector3<U>& v, vector3& result) const
 	{
-		result.X = X - static_cast<T>(v.X);
-		result.Y = Y - static_cast<T>(v.Y);
-		result.Z = Z - static_cast<T>(v.Z);
+		result.x = x - static_cast<T>(v.x);
+		result.y = y - static_cast<T>(v.y);
+		result.z = z - static_cast<T>(v.z);
 		return result;
 	}
 	/*---------------------------------------------------------------------
 	* 掛け算
 	*---------------------------------------------------------------------*/
-	Vector3& multiply(T f, Vector3& result) const
+	vector3& multiply(T f, vector3& result) const
 	{
-		result.X = X * f;
-		result.Y = Y * f;
-		result.Z = Z * f;
+		result.x = x * f;
+		result.y = y * f;
+		result.z = z * f;
 		return result;
 	}
 	template <typename U, _TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
-	Vector3& multiply(U f, Vector3& result) const
+	vector3& multiply(U f, vector3& result) const
 	{
 		return multiply(static_cast<T>(f), result);
 	}
 	/*---------------------------------------------------------------------
 	* 割り算
 	*---------------------------------------------------------------------*/
-	Vector3& divide(T f, Vector3& result) const
+	vector3& divide(T f, vector3& result) const
 	{
-		_DEB_ASSERT(f != math_type::Zero);
-		f = math_type::One / f;
-		return multiply(f, result);
+		_DEB_ASSERT(f != math_type::zero);
+		return multiply(math_type::reciprocal(f), result);
 	}
 	template <typename U, _TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
-	Vector3& divide(U f, Vector3& result) const
+	vector3& divide(U f, vector3& result) const
 	{
-		_DEB_ASSERT(f != Math<U>::Zero);
+		_DEB_ASSERT(f != math_traits<U>::zero);
 		return divide(static_cast<T>(f), result);
 	}
 	/*---------------------------------------------------------------------
 	* 平行か
 	*---------------------------------------------------------------------*/
-	bool is_parallel(const Vector3& v) const
+	bool is_parallel(const vector3& v) const
 	{
 		// 長さの積の大きさが一致していたら平行(+: 同方向, -: 逆方向)
 		return math_type::is_near_zero(dot(v) - (length() * v.length()));
@@ -339,37 +324,37 @@ struct Vector3
 	/*---------------------------------------------------------------------
 	* 垂直か
 	*---------------------------------------------------------------------*/
-	bool is_vertical(const Vector3& v) const
+	bool is_vertical(const vector3& v) const
 	{
 		return math_type::is_near_zero(dot(v));
 	}
 	/*---------------------------------------------------------------------
 	* 値が近いか
 	*---------------------------------------------------------------------*/
-	bool is_near(const Vector3& v) const
+	bool is_near(const vector3& v) const
 	{
-		return (math_type::is_near(X, v.X) && math_type::is_near(Y, v.Y) && math_type::is_near(Z, v.Z));
+		return (math_type::is_near(x, v.x) && math_type::is_near(y, v.y) && math_type::is_near(z, v.z));
 	}
 	/*---------------------------------------------------------------------
 	* 値がゼロに近いか
 	*---------------------------------------------------------------------*/
 	bool is_near_zero() const
 	{
-		return (math_type::is_near_zero(X) && math_type::is_near_zero(Y) && math_type::is_near_zero(Z));
+		return (math_type::is_near_zero(x) && math_type::is_near_zero(y) && math_type::is_near_zero(z));
 	}
 	/*---------------------------------------------------------------------
 	* 値がゼロか
 	*---------------------------------------------------------------------*/
 	bool is_zero() const
 	{
-		return (X == math_type::Zero && Y == math_type::Zero && Z == math_type::Zero);
+		return (x == math_type::zero && y == math_type::zero && z == math_type::zero);
 	}
 	/*---------------------------------------------------------------------
 	* 長さを求める
 	*---------------------------------------------------------------------*/
 	T length() const
 	{
-		return math_type::sqrt(dot(*this));
+		return math_type::sqrt(length_sq());
 	}
 	/*---------------------------------------------------------------------
 	* 長さを求める（二乗）
@@ -383,94 +368,95 @@ struct Vector3
 	*---------------------------------------------------------------------*/
 	T accumulate() const
 	{
-		return X + Y + Z;
+		return x + y + z;
 	}
 	/*---------------------------------------------------------------------
 	* 距離を求める
 	*---------------------------------------------------------------------*/
-	T distance(const Vector3& v) const
+	T distance(const vector3& v) const
 	{
 		// 差を求めたあとの長さ
-		const Vector3 t(X - v.X, Y - v.Y, Z - v.Z);
+		const vector3 t(x - v.x, y - v.y, z - v.z);
 		return t.length();
 	}
 	/*---------------------------------------------------------------------
 	* 方向を求める
 	*---------------------------------------------------------------------*/
-	Vector3 direction(const Vector3& to) const
+	vector3 direction(const vector3& to) const
 	{
-		Vector3 t(to.X - X, to.Y - Y, to.Z - Z);
+		vector3 t(to.x - x, to.y - y, to.z - z);
 		return t.normalize();
 	}
-	Vector3& direction(const Vector3& to, Vector3& result) const
+	vector3& direction(const vector3& to, vector3& result) const
 	{
-		result.X = to.X - X;
-		result.Y = to.Y - Y;
-		result.Z = to.Z - Z;
+		result.x = to.x - x;
+		result.y = to.y - y;
+		result.z = to.z - z;
 		return result.normalize();
 	}
 	/*---------------------------------------------------------------------
 	* 内積を求める
 	*---------------------------------------------------------------------*/
-	T dot(const Vector3& v) const
+	T dot(const vector3& v) const
 	{
 		// |v1||v2|cos(θ)と同じになる
 		// 値が０のときは垂直
-		return X * v.X + Y * v.Y + Z * v.Z;
+		return x * v.x + y * v.y + z * v.z;
 	}
 	/*---------------------------------------------------------------------
 	* 外積を求める
 	*---------------------------------------------------------------------*/
-	Vector3 cross(const Vector3& v) const
+	vector3 cross(const vector3& v) const
 	{
 		// 二つのベクトルに垂直なベクトルを求める
 		// ２Ｄでは高さを求めていたけどそれの応用でぞれぞれの軸の高さを求める
-		return Vector3(Y * v.Z - Z * v.Y, Z * v.X - X * v.Z, X * v.Y - Y * v.X);
+		return vector3(y * v.z - z * v.y, z * v.x - x * v.z, x * v.y - y * v.x);
 	}
-	Vector3& cross(const Vector3& v, Vector3& result) const
+	vector3& cross(const vector3& v, vector3& result) const
 	{
-		result.X = Y * v.Z - Z * v.Y;
-		result.Y = Z * v.X - X * v.Z;
-		result.Z = X * v.Y - Y * v.X;
+		result.x = y * v.z - z * v.y;
+		result.y = z * v.x - x * v.z;
+		result.z = x * v.y - y * v.x;
 		return result;
 	}
 	/*---------------------------------------------------------------------
 	* 正規化
 	*---------------------------------------------------------------------*/
-	Vector3& normalize()
+	vector3& normalize()
 	{
 		T len = length_sq();
-		if (len != math_type::Zero)
+		if (len > math_type::zero)
 		{
 			// 長さの逆数
 			len = math_type::rsqrt(len);
-			X *= len;
-			Y *= len;
-			Z *= len;
+			x *= len;
+			y *= len;
+			z *= len;
 		}
 		return *this;
 	}
-	/*---------------------------------------------------------------------
-	* 正規化を求める
-	*---------------------------------------------------------------------*/
-	Vector3 normalized() const
-	{
-		Vector3 v = *this;
-		return v.normalize();
-	}
-	Vector3& normalized(Vector3& result) const
+	vector3& normalize(vector3& result) const
 	{
 		result = *this;
 		return result.normalize();
 	}
+
+	/*---------------------------------------------------------------------
+	* 正規化を求める
+	*---------------------------------------------------------------------*/
+	vector3 normalized() const
+	{
+		vector3 v = *this;
+		return v.normalize();
+	}
 	/*---------------------------------------------------------------------
 	* 射影を求める
 	*---------------------------------------------------------------------*/
-	Vector3 projection(const Vector3& v) const
+	vector3 projection(const vector3& v) const
 	{
 		return *this * v.dot(*this);
 	}
-	Vector3& projection(const Vector3& v, Vector3& result) const
+	vector3& projection(const vector3& v, vector3& result) const
 	{
 		result = *this;
 		return result *= v.dot(*this);
@@ -478,103 +464,103 @@ struct Vector3
 	/*---------------------------------------------------------------------
 	* 線形補間
 	*---------------------------------------------------------------------*/
-	Vector3 lerp(const Vector3& to, T t) const
+	vector3 lerp(const vector3& to, T t) const
 	{
-		return Vector3(math_type::lerp(X, to.X, t), math_type::lerp(Y, to.Y, t), math_type::lerp(Z, to.Z, t));
+		return vector3(math_type::lerp(x, to.x, t), math_type::lerp(y, to.y, t), math_type::lerp(z, to.z, t));
 	}
-	Vector3& lerp(const Vector3& to, T t, Vector3& result) const
+	vector3& lerp(const vector3& to, T t, vector3& result) const
 	{
-		result.X = math_type::lerp(X, to.X, t);
-		result.Y = math_type::lerp(Y, to.Y, t);
-		result.Z = math_type::lerp(Z, to.Z, t);
+		result.x = math_type::lerp(x, to.x, t);
+		result.y = math_type::lerp(y, to.y, t);
+		result.z = math_type::lerp(z, to.z, t);
 		return result;
 	}
-	Vector3& lerp(const Vector3& from, const Vector3& to, T t)
+	vector3& lerp(const vector3& from, const vector3& to, T t)
 	{
 		return from.lerp(to, t, *this);
 	}
 	/*---------------------------------------------------------------------
 	* 値を0～1にクランプ
 	*---------------------------------------------------------------------*/
-	Vector3& saturate()
+	vector3& saturate()
 	{
-		X = math_type::Clamp01(X);
-		Y = math_type::Clamp01(Y);
-		Z = math_type::Clamp01(Z);
+		x = math_type::clamp01(x);
+		y = math_type::clamp01(y);
+		z = math_type::clamp01(z);
 		return *this;
 	}
-	Vector3 saturated() const
+	vector3& saturate(vector3& result) const
 	{
-		return Vector3(math_type::Clamp01(X), math_type::Clamp01(Y), math_type::Clamp01(Z));
-	}
-	Vector3& saturated(Vector3& result) const
-	{
-		result.X = math_type::Clamp01(X);
-		result.Y = math_type::Clamp01(Y);
-		result.Z = math_type::Clamp01(Z);
+		result.x = math_type::clamp01(x);
+		result.y = math_type::clamp01(y);
+		result.z = math_type::clamp01(z);
 		return result;
+	}
+	vector3 saturated() const
+	{
+		return vector3(math_type::clamp01(x), math_type::clamp01(y), math_type::clamp01(z));
 	}
 
 	/*---------------------------------------------------------------------
-	* X軸回転角度を求める
+	* x軸回転角度を求める
 	*---------------------------------------------------------------------*/
 	T pitch() const
 	{
-		// Asin(Y / |v|)
+		// Asin(y / |v|)
 
 		T len = length_sq();
-		if (len != math_type::Zero)
+		if (len > math_type::zero)
 		{
-			return math_type::asin(-Y / math_type::sqrt(len));
+			return math_type::asin(-y / math_type::sqrt(len));
 		}
-		return math_type::Zero;
+		return math_type::zero;
 	}
 	/*---------------------------------------------------------------------
-	* Y軸回転角度を求める
+	* y軸回転角度を求める
 	*---------------------------------------------------------------------*/
 	T Yaw() const
 	{
-		if (length_sq() != math_type::Zero)
+		if (length_sq() > math_type::zero)
 		{
 			// atan2は正規化されていなくてもいい
-			return math_type::atan2(X, Z);
+			return math_type::atan2(x, z);
 		}
-		return math_type::Zero;
+		return math_type::zero;
 	}
 	/*---------------------------------------------------------------------
 	* 座標変換
 	*---------------------------------------------------------------------*/
-	Vector3& transform(const Matrix4x4<T>&); // Matrix4x4.h
-	Vector3 transformed(const Matrix4x4<T>&) const;
-	Vector3& transformed(const Matrix4x4<T>&, Vector3& result) const;
-	Vector3& transform_coord(const Matrix4x4<T>&);
-	Vector3 transformed_coord(const Matrix4x4<T>&) const;
-	Vector3& transformed_coord(const Matrix4x4<T>&, Vector3& result) const;
-	Vector3& transform_normal(const Matrix4x4<T>&);
-	Vector3 transformed_normal(const Matrix4x4<T>&) const;
-	Vector3& transformed_normal(const Matrix4x4<T>&, Vector3& result) const;
-	Vector3& transform(const Matrix3x3<T>&); // Matrix3x3.h
-	Vector3 transformed(const Matrix3x3<T>&) const;
-	Vector3& transformed(const Matrix3x3<T>&, Vector3& result) const;
-	Vector3& transform_normal(const Matrix3x3<T>&);
-	Vector3 transformed_normal(const Matrix3x3<T>&) const;
-	Vector3& transformed_normal(const Matrix3x3<T>&, Vector3& result) const;
+	vector3& transform(const matrix4x4<T>&); // matrix4x4.h
+	vector3& transform(const matrix4x4<T>&, vector3& result) const;
+	vector3 transformed(const matrix4x4<T>&) const;
+	vector3& transform_coord(const matrix4x4<T>&);
+	vector3& transform_coord(const matrix4x4<T>&, vector3& result) const;
+	vector3 transformed_coord(const matrix4x4<T>&) const;
+	vector3& transform_normal(const matrix4x4<T>&);
+	vector3& transform_normal(const matrix4x4<T>&, vector3& result) const;
+	vector3 transformed_normal(const matrix4x4<T>&) const;
+	vector3& transform(const matrix3x3<T>&); // matrix3x3.h
+	vector3& transform(const matrix3x3<T>&, vector3& result) const;
+	vector3 transformed(const matrix3x3<T>&) const;
+	vector3& transform_normal(const matrix3x3<T>&);
+	vector3& transform_normal(const matrix3x3<T>&, vector3& result) const;
+	vector3 transformed_normal(const matrix3x3<T>&) const;
 	/*---------------------------------------------------------------------
 	* 回転
 	*---------------------------------------------------------------------*/
-	Vector3& rotate(const Quaternion<T>&);
-	Vector3 rotated(const Quaternion<T>&) const;
-	Vector3& rotated(const Quaternion<T>&, Vector3& result) const;
-	Vector3 rotated(const Vector3& axis, T angle) const
+	vector3& rotate(const quaternion<T>&);
+	vector3 rotated(const quaternion<T>&) const;
+	vector3& rotate(const quaternion<T>&, vector3& result) const;
+	vector3 rotated(const vector3& axis, T angle) const
 	{
-		Vector3 result(behavior::noinitialize);
-		return rotated(axis, angle, result);
+		vector3 result(behavior::noinitialize);
+		return rotate(axis, angle, result);
 	}
-	Vector3& rotated(const Vector3& axis, T angle, Vector3& result) const
+	vector3& rotate(const vector3& axis, T angle, vector3& result) const
 	{
 		// N(N,V) + [V-N(N,V)]cosθ - (V×N)sinθ
 
-		Vector3 calc(behavior::noinitialize);
+		vector3 calc(behavior::noinitialize);
 
 		T s = math_type::sin(angle);
 		T c = math_type::cos(angle);
@@ -597,29 +583,29 @@ struct Vector3
 
 		return result;
 	}
-	Vector3& rotate(const Vector3& axis, T angle)
+	vector3& rotate(const vector3& axis, T angle)
 	{
-		const Vector3 c(*this);
+		const vector3 c(*this);
 		return c.rotated(axis, angle, *this);
 	}
 
 	/*---------------------------------------------------------------------
 	* 並べ替え
 	*---------------------------------------------------------------------*/
-	Vector2<T> swizzle(int x, int y) const
+	vector2<T> swizzle(int x, int y) const
 	{
 		_DEB_RANGE_ASSERT(x, 0, 2);
 		_DEB_RANGE_ASSERT(y, 0, 2);
-		return Vector2<T>((*this)[x], (*this)[y]);
+		return vector2<T>((*this)[x], (*this)[y]);
 	}
-	Vector3 swizzle(int x, int y, int z) const
+	vector3 swizzle(int x, int y, int z) const
 	{
 		_DEB_RANGE_ASSERT(x, 0, 2);
 		_DEB_RANGE_ASSERT(y, 0, 2);
 		_DEB_RANGE_ASSERT(z, 0, 2);
-		return Vector3((*this)[x], (*this)[y], (*this)[z]);
+		return vector3((*this)[x], (*this)[y], (*this)[z]);
 	}
-	Vector4<T> swizzle(int x, int y, int z, int w) const; // Vector4.h
+	vector4<T> swizzle(int, int, int, int) const; // vector4.h
 
 	/*-----------------------------------------------------------------------------------------
 	* Operators
@@ -632,18 +618,18 @@ struct Vector3
 	{
 		_DEB_RANGE_ASSERT(i, 0, 2);
 #ifdef _USE_ANONYMOUS
-		return Data[i];
+		return data[i];
 #else
-		return (&X)[i];
+		return (&x)[i];
 #endif // _USE_ANONYMOUS
 	}
 	const T& operator [] (int i) const
 	{
 		_DEB_RANGE_ASSERT(i, 0, 2);
 #ifdef _USE_ANONYMOUS
-		return Data[i];
+		return data[i];
 #else
-		return (&X)[i];
+		return (&x)[i];
 #endif // _USE_ANONYMOUS
 	}
 
@@ -651,273 +637,271 @@ struct Vector3
 	* 型変換演算子
 	*---------------------------------------------------------------------*/
 	template <typename U>
-	_CXX11_EXPLICIT operator Vector3<U>() const
+	_CXX11_EXPLICIT operator vector3<U>() const
 	{
-		return Vector3<U>(static_cast<U>(X), static_cast<U>(Y), static_cast<U>(Z));
+		return vector3<U>(static_cast<U>(x), static_cast<U>(y), static_cast<U>(z));
 	}
-	_CXX11_EXPLICIT operator Vector2<T>() const
+	_CXX11_EXPLICIT operator vector2<T>() const
 	{
-		return Vector2<T>(X, Y);
+		return vector2<T>(x, y);
 	}
 	template <typename U>
-	_CXX11_EXPLICIT operator Vector2<U>() const
+	_CXX11_EXPLICIT operator vector2<U>() const
 	{
-		return Vector2<U>(static_cast<U>(X), static_cast<U>(Y));
+		return vector2<U>(static_cast<U>(x), static_cast<U>(y));
 	}
 	_CXX11_EXPLICIT operator T* ()
 	{
 #ifdef _USE_ANONYMOUS
-		return &Data[0];
+		return &data[0];
 #else
-		return &X;
+		return &x;
 #endif // _USE_ANONYMOUS
 	}
 	_CXX11_EXPLICIT operator const T* () const
 	{
 #ifdef _USE_ANONYMOUS
-		return &Data[0];
+		return &data[0];
 #else
-		return &X;
+		return &x;
 #endif // _USE_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------
 	* 比較演算子
 	*---------------------------------------------------------------------*/
-	bool operator == (const Vector3& v) const
+	bool operator == (const vector3& v) const
 	{
-		return (X == v.X) && (Y == v.Y) && (Z == v.Z);
+		return (x == v.x) && (y == v.y) && (z == v.z);
 	}
-	bool operator != (const Vector3& v) const
+	bool operator != (const vector3& v) const
 	{
 		return !(*this == v);
 	}
-	bool operator < (const Vector3& v) const
+	bool operator < (const vector3& v) const
 	{
-		return length_sq() < v.length_sq();
+		return x < v.x && y < v.y && z < v.z;
 	}
-	bool operator <= (const Vector3& v) const
+	bool operator <= (const vector3& v) const
 	{
-		return length_sq() <= v.length_sq();
+		return x <= v.x && y <= v.y && z <= v.z;
 	}
-	bool operator > (const Vector3& v) const
+	bool operator > (const vector3& v) const
 	{
-		return length_sq() > v.length_sq();
+		return x > v.x && y > v.y && z > v.z;
 	}
-	bool operator >= (const Vector3& v) const
+	bool operator >= (const vector3& v) const
 	{
-		return length_sq() >= v.length_sq();
+		return x >= v.x && y >= v.y && z >= v.z;
 	}
 
 	/*---------------------------------------------------------------------
 	* 単項演算子
 	*---------------------------------------------------------------------*/
-	Vector3 operator + () const
+	vector3 operator + () const
 	{
 		return *this;
 	}
-	Vector3 operator - () const
+	vector3 operator - () const
 	{
-		return Vector3(-X, -Y, -Z);
+		return vector3(-x, -y, -z);
 	}
-	Vector3& operator ++ ()
+	vector3& operator ++ ()
 	{
-		++X;
-		++Y;
-		++Z;
+		++x;
+		++y;
+		++z;
 		return *this;
 	}
-	Vector3 operator ++ (int)
+	vector3 operator ++ (int)
 	{
-		Vector3 r(*this);
-		++*this;
+		const vector3 r = *this;
+		++(*this);
 		return r;
 	}
-	Vector3& operator -- ()
+	vector3& operator -- ()
 	{
-		--X;
-		--Y;
-		--Z;
+		--x;
+		--y;
+		--z;
 		return *this;
 	}
-	Vector3 operator -- (int)
+	vector3 operator -- (int)
 	{
-		Vector3 r(*this);
-		--*this;
+		const vector3 r = *this;
+		--(*this);
 		return r;
 	}
 
 	/*---------------------------------------------------------------------
 	* 二項演算子
 	*---------------------------------------------------------------------*/
-	Vector3 operator + (const Vector3& v) const
+	vector3 operator + (const vector3& v) const
 	{
-		Vector3 result(behavior::noinitialize);
+		vector3 result(behavior::noinitialize);
 		return add(v, result);
 	}
 	template <typename U>
-	Vector3 operator + (const Vector3<U>& v) const
+	vector3 operator + (const vector3<U>& v) const
 	{
-		Vector3 result(behavior::noinitialize);
+		vector3 result(behavior::noinitialize);
 		return add(v, result);
 	}
-	Vector3 operator - (const Vector3& v) const
+	vector3 operator - (const vector3& v) const
 	{
-		Vector3 result(behavior::noinitialize);
+		vector3 result(behavior::noinitialize);
 		return subtract(v, result);
 	}
 	template <typename U>
-	Vector3 operator - (const Vector3<U>& v) const
+	vector3 operator - (const vector3<U>& v) const
 	{
-		Vector3 result(behavior::noinitialize);
+		vector3 result(behavior::noinitialize);
 		return subtract(v, result);
 	}
-	Vector3 operator * (const Matrix3x3<T>&) const; // Matrix3x3.h
-	Vector3 operator * (const Matrix4x4<T>&) const; // Matrix4x4.h
-	Vector3 operator * (const Quaternion<T>&) const; // Quaternion.h
-	Vector3 operator * (T f) const
+	vector3 operator * (const matrix3x3<T>&) const; // matrix3x3.h
+	vector3 operator * (const matrix4x4<T>&) const; // matrix4x4.h
+	vector3 operator * (const quaternion<T>&) const; // quaternion.h
+	vector3 operator * (T f) const
 	{
-		Vector3 result(behavior::noinitialize);
+		vector3 result(behavior::noinitialize);
 		return multiply(f, result);
 	}
 	template <typename U, _TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
-	Vector3 operator * (U f) const
+	vector3 operator * (U f) const
 	{
-		Vector3 result(behavior::noinitialize);
+		vector3 result(behavior::noinitialize);
 		return multiply<U>(f, result);
 	}
-	Vector3 operator / (T f) const
+	vector3 operator / (T f) const
 	{
-		Vector3 result(behavior::noinitialize);
+		vector3 result(behavior::noinitialize);
 		return divide(f, result);
 	}
 	template <typename U, _TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
-	Vector3 operator / (U f) const
+	vector3 operator / (U f) const
 	{
-		Vector3 result(behavior::noinitialize);
+		vector3 result(behavior::noinitialize);
 		return divide(f, result);
 	}
-	Vector3 operator % (T f) const
+	vector3 operator % (T f) const
 	{
-		return Vector3(math_type::remainder(X, f), math_type::remainder(Y, f), math_type::remainder(Z, f));
+		return vector3(math_type::remainder(x, f), math_type::remainder(y, f), math_type::remainder(z, f));
 	}
-	Vector3 operator % (const Vector3& v) const
+	vector3 operator % (const vector3& v) const
 	{
-		return Vector3(math_type::remainder(X, v.X), math_type::remainder(Y, v.Y), math_type::remainder(Z, v.Z));
+		return vector3(math_type::remainder(x, v.x), math_type::remainder(y, v.y), math_type::remainder(z, v.z));
 	}
 
 	/*---------------------------------------------------------------------
 	* 代入演算子
 	*---------------------------------------------------------------------*/
-	Vector3& operator = (T f)
+	vector3& operator = (T f)
 	{
-		X = Y = Z = f;
+		x = y = z = f;
 		return *this;
 	}
 	template <typename U, _TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
-	Vector3& operator = (U f)
+	vector3& operator = (U f)
 	{
 		*this = static_cast<T>(f);
 		return *this;
 	}
-	Vector3& operator = (const behavior::_zero_t&)
+	vector3& operator = (const behavior::_zero_t&)
 	{
-		return operator=(math_type::Zero);
+		return operator=(math_type::zero);
 	}
-	Vector3& operator = (const behavior::_one_t&)
+	vector3& operator = (const behavior::_one_t&)
 	{
-		return operator=(math_type::One);
+		return operator=(math_type::one);
 	}
-	Vector3& operator = (const behavior::_half_t&)
+	vector3& operator = (const behavior::_half_t&)
 	{
-		return operator=(math_type::Half);
+		return operator=(math_type::half);
 	}
-	Vector3& operator = (const behavior::_half_of_half_t&)
+	vector3& operator = (const behavior::_half_of_half_t&)
 	{
-		return operator=(math_type::HalfOfHalf);
+		return operator=(math_type::half_of_half);
 	}
 
 	/*---------------------------------------------------------------------
 	* 複合演算子
 	*---------------------------------------------------------------------*/
-	Vector3& operator += (const Vector3& v)
+	vector3& operator += (const vector3& v)
 	{
-		X += v.X;
-		Y += v.Y;
-		Z += v.Z;
+		x += v.x;
+		y += v.y;
+		z += v.z;
 		return *this;
 	}
 	template <typename U>
-	Vector3& operator += (const Vector3<U>& v)
+	vector3& operator += (const vector3<U>& v)
 	{
-		X += static_cast<T>(v.X);
-		Y += static_cast<T>(v.Y);
-		Z += static_cast<T>(v.Z);
+		x += static_cast<T>(v.x);
+		y += static_cast<T>(v.y);
+		z += static_cast<T>(v.z);
 		return *this;
 	}
-	Vector3& operator -= (const Vector3& v)
+	vector3& operator -= (const vector3& v)
 	{
-		X -= v.X;
-		Y -= v.Y;
-		Z -= v.Z;
+		x -= v.x;
+		y -= v.y;
+		z -= v.z;
 		return *this;
 	}
 	template <typename U>
-	Vector3& operator -= (const Vector3<U>& v)
+	vector3& operator -= (const vector3<U>& v)
 	{
-		X -= static_cast<T>(v.X);
-		Y -= static_cast<T>(v.Y);
-		Z -= static_cast<T>(v.Z);
+		x -= static_cast<T>(v.x);
+		y -= static_cast<T>(v.y);
+		z -= static_cast<T>(v.z);
 		return *this;
 	}
-	Vector3& operator *= (T f)
+	vector3& operator *= (T f)
 	{
-		X *= f;
-		Y *= f;
-		Z *= f;
+		x *= f;
+		y *= f;
+		z *= f;
 		return *this;
 	}
-	Vector3& operator *= (const Matrix4x4<T>& m)
+	vector3& operator *= (const matrix4x4<T>& m)
 	{
 		return transform(m);
 	}
-	Vector3& operator *= (const Quaternion<T>& q)
+	vector3& operator *= (const quaternion<T>& q)
 	{
 		return rotate(q);
 	}
 	template <typename U, _TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
-	Vector3& operator *= (U f)
+	vector3& operator *= (U f)
 	{
-		X *= static_cast<T>(f);
-		Y *= static_cast<T>(f);
-		Z *= static_cast<T>(f);
+		x *= static_cast<T>(f);
+		y *= static_cast<T>(f);
+		z *= static_cast<T>(f);
 		return *this;
 	}
-	Vector3& operator /= (T f)
+	vector3& operator /= (T f)
 	{
-		_DEB_ASSERT(f != math_type::Zero);
-		T inv = math_type::One / f;
-		return *this *= inv;
+		_DEB_ASSERT(f != math_type::zero);
+		return *this *= math_type::reciprocal(f);
 	}
 	template <typename U, _TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
-	Vector3& operator /= (U f)
+	vector3& operator /= (U f)
 	{
-		_DEB_ASSERT(f != Math<U>::Zero);
-		T inv = math_type::One / static_cast<T>(f);
-		return *this *= inv;
+		_DEB_ASSERT(f != math_traits<U>::zero);
+		return *this *= math_type::reciprocal(static_cast<T>(f));
 	}
-	Vector3& operator %= (T f)
+	vector3& operator %= (T f)
 	{
-		math_type::remainder_assign(X, f);
-		math_type::remainder_assign(Y, f);
-		math_type::remainder_assign(Z, f);
+		math_type::remainder_assign(x, f);
+		math_type::remainder_assign(y, f);
+		math_type::remainder_assign(z, f);
 		return *this;
 	}
-	Vector3& operator %= (const Vector3& v)
+	vector3& operator %= (const vector3& v)
 	{
-		math_type::remainder_assign(X, v.X);
-		math_type::remainder_assign(Y, v.Y);
-		math_type::remainder_assign(Z, v.Z);
+		math_type::remainder_assign(x, v.x);
+		math_type::remainder_assign(y, v.y);
+		math_type::remainder_assign(z, v.z);
 		return *this;
 	}
 
@@ -925,93 +909,93 @@ struct Vector3
 	* タグでの関数呼び出し
 	*------------------------------------------------------------------------------------------*/
 
-	Vector3& operator () (const behavior::_zero_t&)
+	vector3& operator () (const behavior::_zero_t&)
 	{
-		return operator=(math_type::Zero);
+		return operator=(math_type::zero);
 	}
-	Vector3& operator () (const behavior::_one_t&)
+	vector3& operator () (const behavior::_one_t&)
 	{
-		return operator=(math_type::One);
+		return operator=(math_type::one);
 	}
-	Vector3& operator () (const behavior::_half_t&)
+	vector3& operator () (const behavior::_half_t&)
 	{
-		return operator=(math_type::Half);
+		return operator=(math_type::half);
 	}
-	Vector3& operator () (const behavior::_half_of_half_t&)
+	vector3& operator () (const behavior::_half_of_half_t&)
 	{
-		return operator=(math_type::HalfOfHalf);
+		return operator=(math_type::half_of_half);
 	}
 
-	Vector3 operator () (const behavior::_plus_t&) const
+	vector3 operator () (const behavior::_plus_t&) const
 	{
 		return operator+();
 	}
-	Vector3 operator () (const behavior::_negate_t&) const
+	vector3 operator () (const behavior::_negate_t&) const
 	{
 		return operator-();
 	}
-	Vector3 operator () (const behavior::_add_t&, const Vector3& v) const
+	vector3 operator () (const behavior::_add_t&, const vector3& v) const
 	{
 		return operator+(v);
 	}
-	Vector3 operator () (const behavior::_sub_t&, const Vector3& v) const
+	vector3 operator () (const behavior::_sub_t&, const vector3& v) const
 	{
 		return operator-(v);
 	}
-	Vector3 operator () (const behavior::_mul_t&, T f) const
+	vector3 operator () (const behavior::_mul_t&, T f) const
 	{
 		return operator*(f);
 	}
-	Vector3 operator () (const behavior::_div_t&, T f) const
+	vector3 operator () (const behavior::_div_t&, T f) const
 	{
 		return operator/(f);
 	}
-	Vector3 operator () (const behavior::_rem_t&, T f) const
+	vector3 operator () (const behavior::_rem_t&, T f) const
 	{
 		return operator%(f);
 	}
-	Vector3 operator () (const behavior::_rem_t&, const Vector3& v) const
+	vector3 operator () (const behavior::_rem_t&, const vector3& v) const
 	{
 		return operator%(v);
 	}
 
-	Vector3& operator () (const behavior::_add_assign_t&, const Vector3& v)
+	vector3& operator () (const behavior::_add_assign_t&, const vector3& v)
 	{
 		return operator+=(v);
 	}
-	Vector3& operator () (const behavior::_sub_assign_t&, const Vector3& v)
+	vector3& operator () (const behavior::_sub_assign_t&, const vector3& v)
 	{
 		return operator-=(v);
 	}
-	Vector3& operator () (const behavior::_mul_assign_t&, T f)
+	vector3& operator () (const behavior::_mul_assign_t&, T f)
 	{
 		return operator*=(f);
 	}
-	Vector3& operator () (const behavior::_div_assign_t&, T f)
+	vector3& operator () (const behavior::_div_assign_t&, T f)
 	{
 		return operator/=(f);
 	}
-	Vector3& operator () (const behavior::_rem_assign_t&, T f)
+	vector3& operator () (const behavior::_rem_assign_t&, T f)
 	{
 		return operator%=(f);
 	}
-	Vector3& operator () (const behavior::_rem_assign_t&, const Vector3& v)
+	vector3& operator () (const behavior::_rem_assign_t&, const vector3& v)
 	{
 		return operator%=(v);
 	}
-	Vector3& operator () (const behavior::_increment_t&)
+	vector3& operator () (const behavior::_increment_t&)
 	{
 		return operator++();
 	}
-	Vector3 operator () (const behavior::_increment_back_t&)
+	vector3 operator () (const behavior::_increment_back_t&)
 	{
 		return operator++(0);
 	}
-	Vector3& operator () (const behavior::_decrement_t&)
+	vector3& operator () (const behavior::_decrement_t&)
 	{
 		return operator--();
 	}
-	Vector3 operator () (const behavior::_decrement_back_t&)
+	vector3 operator () (const behavior::_decrement_back_t&)
 	{
 		return operator--(0);
 	}
@@ -1032,15 +1016,15 @@ struct Vector3
 		return operator const T*();
 	}
 
-	bool operator () (const behavior::_equal_t&, const Vector3& v) const
+	bool operator () (const behavior::_equal_t&, const vector3& v) const
 	{
 		return operator==(v);
 	}
-	bool operator () (const behavior::_not_equal_t&, const Vector3& v) const
+	bool operator () (const behavior::_not_equal_t&, const vector3& v) const
 	{
 		return operator!=(v);
 	}
-	bool operator () (const behavior::_near_t&, const Vector3& v) const
+	bool operator () (const behavior::_near_t&, const vector3& v) const
 	{
 		return is_near(v);
 	}
@@ -1057,55 +1041,55 @@ struct Vector3
 	{
 		return length_sq();
 	}
-	T operator () (const behavior::_dot_t&, const Vector3& v) const
+	T operator () (const behavior::_dot_t&, const vector3& v) const
 	{
 		return dot(v);
 	}
-	Vector3& operator () (const behavior::_normalize_t&)
+	vector3& operator () (const behavior::_normalize_t&)
 	{
 		return normalize();
 	}
-	Vector3 operator () (const behavior::_normalized_t&) const
+	vector3 operator () (const behavior::_normalized_t&) const
 	{
 		return normalized();
 	}
-	Vector3 operator () (const behavior::_cross_t&, const Vector3& v) const
+	vector3 operator () (const behavior::_cross_t&, const vector3& v) const
 	{
 		return cross(v);
 	}
-	Vector3 operator () (const behavior::_lerp_t&, const Vector3& to, T t) const
+	vector3 operator () (const behavior::_lerp_t&, const vector3& to, T t) const
 	{
 		return lerp(to, t);
 	}
-	T operator () (const behavior::_distance_t&, const Vector3& v) const
+	T operator () (const behavior::_distance_t&, const vector3& v) const
 	{
 		return distance(v);
 	}
-	Vector3 operator () (const behavior::_direction_t&, const Vector3& v) const
+	vector3 operator () (const behavior::_direction_t&, const vector3& v) const
 	{
 		return direction(v);
 	}
-	Vector3 operator () (const behavior::_direction_t&, const Vector3& v, T force) const
+	vector3 operator () (const behavior::_direction_t&, const vector3& v, T force) const
 	{
 		return direction(v) * force;
 	}
-	Vector3& operator () (const behavior::_saturate_t&) const
+	vector3& operator () (const behavior::_saturate_t&) const
 	{
 		return saturate();
 	}
-	Vector3 operator () (const behavior::_saturated_t&) const
+	vector3 operator () (const behavior::_saturated_t&) const
 	{
 		return saturated();
 	}
-	Vector2<T> operator () (const behavior::_swizzle_t&, int x, int y) const
+	vector2<T> operator () (const behavior::_swizzle_t&, int x, int y) const
 	{
 		return swizzle(x, y);
 	}
-	Vector3 operator () (const behavior::_swizzle_t&, int x, int y, int z) const
+	vector3 operator () (const behavior::_swizzle_t&, int x, int y, int z) const
 	{
 		return swizzle(x, y, z);
 	}
-	Vector4<T> operator () (const behavior::_swizzle_t&, int x, int y, int z, int w) const
+	vector4<T> operator () (const behavior::_swizzle_t&, int x, int y, int z, int w) const
 	{
 		return swizzle(x, y, z, w);
 	}
@@ -1118,125 +1102,127 @@ struct Vector3
 	{
 		return pitch();
 	}
-	Vector3& operator () (const behavior::_from_pitch_yaw_t&, T pitch, T yaw)
+	vector3& operator () (const behavior::_from_pitch_yaw_t&, T pitch, T yaw)
 	{
 		return from_pitch_yaw(pitch, yaw);
 	}
-	Vector3 operator () (const behavior::_transform_t&, const Matrix4x4<T>& m) const
+	vector3 operator () (const behavior::_transform_t&, const matrix4x4<T>& m) const
 	{
 		return transformed(m);
 	}
-	Vector3 operator () (const behavior::_transform_coord_t&, const Matrix4x4<T>& m) const
+	vector3 operator () (const behavior::_transform_coord_t&, const matrix4x4<T>& m) const
 	{
 		return transformed_coord(m);
 	}
-	Vector3 operator () (const behavior::_transform_normal_t&, const Matrix4x4<T>& m) const
+	vector3 operator () (const behavior::_transform_normal_t&, const matrix4x4<T>& m) const
 	{
 		return transformed_normal(m);
 	}
-	Vector3 operator () (const behavior::_rotate_t&, const Quaternion<T>& q) const
+	vector3 operator () (const behavior::_rotate_t&, const quaternion<T>& q) const
 	{
 		return rotated(q);
 	}
-	Vector3 operator () (const behavior::_rotate_t&, const Vector3& axis, T angle) const
+	vector3 operator () (const behavior::_rotate_t&, const vector3& axis, T angle) const
 	{
 		return rotated(axis, angle);
 	}
 };
 
 template <typename T>
-const Vector3<T> Vector3<T>::Zero(math_type::Zero, math_type::Zero, math_type::Zero);
+const vector3<T> vector3<T>::zero(math_type::zero, math_type::zero, math_type::zero);
 template <typename T>
-const Vector3<T> Vector3<T>::One(math_type::One, math_type::One, math_type::One);
+const vector3<T> vector3<T>::one(math_type::one, math_type::one, math_type::one);
 template <typename T>
-const Vector3<T> Vector3<T>::UnitX(math_type::One, math_type::Zero, math_type::Zero);
+const vector3<T> vector3<T>::unit_x(math_type::one, math_type::zero, math_type::zero);
 template <typename T>
-const Vector3<T> Vector3<T>::UnitY(math_type::Zero, math_type::One, math_type::Zero);
+const vector3<T> vector3<T>::unit_y(math_type::zero, math_type::one, math_type::zero);
 template <typename T>
-const Vector3<T> Vector3<T>::UnitZ(math_type::Zero, math_type::Zero, math_type::One);
+const vector3<T> vector3<T>::unit_z(math_type::zero, math_type::zero, math_type::one);
 template <typename T>
-const Vector3<T> Vector3<T>::Up(math_type::Zero, math_type::One, math_type::Zero);
+const vector3<T> vector3<T>::up(math_type::zero, math_type::one, math_type::zero);
 template <typename T>
-const Vector3<T> Vector3<T>::Down(math_type::Zero, -math_type::One, math_type::Zero);
+const vector3<T> vector3<T>::down(math_type::zero, -math_type::one, math_type::zero);
 template <typename T>
-const Vector3<T> Vector3<T>::Right(math_type::One, math_type::Zero, math_type::Zero);
+const vector3<T> vector3<T>::right(math_type::one, math_type::zero, math_type::zero);
 template <typename T>
-const Vector3<T> Vector3<T>::Left(-math_type::One, math_type::Zero, math_type::Zero);
+const vector3<T> vector3<T>::left(-math_type::one, math_type::zero, math_type::zero);
 template <typename T>
-const Vector3<T> Vector3<T>::Front(math_type::Zero, math_type::Zero, math_type::One);
+const vector3<T> vector3<T>::forward(math_type::zero, math_type::zero, math_type::one);
 template <typename T>
-const Vector3<T> Vector3<T>::Back(math_type::Zero, math_type::Zero, -math_type::One);
+const vector3<T> vector3<T>::backward(math_type::zero, math_type::zero, -math_type::one);
 
 // 左辺が数値の場合の乗算演算子
 
 template <typename T> inline
-Vector3<T> operator * (T f, const Vector3<T>& v)
+vector3<T> operator * (T f, const vector3<T>& v)
 {
 	return v * f;
 }
 
-// Vector2がVector3から値取得をするコンストラクタ
+// vector2がvector3から値取得をするコンストラクタ
 
 template <typename T> inline
-Vector2<T>::Vector2(const Vector3<T>& v) :
-	X(v.X), Y(v.Y)
+vector2<T>::vector2(const vector3<T>& v) :
+	x(v.x), y(v.y)
 {
 
 }
 template <typename T>
 template <typename U> inline
-Vector2<T>::Vector2(const Vector3<U>& v) :
-	X(static_cast<T>(v.Y)), Y(static_cast<T>(v.X))
+vector2<T>::vector2(const vector3<U>& v) :
+	x(static_cast<T>(v.y)), y(static_cast<T>(v.x))
 {
 
 }
 
 template <typename T> inline
-Vector3<T> Vector2<T>::swizzle(int x, int y, int z) const
+vector3<T> vector2<T>::swizzle(int x, int y, int z) const
 {
-	_DEB_ASSERT(x < 2 && y < 2 && z < 2);
-	return Vector3<T>((*this)[x], (*this)[y], (*this)[z]);
+	_DEB_RANGE_ASSERT(x, 0, 2);
+	_DEB_RANGE_ASSERT(y, 0, 2);
+	_DEB_RANGE_ASSERT(z, 0, 2);
+	return vector3<T>((*this)[x], (*this)[y], (*this)[z]);
 }
 
 #ifdef _USING_MATH_IO
 template <typename CharT, typename CharTraits, typename T> inline
-std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const Vector3<T>& v)
+std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const vector3<T>& v)
 {
-	// (X, Y, Z)
-	os << out_char::parentheses_left << v.X << out_char::comma_space
-		<< v.Y << out_char::comma_space
-		<< v.Z << out_char::parentheses_right;
+	// (x, y, z)
+	os << io::parentheses_left << v.x << io::comma_space
+		<< v.y << io::comma_space
+		<< v.z << io::parentheses_right;
 	return os;
 }
 template <typename CharT, typename CharTraits, typename T> inline
-std::basic_istream<CharT, CharTraits>& operator >> (std::basic_istream<CharT, CharTraits>& is, Vector3<T>& v)
+std::basic_istream<CharT, CharTraits>& operator >> (std::basic_istream<CharT, CharTraits>& is, vector3<T>& v)
 {
 	is.ignore();
-	is >> v.X;
+	is >> v.x;
 	is.ignore();
-	is >> v.Y;
+	is >> v.y;
 	is.ignore();
-	is >> v.Z;
+	is >> v.z;
 	is.ignore();
 	return is;
 }
 template <typename CharT, typename CharTraits, typename T> inline
-std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, CharTraits>& os, const Vector3<T>& v)
+std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, CharTraits>& os, const vector3<T>& v)
 {
-	os << out_char::parentheses_left << v.X << out_char::comma_space
-		<< v.Y << out_char::comma_space
-		<< v.Z << out_char::parentheses_right;
+	os << io::parentheses_left << v.x << io::comma_space
+		<< v.y << io::comma_space
+		<< v.z << io::parentheses_right;
 	return os;
 }
 template <typename CharT, typename CharTraits, typename T> inline
-std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, CharTraits>& is, Vector3<T>& v)
+std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, CharTraits>& is, vector3<T>& v)
 {
 	is.ignore();
-	is >> v.X;
+	is >> v.x;
 	is.ignore();
-	is >> v.Y;
+	is >> v.y;
 	is.ignore();
-	is >> v.Z;
+	is >> v.z;
 	is.ignore();
 	return is;
 }

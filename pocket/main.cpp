@@ -67,18 +67,18 @@ int main(int argc, char** argv)
 	pocket::container::array<int, 3> ary = {0, 1, 20};
 	cout << ary << endl;
 
-	cout << pocket::Vector2f::UnitX << endl
-		<< pocket::Vector3f::UnitY << endl
-		<< pocket::Vector4f::UnitZ << endl
-		<< pocket::Matrix3x3f::Identity << endl
-		<< pocket::Matrix4x4f::Identity << endl
-		<< pocket::Quaternionf::Identity << endl
-		<< pocket::Rectanglef(0.0f, 320.0f, 0.0f, 240.0f) << endl
-		<< pocket::Colorf::White << endl
-		<< pocket::Mathf::SinCos(320.0f) << endl << endl
-		<< pocket::Planef::Up << endl
+	cout << pocket::vector2f::unit_x << endl
+		<< pocket::vector3f::unit_y << endl
+		<< pocket::vector4f::unit_z << endl
+		<< pocket::matrix3x3f::identity << endl
+		<< pocket::matrix4x4f::identity << endl
+		<< pocket::quaternionf::identity << endl
+		<< pocket::rectanglef(0.0f, 320.0f, 0.0f, 240.0f) << endl
+		<< pocket::colorf::white << endl
+		<< pocket::math_traitsf::sin_cos_t(320.0f) << endl << endl
+		<< pocket::planef::up << endl
 		;
-	pocket::Matrix4x4f s, r, t;
+	pocket::matrix4x4f s, r, t;
 	s(pocket::behavior::scale, 2.0f);
 	r(pocket::behavior::rotate, pocket::behavior::x, 30.0f);
 	t(pocket::behavior::translate, 0.0f, 1.0f, 2.0f);
@@ -93,7 +93,7 @@ int main(int argc, char** argv)
 	cout << simd::greater_equal(zero, one) << endl;
 	cout << simd::less_equal(zero, one) << endl;
 
-	pocket::Vector4f v, d(2.0f, 5.0f, 4.0f, 0.0f);
+	pocket::vector4f v, d(2.0f, 5.0f, 4.0f, 0.0f);
 	v.from_pitch_yaw(45.0f, 15.0f);
 	cout << v << endl;
 	v += d;
@@ -101,7 +101,7 @@ int main(int argc, char** argv)
 #ifdef _USE_SIMD_ANONYMOUS
 	v.w1();
 	cout << v << endl;
-	pocket::Vector4f v2(simd::select1110(v.mm));
+	pocket::vector4f v2(simd::select1110(v.mm));
 	cout << v2 << endl;
 #endif // _USE_SIMD_ANONYMOUS
 

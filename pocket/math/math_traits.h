@@ -9,27 +9,27 @@
 #include "../debug.h"
 #include "../behavior.h"
 #include "fwd.h"
-#include "array.h"
+#include "../container/array.h"
 #include <cmath>
 #include <cfloat>
 #ifdef _USING_MATH_IO
-#include "io.h"
+#include "../io.h"
 #endif // _USING_MATH_IO
 
 namespace pocket
 {
 
-template <typename> class Math;
+template <typename> struct math_traits;
 
 #ifndef _UNUSING_MATH_INT_FLOAT
-typedef Math<int> Mathi;
-typedef Math<float> Mathf;
+typedef math_traits<int> math_traitsi;
+typedef math_traits<float> math_traitsf;
 #endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
-typedef Math<double> Mathd;
+typedef math_traits<double> math_traitsd;
 #endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
-typedef Math<long double> Mathld;
+typedef math_traits<long double> math_traitsld;
 #endif // _USING_MATH_LONG_DOUBLE
 
 namespace detail
@@ -41,53 +41,52 @@ template <>
 struct math_int_t<int>
 {
 	typedef int type;
-	_STATICAL_CONSTANT type SignBit = 1 << 31;
+	_STATICAL_CONSTANT type sign_bit = 1 << 31;
 };
 template <>
 struct math_int_t<float>
 {
 	typedef uint32_t type;
-	_STATICAL_CONSTANT type SignBit = 1UL << 31;
+	_STATICAL_CONSTANT type sign_bit = 1UL << 31;
 };
 template <>
 struct math_int_t<double>
 {
 	typedef uint64_t type;
-	_STATICAL_CONSTANT type SignBit = 1ULL << 63;
+	_STATICAL_CONSTANT type sign_bit = 1ULL << 63;
 };
 }
 
 template <typename T>
-class Math
+struct math_traits
 {
-public:
 	_MATH_STATICAL_ASSERT(T);
 
 	/*-----------------------------------------------------------------------------------------
 	* Types
 	*-----------------------------------------------------------------------------------------*/
 
-	struct SinCos
+	struct sin_cos_t
 	{
-		T Sin; // サイン値
-		T Cos; // コサイン値
+		T sin; // サイン値
+		T cos; // コサイン値
 
-		_DEFAULT_CONSTRUCTOR(SinCos);
-		SinCos(const behavior::_noinitialize_t&)
+		_DEFAULT_CONSTRUCTOR(sin_cos_t);
+		sin_cos_t(const behavior::_noinitialize_t&)
 		{
 
 		}
-		SinCos(T s, T c) :
-			Sin(s), Cos(c)
+		sin_cos_t(T s, T c) :
+			sin(s), cos(c)
 		{
 
 		}
 
-		SinCos(T f)
+		sin_cos_t(T f)
 		{
-			//Sin = Math<T>::Sin(f);
-			//Cos = Math<T>::Cos(f);
-			Math::sin_cos(f, Sin, Cos);
+			//sin = math_traits<T>::sin(f);
+			//cos = math_traits<T>::cos(f);
+			math_traits::sin_cos(f, sin, cos);
 		}
 	};
 
@@ -102,40 +101,40 @@ public:
 	* Members
 	*-----------------------------------------------------------------------------------------*/
 
-	// None
+	// none
 
 	/*-----------------------------------------------------------------------------------------
 	* Constants
 	*-----------------------------------------------------------------------------------------*/
 
-	static const T Zero; // 0.0
-	static const T Half; // 0.5
-	static const T HalfOfHalf; // 0.25
-	static const T One; // 1.0
-	static const T Two; // 2.0
-	static const T Three; // 3.0
-	static const T Four; // 4.0
-	static const T HalfAngle; // 180.0
-	static const T Infinity; // #.INF
-	static const T Epsilon; // 1.0 + Epsilon > 1.0 となる値
-	static const T Maximum; // 最大値
-	static const T Minimum; // 最小値
+	static const T zero; // 0.0
+	static const T half; // 0.5
+	static const T half_of_half; // 0.25
+	static const T one; // 1.0
+	static const T two; // 2.0
+	static const T three; // 3.0
+	static const T four; // 4.0
+	static const T half_angle; // 180.0
+	static const T infinity; // #.INF
+	static const T epsilon; // 1.0 + epsilon > 1.0 となる値
+	static const T maximum; // 最大値
+	static const T minimum; // 最小値
 
-	static const T Rad2Deg; // Radian -> Degree
-	static const T Deg2Rad; // Degree -> Radian
+	static const T rad2deg; // Radian -> Degree
+	static const T deg2rad; // Degree -> Radian
 
-	static const T PI; // 3.141592654
-	static const T PIxTwo; // PI * 2.0
-	static const T OneDivPI; // 1.0 / PI
-	static const T OneDivPIxTwo; // 1.0 / (PI * 2.0)
-	static const T PIDivTwo; // PI / 2.0
-	static const T PIDivFour; // PI / 4.0
+	static const T pi; // 3.141592654
+	static const T pi_x_two; // pi * 2.0
+	static const T one_div_pi; // 1.0 / pi
+	static const T one_div_pi_x_two; // 1.0 / (pi * 2.0)
+	static const T pi_div_two; // pi / 2.0
+	static const T pi_div_four; // pi / 4.0
 
 	/*-----------------------------------------------------------------------------------------
 	* Constructors
 	*-----------------------------------------------------------------------------------------*/
 
-	// None
+	// none
 
 	/*------------------------------------------------------------------------------------------
 	* Functions
@@ -146,14 +145,14 @@ public:
 	*---------------------------------------------------------------------*/
 	static inline bool is_near_zero(T f)
 	{
-		return (f >= -Math::Epsilon && f <= Math::Epsilon);
+		return (f >= -math_traits::epsilon && f <= math_traits::epsilon);
 	}
 	/*---------------------------------------------------------------------
 	* 値が１に近いか
 	*---------------------------------------------------------------------*/
 	static inline bool is_near_one(T f)
 	{
-		return Math::is_near(f, Math::One);
+		return math_traits::is_near(f, math_traits::one);
 	}
 
 	/*---------------------------------------------------------------------
@@ -161,7 +160,7 @@ public:
 	*---------------------------------------------------------------------*/
 	static inline bool is_near(T f, T value)
 	{
-		return (f <= (value + Math::Epsilon) && f >= (value - Math::Epsilon));
+		return (f <= (value + math_traits::epsilon) && f >= (value - math_traits::epsilon));
 	}
 	/*---------------------------------------------------------------------
 	* 整数部分が近いか
@@ -169,7 +168,7 @@ public:
 	template <int N>
 	static inline bool is_near(T f)
 	{
-		return (f <= (static_cast<T>(N) + Math::Epsilon) && f >= (static_cast<T>(N) - Math::Epsilon));
+		return (f <= (static_cast<T>(N) + math_traits::epsilon) && f >= (static_cast<T>(N) - math_traits::epsilon));
 	}
 
 	/*---------------------------------------------------------------------
@@ -177,8 +176,8 @@ public:
 	*---------------------------------------------------------------------*/
 	static inline T reciprocal(T f)
 	{
-		_DEB_ASSERT(!Math::is_near_zero(f));
-		return (Math::One / f);
+		_DEB_ASSERT(!math_traits::is_near_zero(f));
+		return (math_traits::one / f);
 	}
 
 	/*---------------------------------------------------------------------
@@ -186,7 +185,7 @@ public:
 	*---------------------------------------------------------------------*/
 	static inline T to_radian(T f)
 	{
-		return (f * Math::Deg2Rad);
+		return (f * math_traits::deg2rad);
 	}
 
 	/*---------------------------------------------------------------------
@@ -194,7 +193,7 @@ public:
 	*---------------------------------------------------------------------*/
 	static inline T to_degree(T f)
 	{
-		return (f * Math::Rad2Deg);
+		return (f * math_traits::rad2deg);
 	}
 
 	/*---------------------------------------------------------------------
@@ -202,7 +201,7 @@ public:
 	*---------------------------------------------------------------------*/
 	static inline T sin(T deg)
 	{
-		return std::sin(deg * Math::Deg2Rad);
+		return std::sin(deg * math_traits::deg2rad);
 	}
 
 	/*---------------------------------------------------------------------
@@ -210,7 +209,7 @@ public:
 	*---------------------------------------------------------------------*/
 	static inline T cos(T deg)
 	{
-		return std::cos(deg * Math::Deg2Rad);
+		return std::cos(deg * math_traits::deg2rad);
 	}
 
 	/*---------------------------------------------------------------------
@@ -218,17 +217,17 @@ public:
 	*---------------------------------------------------------------------*/
 	static inline void sin_cos(T deg, T& sin, T& cos)
 	{
-		cos = Math::sin(deg);
-		sin = Math::cos(deg);
+		cos = math_traits::sin(deg);
+		sin = math_traits::cos(deg);
 	}
-	static inline void sin_cos(T deg, SinCos& sc)
+	static inline void sin_cos(T deg, sin_cos_t& sc)
 	{
-		sc.Sin = Math::sin(deg);
-		sc.Cos = Math::cos(deg);
+		sc.sin = math_traits::sin(deg);
+		sc.cos = math_traits::cos(deg);
 	}
-	static inline typename Math::SinCos sin_cos(T deg)
+	static inline typename math_traits::sin_cos_t sin_cos(T deg)
 	{
-		return typename Math::SinCos(Math::sin(deg), Math::cos(deg));
+		return typename math_traits::sin_cos_t(math_traits::sin(deg), math_traits::cos(deg));
 	}
 
 	/*---------------------------------------------------------------------
@@ -236,7 +235,7 @@ public:
 	*---------------------------------------------------------------------*/
 	static inline T tan(T deg)
 	{
-		return std::tan(deg * Math::Deg2Rad);
+		return std::tan(deg * math_traits::deg2rad);
 	}
 
 	/*---------------------------------------------------------------------
@@ -244,7 +243,7 @@ public:
 	*---------------------------------------------------------------------*/
 	static inline T asin(T x)
 	{
-		return (std::asin(x) * Math::Rad2Deg);
+		return (std::asin(x) * math_traits::rad2deg);
 	}
 
 	/*---------------------------------------------------------------------
@@ -252,7 +251,7 @@ public:
 	*---------------------------------------------------------------------*/
 	static inline T acos(T x)
 	{
-		return (std::acos(x) * Math::Rad2Deg);
+		return (std::acos(x) * math_traits::rad2deg);
 	}
 
 	/*---------------------------------------------------------------------
@@ -260,11 +259,11 @@ public:
 	*---------------------------------------------------------------------*/
 	static inline T atan(T x)
 	{
-		return (std::atan(x) * Math::Rad2Deg);
+		return (std::atan(x) * math_traits::rad2deg);
 	}
 	static inline T atan2(T y, T x)
 	{
-		return (std::atan2(y, x) * Math::Rad2Deg);
+		return (std::atan2(y, x) * math_traits::rad2deg);
 	}
 
 	/*---------------------------------------------------------------------
@@ -275,12 +274,12 @@ public:
 #ifdef _USE_CXX11
 		return std::round(x);
 #else
-		T y = Math::remainder(x, Math::One);
-		if (y >= Math::Half)
+		T y = math_traits::remainder(x, math_traits::one);
+		if (y >= math_traits::half)
 		{
-			return Math::ceil(x);
+			return math_traits::ceil(x);
 		}
-		return Math::floor(x);
+		return math_traits::floor(x);
 #endif // _USE_CXX11
 	}
 	/*---------------------------------------------------------------------
@@ -288,7 +287,7 @@ public:
 	*---------------------------------------------------------------------*/
 	static inline int round_to_int(T x)
 	{
-		return static_cast<int>(Math::round(x));
+		return static_cast<int>(math_traits::round(x));
 	}
 
 	/*---------------------------------------------------------------------
@@ -311,7 +310,7 @@ public:
 	*---------------------------------------------------------------------*/
 	static inline int ceil_to_int(T x)
 	{
-		return static_cast<int>(Math::ceil(x));
+		return static_cast<int>(math_traits::ceil(x));
 	}
 
 	/*---------------------------------------------------------------------
@@ -326,7 +325,7 @@ public:
 	*---------------------------------------------------------------------*/
 	static inline int floor_to_int(T x)
 	{
-		return static_cast<int>(Math::floor(x));
+		return static_cast<int>(math_traits::floor(x));
 	}
 
 	/*---------------------------------------------------------------------
@@ -342,7 +341,7 @@ public:
 	*---------------------------------------------------------------------*/
 	static inline T rsqrt(T x)
 	{
-		return Math::One / Math::sqrt(x);
+		return math_traits::one / math_traits::sqrt(x);
 	}
 
 	/*---------------------------------------------------------------------
@@ -366,10 +365,10 @@ public:
 	*---------------------------------------------------------------------*/
 	static inline T power_of_two(T x)
 	{
-		T r = x >= Math::Zero ? Math::Two : -Math::Two;
+		T r = x >= math_traits::zero ? math_traits::two : -math_traits::two;
 		while (r < x)
 		{
-			r *= Math::Two;
+			r *= math_traits::two;
 		}
 		return r;
 	}
@@ -413,29 +412,29 @@ public:
 	*---------------------------------------------------------------------*/
 	static inline const T& clamp(const T& v, const T& min, const T& max)
 	{
-		return Math::max(min, Math::min(max, v));
+		return math_traits::max(min, math_traits::min(max, v));
 	}
 	template <template <typename> class VectorN>
 	static inline const VectorN<T>& clamp(const VectorN<T>& v, const VectorN<T>& min, const VectorN<T>& max)
 	{
-		return Math::max(min, Math::min(max, v));
+		return math_traits::max(min, math_traits::min(max, v));
 	}
 	/*---------------------------------------------------------------------
 	* 値を0～1へクランプ
 	*---------------------------------------------------------------------*/
 	static inline const T& clamp01(const T& v)
 	{
-		return clamp(v, Math::Zero, Math::One);
+		return clamp(v, math_traits::zero, math_traits::one);
 	}
 	template <template <typename> class VectorN>
 	static inline const VectorN<T>& clamp01(const VectorN<T>& v)
 	{
 		typedef VectorN<T> vector_type;
-		return clamp(v, vector_type::Zero, vector_type::One);
+		return clamp(v, vector_type::zero, vector_type::one);
 	}
 	static inline T& saturate(T& v)
 	{
-		v = Math::clamp01(v);
+		v = math_traits::clamp01(v);
 		return v;
 	}
 	template <template <typename> class VectorN>
@@ -449,12 +448,12 @@ public:
 	*---------------------------------------------------------------------*/
 	static inline T lerp(T from, T to, T t)
 	{
-		return (from * (Math::One - t)) + (to * t);
+		return (from * (math_traits::one - t)) + (to * t);
 	}
 	template <typename U>
 	static inline T lerp(T from, T to, U t)
 	{
-		return (from * (Math<U>::One - t)) + (to * t);
+		return (from * (math_traits<U>::one - t)) + (to * t);
 	}
 	template <template <typename> class VectorN>
 	static inline VectorN<T> lerp(const VectorN<T>& from, const VectorN<T>& to, T t)
@@ -475,14 +474,14 @@ public:
 		// lerp(lerp(from, center, t), to, t)の式展開
 
 		T t0, t1, t2;
-		Math::bezier_coefficient(t, t0, t1, t2);
+		math_traits::bezier_coefficient(t, t0, t1, t2);
 		return (from * t0 + center * t1 + to * t2);
 	}
 	template <template <typename> class MathType>
 	static inline MathType<T> bezier(const MathType<T>& from, const MathType<T>& center, const MathType<T>& to, T t)
 	{
 		T t0, t1, t2;
-		Math::bezier_coefficient(t, t0, t1, t2);
+		math_traits::bezier_coefficient(t, t0, t1, t2);
 		return (from * t0 + center * t1 + to * t2);
 	}
 	/*---------------------------------------------------------------------
@@ -490,8 +489,8 @@ public:
 	*---------------------------------------------------------------------*/
 	static inline void bezier_coefficient(T t, T& t0, T& t1, T& t2)
 	{
-		t0 = Math::sqr(Math::One - t);
-		t1 = Math::Two * (t - t * t);
+		t0 = math_traits::sqr(math_traits::one - t);
+		t1 = math_traits::two * (t - t * t);
 		t2 = t * t;
 	}
 
@@ -507,16 +506,16 @@ public:
 		// X(t) = (2p0 - 2p1 + v0 + v1)t^3 + (-3p0 + 3p1 - 2v0 - v1)t^2 + v0t + p0
 
 		// 初期速度
-		T v0 = (p3 - p1) * Math::Half;
+		T v0 = (p3 - p1) * math_traits::half;
 		// 最終速度
-		T v1 = (p4 - p2) * Math::Half;
+		T v1 = (p4 - p2) * math_traits::half;
 
 		T t2 = t * t;
 		T t3 = t2 * t;
-		//T f1 = ((Math::Two * p1 - Math::Two * p2) + v0 + v1) * t3;
-		T f1 = (((p1 - p2) * Math::Two) + v0 + v1) * t3;
-		//T f2 = ((-Math::Three * p1 + Math::Three * p2) - Math::Two * v0 - v1) * t2;
-		T f2 = (((p2 - p1) * Math::Three) - Math::Two * v0 - v1) * t2;
+		//T f1 = ((math_traits::two * p1 - math_traits::two * p2) + v0 + v1) * t3;
+		T f1 = (((p1 - p2) * math_traits::two) + v0 + v1) * t3;
+		//T f2 = ((-math_traits::three * p1 + math_traits::three * p2) - math_traits::two * v0 - v1) * t2;
+		T f2 = (((p2 - p1) * math_traits::three) - math_traits::two * v0 - v1) * t2;
 		T f3 = v0 * t;
 		return (f1 + f2 + f3 + p1);
 	}
@@ -526,17 +525,17 @@ public:
 	*---------------------------------------------------------------------*/
 	static inline T lerp_invert(T from, T to, T t)
 	{
-		return lerp(from, to, Math::One - t);
+		return lerp(from, to, math_traits::one - t);
 	}
 	template <typename U>
 	static inline T lerp_invert(T from, T to, U t)
 	{
-		return lerp<U>(from, to, Math<U>::One - t);
+		return lerp<U>(from, to, math_traits<U>::one - t);
 	}
 	template <template <typename> class VectorN>
 	static inline VectorN<T> lerp_invert(const VectorN<T>& from, const VectorN<T>& to, T t)
 	{
-		return lerp(from, to, Math::One - t);
+		return lerp(from, to, math_traits::one - t);
 	}
 
 	/*---------------------------------------------------------------------
@@ -595,17 +594,17 @@ public:
 	* ベクトルの並び替え
 	*---------------------------------------------------------------------*/
 	template <int X, int Y, template <typename> class VectorN>
-	static inline Vector2<T> swizzle(const VectorN<T>& t)
+	static inline vector2<T> swizzle(const VectorN<T>& t)
 	{
 		return t.swizzle(X, Y);
 	}
 	template <int X, int Y, int Z, template <typename> class VectorN>
-	static inline Vector3<T> swizzle(const VectorN<T>& t)
+	static inline vector3<T> swizzle(const VectorN<T>& t)
 	{
 		return t.swizzle(X, Y, Z);
 	}
 	template <int X, int Y, int Z, int W, template <typename> class VectorN>
-	static inline Vector4<T> swizzle(const VectorN<T>& t)
+	static inline vector4<T> swizzle(const VectorN<T>& t)
 	{
 		return t.swizzle(X, Y, Z, W);
 	}
@@ -710,27 +709,27 @@ public:
 	*---------------------------------------------------------------------*/
 	static inline T divide(T x, T y)
 	{
-		_DEB_ASSERT(y != Math::Zero);
+		_DEB_ASSERT(y != math_traits::zero);
 		return (x / y);
 	}
 	template <template <typename> class MathType>
 	static inline MathType<T> divide(const MathType<T>& x, T s)
 	{
-		_DEB_ASSERT(s != Math::Zero);
-		s = Math::One / s;
+		_DEB_ASSERT(s != math_traits::zero);
+		s = math_traits::one / s;
 		return multiply(x, s);
 	}
 	static inline T divide_assign(T& x, T y)
 	{
-		_DEB_ASSERT(y != Math::Zero);
+		_DEB_ASSERT(y != math_traits::zero);
 		x /= y;
 		return x;
 	}
 	template <template <typename> class MathType>
 	static inline MathType<T>& divide_assign(MathType<T>& x, T s)
 	{
-		_DEB_ASSERT(s != Math::Zero);
-		s = Math::One / s;
+		_DEB_ASSERT(s != math_traits::zero);
+		s = math_traits::one / s;
 		return multiply_assign(x, s);
 	}
 	/*---------------------------------------------------------------------
@@ -738,7 +737,7 @@ public:
 	*---------------------------------------------------------------------*/
 	static inline T remainder(T x, T y)
 	{
-		_DEB_ASSERT(!Math::is_near_zero(y));
+		_DEB_ASSERT(!math_traits::is_near_zero(y));
 		return (x >= y ? std::fmod(x, y) : x);
 		//return std::fmod(x, y);
 	}
@@ -754,7 +753,7 @@ public:
 	}
 	static inline T& remainder_assign(T& x, T y)
 	{
-		_DEB_ASSERT(!Math::is_near_zero(y));
+		_DEB_ASSERT(!math_traits::is_near_zero(y));
 		if (x >= y)
 		{
 			x = std::fmod(x, y);
@@ -778,7 +777,7 @@ public:
 	* Operatots
 	*-----------------------------------------------------------------------------------------*/
 
-	// None
+	// none
 };
 
 #ifndef _UNUSING_MATH_INT_FLOAT
@@ -786,69 +785,69 @@ public:
 * int特有の挙動
 *---------------------------------------------------------------------*/
 template <> inline
-bool Math<int>::is_near_zero(int f)
+bool math_traits<int>::is_near_zero(int f)
 {
 	return (f == 0);
 }
 template <> inline
-bool Math<int>::is_near_one(int f)
+bool math_traits<int>::is_near_one(int f)
 {
 	return (f == 1);
 }
 template <> inline
-bool Math<int>::is_near(int f, int value)
+bool math_traits<int>::is_near(int f, int value)
 {
 	return (f == value);
 }
 template <>
 template <int N> inline
-bool Math<int>::is_near(int f)
+bool math_traits<int>::is_near(int f)
 {
 	return (f == N);
 }
 template <> inline
-int Math<int>::reciprocal(int f)
+int math_traits<int>::reciprocal(int f)
 {
 	return 0;
 }
 template <> inline
-int Math<int>::round(int x)
+int math_traits<int>::round(int x)
 {
 	return x;
 }
 template <> inline
-int Math<int>::round_to_int(int x)
+int math_traits<int>::round_to_int(int x)
 {
 	return x;
 }
 template <> inline
-int Math<int>::ceil(int x)
+int math_traits<int>::ceil(int x)
 {
 	return x;
 }
 template <> inline
-int Math<int>::ceil_to_int(int x)
+int math_traits<int>::ceil_to_int(int x)
 {
 	return x;
 }
 template <> inline
-int Math<int>::floor(int x)
+int math_traits<int>::floor(int x)
 {
 	return x;
 }
 template <> inline
-int Math<int>::floor_to_int(int x)
+int math_traits<int>::floor_to_int(int x)
 {
 	return x;
 }
 template <> inline
-int Math<int>::remainder(int x, int y)
+int math_traits<int>::remainder(int x, int y)
 {
 	_DEB_ASSERT(y > 0);
 	return (x % y);
 }
 template <> inline
-int& Math<int>::remainder_assign(int& x, int y)
+int& math_traits<int>::remainder_assign(int& x, int y)
 {
 	_DEB_ASSERT(y > 0);
 	x %= y;
@@ -857,92 +856,92 @@ int& Math<int>::remainder_assign(int& x, int y)
 #endif // _UNUSING_MATH_INT_FLOAT
 
 #ifndef _UNUSING_MATH_INT_FLOAT
-template <> const int Math<int>::Zero = 0;
-template <> const int Math<int>::Half = 0;
-template <> const int Math<int>::HalfOfHalf = 0;
-template <> const int Math<int>::One = 1;
-template <> const int Math<int>::Two = 2;
-template <> const int Math<int>::Three = 3;
-template <> const int Math<int>::Four = 4;
-template <> const int Math<int>::HalfAngle = 180;
-template <> const int Math<int>::PI = 3;
-template <> const int Math<int>::Infinity = 0;
-template <> const int Math<int>::Epsilon = 0;
-template <> const int Math<int>::Maximum = INT_MAX;
-template <> const int Math<int>::Minimum = INT_MIN;
-template <> const float Math<float>::Zero = 0.0f;
-template <> const float Math<float>::Half = 0.5f;
-template <> const float Math<float>::HalfOfHalf = 0.25f;
-template <> const float Math<float>::One = 1.0f;
-template <> const float Math<float>::Two = 2.0f;
-template <> const float Math<float>::Three = 3.0f;
-template <> const float Math<float>::Four = 4.0f;
-template <> const float Math<float>::HalfAngle = 180.0f;
-template <> const float Math<float>::PI = 3.141592654f;
-template <> const float Math<float>::Infinity = HUGE_VALF;
-template <> const float Math<float>::Epsilon = FLT_EPSILON;
-template <> const float Math<float>::Maximum = FLT_MAX;
-template <> const float Math<float>::Minimum = FLT_MIN;
+template <> const int math_traits<int>::zero = 0;
+template <> const int math_traits<int>::half = 0;
+template <> const int math_traits<int>::half_of_half = 0;
+template <> const int math_traits<int>::one = 1;
+template <> const int math_traits<int>::two = 2;
+template <> const int math_traits<int>::three = 3;
+template <> const int math_traits<int>::four = 4;
+template <> const int math_traits<int>::half_angle = 180;
+template <> const int math_traits<int>::pi = 3;
+template <> const int math_traits<int>::infinity = 0;
+template <> const int math_traits<int>::epsilon = 0;
+template <> const int math_traits<int>::maximum = INT_MAX;
+template <> const int math_traits<int>::minimum = INT_MIN;
+template <> const float math_traits<float>::zero = 0.0f;
+template <> const float math_traits<float>::half = 0.5f;
+template <> const float math_traits<float>::half_of_half = 0.25f;
+template <> const float math_traits<float>::one = 1.0f;
+template <> const float math_traits<float>::two = 2.0f;
+template <> const float math_traits<float>::three = 3.0f;
+template <> const float math_traits<float>::four = 4.0f;
+template <> const float math_traits<float>::half_angle = 180.0f;
+template <> const float math_traits<float>::pi = 3.141592654f;
+template <> const float math_traits<float>::infinity = HUGE_VALF;
+template <> const float math_traits<float>::epsilon = FLT_EPSILON;
+template <> const float math_traits<float>::maximum = FLT_MAX;
+template <> const float math_traits<float>::minimum = FLT_MIN;
 #endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
-template <> const double Math<double>::Zero = 0.0;
-template <> const double Math<double>::Half = 0.5;
-template <> const double Math<double>::HalfOfHalf = 0.25;
-template <> const double Math<double>::One = 1.0;
-template <> const double Math<double>::Two = 2.0;
-template <> const double Math<double>::Three = 3.0;
-template <> const double Math<double>::Four = 4.0;
-template <> const double Math<double>::HalfAngle = 180.0;
-template <> const double Math<double>::PI = 3.141592654;
-template <> const double Math<double>::Infinity = HUGE_VAL;
-template <> const double Math<double>::Epsilon = DBL_EPSILON;
-template <> const double Math<double>::Maximum = DBL_MAX;
-template <> const double Math<double>::Minimum = DBL_MIN;
+template <> const double math_traits<double>::zero = 0.0;
+template <> const double math_traits<double>::half = 0.5;
+template <> const double math_traits<double>::half_of_half = 0.25;
+template <> const double math_traits<double>::one = 1.0;
+template <> const double math_traits<double>::two = 2.0;
+template <> const double math_traits<double>::three = 3.0;
+template <> const double math_traits<double>::four = 4.0;
+template <> const double math_traits<double>::half_angle = 180.0;
+template <> const double math_traits<double>::pi = 3.141592654;
+template <> const double math_traits<double>::infinity = HUGE_VAL;
+template <> const double math_traits<double>::epsilon = DBL_EPSILON;
+template <> const double math_traits<double>::maximum = DBL_MAX;
+template <> const double math_traits<double>::minimum = DBL_MIN;
 #endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
-template <> const long double Math<long double>::Zero = 0.0L;
-template <> const long double Math<long double>::Half = 0.5L;
-template <> const long double Math<long double>::HalfOfHalf = 0.25L;
-template <> const long double Math<long double>::One = 1.0L;
-template <> const long double Math<long double>::Two = 2.0L;
-template <> const long double Math<long double>::Three = 3.0L;
-template <> const long double Math<long double>::Four = 4.0L;
-template <> const long double Math<long double>::HalfAngle = 180.0L;
-template <> const long double Math<long double>::PI = 3.141592654L;
-template <> const long double Math<long double>::Infinity = HUGE_VALL;
-template <> const long double Math<long double>::Epsilon = LDBL_EPSILON;
-template <> const long double Math<long double>::Maximum = LDBL_MAX;
-template <> const long double Math<long double>::Minimum = LDBL_MIN;
+template <> const long double math_traits<long double>::zero = 0.0L;
+template <> const long double math_traits<long double>::half = 0.5L;
+template <> const long double math_traits<long double>::half_of_half = 0.25L;
+template <> const long double math_traits<long double>::one = 1.0L;
+template <> const long double math_traits<long double>::two = 2.0L;
+template <> const long double math_traits<long double>::three = 3.0L;
+template <> const long double math_traits<long double>::four = 4.0L;
+template <> const long double math_traits<long double>::half_angle = 180.0L;
+template <> const long double math_traits<long double>::pi = 3.141592654L;
+template <> const long double math_traits<long double>::infinity = HUGE_VALL;
+template <> const long double math_traits<long double>::epsilon = LDBL_EPSILON;
+template <> const long double math_traits<long double>::maximum = LDBL_MAX;
+template <> const long double math_traits<long double>::minimum = LDBL_MIN;
 #endif // _USING_MATH_LONG_DOUBLE
 
 template <typename T>
-const T Math<T>::PIxTwo = Math<T>::PI * Math<T>::Two;
+const T math_traits<T>::pi_x_two = math_traits<T>::pi * math_traits<T>::two;
 template <typename T>
-const T Math<T>::OneDivPI = Math<T>::One / Math<T>::PI;
+const T math_traits<T>::one_div_pi = math_traits<T>::one / math_traits<T>::pi;
 template <typename T>
-const T Math<T>::OneDivPIxTwo = Math<T>::One / (Math<T>::PI * Math<T>::Two);
+const T math_traits<T>::one_div_pi_x_two = math_traits<T>::one / (math_traits<T>::pi * math_traits<T>::two);
 template <typename T>
-const T Math<T>::PIDivTwo = Math<T>::PI / Math<T>::Two;
+const T math_traits<T>::pi_div_two = math_traits<T>::pi / math_traits<T>::two;
 template <typename T>
-const T Math<T>::PIDivFour = Math<T>::PI / Math<T>::Four;
+const T math_traits<T>::pi_div_four = math_traits<T>::pi / math_traits<T>::four;
 template <typename T>
-const T Math<T>::Rad2Deg = Math<T>::HalfAngle / Math<T>::PI;
+const T math_traits<T>::rad2deg = math_traits<T>::half_angle / math_traits<T>::pi;
 template <typename T>
-const T Math<T>::Deg2Rad = Math<T>::PI / Math<T>::HalfAngle;
+const T math_traits<T>::deg2rad = math_traits<T>::pi / math_traits<T>::half_angle;
 
 #ifdef _USING_MATH_IO
 
 namespace detail
 {
 #ifndef _UNUSING_MATH_INT_FLOAT
-typedef Math<int>::SinCos MathSinCosi;
-typedef Math<float>::SinCos MathSinCosf;
+typedef typename math_traits<int>::sin_cos_t math_traits_sin_cos_ti;
+typedef typename math_traits<float>::sin_cos_t math_traits_sin_cos_tf;
 #endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
-typedef Math<double>::SinCos MathSinCosd;
+typedef math_traits<double>::sin_cos_t math_traits_sin_cos_td;
 #endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
-typedef Math<long double>::SinCos MathSinCosld;
+typedef math_traits<long double>::sin_cos_t math_traits_sin_cos_tld;
 #endif // _USING_MATH_LONG_DOUBLE
 }
 
@@ -951,28 +950,28 @@ typedef Math<long double>::SinCos MathSinCosld;
 #define _MATH_SIN_COS_OUTPUT_OPERATOR(TYPE) template <typename CharT, typename CharTraits> inline\
 	std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const TYPE& s)\
 	{\
-		os << out_char::parentheses_left << CharT('S') << out_char::colon << out_char::space << s.Sin \
-			<< out_char::comma_space << CharT('C') << out_char::colon << out_char::space << s.Cos << out_char::parentheses_right;\
+		os << io::parentheses_left << CharT('S') << io::colon << io::space << s.sin \
+			<< io::comma_space << CharT('C') << io::colon << io::space << s.cos << io::parentheses_right;\
 		return os;\
 	}\
 	template <typename CharT, typename CharTraits> inline\
 	std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, CharTraits>& os, const TYPE& s)\
 	{\
-		os << out_char::parentheses_left << CharT('S') << out_char::colon << out_char::space << s.Sin \
-			<< out_char::comma_space << CharT('C') << out_char::colon << out_char::space << s.Cos << out_char::parentheses_right;\
+		os << io::parentheses_left << CharT('S') << io::colon << io::space << s.sin \
+			<< io::comma_space << CharT('C') << io::colon << io::space << s.cos << io::parentheses_right;\
 		return os;\
 	}
 #endif // _MATH_SIN_COS_OUTPUT_OPERATOR
 
 #ifndef _UNUSING_MATH_INT_FLOAT
-_MATH_SIN_COS_OUTPUT_OPERATOR(detail::MathSinCosi);
-_MATH_SIN_COS_OUTPUT_OPERATOR(detail::MathSinCosf);
+_MATH_SIN_COS_OUTPUT_OPERATOR(detail::math_traits_sin_cos_ti);
+_MATH_SIN_COS_OUTPUT_OPERATOR(detail::math_traits_sin_cos_tf);
 #endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
-_MATH_SIN_COS_OUTPUT_OPERATOR(detail::MathSinCosd);
+_MATH_SIN_COS_OUTPUT_OPERATOR(detail::math_traits_sin_cos_td);
 #endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
-_MATH_SIN_COS_OUTPUT_OPERATOR(detail::MathSinCosld);
+_MATH_SIN_COS_OUTPUT_OPERATOR(detail::math_traits_sin_cos_tld);
 #endif // _USING_MATH_LONG_DOUBLE
 
 #undef _MATH_SIN_COS_OUTPUT_OPERATOR
@@ -986,108 +985,108 @@ _MATH_SIN_COS_OUTPUT_OPERATOR(detail::MathSinCosld);
 template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 T operator * (const T& f, const pocket::behavior::_sqr_t&)
 {
-	return pocket::Math<T>::sqr(f);
+	return pocket::math_traits<T>::sqr(f);
 }
 template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 T operator * (const T& f, const pocket::behavior::_radians_t&)
 {
-	return pocket::Math<T>::to_radian(f);
+	return pocket::math_traits<T>::to_radian(f);
 }
 template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 T operator * (const T& f, const pocket::behavior::_degrees_t&)
 {
-	return pocket::Math<T>::to_degree(f);
+	return pocket::math_traits<T>::to_degree(f);
 }
 template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 T operator * (const T& f, const pocket::behavior::_sin_t&)
 {
-	return pocket::Math<T>::sin(f);
+	return pocket::math_traits<T>::sin(f);
 }
 template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 T operator * (const T& f, const pocket::behavior::_cos_t&)
 {
-	return pocket::Math<T>::cos(f);
+	return pocket::math_traits<T>::cos(f);
 }
 template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 T operator * (const T& f, const pocket::behavior::_tan_t&)
 {
-	return pocket::Math<T>::tan(f);
+	return pocket::math_traits<T>::tan(f);
 }
 template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 T operator * (const T& f, const pocket::behavior::_asin_t&)
 {
-	return pocket::Math<T>::asin(f);
+	return pocket::math_traits<T>::asin(f);
 }
 template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 T operator * (const T& f, const pocket::behavior::_acos_t&)
 {
-	return pocket::Math<T>::acos(f);
+	return pocket::math_traits<T>::acos(f);
 }
 template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 T operator * (const T& f, const pocket::behavior::_atan_t&)
 {
-	return pocket::Math<T>::atan(f);
+	return pocket::math_traits<T>::atan(f);
 }
 template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
-typename pocket::Math<T>::SinCos operator * (const T& f, const pocket::behavior::_sin_cos_t&)
+typename pocket::math_traits<T>::sin_cos_t operator * (const T& f, const pocket::behavior::_sin_cos_t&)
 {
-	return pocket::Math<T>::sin_cos(f);
+	return pocket::math_traits<T>::sin_cos(f);
 }
 
 template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 T operator * (const T& f, const pocket::behavior::_round_t&)
 {
-	return pocket::Math<T>::round(f);
+	return pocket::math_traits<T>::round(f);
 }
 template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 T operator * (const T& f, const pocket::behavior::_abs_t&)
 {
-	return pocket::Math<T>::abs(f);
+	return pocket::math_traits<T>::abs(f);
 }
 template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 T operator * (const T& f, const pocket::behavior::_ceil_t&)
 {
-	return pocket::Math<T>::ceil(f);
+	return pocket::math_traits<T>::ceil(f);
 }
 template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 T operator * (const T& f, const pocket::behavior::_floor_t&)
 {
-	return pocket::Math<T>::floor(f);
+	return pocket::math_traits<T>::floor(f);
 }
 template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 T operator * (const T& f, const pocket::behavior::_sqrt_t&)
 {
-	return pocket::Math<T>::sqrt(f);
+	return pocket::math_traits<T>::sqrt(f);
 }
 template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 T operator * (const T& f, const pocket::behavior::_pot_t&)
 {
-	return pocket::Math<T>::power_of_two(f);
+	return pocket::math_traits<T>::power_of_two(f);
 }
 template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 bool operator * (const T& f, const pocket::behavior::_is_pot_t&)
 {
-	return pocket::Math<T>::is_power_of_two(f);
+	return pocket::math_traits<T>::is_power_of_two(f);
 }
 template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 T operator * (const T& f, const pocket::behavior::_clamp01_t&)
 {
-	return pocket::Math<T>::clamp01(f);
+	return pocket::math_traits<T>::clamp01(f);
 }
 template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
-pocket::Vector2<T> operator * (const T& f, const pocket::behavior::_vec2_t&)
+pocket::vector2<T> operator * (const T& f, const pocket::behavior::_vec2_t&)
 {
-	return pocket::Vector2<T>(f);
+	return pocket::vector2<T>(f);
 }
 template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
-pocket::Vector3<T> operator * (const T& f, const pocket::behavior::_vec3_t&)
+pocket::vector3<T> operator * (const T& f, const pocket::behavior::_vec3_t&)
 {
-	return pocket::Vector3<T>(f);
+	return pocket::vector3<T>(f);
 }
 template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
-pocket::Vector4<T> operator * (const T& f, const pocket::behavior::_vec4_t&)
+pocket::vector4<T> operator * (const T& f, const pocket::behavior::_vec4_t&)
 {
-	return pocket::Vector4<T>(f, f);
+	return pocket::vector4<T>(f, f);
 }
 #endif // _USE_CXX11
 

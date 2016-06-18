@@ -6,7 +6,7 @@
 #pragma once
 #endif // _USE_PRAGMA_ONCE
 
-#include "Math.h"
+#include "math_traits.h"
 #include <limits>
 #ifdef _USING_MATH_IO
 #include "../io.h"
@@ -35,7 +35,7 @@ struct _mvector
 	typedef type& type_reference;
 	typedef const type& type_const_reference;
 
-	typedef Math<T> math_type;
+	typedef math_traits<T> math_type;
 	typedef typename math_type::value_int_type value_int_type;
 	typedef _mvector_i<value_int_type, N> int_t;
 
@@ -92,7 +92,7 @@ struct simd_traits
 	* Types
 	*---------------------------------------------------------------------------------------*/
 
-	typedef Math<T> math_type;
+	typedef math_traits<T> math_type;
 	typedef detail::_mvector<T, 4> type;
 	typedef typename math_type::value_int_type value_int_type;
 	typedef typename type::int_t type_int;
@@ -108,13 +108,13 @@ struct simd_traits
 	* Members
 	*---------------------------------------------------------------------------------------*/
 
-	// None
+	// none
 
 	/*---------------------------------------------------------------------------------------
 	* Constants
 	*---------------------------------------------------------------------------------------*/
 
-	// None
+	// none
 
 	/*---------------------------------------------------------------------------------------
 	* Functions
@@ -189,20 +189,20 @@ struct simd_traits
 	static _INLINE_FORCE type zero()
 	{
 		type result = {
-			math_type::Zero,
-			math_type::Zero,
-			math_type::Zero,
-			math_type::Zero
+			math_type::zero,
+			math_type::zero,
+			math_type::zero,
+			math_type::zero
 		};
 		return result;
 	}
 	static _INLINE_FORCE type one()
 	{
 		type result = {
-			math_type::One,
-			math_type::One,
-			math_type::One,
-			math_type::One
+			math_type::one,
+			math_type::one,
+			math_type::one,
+			math_type::one
 		};
 		return result;
 	}
@@ -368,6 +368,23 @@ struct simd_traits
 	{
 		return mm.mm[0];
 	}
+	static _INLINE_FORCE value_type x(type_const_reference mm)
+	{
+		return mm.mm[0];
+	}
+	static _INLINE_FORCE value_type y(type_const_reference mm)
+	{
+		return mm.mm[1];
+	}
+	static _INLINE_FORCE value_type z(type_const_reference mm)
+	{
+		return mm.mm[2];
+	}
+	static _INLINE_FORCE value_type w(type_const_reference mm)
+	{
+		return mm.mm[3];
+	}
+
 	template <int INDEX>
 	static _INLINE_FORCE value_type at(type_const_reference mm)
 	{
@@ -402,10 +419,10 @@ struct simd_traits
 	static _INLINE_FORCE type selector(value_type x, value_type y, value_type z, value_type w)
 	{
 		type result = {
-			x > math_type::Zero ? std::numeric_limits<value_int_type>::max() : 0,
-			y > math_type::Zero ? std::numeric_limits<value_int_type>::max() : 0,
-			z > math_type::Zero ? std::numeric_limits<value_int_type>::max() : 0,
-			w > math_type::Zero ? std::numeric_limits<value_int_type>::max() : 0
+			x > math_type::zero ? std::numeric_limits<value_int_type>::max() : 0,
+			y > math_type::zero ? std::numeric_limits<value_int_type>::max() : 0,
+			z > math_type::zero ? std::numeric_limits<value_int_type>::max() : 0,
+			w > math_type::zero ? std::numeric_limits<value_int_type>::max() : 0
 		};
 		return result;
 	}
@@ -573,21 +590,21 @@ struct simd_traits
 	static _INLINE_FORCE type load1(const value_type* f)
 	{
 		type result = {
-			*f, math_type::Zero, math_type::Zero, math_type::Zero
+			*f, math_type::zero, math_type::zero, math_type::zero
 		};
 		return result;
 	}
 	static _INLINE_FORCE type load2(const value_type* f)
 	{
 		type result = {
-			f[0], f[1], math_type::Zero, math_type::Zero
+			f[0], f[1], math_type::zero, math_type::zero
 		};
 		return result;
 	}
 	static _INLINE_FORCE type load3(const value_type* f)
 	{
 		type result = {
-			f[0], f[1], f[2], math_type::Zero
+			f[0], f[1], f[2], math_type::zero
 		};
 		return result;
 	}
@@ -648,12 +665,26 @@ struct simd_traits
 		};
 		return result;
 	}
+	static _INLINE_FORCE type lerp(type_const_reference from, type_const_reference to, value_type f)
+	{
+		return lerp(from, to, set(f));
+	}
+	static _INLINE_FORCE type lerp(type_const_reference from, type_const_reference to, type_const_reference f)
+	{
+		type result = {
+			math_type::lerp(from.mm[0], to.mm[0], f.mm[0]),
+			math_type::lerp(from.mm[1], to.mm[1], f.mm[1]),
+			math_type::lerp(from.mm[2], to.mm[2], f.mm[2]),
+			math_type::lerp(from.mm[3], to.mm[3], f.mm[3])
+		};
+		return result;
+	}
 
 	/*---------------------------------------------------------------------------------------
 	* Operators
 	*---------------------------------------------------------------------------------------*/
 
-	// None
+	// none
 
 private:
 	union conv_t
@@ -682,19 +713,19 @@ template <typename CharT, typename CharTraits, typename T, size_t N> inline
 std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const pocket::detail::_mvector<T, N>& v)
 {
 	// [X, Y, Z, W]
-	os << out_char::box_brackets_left << v.mm[0] << out_char::comma_space
-		<< v.mm[1] << out_char::comma_space
-		<< v.mm[2] << out_char::comma_space
-		<< v.mm[3] << out_char::box_brackets_right;
+	os << pocket::io::box_brackets_left << v.mm[0] << pocket::io::comma_space
+		<< v.mm[1] << pocket::io::comma_space
+		<< v.mm[2] << pocket::io::comma_space
+		<< v.mm[3] << pocket::io::box_brackets_right;
 	return os;
 }
 template <typename CharT, typename CharTraits, typename T, size_t N> inline
 std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, CharTraits>& os, const pocket::detail::_mvector<T, N>& v)
 {
-	os << out_char::box_brackets_left << v.mm[0] << out_char::comma_space
-		<< v.mm[1] << out_char::comma_space
-		<< v.mm[2] << out_char::comma_space
-		<< v.mm[3] << out_char::box_brackets_right;
+	os << pocket::io::box_brackets_left << v.mm[0] << pocket::io::comma_space
+		<< v.mm[1] << pocket::io::comma_space
+		<< v.mm[2] << pocket::io::comma_space
+		<< v.mm[3] << pocket::io::box_brackets_right;
 	return os;
 }
 #endif // _USING_MATH_IO
@@ -765,7 +796,7 @@ struct simd_traits<float>
 	* Types
 	*---------------------------------------------------------------------------------------*/
 
-	typedef Math<float> math_type;
+	typedef math_traits<float> math_type;
 
 	typedef __m128 type;
 	typedef __m128i type_int;
@@ -784,13 +815,13 @@ struct simd_traits<float>
 	* Members
 	*---------------------------------------------------------------------------------------*/
 
-	// None
+	// none
 
 	/*---------------------------------------------------------------------------------------
 	* Constants
 	*---------------------------------------------------------------------------------------*/
 
-	// None
+	// none
 
 	/*---------------------------------------------------------------------------------------
 	* Functions
@@ -846,7 +877,7 @@ struct simd_traits<float>
 	}
 	static _INLINE_FORCE type one()
 	{
-		return _mm_set_ps1(math_type::One);
+		return _mm_set_ps1(math_type::one);
 	}
 	static _INLINE_FORCE type set(value_type f)
 	{
@@ -922,7 +953,7 @@ struct simd_traits<float>
 	static _INLINE_FORCE type clamp01(type mm)
 	{
 		const type z = _mm_setzero_ps();
-		const type o = _mm_set_ps1(math_type::One);
+		const type o = _mm_set_ps1(math_type::one);
 		return _mm_max_ps(z, _mm_min_ps(mm, o));
 	}
 	static _INLINE_FORCE type reciprocal(type mm)
@@ -937,6 +968,24 @@ struct simd_traits<float>
 	{
 		return _mm_cvtss_f32(mm);
 	}
+
+	static _INLINE_FORCE float x(type mm)
+	{
+		return _mm_cvtss_f32(mm);
+	}
+	static _INLINE_FORCE float y(type mm)
+	{
+		return _mm_cvtss_f32(_mm_shuffle_ps(mm, mm, _MM_SHUFFLE(1, 1, 1, 1)));
+	}
+	static _INLINE_FORCE float z(type mm)
+	{
+		return _mm_cvtss_f32(_mm_shuffle_ps(mm, mm, _MM_SHUFFLE(2, 2, 2, 2)));
+	}
+	static _INLINE_FORCE float w(type mm)
+	{
+		return _mm_cvtss_f32(_mm_shuffle_ps(mm, mm, _MM_SHUFFLE(3, 3, 3, 3)));
+	}
+
 	template <int INDEX>
 	static _INLINE_FORCE float at(type mm)
 	{
@@ -975,7 +1024,7 @@ struct simd_traits<float>
 	static _INLINE_FORCE type selector()
 	{
 		const type mask = _mm_set_ps(static_cast<float>(W), static_cast<float>(Z), static_cast<float>(Y), static_cast<float>(X));
-		const type zero = _mm_set_ps1(math_type::Half);
+		const type zero = _mm_set_ps1(math_type::half);
 		return _mm_cmpgt_ps(zero, mask);
 	}
 	static _INLINE_FORCE type select(type mm1, type mm2, type mm_select)
@@ -996,7 +1045,7 @@ struct simd_traits<float>
 	static _INLINE_FORCE type select0111()
 	{
 		// -1, 1, 1, 1 => 0111
-		return selector(-math_type::One, math_type::One, math_type::One, math_type::One);
+		return selector(-math_type::one, math_type::one, math_type::one, math_type::one);
 	}
 	static _INLINE_FORCE type select0111(type mm1, type mm2)
 	{
@@ -1012,7 +1061,7 @@ struct simd_traits<float>
 	static _INLINE_FORCE type select1011()
 	{
 		// 1, -1, 1, 1 => 1011
-		return selector(math_type::One, -math_type::One, math_type::One, math_type::One);
+		return selector(math_type::one, -math_type::one, math_type::one, math_type::one);
 	}
 	static _INLINE_FORCE type select1011(type mm1, type mm2)
 	{
@@ -1028,7 +1077,7 @@ struct simd_traits<float>
 	static _INLINE_FORCE type select1101()
 	{
 		// 1, 1, -1, 1 => 1101
-		return selector(math_type::One, math_type::One, -math_type::One, math_type::One);
+		return selector(math_type::one, math_type::one, -math_type::one, math_type::one);
 	}
 	static _INLINE_FORCE type select1101(type mm1, type mm2)
 	{
@@ -1044,7 +1093,7 @@ struct simd_traits<float>
 	static _INLINE_FORCE type select1110()
 	{
 		// 1, 1, 1, -1 => 1110
-		return selector(math_type::One, math_type::One, math_type::One, -math_type::One);
+		return selector(math_type::one, math_type::one, math_type::one, -math_type::one);
 	}
 	static _INLINE_FORCE type select1110(type mm1, type mm2)
 	{
@@ -1089,7 +1138,7 @@ struct simd_traits<float>
 	}
 	static _INLINE_FORCE bool near_equal(type mm1, type mm2)
 	{
-		const type epsilon = _mm_set_ps1(math_type::Epsilon);
+		const type epsilon = _mm_set_ps1(math_type::epsilon);
 		type delta = _mm_sub_ps(mm1, mm2);
 		delta = simd_traits::abs(delta);
 		return mask_all(_mm_cmple_ps(delta, epsilon));
@@ -1104,11 +1153,11 @@ struct simd_traits<float>
 	}
 	static _INLINE_FORCE type load2(const value_type* f)
 	{
-		return _mm_set_ps(math_type::Zero, math_type::Zero, f[1], f[0]);
+		return _mm_set_ps(math_type::zero, math_type::zero, f[1], f[0]);
 	}
 	static _INLINE_FORCE type load3(const value_type* f)
 	{
-		return _mm_set_ps(math_type::Zero, f[2], f[1], f[0]);
+		return _mm_set_ps(math_type::zero, f[2], f[1], f[0]);
 	}
 	static _INLINE_FORCE type load(const value_type* f)
 	{
@@ -1166,12 +1215,22 @@ struct simd_traits<float>
 	{
 		return _mm_sqrt_ps(length_sq(mm));
 	}
+	static _INLINE_FORCE type lerp(type from, type to, value_type f)
+	{
+		return lerp(from, to, set(f));
+	}
+	static _INLINE_FORCE type lerp(type from, type to, type f)
+	{
+		// from*(1.0 - t) + to*t
+		type ft = _mm_sub_ps(one(), f);
+		return _mm_add_ps(_mm_mul_ps(from, ft), _mm_mul_ps(to, f));
+	}
 
 	/*---------------------------------------------------------------------------------------
 	* Operators
 	*---------------------------------------------------------------------------------------*/
 
-	// None
+	// none
 
 #if 0
 	_CXX11_EXPLICIT operator type () const
@@ -1296,10 +1355,10 @@ std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, Ch
 	_mm_store_ps(&mm[0], v);
 
 	// [X, Y, Z, W]
-	os << pocket::out_char::box_brackets_left << mm[0] << pocket::out_char::comma_space
-		<< mm[1] << pocket::out_char::comma_space
-		<< mm[2] << pocket::out_char::comma_space
-		<< mm[3] << pocket::out_char::box_brackets_right;
+	os << pocket::io::box_brackets_left << mm[0] << pocket::io::comma_space
+		<< mm[1] << pocket::io::comma_space
+		<< mm[2] << pocket::io::comma_space
+		<< mm[3] << pocket::io::box_brackets_right;
 	return os;
 }
 template <typename CharT, typename CharTraits> inline
@@ -1308,10 +1367,10 @@ std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, 
 	_ALIGNED(16) float mm[4];
 	_mm_store_ps(&mm[0], v);
 
-	os << pocket::out_char::box_brackets_left << mm[0] << pocket::out_char::comma_space
-		<< mm[1] << pocket::out_char::comma_space
-		<< mm[2] << pocket::out_char::comma_space
-		<< mm[3] << pocket::out_char::box_brackets_right;
+	os << pocket::io::box_brackets_left << mm[0] << pocket::io::comma_space
+		<< mm[1] << pocket::io::comma_space
+		<< mm[2] << pocket::io::comma_space
+		<< mm[3] << pocket::io::box_brackets_right;
 	return os;
 }
 #endif // _USING_MATH_IO

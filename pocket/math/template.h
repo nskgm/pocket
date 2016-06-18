@@ -9,7 +9,7 @@
 #include "../behavior.h"
 #include "fwd.h"
 #include "array.h"
-#include "Math.h"
+#include "math_traits.h"
 #ifdef _USING_MATH_IO
 #include "../io.h"
 #endif // _USING_MATH_IO
@@ -62,7 +62,7 @@ struct __template_struct
 #ifdef _USE_ANONYMOUS
 		};
 
-		// None
+		// none
 	};
 #endif // _USE_ANONYMOUS
 
@@ -72,7 +72,7 @@ struct __template_struct
 	* Constants
 	*------------------------------------------------------------------------------------------*/
 
-	// None
+	// none
 
 	/*------------------------------------------------------------------------------------------
 	* Constructors
@@ -88,7 +88,7 @@ struct __template_struct
 	* Functions
 	*------------------------------------------------------------------------------------------*/
 
-	// None
+	// none
 
 	/*------------------------------------------------------------------------------------------
 	* Operators

@@ -7,8 +7,8 @@
 #endif // _USE_PRAGMA_ONCE
 
 #include "../behavior.h"
-#include "array.h"
-#include "Math.h"
+#include "../container/array.h"
+#include "math_traits.h"
 #ifdef _USING_MATH_IO
 #include "../io.h"
 #endif // _USING_MATH_IO
@@ -16,33 +16,19 @@
 namespace pocket
 {
 
-template <typename> struct Color;
+template <typename> struct color;
 #ifndef _UNUSING_MATH_INT_FLOAT
-typedef Color<float> Colorf;
+typedef color<float> colorf;
 #endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
-typedef Color<double> Colord;
+typedef color<double> colord;
 #endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
-typedef Color<long double> Colorld;
+typedef color<long double> colorld;
 #endif // _USING_MATH_LONG_DOUBLE
 
-#ifdef _USE_CXX11
 template <typename T>
-using color = Color<T>;
-#ifndef _UNUSING_MATH_INT_FLOAT
-using colorf = color<float>;
-#endif // _UNUSING_MATH_INT_FLOAT
-#ifdef _USING_MATH_DOUBLE
-using colord = color<double>;
-#endif // _USING_MATH_DOUBLE
-#ifdef _USING_MATH_LONG_DOUBLE
-using colorld = color<long double>;
-#endif // _USING_MATH_LONG_DOUBLE
-#endif // _USE_CXX11
-
-template <typename T>
-struct Color
+struct color
 {
 	_MATH_STATICAL_ASSERT_FLOATING(T);
 
@@ -50,7 +36,7 @@ struct Color
 	* Types
 	*------------------------------------------------------------------------------------------*/
 
-	typedef Math<T> math_type;
+	typedef math_traits<T> math_type;
 	typedef container::array<T, 4> array_type;
 	typedef typename array_type::value_type value_type;
 	typedef typename array_type::iterator iterator;
@@ -71,51 +57,51 @@ struct Color
 		{
 #endif // _USE_ANONYMOUS
 
-			T R;
-			T G;
-			T B;
-			T A;
+			T r;
+			T g;
+			T b;
+			T a;
 
 #ifdef _USE_ANONYMOUS
 		};
 
-		array_type Data;
+		array_type data;
 	};
 #endif // _USE_ANONYMOUS
 
-	template <typename> friend struct Color;
+	template <typename> friend struct color;
 
 	/*------------------------------------------------------------------------------------------
 	* Constants
 	*------------------------------------------------------------------------------------------*/
 
-	static const Color Black; // [0.0, 0.0, 0.0, 1.0]
-	static const Color White; // [1.0, 1.0, 1.0, 1.0]
-	static const Color Red; // [1.0, 0.0, 0.0, 1.0]
-	static const Color Green; // [0.0, 1.0, 0.0, 1.0]
-	static const Color Blue; // [0.0, 0.0, 1.0, 1.0]
-	static const Color Yellow; // [1.0, 1.0, 0.0, 1.0]
-	static const Color Cyan; // [0.0, 1.0, 1.0, 1.0]
-	static const Color Magenta; // [1.0, 0.0, 1.0, 1.0]
-	static const Color Gray; // [0.25, 0.25, 0.25, 1.0]
-	static const Color Orange; // [1.0, 0.5, 0.0, 1.0]
-	static const Color Clear; // [1.0, 1.0, 1.0, 0.25]
-	static const Color None; // [0.0, 0.0, 0.0, 0.0]
+	static const color black; // [0.0, 0.0, 0.0, 1.0]
+	static const color white; // [1.0, 1.0, 1.0, 1.0]
+	static const color red; // [1.0, 0.0, 0.0, 1.0]
+	static const color green; // [0.0, 1.0, 0.0, 1.0]
+	static const color blue; // [0.0, 0.0, 1.0, 1.0]
+	static const color yellow; // [1.0, 1.0, 0.0, 1.0]
+	static const color cyan; // [0.0, 1.0, 1.0, 1.0]
+	static const color magenta; // [1.0, 0.0, 1.0, 1.0]
+	static const color gray; // [0.25, 0.25, 0.25, 1.0]
+	static const color orange; // [1.0, 0.5, 0.0, 1.0]
+	static const color clear; // [1.0, 1.0, 1.0, 0.25]
+	static const color none; // [0.0, 0.0, 0.0, 0.0]
 
-	static const T Byte2Float; // 1.0 / 255.0
-	static const T Float2Byte; // 255.0
+	static const T byte2float; // 1.0 / 255.0
+	static const T float2byte; // 255.0
 
 	/*------------------------------------------------------------------------------------------
 	* Constructors
 	*------------------------------------------------------------------------------------------*/
 
-	_DEFAULT_CONSTRUCTOR(Color);
-	explicit Color(const behavior::_noinitialize_t&)
+	_DEFAULT_CONSTRUCTOR(color);
+	explicit color(const behavior::_noinitialize_t&)
 	{
 
 	}
-	Color(T r, T g, T b, T a) :
-		R(r), G(g), B(b), A(a)
+	color(T r, T g, T b, T a) :
+		r(r), g(g), b(b), a(a)
 	{
 
 	}
@@ -125,30 +111,30 @@ struct Color
 		_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U2),
 		_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U3)
 	>
-	Color(U r, U1 g, U2 b, U3 a) :
-		R(static_cast<T>(r)), G(static_cast<T>(g)), B(static_cast<T>(b)), A(static_cast<T>(a))
+	color(U r, U1 g, U2 b, U3 a) :
+		r(static_cast<T>(r)), g(static_cast<T>(g)), b(static_cast<T>(b)), a(static_cast<T>(a))
 	{
 
 	}
 	template <typename U>
-	Color(const Color<U>& c) :
-		R(static_cast<T>(c.R)), G(static_cast<T>(c.G)), B(static_cast<U>(c.B)), A(static_cast<U>(c.A))
+	color(const color<U>& c) :
+		r(static_cast<T>(c.r)), g(static_cast<T>(c.g)), b(static_cast<U>(c.b)), a(static_cast<U>(c.a))
 	{
 
 	}
-	Color(uint32_t bytes) :
-		R(Color::byte_to_float_r(bytes)),
-		G(Color::byte_to_float_g(bytes)),
-		B(Color::byte_to_float_b(bytes)),
-		A(Color::byte_to_float_a(bytes))
+	color(uint32_t bytes) :
+		r(color::byte_to_float_r(bytes)),
+		g(color::byte_to_float_g(bytes)),
+		b(color::byte_to_float_b(bytes)),
+		a(color::byte_to_float_a(bytes))
 	{
 
 	}
-	explicit Color(T a) :
-		R(math_type::One),
-		G(math_type::One),
-		B(math_type::One),
-		A(a)
+	explicit color(T a) :
+		r(math_type::one),
+		g(math_type::one),
+		b(math_type::one),
+		a(a)
 	{
 
 	}
@@ -160,126 +146,125 @@ struct Color
 	/*---------------------------------------------------------------------
 	* 足し算
 	*---------------------------------------------------------------------*/
-	Color& add(const Color& c, Color& result) const
+	color& add(const color& c, color& result) const
 	{
-		result.R = R + c.R;
-		result.G = G + c.G;
-		result.B = B + c.B;
-		result.A = A + c.A;
+		result.r = r + c.r;
+		result.g = g + c.g;
+		result.b = b + c.b;
+		result.a = a + c.a;
 		return result;
 	}
 	/*---------------------------------------------------------------------
 	* 引き算
 	*---------------------------------------------------------------------*/
-	Color& subtract(const Color& c, Color& result) const
+	color& subtract(const color& c, color& result) const
 	{
-		result.R = R - c.R;
-		result.G = G - c.G;
-		result.B = B - c.B;
-		result.A = A - c.A;
+		result.r = r - c.r;
+		result.g = g - c.g;
+		result.b = b - c.b;
+		result.a = a - c.a;
 		return result;
 	}
 	/*---------------------------------------------------------------------
 	* 掛け算
 	*---------------------------------------------------------------------*/
-	Color& multiply(T f, Color& result) const
+	color& multiply(T f, color& result) const
 	{
-		result.R = R * f;
-		result.G = G * f;
-		result.B = B * f;
-		result.A = A * f;
+		result.r = r * f;
+		result.g = g * f;
+		result.b = b * f;
+		result.a = a * f;
 		return result;
 	}
-	Color& multiply(const Color& c, Color& result) const
+	color& multiply(const color& c, color& result) const
 	{
-		result.R = R * c.R;
-		result.G = G * c.G;
-		result.B = B * c.B;
-		result.A = A * c.A;
+		result.r = r * c.r;
+		result.g = g * c.g;
+		result.b = b * c.b;
+		result.a = a * c.a;
 		return result;
 	}
-	Color& modulate(const Color& c, Color& result) const
+	color& modulate(const color& c, color& result) const
 	{
 		return multiply(c, result);
 	}
 	/*---------------------------------------------------------------------
 	* 割り算
 	*---------------------------------------------------------------------*/
-	Color& divide(T f, Color& result) const
+	color& divide(T f, color& result) const
 	{
-		_DEB_ASSERT(f != math_type::Zero);
-		f = math_type::One / f;
-		return multiply(f, result);
+		_DEB_ASSERT(f != math_type::zero);
+		return multiply(math_type::reciprocal(f), result);
 	}
 
 	/*---------------------------------------------------------------------
 	* 値が等しいか
 	*---------------------------------------------------------------------*/
-	bool is_near(const Color& q) const
+	bool is_near(const color& q) const
 	{
-		return (math_type::is_near(R, q.R) && math_type::is_near(G, q.G) && math_type::is_near(B, q.B) && math_type::is_near(A, q.A));
+		return (math_type::is_near(r, q.r) && math_type::is_near(g, q.g) && math_type::is_near(b, q.b) && math_type::is_near(a, q.a));
 	}
 	/*---------------------------------------------------------------------
 	* 値がすべてゼロに等しいか
 	*---------------------------------------------------------------------*/
 	bool is_near_zero() const
 	{
-		return (math_type::is_near_zero(R) && math_type::is_near_zero(G) && math_type::is_near_zero(B) && math_type::is_near_zero(A));
+		return (math_type::is_near_zero(r) && math_type::is_near_zero(g) && math_type::is_near_zero(b) && math_type::is_near_zero(a));
 	}
 	/*---------------------------------------------------------------------
 	* 値がすべてゼロか
 	*---------------------------------------------------------------------*/
 	bool is_zero() const
 	{
-		return (R == math_type::Zero && G == math_type::Zero && B == math_type::Zero && A == math_type::Zero);
+		return (r == math_type::zero && g == math_type::zero && b == math_type::zero && a == math_type::zero);
 	}
 
 	/*---------------------------------------------------------------------
 	* すべての値を０～１へクランプ
 	*---------------------------------------------------------------------*/
-	Color& saturate()
+	color& saturate()
 	{
-		R = math_type::clamp01(R);
-		G = math_type::clamp01(G);
-		B = math_type::clamp01(B);
-		A = math_type::clamp01(A);
+		r = math_type::clamp01(r);
+		g = math_type::clamp01(g);
+		b = math_type::clamp01(b);
+		a = math_type::clamp01(a);
 		return *this;
 	}
-	Color& saturated(Color& result) const
+	color& saturated(color& result) const
 	{
-		result.R = math_type::clamp01(R);
-		result.G = math_type::clamp01(G);
-		result.B = math_type::clamp01(B);
-		result.A = math_type::clamp01(A);
+		result.r = math_type::clamp01(r);
+		result.g = math_type::clamp01(g);
+		result.b = math_type::clamp01(b);
+		result.a = math_type::clamp01(a);
 		return result;
 	}
-	Color saturated() const
+	color saturated() const
 	{
-		return Color(math_type::clamp01(R),
-			math_type::clamp01(G),
-			math_type::clamp01(B),
-			math_type::clamp01(A));
+		return color(math_type::clamp01(r),
+			math_type::clamp01(g),
+			math_type::clamp01(b),
+			math_type::clamp01(a));
 	}
 
 	/*---------------------------------------------------------------------
 	* 線形補間
 	*---------------------------------------------------------------------*/
-	Color lerp(const Color& to, T t) const
+	color lerp(const color& to, T t) const
 	{
-		return Color(math_type::lerp(R, to.R, t),
-			math_type::lerp(G, to.G, t),
-			math_type::lerp(B, to.B, t),
-			math_type::lerp(A, to.A, t));
+		return color(math_type::lerp(r, to.r, t),
+			math_type::lerp(g, to.g, t),
+			math_type::lerp(b, to.b, t),
+			math_type::lerp(a, to.a, t));
 	}
-	Color& lerp(const Color& to, T t, Color& result) const
+	color& lerp(const color& to, T t, color& result) const
 	{
-		result.R = math_type::lerp(R, to.R, t);
-		result.G = math_type::lerp(G, to.G, t);
-		result.B = math_type::lerp(B, to.B, t);
-		result.A = math_type::lerp(A, to.A, t);
+		result.r = math_type::lerp(r, to.r, t);
+		result.g = math_type::lerp(g, to.g, t);
+		result.b = math_type::lerp(b, to.b, t);
+		result.a = math_type::lerp(a, to.a, t);
 		return result;
 	}
-	Color& lerp(const Color& from, const Color& to, T t)
+	color& lerp(const color& from, const color& to, T t)
 	{
 		return from.lerp(to, t, *this);
 	}
@@ -289,7 +274,7 @@ struct Color
 	*---------------------------------------------------------------------*/
 	uint32_t to_bytes() const
 	{
-		return ((Color::float_to_byte(R) << 24) | (Color::float_to_byte(G) << 16) | (Color::float_to_byte(B) << 8) | Color::float_to_byte(A));
+		return ((color::float_to_byte(r) << 24) | (color::float_to_byte(g) << 16) | (color::float_to_byte(b) << 8) | color::float_to_byte(a));
 	}
 
 	/*---------------------------------------------------------------------
@@ -297,27 +282,27 @@ struct Color
 	*---------------------------------------------------------------------*/
 	static inline uint8_t float_to_byte(T f)
 	{
-		return f >= math_type::One ? static_cast<uint8_t>(0xFFU) :
-				f <= math_type::Zero ? static_cast<uint8_t>(0x00U) : static_cast<uint8_t>(f * Color::Float2Byte);
+		return f >= math_type::one ? static_cast<uint8_t>(0xFFU) :
+				f <= math_type::zero ? static_cast<uint8_t>(0x00U) : static_cast<uint8_t>(f * color::float2byte);
 	}
 	/*---------------------------------------------------------------------
 	* html形式配色値から値の変換
 	*---------------------------------------------------------------------*/
 	static inline T byte_to_float_r(uint32_t bytes)
 	{
-		return static_cast<T>((bytes >> 24) & 0xFF) * Color::Byte2Float;
+		return static_cast<T>((bytes >> 24) & 0xFF) * color::byte2float;
 	}
 	static inline T byte_to_float_g(uint32_t bytes)
 	{
-		return static_cast<T>((bytes >> 16) & 0xFF) * Color::Byte2Float;
+		return static_cast<T>((bytes >> 16) & 0xFF) * color::byte2float;
 	}
 	static inline T byte_to_float_b(uint32_t bytes)
 	{
-		return static_cast<T>((bytes >> 8) & 0xFF) * Color::Byte2Float;
+		return static_cast<T>((bytes >> 8) & 0xFF) * color::byte2float;
 	}
 	static inline T byte_to_float_a(uint32_t bytes)
 	{
-		return static_cast<T>(bytes & 0xFF) * Color::Byte2Float;
+		return static_cast<T>(bytes & 0xFF) * color::byte2float;
 	}
 
 	/*------------------------------------------------------------------------------------------
@@ -331,18 +316,18 @@ struct Color
 	{
 		_DEB_RANGE_ASSERT(i, 0, 3);
 #ifdef _USE_ANONYMOUS
-		return Data[i];
+		return data[i];
 #else
-		return (&R)[i];
+		return (&r)[i];
 #endif // _USE_ANONYMOUS
 	}
 	const T& operator [] (int i) const
 	{
 		_DEB_RANGE_ASSERT(i, 0, 3);
 #ifdef _USE_ANONYMOUS
-		return Data[i];
+		return data[i];
 #else
-		return (&R)[i];
+		return (&r)[i];
 #endif // _USE_ANONYMOUS
 	}
 
@@ -350,35 +335,35 @@ struct Color
 	* 変換演算子
 	*---------------------------------------------------------------------*/
 	template <typename U>
-	_CXX11_EXPLICIT operator Color<U>() const
+	_CXX11_EXPLICIT operator color<U>() const
 	{
-		return Color<U>(static_cast<U>(R), static_cast<U>(G), static_cast<U>(B), static_cast<U>(A));
+		return color<U>(static_cast<U>(r), static_cast<U>(g), static_cast<U>(b), static_cast<U>(a));
 	}
 	_CXX11_EXPLICIT operator T* ()
 	{
 #ifdef _USE_ANONYMOUS
-		return &Data[0];
+		return &data[0];
 #else
-		return &R;
+		return &r;
 #endif // _USE_ANONYMOUS
 	}
 	_CXX11_EXPLICIT operator const T* () const
 	{
 #ifdef _USE_ANONYMOUS
-		return &Data[0];
+		return &data[0];
 #else
-		return &R;
+		return &r;
 #endif // _USE_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------
 	* 比較演算子
 	*---------------------------------------------------------------------*/
-	bool operator == (const Color& c) const
+	bool operator == (const color& c) const
 	{
-		return R == c.R && G == c.G && B == c.B && A == c.A;
+		return r == c.r && g == c.g && b == c.b && a == c.a;
 	}
-	bool operator != (const Color& c) const
+	bool operator != (const color& c) const
 	{
 		return !(*this == c);
 	}
@@ -386,168 +371,167 @@ struct Color
 	/*---------------------------------------------------------------------
 	* 単項演算子
 	*---------------------------------------------------------------------*/
-	Color operator + () const
+	color operator + () const
 	{
 		return *this;
 	}
-	Color operator - () const
+	color operator - () const
 	{
-		return Color(math_type::One - R, math_type::One - G, math_type::One - B, math_type::One - A);
+		return color(math_type::one - r, math_type::one - g, math_type::one - b, math_type::one - a);
 	}
 
 	/*---------------------------------------------------------------------
 	* 二項演算子
 	*---------------------------------------------------------------------*/
-	Color operator + (const Color& q) const
+	color operator + (const color& q) const
 	{
-		Color result(behavior::noinitialize);
+		color result(behavior::noinitialize);
 		return add(q, result);
 	}
-	Color operator - (const Color& q) const
+	color operator - (const color& q) const
 	{
-		Color result(behavior::noinitialize);
+		color result(behavior::noinitialize);
 		return subtract(q, result);
 	}
-	Color operator * (T f) const
+	color operator * (T f) const
 	{
-		Color result(behavior::noinitialize);
+		color result(behavior::noinitialize);
 		return multiply(f, result);
 	}
-	Color operator * (const Color& q) const
+	color operator * (const color& q) const
 	{
-		Color result(behavior::noinitialize);
+		color result(behavior::noinitialize);
 		return multiply(q, result);
 	}
-	Color operator / (T f) const
+	color operator / (T f) const
 	{
-		Color result(behavior::noinitialize);
+		color result(behavior::noinitialize);
 		return divide(f, result);
 	}
 
 	/*---------------------------------------------------------------------
 	* 複合演算子
 	*---------------------------------------------------------------------*/
-	Color& operator += (const Color& c)
+	color& operator += (const color& c)
 	{
-		R += c.R;
-		G += c.G;
-		B += c.B;
-		A += c.A;
+		r += c.r;
+		g += c.g;
+		b += c.b;
+		a += c.a;
 		return *this;
 	}
-	Color& operator -= (const Color& c)
+	color& operator -= (const color& c)
 	{
-		R -= c.R;
-		G -= c.G;
-		B -= c.B;
-		A -= c.A;
+		r -= c.r;
+		g -= c.g;
+		b -= c.b;
+		a -= c.a;
 		return *this;
 	}
-	Color& operator *= (T f)
+	color& operator *= (T f)
 	{
-		R *= f;
-		G *= f;
-		B *= f;
-		A *= f;
+		r *= f;
+		g *= f;
+		b *= f;
+		a *= f;
 		return *this;
 	}
-	Color& operator *= (const Color& c)
+	color& operator *= (const color& c)
 	{
-		R *= c.R;
-		G *= c.G;
-		B *= c.B;
-		A *= c.A;
+		r *= c.r;
+		g *= c.g;
+		b *= c.b;
+		a *= c.a;
 		return *this;
 	}
-	Color& operator /= (T f)
+	color& operator /= (T f)
 	{
-		_DEB_ASSERT(f != math_type::Zero);
-		f = math_type::One / f;
-		return *this *= f;
+		_DEB_ASSERT(f != math_type::zero);
+		return *this *= math_type::reciprocal(f);
 	}
 };
 
 template <typename T>
-const Color<T> Color<T>::Black(math_type::Zero, math_type::Zero, math_type::Zero, math_type::One);
+const color<T> color<T>::black(math_type::zero, math_type::zero, math_type::zero, math_type::one);
 template <typename T>
-const Color<T> Color<T>::White(math_type::One, math_type::One, math_type::One, math_type::One);
+const color<T> color<T>::white(math_type::one, math_type::one, math_type::one, math_type::one);
 template <typename T>
-const Color<T> Color<T>::Red(math_type::One, math_type::Zero, math_type::Zero, math_type::One);
+const color<T> color<T>::red(math_type::one, math_type::zero, math_type::zero, math_type::one);
 template <typename T>
-const Color<T> Color<T>::Green(math_type::Zero, math_type::One, math_type::Zero, math_type::One);
+const color<T> color<T>::green(math_type::zero, math_type::one, math_type::zero, math_type::one);
 template <typename T>
-const Color<T> Color<T>::Blue(math_type::Zero, math_type::Zero, math_type::One, math_type::One);
+const color<T> color<T>::blue(math_type::zero, math_type::zero, math_type::one, math_type::one);
 template <typename T>
-const Color<T> Color<T>::Yellow(math_type::One, math_type::One, math_type::Zero, math_type::One);
+const color<T> color<T>::yellow(math_type::one, math_type::one, math_type::zero, math_type::one);
 template <typename T>
-const Color<T> Color<T>::Cyan(math_type::Zero, math_type::One, math_type::One, math_type::One);
+const color<T> color<T>::cyan(math_type::zero, math_type::one, math_type::one, math_type::one);
 template <typename T>
-const Color<T> Color<T>::Magenta(math_type::One, math_type::Zero, math_type::One, math_type::One);
+const color<T> color<T>::magenta(math_type::one, math_type::zero, math_type::one, math_type::one);
 template <typename T>
-const Color<T> Color<T>::Gray(math_type::HalfOfHalf, math_type::HalfOfHalf, math_type::HalfOfHalf, math_type::One);
+const color<T> color<T>::gray(math_type::half_of_half, math_type::half_of_half, math_type::half_of_half, math_type::one);
 template <typename T>
-const Color<T> Color<T>::Orange(math_type::One, math_type::Half, math_type::Zero, math_type::One);
+const color<T> color<T>::orange(math_type::one, math_type::half, math_type::zero, math_type::one);
 template <typename T>
-const Color<T> Color<T>::Clear(math_type::One, math_type::One, math_type::One, math_type::HalfOfHalf);
+const color<T> color<T>::clear(math_type::one, math_type::one, math_type::one, math_type::half_of_half);
 template <typename T>
-const Color<T> Color<T>::None(math_type::Zero, math_type::Zero, math_type::Zero, math_type::Zero);
+const color<T> color<T>::none(math_type::zero, math_type::zero, math_type::zero, math_type::zero);
 #ifndef _UNUSING_MATH_INT_FLOAT
-template <> const float Color<float>::Float2Byte = 255.0f;
-template <> const float Color<float>::Byte2Float = 1.0f / 255.0f;
+template <> const float color<float>::float2byte = 255.0f;
+template <> const float color<float>::byte2float = 1.0f / 255.0f;
 #endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
-template <> const double Color<double>::Float2Byte = 255.0;
-template <> const double Color<double>::Byte2Float = 1.0 / 255.0;
+template <> const double color<double>::float2byte = 255.0;
+template <> const double color<double>::byte2float = 1.0 / 255.0;
 #endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
-template <> const long double Color<long double>::Float2Byte = 255.0L;
-template <> const long double Color<long double>::Byte2Float = 1.0L / 255.0L;
+template <> const long double color<long double>::float2byte = 255.0L;
+template <> const long double color<long double>::byte2float = 1.0L / 255.0L;
 #endif // _USING_MATH_LONG_DOUBLE
 
 #ifdef _USING_MATH_IO
 template <typename CharT, typename CharTraits, typename T> inline
-std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const Color<T>& c)
+std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const color<T>& c)
 {
-	os << out_char::parentheses_left << c.R << out_char::comma_space
-		<< c.G << out_char::comma_space
-		<< c.B << out_char::comma_space
-		<< c.A << out_char::parentheses_right;
+	os << io::parentheses_left << c.r << io::comma_space
+		<< c.g << io::comma_space
+		<< c.b << io::comma_space
+		<< c.a << io::parentheses_right;
 	return os;
 }
 template <typename CharT, typename CharTraits, typename T> inline
-std::basic_istream<CharT, CharTraits>& operator >> (std::basic_istream<CharT, CharTraits>& is, Color<T>& c)
+std::basic_istream<CharT, CharTraits>& operator >> (std::basic_istream<CharT, CharTraits>& is, color<T>& c)
 {
 	is.ignore();
-	is >> c.R;
+	is >> c.r;
 	is.ignore();
-	is >> c.G;
+	is >> c.g;
 	is.ignore();
-	is >> c.B;
+	is >> c.b;
 	is.ignore();
-	is >> c.A;
+	is >> c.a;
 	is.ignore();
 	return is;
 }
 template <typename CharT, typename CharTraits, typename T> inline
-std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, CharTraits>& os, const Color<T>& c)
+std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, CharTraits>& os, const color<T>& c)
 {
-	os << out_char::parentheses_left << c.R << out_char::comma_space
-		<< c.G << out_char::comma_space
-		<< c.B << out_char::comma_space
-		<< c.A << out_char::parentheses_right;
+	os << io::parentheses_left << c.r << io::comma_space
+		<< c.g << io::comma_space
+		<< c.b << io::comma_space
+		<< c.a << io::parentheses_right;
 	return os;
 }
 template <typename CharT, typename CharTraits, typename T> inline
-std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, CharTraits>& is, Color<T>& c)
+std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, CharTraits>& is, color<T>& c)
 {
 	is.ignore();
-	is >> c.R;
+	is >> c.r;
 	is.ignore();
-	is >> c.G;
+	is >> c.g;
 	is.ignore();
-	is >> c.B;
+	is >> c.b;
 	is.ignore();
-	is >> c.A;
+	is >> c.a;
 	is.ignore();
 	return is;
 }

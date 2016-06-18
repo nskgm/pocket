@@ -11,7 +11,7 @@
 
 namespace pocket
 {
-namespace out_char
+namespace io
 {
 #ifndef _DECL_OUT_CHAR_FUNCTION
 #define _DECL_OUT_CHAR_FUNCTION(NAME, CHAR) template <typename CharT, typename CharTraits> inline \
@@ -63,10 +63,7 @@ std::basic_iostream<CharT, CharTraits>& comma_space(std::basic_iostream<CharT, C
 }
 
 #undef _DECL_OUT_CHAR_FUNCTION
-} // namespace out_char
 
-namespace skip_char
-{
 // 指定の文字までスキップ
 template <typename CharT, typename CharTraits> inline
 std::basic_istream<CharT, CharTraits>& ignore(std::basic_istream<CharT, CharTraits>& is, CharT delim)
@@ -78,7 +75,7 @@ std::basic_iostream<CharT, CharTraits>& ignore(std::basic_iostream<CharT, CharTr
 {
 	return is.ignore(std::numeric_limits<std::streamsize>::max(), delim);
 }
-} // namespace skip_char
+} // namespace io
 } // namespace pocket
 
 #endif // __POCKET_IO_H__

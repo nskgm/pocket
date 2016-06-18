@@ -16,6 +16,9 @@
     <Filter Include="ヘッダー ファイル\math">
       <UniqueIdentifier>{aa6a932b-8a64-4417-a89e-5fad6f9272c9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ヘッダー ファイル\container">
+      <UniqueIdentifier>{46fab857-de8d-4e9b-937c-546d6d542c1c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="behavior.h">
@@ -36,56 +39,56 @@
     <ClInclude Include="math\all.h">
       <Filter>ヘッダー ファイル\math</Filter>
     </ClInclude>
-    <ClInclude Include="math\array.h">
+    <ClInclude Include="math\color.h">
       <Filter>ヘッダー ファイル\math</Filter>
     </ClInclude>
-    <ClInclude Include="math\Color.h">
-      <Filter>ヘッダー ファイル\math</Filter>
-    </ClInclude>
-    <ClInclude Include="math\Frustum.h">
+    <ClInclude Include="math\frustum.h">
       <Filter>ヘッダー ファイル\math</Filter>
     </ClInclude>
     <ClInclude Include="math\fwd.h">
       <Filter>ヘッダー ファイル\math</Filter>
     </ClInclude>
-    <ClInclude Include="math\Line.h">
+    <ClInclude Include="math\line.h">
       <Filter>ヘッダー ファイル\math</Filter>
     </ClInclude>
-    <ClInclude Include="math\Math.h">
+    <ClInclude Include="math\math_traits.h">
       <Filter>ヘッダー ファイル\math</Filter>
     </ClInclude>
-    <ClInclude Include="math\Matrix3x3.h">
+    <ClInclude Include="math\matrix3x3.h">
       <Filter>ヘッダー ファイル\math</Filter>
     </ClInclude>
-    <ClInclude Include="math\Matrix4x4.h">
+    <ClInclude Include="math\matrix4x4.h">
       <Filter>ヘッダー ファイル\math</Filter>
     </ClInclude>
-    <ClInclude Include="math\Plane.h">
+    <ClInclude Include="math\plane.h">
       <Filter>ヘッダー ファイル\math</Filter>
     </ClInclude>
-    <ClInclude Include="math\Quaternion.h">
+    <ClInclude Include="math\quaternion.h">
       <Filter>ヘッダー ファイル\math</Filter>
     </ClInclude>
-    <ClInclude Include="math\Ray.h">
+    <ClInclude Include="math\ray.h">
       <Filter>ヘッダー ファイル\math</Filter>
     </ClInclude>
-    <ClInclude Include="math\Rectangle.h">
+    <ClInclude Include="math\rectangle.h">
+      <Filter>ヘッダー ファイル\math</Filter>
+    </ClInclude>
+    <ClInclude Include="math\simd_traits.h">
       <Filter>ヘッダー ファイル\math</Filter>
     </ClInclude>
     <ClInclude Include="math\template.h">
       <Filter>ヘッダー ファイル\math</Filter>
     </ClInclude>
-    <ClInclude Include="math\Vector2.h">
+    <ClInclude Include="math\vector2.h">
       <Filter>ヘッダー ファイル\math</Filter>
     </ClInclude>
-    <ClInclude Include="math\Vector3.h">
+    <ClInclude Include="math\vector3.h">
       <Filter>ヘッダー ファイル\math</Filter>
     </ClInclude>
-    <ClInclude Include="math\Vector4.h">
+    <ClInclude Include="math\vector4.h">
       <Filter>ヘッダー ファイル\math</Filter>
     </ClInclude>
-    <ClInclude Include="math\simd_traits.h">
-      <Filter>ヘッダー ファイル\math</Filter>
+    <ClInclude Include="container\array.h">
+      <Filter>ヘッダー ファイル\container</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

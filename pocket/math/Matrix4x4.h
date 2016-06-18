@@ -8,11 +8,11 @@
 
 #include "../debug.h"
 #include "../behavior.h"
-#include "Math.h"
-#include "Vector3.h"
-#include "Vector4.h"
-#include "Quaternion.h"
-#include "Matrix3x3.h"
+#include "math_traits.h"
+#include "vector3.h"
+#include "vector4.h"
+#include "quaternion.h"
+#include "matrix3x3.h"
 #ifdef _USE_SIMD_ANONYMOUS
 #include "simd_traits.h"
 #endif // _USE_SIMD_ANONYMOUS
@@ -26,34 +26,20 @@
 namespace pocket
 {
 
-template <typename> struct Matrix4x4;
+template <typename> struct matrix4x4;
 
 #ifndef _UNUSING_MATH_INT_FLOAT
-typedef Matrix4x4<float> Matrix4x4f;
+typedef matrix4x4<float> matrix4x4f;
 #endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
-typedef Matrix4x4<double> Matrix4x4d;
+typedef matrix4x4<double> matrix4x4d;
 #endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
-typedef Matrix4x4<long double> Matrix4x4ld;
+typedef matrix4x4<long double> matrix4x4ld;
 #endif // _USING_MATH_LONG_DOUBLE
 
-#ifdef _USE_CXX11
 template <typename T>
-using mat4x4 = Matrix4x4<T>;
-#ifndef _UNUSING_MATH_INT_FLOAT
-using mat4x4f = mat4x4<float>;
-#endif // _UNUSING_MATH_INT_FLOAT
-#ifdef _USING_MATH_DOUBLE
-using mat4x4d = mat4x4<double>;
-#endif // _USING_MATH_DOUBLE
-#ifdef _USING_MATH_LONG_DOUBLE
-using mat4x4ld = mat4x4<long double>;
-#endif // _USING_MATH_LONG_DOUBLE
-#endif // _USE_CXX11
-
-template <typename T>
-struct Matrix4x4
+struct matrix4x4
 {
 	_MATH_STATICAL_ASSERT_FLOATING(T);
 
@@ -61,17 +47,18 @@ struct Matrix4x4
 	* Types
 	*-----------------------------------------------------------------------------------------*/
 
-	typedef Math<T> math_type;
-	typedef Vector4<T> vector4_type;
-	typedef Vector4<T> row_type;
-	typedef Vector4<T> column_type;
+	typedef math_traits<T> math_type;
+	typedef vector4<T> vector4_type;
+	typedef vector4<T> row_type;
+	typedef vector4<T> column_type;
+	typedef typename math_type::sin_cos_t sin_cos_type;
 
 #ifdef _USE_SIMD_ANONYMOUS
-	typedef typename Vector4<T>::simd simd;
+	typedef typename vector4<T>::simd simd;
 	typedef typename simd::type simd_type;
 #endif // _USE_SIMD_ANONYMOUS
 
-	typedef container::array<Vector4<T>, 4> array4x4_type;
+	typedef container::array<vector4<T>, 4> array4x4_type;
 	typedef typename array4x4_type::value_type value_type;
 	typedef typename array4x4_type::iterator iterator;
 	typedef typename array4x4_type::const_iterator const_iterator;
@@ -89,7 +76,7 @@ struct Matrix4x4
 	typedef typename array16_type::reference reference_16;
 	typedef typename array16_type::const_reference const_reference_16;
 
-	typedef Vector4<T>(*CalcFunc)(const Vector4<T>&, const Vector4<T>&);
+	typedef vector4<T>(*CalcFunc)(const vector4<T>&, const vector4<T>&);
 
 	/*-----------------------------------------------------------------------------------------
 	* Members
@@ -108,185 +95,128 @@ struct Matrix4x4
 		};
 		struct
 		{
-			row_type MV0;
-			row_type MV1;
-			row_type MV2;
-			row_type MV3;
+			row_type mv0;
+			row_type mv1;
+			row_type mv2;
+			row_type mv3;
 		};
 		struct
 		{
-			Vector3<T> Right; // X方向ベクトル
-			T _RightW; // X方向ベクトルW
-			Vector3<T> Up; // Y方向ベクトル
-			T _UpW; // Y方向ベクトルW
-			Vector3<T> Forward; // Z方向ベクトル
-			T _ForwardW; // Z方向ベクトルW
-			Vector3<T> Position; // 座標ベクトル
-			T _PositionW; // 座標ベクトルW
+			vector3<T> _right; // x方向ベクトル
+			T _right_w; // x方向ベクトルw
+			vector3<T> _up; // y方向ベクトル
+			T _up_w; // y方向ベクトルw
+			vector3<T> _forward; // z方向ベクトル
+			T _forward_w; // z方向ベクトルw
+			vector3<T> _position; // 座標ベクトル
+			T _position_w; // 座標ベクトルw
 		};
 		struct
 		{
-			T M11; T M12; T M13; T M14;
-			T M21; T M22; T M23; T M24;
-			T M31; T M32; T M33; T M34;
-			T M41; T M42; T M43; T M44;
+			T m11; T m12; T m13; T m14;
+			T m21; T m22; T m23; T m24;
+			T m31; T m32; T m33; T m34;
+			T m41; T m42; T m43; T m44;
 		};
-		array16_type Data;
+		array16_type data;
 	};
 #endif // _USE_ANONYMOUS_NON_POD
 
-	template <typename> friend struct Matrix4x4;
+	template <typename> friend struct matrix4x4;
 
 	/*-----------------------------------------------------------------------------------------
 	* Constants
 	*-----------------------------------------------------------------------------------------*/
 
-	static const Matrix4x4 Zero; // 0.0 x 16
-	static const Matrix4x4 Identity; // 単位行列
+	static const matrix4x4 zero; // 0.0 x 16
+	static const matrix4x4 identity; // 単位行列
 
 	/*-----------------------------------------------------------------------------------------
 	* Constructors
 	*-----------------------------------------------------------------------------------------*/
 
-	_DEFAULT_CONSTRUCTOR(Matrix4x4);
-	explicit Matrix4x4(const behavior::_noinitialize_t&)
+	_DEFAULT_CONSTRUCTOR(matrix4x4);
+	explicit matrix4x4(const behavior::_noinitialize_t&)
 	{
 
 	}
-	explicit Matrix4x4(const behavior::_zero_t&)
+	explicit matrix4x4(const behavior::_zero_t&)
 	{
-		M[0] = Vector4<T>::Zero;
-		M[1] = Vector4<T>::Zero;
-		M[2] = Vector4<T>::Zero;
-		M[3] = Vector4<T>::Zero;
+		M[0] = row_type::zero;
+		M[1] = row_type::zero;
+		M[2] = row_type::zero;
+		M[3] = row_type::zero;
 	}
-	explicit Matrix4x4(const behavior::_identity_t&)
+	explicit matrix4x4(const behavior::_identity_t&)
 	{
-		M[0] = Vector4<T>::UnitX;
-		M[1] = Vector4<T>::UnitY;
-		M[2] = Vector4<T>::UnitZ;
-		M[3] = Vector4<T>::UnitW;
+		M[0] = row_type::unit_x;
+		M[1] = row_type::unit_y;
+		M[2] = row_type::unit_z;
+		M[3] = row_type::unit_w;
 	}
-	explicit Matrix4x4(T t)
+	explicit matrix4x4(T t)
 	{
-		M[0] = Vector4<T>(t, math_type::Zero, math_type::Zero, math_type::Zero);
-		M[1] = Vector4<T>(math_type::Zero, t, math_type::Zero, math_type::Zero);
-		M[2] = Vector4<T>(math_type::Zero, math_type::Zero, t, math_type::Zero);
-		M[3] = Vector4<T>(math_type::Zero, math_type::Zero, math_type::Zero, t);
+		M[0] = row_type(t, math_type::zero, math_type::zero, math_type::zero);
+		M[1] = row_type(math_type::zero, t, math_type::zero, math_type::zero);
+		M[2] = row_type(math_type::zero, math_type::zero, t, math_type::zero);
+		M[3] = row_type(math_type::zero, math_type::zero, math_type::zero, t);
 	}
-	Matrix4x4(T M11, T M12, T M13, T M14,
+	matrix4x4(T M11, T M12, T M13, T M14,
 		T M21, T M22, T M23, T M24,
 		T M31, T M32, T M33, T M34,
 		T M41, T M42, T M43, T M44)
 	{
-#ifdef _USE_ANONYMOUS_NON_POD
-		MV0.X = M11;
-		MV0.Y = M12;
-		MV0.Z = M13;
-		MV0.W = M14;
-		MV1.X = M21;
-		MV1.Y = M22;
-		MV1.Z = M23;
-		MV1.W = M24;
-		MV2.X = M31;
-		MV2.Y = M32;
-		MV2.Z = M33;
-		MV2.W = M34;
-		MV3.X = M41;
-		MV3.Y = M42;
-		MV3.Z = M43;
-		MV3.W = M44;
-#else
-		M[0] = Vector4<T>(M11, M12, M13, M14);
-		M[1] = Vector4<T>(M21, M22, M23, M24);
-		M[2] = Vector4<T>(M31, M32, M33, M34);
-		M[3] = Vector4<T>(M41, M42, M43, M44);
-#endif // _USE_ANONYMOUS_NON_POD
+		M[0] = row_type(M11, M12, M13, M14);
+		M[1] = row_type(M21, M22, M23, M24);
+		M[2] = row_type(M31, M32, M33, M34);
+		M[3] = row_type(M41, M42, M43, M44);
 	}
-	Matrix4x4(const Vector4<T>& M1, const Vector4<T>& M2, const Vector4<T>& M3, const Vector4<T>& M4)
-	{
+	matrix4x4(const vector4<T>& M1, const vector4<T>& M2, const vector4<T>& M3, const vector4<T>& M4)
 #ifdef _USE_ANONYMOUS_NON_POD
-		MV0 = M1;
-		MV1 = M2;
-		MV2 = M3;
-		MV3 = M4;
-#else
+		: mv0(M1), mv1(M2), mv2(M3), mv3(M4)
+#endif // _USE_ANONYMOUS_NON_POD
+	{
+#ifndef _USE_ANONYMOUS_NON_POD
 		M[0] = M1;
 		M[1] = M2;
 		M[2] = M3;
 		M[3] = M4;
 #endif // _USE_ANONYMOUS_NON_POD
 	}
-	explicit Matrix4x4(const Vector3<T>& M1, T M1W,
-		const Vector3<T>& M2, T M2W,
-		const Vector3<T>& M3, T M3W,
-		const Vector3<T>& M4, T M4W = math_type::One)
-	{
+	explicit matrix4x4(const vector3<T>& M1, T M1W,
+		const vector3<T>& M2, T M2W,
+		const vector3<T>& M3, T M3W,
+		const vector3<T>& M4, T M4W = math_type::one)
 #ifdef _USE_ANONYMOUS_NON_POD
-		Right = M1;
-		_RightW = M1W;
-		Up = M2;
-		_UpW = M2W;
-		Forward = M3;
-		_ForwardW = M3W;
-		Position = M4;
-		_PositionW = M4W;
-#else
-		Vector4<T>* p = &M[0];
-		p->X = M1.X;
-		p->Y = M1.Y;
-		p->Z = M1.Z;
-		p->W = M1W;
-
-		p = &M[1];
-		p->X = M2.X;
-		p->Y = M2.Y;
-		p->Z = M2.Z;
-		p->W = M2W;
-
-		p = &M[2];
-		p->X = M3.X;
-		p->Y = M3.Y;
-		p->Z = M3.Z;
-		p->W = M3W;
-
-		p = &M[3];
-		p->X = M4.X;
-		p->Y = M4.Y;
-		p->Z = M4.Z;
-		p->W = M4W;
+		: mv0(M1, M1W), mv1(M2, M2W), mv2(M3, M3W), mv3(M4, M4W)
+#endif // _USE_ANONYMOUS_NON_POD
+	{
+#ifndef _USE_ANONYMOUS_NON_POD
+		M[0] = row_type(M1, M1W);
+		M[1] = row_type(M2, M2W);
+		M[2] = row_type(M3, M3W);
+		M[3] = row_type(M4, M4W);
 #endif // _USE_ANONYMOUS_NON_POD
 	}
-	explicit Matrix4x4(const Matrix3x3<T>& m)
+	explicit matrix4x4(const matrix3x3<T>& m)
+#ifdef _USE_ANONYMOUS_NON_POD
+		: mv0(m[0], math_type::zero),
+		mv1(m[1], math_type::zero),
+		mv2(m[2], math_type::zero),
+		mv3(row_type::unit_w)
+#endif // _USE_ANONYMOUS_NON_POD
 	{
-		const Vector3<T>* m0 = &m[0];
-		const Vector3<T>* m1 = &m[1];
-		const Vector3<T>* m2 = &m[2];
-		Vector4<T>* p0 = &M[0];
-		Vector4<T>* p1 = &M[1];
-		Vector4<T>* p2 = &M[2];
-
-		p0->X = m0->X;
-		p0->Y = m0->Y;
-		p0->Z = m0->Z;
-		p0->W = math_type::Zero;
-
-		p1->X = m1->X;
-		p1->Y = m1->Y;
-		p1->Z = m1->Z;
-		p1->W = math_type::Zero;
-
-		p2->X = m2->X;
-		p2->Y = m2->Y;
-		p2->Z = m2->Z;
-		p2->W = math_type::Zero;
-
-		M[3] = Vector4<T>::UnitW;
+#ifndef _USE_ANONYMOUS_NON_POD
+		M[0] = row_type(m[0], math_type::zero);
+		M[1] = row_type(m[1], math_type::zero);
+		M[2] = row_type(m[2], math_type::zero);
+		M[3] = row_type::unit_w;
+#endif // _USE_ANONYMOUS_NON_POD
 	}
 #ifdef _USE_SIMD_ANONYMOUS
-	Matrix4x4(simd_type mm1, simd_type mm2, simd_type mm3, simd_type mm4)
+	matrix4x4(simd_type mm1, simd_type mm2, simd_type mm3, simd_type mm4)
 #ifdef _USE_ANONYMOUS_NON_POD
-		: MV0(mm1), MV1(mm2), MV2(mm3), MV3(mm4)
+		: mv0(mm1), mv1(mm2), mv2(mm3), mv3(mm4)
 #endif // _USE_ANONYMOUS_NON_POD
 	{
 #ifndef _USE_ANONYMOUS_NON_POD
@@ -303,7 +233,7 @@ struct Matrix4x4
 	*-----------------------------------------------------------------------------------------*/
 
 	template <typename FUNC>
-	Matrix4x4& each_calc_line(const Matrix4x4& m, Matrix4x4& result, FUNC func) const
+	matrix4x4& each_calc_line(const matrix4x4& m, matrix4x4& result, FUNC func) const
 	{
 		iterator ri = result.M.begin();
 		const_iterator oi = m.M.begin();
@@ -316,7 +246,7 @@ struct Matrix4x4
 	/*---------------------------------------------------------------------
 	* 足し算
 	*---------------------------------------------------------------------*/
-	Matrix4x4& add(const Matrix4x4& m, Matrix4x4& result) const
+	matrix4x4& add(const matrix4x4& m, matrix4x4& result) const
 	{
 		iterator ri = result.M.begin();
 		const_iterator oi = m.M.begin();
@@ -329,7 +259,7 @@ struct Matrix4x4
 	/*---------------------------------------------------------------------
 	* 引き算
 	*---------------------------------------------------------------------*/
-	Matrix4x4& subtract(const Matrix4x4& m, Matrix4x4& result) const
+	matrix4x4& subtract(const matrix4x4& m, matrix4x4& result) const
 	{
 		iterator ri = result.M.begin();
 		const_iterator oi = m.M.begin();
@@ -342,7 +272,7 @@ struct Matrix4x4
 	/*---------------------------------------------------------------------
 	* 掛け算
 	*---------------------------------------------------------------------*/
-	Matrix4x4& multiply(const Matrix4x4& m, Matrix4x4& result) const
+	matrix4x4& multiply(const matrix4x4& m, matrix4x4& result) const
 	{
 #if 0
 		// ゼロ埋め
@@ -398,19 +328,19 @@ struct Matrix4x4
 
 #	if defined(__DEBUG)
 		// コピー&転置をして計算しやすいようにする
-		Matrix4x4 t = m.transposed();
+		matrix4x4 t = m.transposed();
 		iterator ri = result.M.begin();
 		const_iterator ti = t.M.begin(), j;
 		for (const_iterator i = M.begin(), end = M.end(); i != end; ++i, ++ri)
 		{
 			j = ti;
-			ri->X = i->dot(*j);
+			ri->x = i->dot(*j);
 			++j;
-			ri->Y = i->dot(*j);
+			ri->y = i->dot(*j);
 			++j;
-			ri->Z = i->dot(*j);
+			ri->z = i->dot(*j);
 			++j;
-			ri->W = i->dot(*j);
+			ri->w = i->dot(*j);
 		}
 #	else
 		const_pointer oi0 = &m.M[0];
@@ -420,16 +350,16 @@ struct Matrix4x4
 		iterator ri = result.M.begin();
 		for (const_iterator i = M.begin(), end = M.end(); i != end; ++i, ++ri)
 		{
-			ri->X = i->X * oi0->X + i->Y * oi1->X + i->Z * oi2->X + i->W * oi3->X;
-			ri->Y = i->X * oi0->Y + i->Y * oi1->Y + i->Z * oi2->Y + i->W * oi3->Y;
-			ri->Z = i->X * oi0->Z + i->Y * oi1->Z + i->Z * oi2->Z + i->W * oi3->Z;
-			ri->W = i->X * oi0->W + i->Y * oi1->W + i->Z * oi2->W + i->W * oi3->W;
+			ri->x = i->x * oi0->x + i->y * oi1->x + i->z * oi2->x + i->w * oi3->x;
+			ri->y = i->x * oi0->y + i->y * oi1->y + i->z * oi2->y + i->w * oi3->y;
+			ri->z = i->x * oi0->z + i->y * oi1->z + i->z * oi2->z + i->w * oi3->z;
+			ri->w = i->x * oi0->w + i->y * oi1->w + i->z * oi2->w + i->w * oi3->w;
 		}
 #	endif
 #endif // _USE_SIMD_ANONYMOUS
 		return result;
 	}
-	Matrix4x4& multiply(T s, Matrix4x4& result) const
+	matrix4x4& multiply(T s, matrix4x4& result) const
 	{
 		iterator ri = result.M.begin();
 		for (const_iterator i = M.begin(), end = M.end(); i != end; ++i, ++ri)
@@ -441,9 +371,9 @@ struct Matrix4x4
 	/*---------------------------------------------------------------------
 	* 割り算
 	*---------------------------------------------------------------------*/
-	Matrix4x4& divide(T s, Matrix4x4& result) const
+	matrix4x4& divide(T s, matrix4x4& result) const
 	{
-		_DEB_ASSERT(s != math_type::Zero);
+		_DEB_ASSERT(s != math_type::zero);
 #ifdef _USE_SIMD_ANONYMOUS
 		simd_type rcp = simd::set(math_type::reciprocal(s));
 		iterator ri = result.M.begin();
@@ -451,32 +381,41 @@ struct Matrix4x4
 		{
 			ri->mm = simd::mul(i->mm, rcp);
 		}
+		return result;
 #else
-		s = math_type::One / s;
-		return multiply(s, result);
+		return multiply(math_type::reciprocal(s), result);
 #endif // _USE_SIMD_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------
 	* 値か近いか
 	*---------------------------------------------------------------------*/
-	bool is_near(const Matrix4x4& m) const
+	bool is_near(const matrix4x4& m) const
 	{
-		return (M[0].is_near(m.M[0]) && M[1].is_near(m.M[1]) && M[2].is_near(m.M[2]) && M[3].is_near(m.M[3]));
+		return M[0].is_near(m.M[0]) &&
+			M[1].is_near(m.M[1]) &&
+			M[2].is_near(m.M[2]) &&
+			M[3].is_near(m.M[3]);
 	}
 	/*---------------------------------------------------------------------
 	* 値がゼロに近いか
 	*---------------------------------------------------------------------*/
 	bool is_near_zero() const
 	{
-		return (M[0].is_near_zero() && M[1].is_near_zero() && M[2].is_near_zero() && M[3].is_near_zero());
+		return M[0].is_near_zero() &&
+			M[1].is_near_zero() &&
+			M[2].is_near_zero() &&
+			M[3].is_near_zero();
 	}
 	/*---------------------------------------------------------------------
 	* 値がすべてゼロか
 	*---------------------------------------------------------------------*/
 	bool is_zero() const
 	{
-		return (M[0].is_zero() && M[1].is_zero() && M[2].is_zero() && M[3].is_zero());
+		return M[0].is_zero() &&
+			M[1].is_zero() &&
+			M[2].is_zero() &&
+			M[3].is_zero();
 	}
 
 	/*---------------------------------------------------------------------
@@ -484,701 +423,559 @@ struct Matrix4x4
 	*---------------------------------------------------------------------*/
 	bool is_near_identity() const
 	{
-		return (M[0].is_near(Vector4<T>::UnitX) &&
-			M[1].is_near(Vector4<T>::UnitY) &&
-			M[2].is_near(Vector4<T>::UnitZ) &&
-			M[3].is_near(Vector4<T>::UnitW));
+		return (M[0].is_near(row_type::unit_x) &&
+			M[1].is_near(row_type::unit_y) &&
+			M[2].is_near(row_type::unit_z) &&
+			M[3].is_near(row_type::unit_w));
 	}
 
 	/*---------------------------------------------------------------------
 	* 右ベクトル取得・設定
 	*---------------------------------------------------------------------*/
-	const Vector3<T>& right() const
+	vector3<T>& right()
 	{
-		//return Vector3<T>(m.X, m.Y, m.Z);
+		//return vector3<T>(m.x, m.y, m.z);
 #ifdef _USE_ANONYMOUS_NON_POD
-		return Right;
+		return right;
 #else
-		return reinterpret_cast<const Vector3<T>&>(M[0]);
+		return reinterpret_cast<vector3<T>&>(M[0]);
 #endif // _USE_ANONYMOUS_NON_POD
 	}
-	Matrix4x4& right(const Vector3<T>& v)
+	const vector3<T>& right() const
 	{
-#ifdef _USE_ANONYMOUS_NON_POD
-		Right = v;
-#else
-		Vector4<T>& m = M[0];
-		m.X = v.X;
-		m.Y = v.Y;
-		m.Z = v.Z;
-#endif // _USE_ANONYMOUS_NON_POD
+		return right();
+	}
+	matrix4x4& right(const vector3<T>& v)
+	{
+		M[0] = v;
 		return *this;
 	}
 	/*---------------------------------------------------------------------
 	* 上ベクトル取得・設定
 	*---------------------------------------------------------------------*/
-	const Vector3<T>& up() const
+	vector3<T>& up()
 	{
-		//return Vector3<T>(m.X, m.Y, m.Z);
+		//return vector3<T>(m.x, m.y, m.z);
 #ifdef _USE_ANONYMOUS_NON_POD
-		return Up;
+		return up;
 #else
-		return reinterpret_cast<const Vector3<T>&>(M[1]);
+		return reinterpret_cast<vector3<T>&>(M[1]);
 #endif // _USE_ANONYMOUS_NON_POD
 	}
-	Matrix4x4& up(const Vector3<T>& v)
+	const vector3<T>& up() const
 	{
-#ifdef _USE_ANONYMOUS_NON_POD
-		Up = v;
-#else
-		Vector4<T>& m = M[1];
-		m.X = v.X;
-		m.Y = v.Y;
-		m.Z = v.Z;
-#endif // _USE_ANONYMOUS_NON_POD
+		return up();
+	}
+	matrix4x4& up(const vector3<T>& v)
+	{
+		M[1] = v;
 		return *this;
 	}
 	/*---------------------------------------------------------------------
 	* 前ベクトル取得・設定
 	*---------------------------------------------------------------------*/
-	const Vector3<T>& forward() const
+	vector3<T>& forward()
 	{
-		//return Vector3<T>(m.X, m.Y, m.Z);
+		//return vector3<T>(m.x, m.y, m.z);
 #ifdef _USE_ANONYMOUS_NON_POD
-		return Forward;
+		return _forward;
 #else
-		return reinterpret_cast<const Vector3<T>&>(M[2]);
+		return reinterpret_cast<vector3<T>&>(M[2]);
 #endif // _USE_ANONYMOUS_NON_POD
 	}
-	Matrix4x4& forward(const Vector3<T>& v)
+	const vector3<T>& forward() const
 	{
-#ifdef _USE_ANONYMOUS_NON_POD
-		Forward = v;
-#else
-		Vector4<T>& m = M[2];
-		m.X = v.X;
-		m.Y = v.Y;
-		m.Z = v.Z;
-#endif // _USE_ANONYMOUS_NON_POD
+		return forward();
+	}
+	matrix4x4& forward(const vector3<T>& v)
+	{
+		M[2] = v;
 		return *this;
 	}
 	/*---------------------------------------------------------------------
 	* 座標取得・設定
 	*---------------------------------------------------------------------*/
-	const Vector3<T>& position() const
+	vector3<T>& position()
 	{
-		// Vector3<T>(m.X, m.Y, m.Z);
+		// vector3<T>(m.x, m.y, m.z);
 #ifdef _USE_ANONYMOUS_NON_POD
-		return Position;
+		return _position;
 #else
-		return reinterpret_cast<const Vector3<T>&>(M[3]);
+		return reinterpret_cast<vector3<T>&>(M[3]);
 #endif // _USE_ANONYMOUS_NON_POD
 	}
-	Matrix4x4& position(const Vector3<T>& v)
+	const vector3<T>& position() const
 	{
-#ifdef _USE_ANONYMOUS_NON_POD
-		Position = v;
-#else
-		Vector4<T>& m = M[3];
-		m.X = v.X;
-		m.Y = v.Y;
-		m.Z = v.Z;
-#endif // _USE_ANONYMOUS_NON_POD
+		return position();
+	}
+	matrix4x4& position(const vector3<T>& v)
+	{
+		M[3] = v;
 		return *this;
 	}
 
 	/*---------------------------------------------------------------------
 	* 拡大縮小取得
 	*---------------------------------------------------------------------*/
-	Vector3<T> scale() const
+	vector3<T> scale() const
 	{
-		return Vector3<T>(right().length(), up().length(), forward().length());
+		return vector3<T>(right().length(), up().length(), forward().length());
 	}
-	Vector3<T>& scale(Vector3<T>& result) const
+	vector3<T>& scale(vector3<T>& result) const
 	{
-		result.X = right().length();
-		result.Y = up().length();
-		result.Z = forward().length();
+		result.x = right().length();
+		result.y = up().length();
+		result.z = forward().length();
 		return result;
 	}
 
 	/*---------------------------------------------------------------------
-	* X軸回転量を求める
+	* x軸回転量を求める
 	*---------------------------------------------------------------------*/
 	T pitch() const
 	{
-		// 前ベクトルのY軸の状態から計算する
+		// 前ベクトルのy軸の状態から計算する
 		return forward().pitch();
 	}
 	/*---------------------------------------------------------------------
-	* Y軸回転量を求める
+	* y軸回転量を求める
 	*---------------------------------------------------------------------*/
 	T yaw() const
 	{
 		return forward().yaw();
 	}
 	/*---------------------------------------------------------------------
-	* Z軸回転量を求める
+	* z軸回転量を求める
 	*---------------------------------------------------------------------*/
 	T roll() const
 	{
-		return math_type::atan2(M[0].Y, M[1].Y);
+		return math_type::atan2(M[0].y, M[1].y);
 	}
 
 	/*---------------------------------------------------------------------
 	* すべての要素をゼロにする
 	*---------------------------------------------------------------------*/
-	Matrix4x4& load_zero()
+	matrix4x4& load_zero()
 	{
 #if 0
-		M[0] = Vector4<T>::Zero;
-		M[1] = Vector4<T>::Zero;
-		M[2] = Vector4<T>::Zero;
-		M[3] = Vector4<T>::Zero;
-		//M.fill(Vector4<T>::Zero);
+		M[0] = vector4<T>::zero;
+		M[1] = vector4<T>::zero;
+		M[2] = vector4<T>::zero;
+		M[3] = vector4<T>::zero;
+		//M.fill(vector4<T>::zero);
 #endif
 
-		*this = Matrix4x4::Zero;
+		*this = matrix4x4::zero;
 		return *this;
 	}
 
 	/*---------------------------------------------------------------------
 	* 単位行列にする
 	*---------------------------------------------------------------------*/
-	Matrix4x4& load_identity()
+	matrix4x4& load_identity()
 	{
 #if 0
-		M[0] = Vector4<T>::UnitX;
-		M[1] = Vector4<T>::UnitY;
-		M[2] = Vector4<T>::UnitZ;
-		M[3] = Vector4<T>::UnitW;
-		//std::memcpy(this, &Matrix4x4::Identity, sizeof(*this));
+		M[0] = vector4<T>::unit_x;
+		M[1] = vector4<T>::unit_y;
+		M[2] = vector4<T>::unit_z;
+		M[3] = vector4<T>::unit_w;
+		//std::memcpy(this, &matrix4x4::identity, sizeof(*this));
 #endif
 
-		*this = Matrix4x4::Identity;
+		*this = matrix4x4::identity;
 		return *this;
 	}
 	/*---------------------------------------------------------------------
 	* 拡大縮小行列にする
 	*---------------------------------------------------------------------*/
-	Matrix4x4& load_scale(T x, T y, T z)
+	matrix4x4& load_scale(T x, T y, T z)
 	{
 		load_identity();
 		// 11から斜めの方向へ三つの要素が拡大縮小を扱う要素
-		M[0].X = x;
-		M[1].Y = y;
-		M[2].Z = z;
+		M[0].x = x;
+		M[1].y = y;
+		M[2].z = z;
 		return *this;
 	}
-	Matrix4x4& load_scale(const Vector3<T>& v)
+	matrix4x4& load_scale(const vector3<T>& v)
 	{
-		return load_scale(v.X, v.Y, v.Z);
+		return load_scale(v.x, v.y, v.z);
 	}
-	Matrix4x4& load_scale(T s)
+	matrix4x4& load_scale(T s)
 	{
 		return load_scale(s, s, s);
 	}
 
 	/*---------------------------------------------------------------------
-	* X軸回転行列にする
+	* x軸回転行列にする
 	*---------------------------------------------------------------------*/
-	Matrix4x4& load_rotate_x(T r)
+	matrix4x4& load_rotate_x(T r)
 	{
-		load_identity();
-		// サインとコサインを角度から求める
-		T S = math_type::sin(r);
-		T C = math_type::cos(r);
-		Vector4<T>* p = &M[1];
-		p->Y = C;
-		p->Z = S;
-		p = &M[2];
-		p->Y = -S;
-		p->Z = C;
+		sin_cos_type a = r;
+		M[0] = row_type::unit_x;
+		M[1] = row_type(math_type::zero, a.cos, a.sin, math_type::zero);
+		M[2] = row_type(math_type::zero, -a.sin, a.cos, math_type::zero);
+		M[3] = row_type::unit_w;
 		return *this;
 	}
 	/*---------------------------------------------------------------------
-	* Y軸回転行列にする
+	* y軸回転行列にする
 	*---------------------------------------------------------------------*/
-	Matrix4x4& load_rotate_y(T r)
+	matrix4x4& load_rotate_y(T r)
 	{
-		load_identity();
-		T S = math_type::sin(r);
-		T C = math_type::cos(r);
-		Vector4<T>* p = &M[0];
-		p->X = C;
-		p->Z = -S;
-		p = &M[2];
-		p->X = S;
-		p->Z = C;
+		sin_cos_type a = r;
+		M[0] = row_type(a.cos, math_type::zero, -a.sin, math_type::zero);
+		M[1] = row_type::unit_y;
+		M[2] = row_type(a.sin, math_type::zero, a.cos, math_type::zero);
+		M[3] = row_type::unit_w;
 		return *this;
 	}
 	/*---------------------------------------------------------------------
-	* Z軸回転行列にする
+	* z軸回転行列にする
 	*---------------------------------------------------------------------*/
-	Matrix4x4& load_rotate_z(T r)
+	matrix4x4& load_rotate_z(T r)
 	{
-		load_identity();
-		T S = math_type::sin(r);
-		T C = math_type::cos(r);
-		Vector4<T>* p = &M[0];
-		p->X = C;
-		p->Y = S;
-		p = &M[1];
-		p->X = -S;
-		p->Y = C;
+		sin_cos_type a = r;
+		M[0] = row_type(a.cos, a.sin, math_type::zero, math_type::zero);
+		M[1] = row_type(-a.sin, a.cos, math_type::zero, math_type::zero);
+		M[2] = row_type::unit_z;
+		M[3] = row_type::unit_w;
 		return *this;
 	}
 	/*---------------------------------------------------------------------
 	* 回転行列にする（ZXY）
 	*---------------------------------------------------------------------*/
-	Matrix4x4& load_rotate_roll_pitch_yaw(T roll, T pitch, T yaw)
+	matrix4x4& load_rotate_roll_pitch_yaw(T roll, T pitch, T yaw)
 	{
-		T rs = math_type::sin(roll);
-		T rc = math_type::cos(roll);
-		T ps = math_type::sin(pitch);
-		T pc = math_type::cos(pitch);
-		T ys = math_type::sin(yaw);
-		T yc = math_type::cos(yaw);
+		sin_cos_type r = roll;
+		sin_cos_type p = pitch;
+		sin_cos_type y = yaw;
 
-		Vector4<T>* p = &M[0];
-		p->X = rc * yc + rs * ps * ys;
-		p->Y = rs * pc;
-		p->Z = rc * -ys + rs * ps * yc;
-		p->W = math_type::Zero;
-
-		p = &M[1];
-		p->X = -rs * yc + rc * ps * ys;
-		p->Y = rc * pc;
-		p->Z = rs * ys + rc * ps * yc;
-		p->W = math_type::Zero;
-
-		p = &M[2];
-		p->X = pc * ys;
-		p->Y = -ps;
-		p->Z = pc * yc;
-		p->W = math_type::Zero;
-
-		M[3] = Vector4<T>::UnitW;
-
+		M[0] = row_type(r.cos * y.cos + r.sin * p.sin * y.sin,
+			r.sin * p.cos,
+			r.cos * -y.sin + r.sin * p.sin * y.cos,
+			math_type::zero);
+		M[1] = row_type(-r.sin * y.cos + r.cos * p.sin * y.sin,
+			r.cos * p.cos,
+			r.sin * y.sin + r.cos * p.sin * y.cos,
+			math_type::zero);
+		M[2] = row_type(p.cos * y.sin, -p.sin, p.cos * y.cos, math_type::zero);
+		M[3] = row_type::unit_w;
 		return *this;
 	}
 	/*---------------------------------------------------------------------
 	* 回転行列にする（クォータニオン）
 	*---------------------------------------------------------------------*/
-	Matrix4x4& load_rotate_quaternion(const Quaternion<T>& q)
+	matrix4x4& load_rotate_quaternion(const quaternion<T>& q)
 	{
-		// 掛け合わせたもの, 複数使うため
-		T xx = math_type::Two * math_type::sqr(q.X);
-		T yy = math_type::Two * math_type::sqr(q.Y);
-		T zz = math_type::Two * math_type::sqr(q.Z);
-		T xy = math_type::Two * q.X * q.Y;
-		T xz = math_type::Two * q.X * q.Z;
-		T yz = math_type::Two * q.Y * q.Z;
-		T wx = math_type::Two * q.W * q.X;
-		T wy = math_type::Two * q.W * q.Y;
-		T wz = math_type::Two * q.W * q.Z;
+		T xx = math_type::two * math_type::sqr(q.x);
+		T yy = math_type::two * math_type::sqr(q.y);
+		T zz = math_type::two * math_type::sqr(q.z);
+		T xy = math_type::two * q.x * q.y;
+		T xz = math_type::two * q.x * q.z;
+		T yz = math_type::two * q.y * q.z;
+		T wx = math_type::two * q.w * q.x;
+		T wy = math_type::two * q.w * q.y;
+		T wz = math_type::two * q.w * q.z;
 
-		Vector4<T>* p = &M[0];
-		p->X = math_type::One - (yy + zz);
-		p->Y = xy + wz;
-		p->Z = xz - wy;
-		p->W = math_type::Zero;
-
-		p = &M[1];
-		p->X = xy - wz;
-		p->Y = math_type::One - (xx + zz);
-		p->Z = yz + wz;
-		p->W = math_type::Zero;
-
-		p = &M[2];
-		p->X = xz + wy;
-		p->Y = yz + wx;
-		p->Z = math_type::One - (xx + yy);
-		p->W = math_type::Zero;
-
-		M[3] = Vector4<T>::UnitW;
-
+		M[0] = row_type(math_type::one - (yy + zz), xy + wz, xz - wy, math_type::zero);
+		M[1] = row_type(xy - wz, math_type::one - (xx + zz), yz + wz, math_type::zero);
+		M[2] = row_type(xz + wy, yz + wx, math_type::one - (xx + yy), math_type::zero);
+		M[3] = row_type::unit_w;
 		return *this;
 	}
 	/*---------------------------------------------------------------------
 	* 回転行列にする（任意軸＋角度）
 	*---------------------------------------------------------------------*/
-	Matrix4x4& load_rotate_axis_angle(const Vector3<T>& axis, T angle)
+	matrix4x4& load_rotate_axis_angle(const vector3<T>& axis, T angle)
 	{
 		// 四元数での計算を行なう
-		return load_rotate_quaternion(Quaternion<T>(axis, angle));
+		return load_rotate_quaternion(quaternion<T>(axis, angle));
 	}
 	/*---------------------------------------------------------------------
 	* 座標変換行列にする
 	*---------------------------------------------------------------------*/
-	Matrix4x4& load_translate(T x, T y, T z)
+	matrix4x4& load_translate(T x, T y, T z)
 	{
 		load_identity();
-#ifdef _USE_ANONYMOUS_NON_POD
-		Position.X = x;
-		Position.Y = y;
-		Position.Z = z;
+#ifdef _USE_SIMD_ANONYMOUS
+		M[3].mm = simd::set(x, y, z, math_type::one);
 #else
-		// ４の位置が座標を扱う要素
-		Vector4<T>* p = &M[3];
-		p->X = x;
-		p->Y = y;
-		p->Z = z;
+		M[3] = row_type(x, y, z, math_type::one);
 #endif // _USE_ANONYMOUS_NON_POD
 		return *this;
 	}
-	Matrix4x4& load_translate(const Vector3<T>& v)
+	matrix4x4& load_translate(const vector3<T>& v)
 	{
 		load_identity();
-#ifdef _USE_ANONYMOUS_NON_POD
-		Position = v;
-#else
-		Vector4<T>* p = &M[3];
-		p->X = v.X;
-		p->Y = v.Y;
-		p->Z = v.Z;
-#endif // _USE_ANONYMOUS_NON_POD
+		M[3] = v;
 		return *this;
 	}
 	/*---------------------------------------------------------------------
 	* ワールド変換行列にする
 	*---------------------------------------------------------------------*/
-	Matrix4x4& load_world(const Vector3<T>& scale, T roll, T pitch, T yaw, const Vector3<T>& position)
+	matrix4x4& load_world(const vector3<T>& s, T roll, T pitch, T yaw, const vector3<T>& t)
 	{
 		// [Scale * RotateZ * RotateX * RotateY * Translate]を展開
 
-		T rs = math_type::sin(roll);
-		T rc = math_type::cos(roll);
-		T ps = math_type::sin(pitch);
-		T pc = math_type::cos(pitch);
-		T ys = math_type::sin(yaw);
-		T yc = math_type::cos(yaw);
+		sin_cos_type r = roll;
+		sin_cos_type p = pitch;
+		sin_cos_type y = yaw;
 
-		Vector4<T>* p = &M[0];
-		p->X = scale.X * rc * yc + scale.X * rs * ps * ys;
-		p->Y = scale.X * rs * pc;
-		p->Z = scale.X * rc * -ys + scale.X * rs * ps * yc;
-		p->W = math_type::Zero;
-
-		p = &M[1];
-		p->X = scale.Y * -rs * yc + scale.Y * rc * ps * ys;
-		p->Y = scale.Y * rc * pc;
-		p->Z = scale.Y * rs * ys + scale.Y * rc * ps * yc;
-		p->W = math_type::Zero;
-
-		p = &M[2];
-		p->X = scale.Z * pc * ys;
-		p->Y = scale.Z * -ps;
-		p->Z = scale.Z * pc * yc;
-		p->W = math_type::Zero;
-
-		p = &M[3];
-		p->X = position.X;
-		p->Y = position.Y;
-		p->Z = position.Z;
-		p->W = math_type::One;
-
+		M[0] = row_type(s.x * r.cos * y.cos + s.x * r.sin * p.sin * y.sin,
+			s.x * r.sin * p.cos,
+			s.x * r.cos * -y.sin + s.x * r.sin * p.sin * y.cos,
+			math_type::zero);
+		M[1] = row_type(s.y * -r.sin * y.cos + s.y * r.cos * p.sin * y.sin,
+			s.y * r.cos * p.cos,
+			s.y * r.sin * y.sin + s.y * r.cos * p.sin * y.cos,
+			math_type::zero);
+		M[2] = row_type(s.z * p.cos * y.sin, s.z * -p.sin, s.z * p.cos * y.cos, math_type::zero);
+		M[3] = row_type(t, math_type::one);
 		return *this;
 	}
-	Matrix4x4& load_world(T scale, T roll, T pitch, T yaw, const Vector3<T>& position)
+	matrix4x4& load_world(T s, T roll, T pitch, T yaw, const vector3<T>& t)
 	{
-		return load_world(Vector3<T>(scale), roll, pitch, yaw, position);
+		return load_world(vector3<T>(s), roll, pitch, yaw, t);
 	}
-	Matrix4x4& load_world(const Vector3<T>& scale, const Quaternion<T>& rotate, const Vector3<T>& position)
+	matrix4x4& load_world(const vector3<T>& s, const quaternion<T>& q, const vector3<T>& t)
 	{
-		// [Scale * Quaternion * Translate]を展開
+		// [scale * quaternion * translate]を展開
 
-		T xx = math_type::Two * math_type::sqr(rotate.X);
-		T yy = math_type::Two * math_type::sqr(rotate.Y);
-		T zz = math_type::Two * math_type::sqr(rotate.Z);
-		T xy = math_type::Two * rotate.X * rotate.Y;
-		T xz = math_type::Two * rotate.X * rotate.Z;
-		T yz = math_type::Two * rotate.Y * rotate.Z;
-		T wx = math_type::Two * rotate.W * rotate.X;
-		T wy = math_type::Two * rotate.W * rotate.Y;
-		T wz = math_type::Two * rotate.W * rotate.Z;
+		T xx = math_type::two * math_type::sqr(q.x);
+		T yy = math_type::two * math_type::sqr(q.y);
+		T zz = math_type::two * math_type::sqr(q.z);
+		T xy = math_type::two * q.x * q.y;
+		T xz = math_type::two * q.x * q.z;
+		T yz = math_type::two * q.y * q.z;
+		T wx = math_type::two * q.w * q.x;
+		T wy = math_type::two * q.w * q.y;
+		T wz = math_type::two * q.w * q.z;
 
-		Vector4<T>* p = &M[0];
-		p->X = scale.X * (math_type::One - (yy + zz));
-		p->Y = scale.X * (xy + wz);
-		p->Z = scale.X * (xz - wy);
-		p->W = math_type::Zero;
-
-		p = &M[1];
-		p->X = scale.Y * (xy - wz);
-		p->Y = scale.Y * (math_type::One - (xx + zz));
-		p->Z = scale.Y * (yz + wz);
-		p->W = math_type::Zero;
-
-		p = &M[2];
-		p->X = scale.Z * (xz + wy);
-		p->Y = scale.Z * (yz + wx);
-		p->Z = scale.Z * (math_type::One - (xx + yy));
-		p->W = math_type::Zero;
-
-		p = &M[3];
-		p->X = position.X;
-		p->Y = position.Y;
-		p->Z = position.Z;
-		p->W = math_type::One;
-
+		M[0] = row_type(s.x * (math_type::one - yy + zz), s.x * (xy + wz), s.x * (xz - wy), math_type::zero);
+		M[1] = row_type(s.y * (xy - wz), s.y * (math_type::one - xx + zz), s.y * (yz + wz), math_type::zero);
+		M[2] = row_type(s.z * (xz + wy), s.z * (yz + wx), s.z * (math_type::one - xx + yy), math_type::zero);
+		M[3] = row_type(t, math_type::one);
 		return *this;
 	}
-	Matrix4x4& load_world(T scale, const Quaternion<T>& rotate, const Vector3<T>& position)
+	matrix4x4& load_world(T s, const quaternion<T>& q, const vector3<T>& t)
 	{
-		return load_world(Vector3<T>(scale), rotate, position);
+		return load_world(vector3<T>(s), q, t);
 	}
 	/*---------------------------------------------------------------------
 	* 射影変換行列にする
 	*---------------------------------------------------------------------*/
-	Matrix4x4& load_perspective_field_of_view(T fovy, T aspect, T near, T far)
+	matrix4x4& load_perspective_field_of_view(T fovy, T aspect, T n, T f)
 	{
 		load_identity();
 
-		T t = math_type::One / math_type::tan(fovy * math_type::Half);
+		T t = math_type::reciprocal(math_type::tan(fovy * math_type::half));
 
-		Vector4<T>* p = &M[0];
-		p->X = t / aspect;
+		M[0].x = t / aspect;
+		M[1].y = t;
 
-		p = &M[1];
-		p->Y = t;
+		t = math_type::reciprocal(f - n);
 
-		t = math_type::One / (far - near);
+		row_type& r2 = &M[2];
+		r2.z = (f + n) * t;
+		r2.w = -math_type::one;
 
-		p = &M[2];
-		p->Z = (far + near) * t;
-		p->W = -math_type::One;
-
-		// 座標
-		p = &M[3];
-		p->Z = (math_type::Two * far * near) * t;
-		p->W = math_type::Zero;
+		row_type& r3 = M[3];
+		r3.z = (math_type::two * f * n) * t;
+		r3.w = math_type::zero;
 
 		return *this;
 	}
-	Matrix4x4& load_perspective_field_of_view(T fovy, T width, T height, T near, T far)
+	matrix4x4& load_perspective_field_of_view(T fovy, T width, T height, T n, T f)
 	{
-		return load_perspective_field_of_view(fovy, width / height, near, far);
+		return load_perspective_field_of_view(fovy, width / height, n, f);
 	}
 
 	/*---------------------------------------------------------------------
 	* 正射影変換行列にする
 	*---------------------------------------------------------------------*/
-	Matrix4x4& load_orthographics(T left, T right, T top, T bottom, T near, T far)
+	matrix4x4& load_orthographics(T left, T right, T top, T bottom, T near, T far)
 	{
 		load_identity();
 
-		T dx = math_type::One / (right - left);
-		T dy = math_type::One / (top - bottom);
-		T dz = math_type::One / (far - near);
+		T dx = math_type::reciprocal(right - left);
+		T dy = math_type::reciprocal(top - bottom);
+		T dz = math_type::reciprocal(far - near);
 
-		Vector4<T>* p = &M[0];
-		p->X = math_type::Two * dx;
+		M[0].x = math_type::two * dx;
+		M[1].y = math_type::two * dy;
+		M[2].z = -math_type::two * dz; // 右手特有
 
-		p = &M[1];
-		p->Y = math_type::Two * dy;
-
-		p = &M[2];
-		p->Z = -math_type::Two * dz; // 右手特有
-
-		p = &M[3];
-		p->X = -(right + left) * dx;
-		p->Y = -(bottom + top) * dy;
-		p->Z = -(far + near) * dz;
+		row_type& r3 = &M[3];
+		r3.x = -(right + left) * dx;
+		r3.y = -(bottom + top) * dy;
+		r3.z = -(far + near) * dz;
 
 		return *this;
 	}
-	Matrix4x4& load_orthographics(T width, T height, T near, T far)
+	matrix4x4& load_orthographics(T width, T height, T near, T far)
 	{
-		return load_orthographics(math_type::Zero, width, math_type::Zero, height, near, far);
+		return load_orthographics(math_type::zero, width, math_type::zero, height, near, far);
 	}
 	/*---------------------------------------------------------------------
 	* 2D用正射影変換行列にする
 	*---------------------------------------------------------------------*/
-	Matrix4x4& load_orthographics2d(T left, T right, T top, T bottom)
+	matrix4x4& load_orthographics2d(T left, T right, T top, T bottom)
 	{
 		load_identity();
 
-		T dx = math_type::One / (right - left);
-		T dy = math_type::One / (top - bottom);
+		T dx = math_type::reciprocal(right - left);
+		T dy = math_type::reciprocal(top - bottom);
 
-		Vector4<T>* p = &M[0];
-		p->X = math_type::Two * dx;
+		M[0].x = math_type::two * dx;
+		M[1].y = math_type::two * dy;
+		M[2].z = -math_type::one;
 
-		p = &M[1];
-		p->Y = math_type::Two * dy;
-
-		p = &M[2];
-		p->Z = -math_type::One;
-
-		p = &M[3];
-		p->X = -(right + left) * dx;
-		p->Y = -(bottom + top) * dy;
+		row_type& r3 = &M[3];
+		r3.x = -(right + left) * dx;
+		r3.y = -(bottom + top) * dy;
 
 		return *this;
 	}
-	Matrix4x4& load_orthographics2d(T width, T height)
+	matrix4x4& load_orthographics2d(T width, T height)
 	{
-		return load_orthographics2d(math_type::Zero, width, math_type::Zero, height);
+		return load_orthographics2d(math_type::zero, width, math_type::zero, height);
 	}
 	/*---------------------------------------------------------------------
 	* 視野変換行列にする（座標＋向き）
 	*---------------------------------------------------------------------*/
-	Matrix4x4& load_lookto(const Vector3<T>& eye, const Vector3<T>& direction, const Vector3<T>& up = Vector3<T>::Up)
+	matrix4x4& load_lookto(const vector3<T>& eye, const vector3<T>& direction, const vector3<T>& up = vector3<T>::up)
 	{
 		// カメラを原点としてカメラから見た変換を行う
 
-		const Vector3<T>& z = direction;
 		// 前方向と上方向の外積で右ベクトルを求める
-		Vector3<T> x(behavior::noinitialize);
-		up.cross(z, x).normalize();
+		vector3<T> x(behavior::noinitialize);
+		up.cross(direction, x).normalize();
 		// 前と右から上方向のベクトルを求める
-		Vector3<T> y(behavior::noinitialize);
-		z.cross(x, y);
+		vector3<T> y(behavior::noinitialize);
+		direction.cross(x, y);
 
-		// X
-		Vector4<T>* p = &M[0];
-		p->X = x.X;
-		p->Y = y.X;
-		p->Z = z.X;
-		p->W = math_type::Zero;
-		// Y
-		p = &M[1];
-		p->X = x.Y;
-		p->Y = y.Y;
-		p->Z = z.Y;
-		p->W = math_type::Zero;
-		// Z
-		p = &M[2];
-		p->X = x.Z;
-		p->Y = y.Z;
-		p->Z = z.Z;
-		p->W = math_type::Zero;
-
-		// 座標
-		p = &M[3];
-		p->X = -eye.dot(x);
-		p->Y = -eye.dot(y);
-		p->Z = -eye.dot(z);
-		p->W = math_type::One;
-
+		M[0] = row_type(x.x, y.x, direction.x, math_type::zero);
+		M[1] = row_type(x.y, y.y, direction.y, math_type::zero);
+		M[2] = row_type(x.z, y.z, direction.z, math_type::zero);
+		M[3] = row_type(-eye.dot(x), -eye.dot(y), -eye.dot(direction), math_type::one);
 		return *this;
 	}
-	Matrix4x4& load_lookto(T ex, T ey, T ez, T dx, T dy, T dz, T ux = math_type::Zero, T uy = math_type::One, T uz = math_type::Zero)
+	matrix4x4& load_lookto(T ex, T ey, T ez, T dx, T dy, T dz, T ux = math_type::zero, T uy = math_type::one, T uz = math_type::zero)
 	{
-		return load_lookto(Vector3<T>(ex, ey, ez), Vector3<T>(dx, dy, dz), Vector3<T>(ux, uy, uz));
+		return load_lookto(vector3<T>(ex, ey, ez), vector3<T>(dx, dy, dz), vector3<T>(ux, uy, uz));
 	}
 
 	/*---------------------------------------------------------------------
 	* 視野変換行列にする（座標＋注視点）
 	*---------------------------------------------------------------------*/
-	Matrix4x4& load_lookat(const Vector3<T>& eye, const Vector3<T>& center, const Vector3<T>& up = Vector3<T>::Up)
+	matrix4x4& load_lookat(const vector3<T>& eye, const vector3<T>& center, const vector3<T>& up = vector3<T>::up)
 	{
 		// 向きを求める
-		Vector3<T> dir(behavior::noinitialize);
+		vector3<T> dir(behavior::noinitialize);
 		return load_lookto(eye, center.direction(eye, dir), up);
 	}
-	Matrix4x4& load_lookat(T ex, T ey, T ez, T cx, T cy, T cz, T ux = math_type::Zero, T uy = math_type::One, T uz = math_type::Zero)
+	matrix4x4& load_lookat(T ex, T ey, T ez, T cx, T cy, T cz, T ux = math_type::zero, T uy = math_type::one, T uz = math_type::zero)
 	{
-		return load_lookat(Vector3<T>(ex, ey, ez), Vector3<T>(cx, cy, cz), Vector3<T>(ux, uy, uz));
+		return load_lookat(vector3<T>(ex, ey, ez), vector3<T>(cx, cy, cz), vector3<T>(ux, uy, uz));
 	}
 
 	/*---------------------------------------------------------------------
 	* 転置行列
 	*---------------------------------------------------------------------*/
-	Matrix4x4& transpose()
+	matrix4x4& transpose()
 	{
 		// 回転を扱う場合の転置は逆マトリクスと同一になる
 
-		Vector4<T>* v0 = &M[0];
-		Vector4<T>* v1 = &M[1];
-		Vector4<T>* v2 = &M[2];
-		Vector4<T>* v3 = &M[3];
+		row_type& v0 = M[0];
+		row_type& v1 = M[1];
+		row_type& v2 = M[2];
+		row_type& v3 = M[3];
 
 #ifdef __DEBUG
 		// [0][1] = [1][0]
-		T tmp = v0->Y;
-		v0->Y = v1->X;
-		v1->X = tmp;
+		T tmp = v0.y;
+		v0.y = v1.x;
+		v1.x = tmp;
 		// [0][2] = [2][0]
-		tmp = v0->Z;
-		v0->Z = v2->X;
-		v2->X = tmp;
+		tmp = v0.z;
+		v0.z = v2.x;
+		v2.x = tmp;
 		// [0][3] = [3][0]
-		tmp = v0->W;
-		v0->W = v3->X;
-		v3->X = tmp;
+		tmp = v0.w;
+		v0.w = v3.x;
+		v3.x = tmp;
 		// [1][2] = [2][1]
-		tmp = v1->Z;
-		v1->Z = v2->Y;
-		v2->Y = tmp;
+		tmp = v1.z;
+		v1.z = v2.y;
+		v2.y = tmp;
 		// [1][3] = [3][1]
-		tmp = v1->W;
-		v1->W = v3->Y;
-		v3->Y = tmp;
+		tmp = v1.w;
+		v1.w = v3.y;
+		v3.y = tmp;
 		// [2][3] = [3][2]
-		tmp = v2->W;
-		v2->W = v3->Z;
-		v3->Z = tmp;
+		tmp = v2.w;
+		v2.w = v3.z;
+		v3.z = tmp;
 #else
-		std::swap(v0->Y, v1->X);
-		std::swap(v0->Z, v2->X);
-		std::swap(v0->W, v3->X);
-		std::swap(v1->Z, v2->Y);
-		std::swap(v1->W, v3->Y);
-		std::swap(v2->W, v3->Z);
-#endif
+		std::swap(v0.y, v1.x);
+		std::swap(v0.z, v2.x);
+		std::swap(v0.w, v3.x);
+		std::swap(v1.z, v2.y);
+		std::swap(v1.w, v3.y);
+		std::swap(v2.w, v3.z);
+#endif // __DEBUG
 
 		return *this;
 	}
 	/*---------------------------------------------------------------------
 	* 転置行列を求める
 	*---------------------------------------------------------------------*/
-	Matrix4x4 transposed() const
+	matrix4x4 transposed() const
 	{
-		const Vector4<T>* v0 = &M[0];
-		const Vector4<T>* v1 = &M[1];
-		const Vector4<T>* v2 = &M[2];
-		const Vector4<T>* v3 = &M[3];
-		return Matrix4x4(v0->X, v1->X, v2->X, v3->X,
-			v0->Y, v1->Y, v2->Y, v3->Y,
-			v0->Z, v1->Z, v2->Z, v3->Z,
-			v0->W, v1->W, v2->W, v3->W);
+		const row_type& v0 = M[0];
+		const row_type& v1 = M[1];
+		const row_type& v2 = M[2];
+		const row_type& v3 = M[3];
+		return matrix4x4(v0.x, v1.x, v2.x, v3.x,
+			v0.y, v1.y, v2.y, v3.y,
+			v0.z, v1.z, v2.z, v3.z,
+			v0.w, v1.w, v2.w, v3.w);
 	}
-	Matrix4x4& transposed(Matrix4x4& result) const
+	matrix4x4& transposed(matrix4x4& result) const
 	{
-		const Vector4<T>* v0 = &M[0];
-		const Vector4<T>* v1 = &M[1];
-		const Vector4<T>* v2 = &M[2];
-		const Vector4<T>* v3 = &M[3];
-		Vector4<T>* r0 = &result.M[0];
-		Vector4<T>* r1 = &result.M[1];
-		Vector4<T>* r2 = &result.M[2];
-		Vector4<T>* r3 = &result.M[3];
+		const row_type& v0 = M[0];
+		const row_type& v1 = M[1];
+		const row_type& v2 = M[2];
+		const row_type& v3 = M[3];
+		row_type& r0 = result.M[0];
+		row_type& r1 = result.M[1];
+		row_type& r2 = result.M[2];
+		row_type& r3 = result.M[3];
 
 		// [0][1] = [1][0]
-		r0->Y = v1->X;
-		r1->X = v0->Y;
+		r0.y = v1.x;
+		r1.x = v0.y;
 		// [0][2] = [2][0]
-		r0->Z = v2->X;
-		r2->X = v0->Z;
+		r0.z = v2.x;
+		r2.x = v0.z;
 		// [0][3] = [3][0]
-		r0->W = v3->X;
-		r3->X = v0->W;
+		r0.w = v3.x;
+		r3.x = v0.w;
 		// [1][2] = [2][1]
-		r1->Z = v2->Y;
-		r2->Y = v1->Z;
+		r1.z = v2.y;
+		r2.y = v1.z;
 		// [1][3] = [3][1]
-		r1->W = v3->Y;
-		r3->Y = v1->W;
+		r1.w = v3.y;
+		r3.y = v1.w;
 		// [2][3] = [3][2]
-		r2->W = v3->Z;
-		r3->Z = v2->W;
+		r2.w = v3.z;
+		r3.z = v2.w;
 
-		r0->X = v0->X;
-		r1->Y = v1->Y;
-		r2->Z = v2->Z;
-		r3->W = v3->W;
+		r0.x = v0.x;
+		r1.y = v1.y;
+		r2.z = v2.z;
+		r3.w = v3.w;
 
 		return result;
 	}
@@ -1187,53 +984,45 @@ struct Matrix4x4
 	*---------------------------------------------------------------------*/
 	T determinant() const
 	{
-		const Vector4<T>* v0 = &M[0];
-		const Vector4<T>* v1 = &M[1];
-		const Vector4<T>* v2 = &M[2];
-		const Vector4<T>* v3 = &M[3];
+		const row_type& v0 = M[0];
+		const row_type& v1 = M[1];
+		const row_type& v2 = M[2];
+		const row_type& v3 = M[3];
 #if 0
-		T a = v0->X * v1->Y * v2->Z * v3->W + v0->X * v1->Z * v2->W * v3->Y + v0->X * v1->W * v2->Y * v3->Z + v0->Y * v1->X * v2->W * v3->Z +
-			v0->Y * v1->Z * v2->X * v3->W + v0->Y * v1->W * v2->Z * v3->X + v0->Z * v1->X * v2->Y * v3->W + v0->Z * v1->Y * v2->W * v3->X +
-			v0->Z * v1->W * v2->X * v3->Y + v0->W * v1->X * v2->Z * v3->Y + v0->W * v1->Y * v2->X * v3->Z + v0->W * v1->Z * v2->Y * v3->X;
-		T b = -(v0->X * v1->Y * v2->W * v3->Z) - v0->X * v1->Z * v2->Y * v3->W - v0->X * v1->W * v2->Z * v3->Y - v0->Y * v1->X * v2->Z * v3->W -
-			v0->Y * v1->Z * v2->W * v3->X - v0->Y * v1->W * v2->X * v3->Z - v0->Z * v1->X * v2->W * v3->Y - v0->Z * v1->Y * v2->X * v3->W -
-			v0->Z * v1->W * v2->Y * v3->X - v0->W * v1->X * v2->Y * v3->Z - v0->W * v1->Y * v2->Z * v3->X - v0->W * v1->Z * v2->X * v3->Y;
+		T a = v0.x * v1.y * v2.z * v3.w + v0.x * v1.z * v2.w * v3.y + v0.x * v1.w * v2.y * v3.z + v0.y * v1.x * v2.w * v3.z +
+			v0.y * v1.z * v2.x * v3.w + v0.y * v1.w * v2.z * v3.x + v0.z * v1.x * v2.y * v3.w + v0.z * v1.y * v2.w * v3.x +
+			v0.z * v1.w * v2.x * v3.y + v0.w * v1.x * v2.z * v3.y + v0.w * v1.y * v2.x * v3.z + v0.w * v1.z * v2.y * v3.x;
+		T b = -(v0.x * v1.y * v2.w * v3.z) - v0.x * v1.z * v2.y * v3.w - v0.x * v1.w * v2.z * v3.y - v0.y * v1.x * v2.z * v3.w -
+			v0.y * v1.z * v2.w * v3.x - v0.y * v1.w * v2.x * v3.z - v0.z * v1.x * v2.w * v3.y - v0.z * v1.y * v2.x * v3.w -
+			v0.z * v1.w * v2.y * v3.x - v0.w * v1.x * v2.y * v3.z - v0.w * v1.y * v2.z * v3.x - v0.w * v1.z * v2.x * v3.y;
 		return (a + b);
 #endif
 		// 余因子展開で求める
-		T a1 = ((v0->X * v1->Y * v2->Z * v3->W) + (v0->X * v1->Z * v2->W * v3->Y) + (v0->X * v1->W * v2->Y * v3->Z) -
-			(v0->X * v1->W * v2->Z * v3->Y) - (v0->X * v1->Z * v2->Y * v3->W) - (v0->X * v1->Y * v2->W * v3->Z));
-		T a2 = ((v1->X * v0->Y * v2->Z * v3->W) + (v1->X * v0->Z * v2->W * v3->Y) + (v1->X * v0->W * v2->Y * v3->Z) -
-			(v1->X * v0->W * v2->Z * v3->Y) - (v1->X * v0->Z * v2->Y * v3->W) - (v1->X * v0->Y * v2->W * v3->Z));
-		T a3 = ((v2->X * v0->Y * v1->Z * v3->W) + (v2->X * v0->Z * v1->W * v3->Y) + (v2->X * v0->W * v1->Y * v3->Z) -
-			(v2->X * v0->W * v1->Z * v3->Y) - (v2->X * v0->Z * v1->Y * v3->W) - (v2->X * v0->Y * v1->W * v3->Z));
-		T a4 = ((v3->X * v0->Y * v1->Z * v2->W) + (v3->X * v0->Z * v1->W * v2->Y) + (v3->X * v0->W * v1->Y * v2->Z) -
-			(v3->X * v0->W * v1->Z * v2->Y) - (v3->X * v0->Z * v1->Y * v2->W) - (v3->X * v0->Y * v1->W * v2->Z));
+		T a1 = ((v0.x * v1.y * v2.z * v3.w) + (v0.x * v1.z * v2.w * v3.y) + (v0.x * v1.w * v2.y * v3.z) -
+			(v0.x * v1.w * v2.z * v3.y) - (v0.x * v1.z * v2.y * v3.w) - (v0.x * v1.y * v2.w * v3.z));
+		T a2 = ((v1.x * v0.y * v2.z * v3.w) + (v1.x * v0.z * v2.w * v3.y) + (v1.x * v0.w * v2.y * v3.z) -
+			(v1.x * v0.w * v2.z * v3.y) - (v1.x * v0.z * v2.y * v3.w) - (v1.x * v0.y * v2.w * v3.z));
+		T a3 = ((v2.x * v0.y * v1.z * v3.w) + (v2.x * v0.z * v1.w * v3.y) + (v2.x * v0.w * v1.y * v3.z) -
+			(v2.x * v0.w * v1.z * v3.y) - (v2.x * v0.z * v1.y * v3.w) - (v2.x * v0.y * v1.w * v3.z));
+		T a4 = ((v3.x * v0.y * v1.z * v2.w) + (v3.x * v0.z * v1.w * v2.y) + (v3.x * v0.w * v1.y * v2.z) -
+			(v3.x * v0.w * v1.z * v2.y) - (v3.x * v0.z * v1.y * v2.w) - (v3.x * v0.y * v1.w * v2.z));
 		return (a1 - a2 + a3 - a4);
 	}
 
 	/*---------------------------------------------------------------------
 	* 逆行列にする（逆行列が存在しない場合は偽）
 	*---------------------------------------------------------------------*/
-	Matrix4x4& inverse()
+	matrix4x4& inverse()
 	{
 		// 自身を構築するためのコピー(自身が変わるため)
-		const Matrix4x4 c = *this;
-		return c.inversed(*this);
+		const matrix4x4 c = *this;
+		return c.inverse(*this);
 	}
-	/*---------------------------------------------------------------------
-	* 逆行列を求める
-	*---------------------------------------------------------------------*/
-	Matrix4x4 inversed() const
-	{
-		Matrix4x4 result(behavior::noinitialize);
-		return inversed(result);;
-	}
-	Matrix4x4& inversed(Matrix4x4& result) const
+	matrix4x4& inverse(matrix4x4& result) const
 	{
 		T det = determinant();
 		// 逆行列が存在しない
-		//if (det == math_type::Zero)
+		//if (det == math_type::zero)
 		if (math_type::is_near_zero(det))
 		{
 			// 単位行列
@@ -1243,183 +1032,188 @@ struct Matrix4x4
 		// 逆数にする
 		det = math_type::reciprocal(det);
 
-		const Vector4<T>* v0 = &M[0];
-		const Vector4<T>* v1 = &M[1];
-		const Vector4<T>* v2 = &M[2];
-		const Vector4<T>* v3 = &M[3];
-		Vector4<T>* r0 = &result.M[0];
-		Vector4<T>* r1 = &result.M[1];
-		Vector4<T>* r2 = &result.M[2];
-		Vector4<T>* r3 = &result.M[3];
+		const row_type& v0 = M[0];
+		const row_type& v1 = M[1];
+		const row_type& v2 = M[2];
+		const row_type& v3 = M[3];
+		row_type& r0 = result.M[0];
+		row_type& r1 = result.M[1];
+		row_type& r2 = result.M[2];
+		row_type& r3 = result.M[3];
 
 		// iが偶数の時は-から, iが奇数の時には+から
 
 		// (-1)i+j |M ji| (M ji)のjiが逆なのに注意
 
 		// +M-M+M-M
-		r0->X = ((v1->Y * v2->Z * v3->W) + (v1->Z * v2->W * v3->Y) + (v1->W * v2->Y * v3->Z) -
-			(v1->W * v2->Z * v3->Y) - (v1->Z * v2->Y * v3->W) - (v1->Y * v2->W * v3->Z)) * det;
-		r0->Y = ((v0->Y * v2->W * v3->Z) + (v0->Z * v2->Y * v3->W) + (v0->W * v2->Z * v3->Y) -
-			(v0->Y * v2->Z * v3->W) - (v0->Z * v2->W * v3->Y) - (v0->W * v2->Y * v3->Z)) * det;
-		r0->Z = ((v0->Y * v1->Z * v3->W) + (v0->Z * v1->W * v3->Y) + (v0->W * v1->Y * v3->Z) -
-			(v0->W * v1->Z * v3->Y) - (v0->Z * v1->Y * v3->W) - (v0->Y * v1->W * v3->Z)) * det;
-		r0->W = ((v0->Y * v1->W * v2->Z) + (v0->Z * v1->Y * v2->W) + (v0->W * v1->Z * v2->Y) -
-			(v0->Y * v1->Z * v2->W) - (v0->Z * v1->W * v2->Y) - (v0->W * v1->Y * v2->Z)) * det;
+		r0.x = ((v1.y * v2.z * v3.w) + (v1.z * v2.w * v3.y) + (v1.w * v2.y * v3.z) -
+			(v1.w * v2.z * v3.y) - (v1.z * v2.y * v3.w) - (v1.y * v2.w * v3.z)) * det;
+		r0.y = ((v0.y * v2.w * v3.z) + (v0.z * v2.y * v3.w) + (v0.w * v2.z * v3.y) -
+			(v0.y * v2.z * v3.w) - (v0.z * v2.w * v3.y) - (v0.w * v2.y * v3.z)) * det;
+		r0.z = ((v0.y * v1.z * v3.w) + (v0.z * v1.w * v3.y) + (v0.w * v1.y * v3.z) -
+			(v0.w * v1.z * v3.y) - (v0.z * v1.y * v3.w) - (v0.y * v1.w * v3.z)) * det;
+		r0.w = ((v0.y * v1.w * v2.z) + (v0.z * v1.y * v2.w) + (v0.w * v1.z * v2.y) -
+			(v0.y * v1.z * v2.w) - (v0.z * v1.w * v2.y) - (v0.w * v1.y * v2.z)) * det;
 		// -M+M-M+M
-		r1->X = ((v1->X * v2->W * v3->Z) + (v1->Z * v2->X * v3->W) + (v1->W * v2->Z * v3->X) -
-			(v1->X * v2->Z * v3->W) - (v1->Z * v2->W * v3->X) - (v1->W * v2->X * v3->Z)) * det;
-		r1->Y = ((v0->X * v2->Z * v3->W) + (v0->Z * v2->W * v3->X) + (v0->W * v2->X * v3->Z) -
-			(v0->W * v2->Z * v3->X) - (v0->Z * v2->X * v3->W) - (v0->X * v2->W * v3->Z)) * det;
-		r1->Z = ((v0->X * v1->W * v3->Z) + (v0->Z * v1->X * v3->W) + (v0->W * v1->Z * v3->X) -
-			(v0->X * v1->Z * v3->W) - (v0->Z * v1->W * v3->X) - (v0->W * v1->X * v3->Z)) * det;
-		r1->W = ((v0->X * v1->Z * v2->W) + (v0->Z * v1->W * v2->X) + (v0->W * v1->X * v2->Z) -
-			(v0->W * v1->Z * v2->X) - (v0->Z * v1->X * v2->W) - (v0->X * v1->W * v2->Z)) * det;
+		r1.x = ((v1.x * v2.w * v3.z) + (v1.z * v2.x * v3.w) + (v1.w * v2.z * v3.x) -
+			(v1.x * v2.z * v3.w) - (v1.z * v2.w * v3.x) - (v1.w * v2.x * v3.z)) * det;
+		r1.y = ((v0.x * v2.z * v3.w) + (v0.z * v2.w * v3.x) + (v0.w * v2.x * v3.z) -
+			(v0.w * v2.z * v3.x) - (v0.z * v2.x * v3.w) - (v0.x * v2.w * v3.z)) * det;
+		r1.z = ((v0.x * v1.w * v3.z) + (v0.z * v1.x * v3.w) + (v0.w * v1.z * v3.x) -
+			(v0.x * v1.z * v3.w) - (v0.z * v1.w * v3.x) - (v0.w * v1.x * v3.z)) * det;
+		r1.w = ((v0.x * v1.z * v2.w) + (v0.z * v1.w * v2.x) + (v0.w * v1.x * v2.z) -
+			(v0.w * v1.z * v2.x) - (v0.z * v1.x * v2.w) - (v0.x * v1.w * v2.z)) * det;
 		// +M-M+M-M
-		r2->X = ((v1->X * v2->Y * v3->W) + (v1->Y * v2->W * v3->X) + (v1->W * v2->X * v3->Y) -
-			(v1->W * v2->Y * v3->X) - (v1->Y * v2->X * v3->W) - (v1->X * v2->W * v3->Y)) * det;
-		r2->Y = ((v0->X * v2->W * v3->Y) + (v0->Y * v2->X * v3->W) + (v0->W * v2->Y * v3->X) -
-			(v0->W * v2->X * v3->Y) - (v0->Y * v2->W * v3->X) - (v0->X * v2->Y * v3->W)) * det;
-		r2->Z = ((v0->X * v1->Y * v3->W) + (v0->Y * v1->W * v3->X) + (v0->W * v1->X * v3->Y) -
-			(v0->W * v1->Y * v3->X) - (v0->Y * v1->X * v3->W) - (v0->X * v1->W * v3->Y)) * det;
-		r2->W = ((v0->X * v1->W * v2->Y) + (v0->Y * v1->X * v2->W) + (v0->W * v1->Y * v2->X) -
-			(v0->W * v1->X * v2->Y) - (v0->Y * v1->W * v2->X) - (v0->X * v1->Y * v2->W)) * det;
+		r2.x = ((v1.x * v2.y * v3.w) + (v1.y * v2.w * v3.x) + (v1.w * v2.x * v3.y) -
+			(v1.w * v2.y * v3.x) - (v1.y * v2.x * v3.w) - (v1.x * v2.w * v3.y)) * det;
+		r2.y = ((v0.x * v2.w * v3.y) + (v0.y * v2.x * v3.w) + (v0.w * v2.y * v3.x) -
+			(v0.w * v2.x * v3.y) - (v0.y * v2.w * v3.x) - (v0.x * v2.y * v3.w)) * det;
+		r2.z = ((v0.x * v1.y * v3.w) + (v0.y * v1.w * v3.x) + (v0.w * v1.x * v3.y) -
+			(v0.w * v1.y * v3.x) - (v0.y * v1.x * v3.w) - (v0.x * v1.w * v3.y)) * det;
+		r2.w = ((v0.x * v1.w * v2.y) + (v0.y * v1.x * v2.w) + (v0.w * v1.y * v2.x) -
+			(v0.w * v1.x * v2.y) - (v0.y * v1.w * v2.x) - (v0.x * v1.y * v2.w)) * det;
 		// -M+M-M+M
-		r3->X = ((v1->X * v2->Z * v3->Y) + (v1->Y * v2->X * v3->Z) + (v1->Z * v2->Y * v3->X) -
-			(v1->Z * v2->X * v3->Y) - (v1->Y * v2->Z * v3->X) - (v1->X * v2->Y * v3->Z)) * det;
-		r3->Y = ((v0->X * v2->Y * v3->Z) + (v0->Y * v2->Z * v3->X) + (v0->Z * v2->X * v3->Y) -
-			(v0->Z * v2->Y * v3->X) - (v0->Y * v2->X * v3->Z) - (v0->X * v2->Z * v3->Y)) * det;
-		r3->Z = ((v0->X * v1->Z * v3->Y) + (v0->Y * v1->X * v3->Z) + (v0->Z * v1->Y * v3->X) -
-			(v0->Z * v1->X * v3->Y) - (v0->Y * v1->Z * v3->X) - (v0->X * v1->Y * v3->Z)) * det;
-		r3->W = ((v0->X * v1->Y * v2->Z) + (v0->Y * v1->Z * v2->X) + (v0->Z * v1->X * v2->Y) -
-			(v0->Z * v1->Y * v2->X) - (v0->Y * v1->X * v2->Z) - (v0->X * v1->Z * v2->Y)) * det;
-
-		return true;
-	}
-	/*---------------------------------------------------------------------
-	* ベクトル座標変換（W=1）
-	*---------------------------------------------------------------------*/
-	Vector3<T> transform(const Vector3<T>& v) const
-	{
-		Vector3<T> r(behavior::noinitialize);
-		return transform(v, r);
-	}
-	Vector3<T>& transform(const Vector3<T>& v, Vector3<T>& result) const
-	{
-		const Vector4<T>* v0 = &M[0];
-		const Vector4<T>* v1 = &M[1];
-		const Vector4<T>* v2 = &M[2];
-		const Vector4<T>* v3 = &M[3];
-
-		result.X = (v0->X * v.X + v1->X * v.Y + v2->X * v.Z + v3->X);
-		result.Y = (v0->Y * v.X + v1->Y * v.Y + v2->Y * v.Z + v3->Y);
-		result.Z = (v0->Z * v.X + v1->Z * v.Y + v2->Z * v.Z + v3->Z);
+		r3.x = ((v1.x * v2.z * v3.y) + (v1.y * v2.x * v3.z) + (v1.z * v2.y * v3.x) -
+			(v1.z * v2.x * v3.y) - (v1.y * v2.z * v3.x) - (v1.x * v2.y * v3.z)) * det;
+		r3.y = ((v0.x * v2.y * v3.z) + (v0.y * v2.z * v3.x) + (v0.z * v2.x * v3.y) -
+			(v0.z * v2.y * v3.x) - (v0.y * v2.x * v3.z) - (v0.x * v2.z * v3.y)) * det;
+		r3.z = ((v0.x * v1.z * v3.y) + (v0.y * v1.x * v3.z) + (v0.z * v1.y * v3.x) -
+			(v0.z * v1.x * v3.y) - (v0.y * v1.z * v3.x) - (v0.x * v1.y * v3.z)) * det;
+		r3.w = ((v0.x * v1.y * v2.z) + (v0.y * v1.z * v2.x) + (v0.z * v1.x * v2.y) -
+			(v0.z * v1.y * v2.x) - (v0.y * v1.x * v2.z) - (v0.x * v1.z * v2.y)) * det;
 
 		return result;
 	}
 	/*---------------------------------------------------------------------
-	* ベクトル座標変換（0～1）（W=1）
+	* 逆行列を求める
 	*---------------------------------------------------------------------*/
-	Vector3<T> transform_coord(const Vector3<T>& v) const
+	matrix4x4 inversed() const
 	{
-		Vector3<T> r(behavior::noinitialize);
+		matrix4x4 result(behavior::noinitialize);
+		return inverse(result);;
+	}
+	/*---------------------------------------------------------------------
+	* ベクトル座標変換（w=1）
+	*---------------------------------------------------------------------*/
+	vector3<T> transform(const vector3<T>& v) const
+	{
+		vector3<T> r(behavior::noinitialize);
+		return transform(v, r);
+	}
+	vector3<T>& transform(const vector3<T>& v, vector3<T>& result) const
+	{
+		const row_type& v0 = M[0];
+		const row_type& v1 = M[1];
+		const row_type& v2 = M[2];
+		const row_type& v3 = M[3];
+
+		result.x = (v0.x * v.x + v1.x * v.y + v2.x * v.z + v3.x);
+		result.y = (v0.y * v.x + v1.y * v.y + v2.y * v.z + v3.y);
+		result.z = (v0.z * v.x + v1.z * v.y + v2.z * v.z + v3.z);
+
+		return result;
+	}
+	/*---------------------------------------------------------------------
+	* ベクトル座標変換（0～1）（w=1）
+	*---------------------------------------------------------------------*/
+	vector3<T> transform_coord(const vector3<T>& v) const
+	{
+		vector3<T> r(behavior::noinitialize);
 		return transform_coord(v, r);
 	}
-	Vector3<T>& transform_coord(const Vector3<T>& v, Vector3<T>& result) const
+	vector3<T>& transform_coord(const vector3<T>& v, vector3<T>& result) const
 	{
-		const Vector4<T>* v0 = &M[0];
-		const Vector4<T>* v1 = &M[1];
-		const Vector4<T>* v2 = &M[2];
-		const Vector4<T>* v3 = &M[3];
+		const row_type& v0 = M[0];
+		const row_type& v1 = M[1];
+		const row_type& v2 = M[2];
+		const row_type& v3 = M[3];
 
-		T w = math_type::One / (v0->W * v.X + v1->W * v.Y + v2->W * v.Z + v3->W);
-		result.X = (v0->X * v.X + v1->X * v.Y + v2->X * v.Z + v3->X) * w;
-		result.Y = (v0->Y * v.X + v1->Y * v.Y + v2->Y * v.Z + v3->Y) * w;
-		result.Z = (v0->Z * v.X + v1->Z * v.Y + v2->Z * v.Z + v3->Z) * w;
+		T w = math_type::reciprocal(v0.w * v.x + v1.w * v.y + v2.w * v.z + v3.w);
+		result.x = (v0.x * v.x + v1.x * v.y + v2.x * v.z + v3.x) * w;
+		result.y = (v0.y * v.x + v1.y * v.y + v2.y * v.z + v3.y) * w;
+		result.z = (v0.z * v.x + v1.z * v.y + v2.z * v.z + v3.z) * w;
 
 		return result;
 	}
 	/*---------------------------------------------------------------------
 	* ベクトル座標変換
 	*---------------------------------------------------------------------*/
-	Vector4<T> transform(const Vector4<T>& v) const
+	vector4<T> transform(const vector4<T>& v) const
 	{
-		Vector4<T> r(behavior::noinitialize);
+		vector4<T> r(behavior::noinitialize);
 		return transform(v, r);
 	}
-	Vector4<T>& transform(const Vector4<T>& v, Vector4<T>& result) const
+	vector4<T>& transform(const vector4<T>& v, vector4<T>& result) const
 	{
-		const Vector4<T>* v0 = &M[0];
-		const Vector4<T>* v1 = &M[1];
-		const Vector4<T>* v2 = &M[2];
-		const Vector4<T>* v3 = &M[3];
+		const row_type& v0 = M[0];
+		const row_type& v1 = M[1];
+		const row_type& v2 = M[2];
+		const row_type& v3 = M[3];
 
-		result.X = v0->X * v.X + v1->X * v.Y + v2->X * v.Z + v3->X * v.W;
-		result.Y = v0->Y * v.X + v1->Y * v.Y + v2->Y * v.Z + v3->Y * v.W;
-		result.Z = v0->Z * v.X + v1->Z * v.Y + v2->Z * v.Z + v3->Z * v.W;
-		result.W = v0->W * v.X + v1->W * v.Y + v2->W * v.Z + v3->W * v.W;
+		result.x = v0.x * v.x + v1.x * v.y + v2.x * v.z + v3.x * v.w;
+		result.y = v0.y * v.x + v1.y * v.y + v2.y * v.z + v3.y * v.w;
+		result.z = v0.z * v.x + v1.z * v.y + v2.z * v.z + v3.z * v.w;
+		result.w = v0.w * v.x + v1.w * v.y + v2.w * v.z + v3.w * v.w;
 
 		return result;
 	}
 	/*---------------------------------------------------------------------
 	* ベクトル座標変換（0～1）
 	*---------------------------------------------------------------------*/
-	Vector4<T> transform_coord(const Vector4<T>& v) const
+	vector4<T> transform_coord(const vector4<T>& v) const
 	{
-		Vector4<T> r(behavior::noinitialize);
+		vector4<T> r(behavior::noinitialize);
 		return transform_coord(v, r);
 	}
-	Vector4<T>& transform_coord(const Vector4<T>& v, Vector4<T>& result) const
+	vector4<T>& transform_coord(const vector4<T>& v, vector4<T>& result) const
 	{
 		transform(v, result);
 
-		T w = math_type::One / result.W;
-		result.X *= w;
-		result.Y *= w;
-		result.Z *= w;
-
+		T w = math_type::reciprocal(result.w);
+		result *= w;
 		return result;
 	}
 
 	/*---------------------------------------------------------------------
-	* ベクトル座標変換（W=0）
+	* ベクトル座標変換（w=0）
 	*---------------------------------------------------------------------*/
-	Vector3<T> transform_normal(const Vector3<T>& v) const
+	vector3<T> transform_normal(const vector3<T>& v) const
 	{
-		Vector3<T> r(behavior::noinitialize);
+		vector3<T> r(behavior::noinitialize);
 		return transform_normal(v, r);
 	}
-	Vector3<T>& transform_normal(const Vector3<T>& v, Vector3<T>& result) const
+	vector3<T>& transform_normal(const vector3<T>& v, vector3<T>& result) const
 	{
-		const Vector4<T>* v0 = &M[0];
-		const Vector4<T>* v1 = &M[1];
-		const Vector4<T>* v2 = &M[2];
+		const row_type& v0 = M[0];
+		const row_type& v1 = M[1];
+		const row_type& v2 = M[2];
 
-		result.X = v0->X * v.X + v1->X * v.Y + v2->X * v.Z;
-		result.Y = v0->Y * v.X + v1->Y * v.Y + v2->Y * v.Z;
-		result.Z = v0->Z * v.X + v1->Z * v.Y + v2->Z * v.Z;
+		result.x = v0.x * v.x + v1.x * v.y + v2.x * v.z;
+		result.y = v0.y * v.x + v1.y * v.y + v2.y * v.z;
+		result.z = v0.z * v.x + v1.z * v.y + v2.z * v.z;
 
 		return result;
 	}
 	/*---------------------------------------------------------------------
 	* 球面線形補間を求める
 	*---------------------------------------------------------------------*/
-	Matrix4x4 slerp(const Matrix4x4& to, T t) const
+	matrix4x4 slerp(const matrix4x4& to, T t) const
 	{
-		Matrix4x4 result(behavior::noinitialize);
+		matrix4x4 result(behavior::noinitialize);
 		return slerp(to, t, result);
 	}
-	Matrix4x4& slerp(const Matrix4x4& to, T t, Matrix4x4& result) const
+	matrix4x4& slerp(const matrix4x4& to, T t, matrix4x4& result) const
 	{
-		Vector3<T> s(behavior::noinitialize);
-		Vector3<T> p(behavior::noinitialize);
-		Quaternion<T> r(behavior::noinitialize);
+		vector3<T> s(behavior::noinitialize);
+		vector3<T> p(behavior::noinitialize);
+		quaternion<T> r(behavior::noinitialize);
 
 		// 補間用の値取得
-		Vector3<T> s0(behavior::noinitialize), s1(behavior::noinitialize);
-		scale(s0);
-		to.scale(s1);
+		vector3<T> s0 = scale();
+		vector3<T> s1 = to.scale();
 		// 回転取得
-		Quaternion<T> q0(*this), q1(to);
+		quaternion<T> q0(*this);
+		quaternion<T> q1(to);
 
 		// 補間を行なう
 		s0.lerp(s1, t, s);
@@ -1429,7 +1223,7 @@ struct Matrix4x4
 		// ワールド変換行列
 		return result.load_world(s, r, p);
 	}
-	Matrix4x4& slerp(const Matrix4x4& from, const Matrix4x4& to, T t)
+	matrix4x4& slerp(const matrix4x4& from, const matrix4x4& to, T t)
 	{
 		return from.slerp(to, t, *this);
 	}
@@ -1441,27 +1235,23 @@ struct Matrix4x4
 	/*---------------------------------------------------------------------
 	* アクセス演算子
 	*---------------------------------------------------------------------*/
-	Vector4<T>& operator [] (int i)
+	vector4<T>& operator [] (int i)
 	{
 		_DEB_RANGE_ASSERT(i, 0, 3);
 		return M[i];
 	}
-	const Vector4<T>& operator [] (int i) const
+	const vector4<T>& operator [] (int i) const
 	{
 		_DEB_RANGE_ASSERT(i, 0, 3);
 		return M[i];
 	}
-	T& operator [] (const MatrixPoint& p)
+	T& operator [] (const matrix_point& p)
 	{
-		_DEB_RANGE_ASSERT(p.X, 0, 3);
-		_DEB_RANGE_ASSERT(p.Y, 0, 3);
-		return (*this)(p.Y, p.X);
+		return (*this)(p.y, p.x);
 	}
-	const T& operator [] (const MatrixPoint& p) const
+	const T& operator [] (const matrix_point& p) const
 	{
-		_DEB_RANGE_ASSERT(p.X, 0, 3);
-		_DEB_RANGE_ASSERT(p.Y, 0, 3);
-		return (*this)(p.Y, p.X);
+		return (*this)(p.y, p.x);
 	}
 	T& operator () (int y, int x)
 	{
@@ -1480,35 +1270,35 @@ struct Matrix4x4
 	* 型変換演算子
 	*---------------------------------------------------------------------*/
 	template <typename U>
-	_CXX11_EXPLICIT operator Matrix4x4<U>() const
+	_CXX11_EXPLICIT operator matrix4x4<U>() const
 	{
-		return Matrix4x4<U>(
-			static_cast<Vector4<U> >(M[0]),
-			static_cast<Vector4<U> >(M[1]),
-			static_cast<Vector4<U> >(M[2]),
-			static_cast<Vector4<U> >(M[3]));
+		typedef vector4<U> other_vector4_type;
+		return matrix4x4<U>(static_cast<other_vector4_type>(M[0]),
+			static_cast<other_vector4_type>(M[1]),
+			static_cast<other_vector4_type>(M[2]),
+			static_cast<other_vector4_type>(M[3]));
 	}
 	_CXX11_EXPLICIT operator T* ()
 	{
 #ifdef _USE_ANONYMOUS_NON_POD
-		return &Data[0];
+		return &data[0];
 #else
-		return &M[0].X;
+		return &M[0].x;
 #endif // _USE_ANONYMOUS_NON_POD
 	}
 	_CXX11_EXPLICIT operator const T* () const
 	{
 #ifdef _USE_ANONYMOUS_NON_POD
-		return &Data[0];
+		return &data[0];
 #else
-		return &M[0].X;
+		return &M[0].x;
 #endif // _USE_ANONYMOUS_NON_POD
 	}
 
 	/*---------------------------------------------------------------------
 	* 比較演算子
 	*---------------------------------------------------------------------*/
-	bool operator == (const Matrix4x4& v) const
+	bool operator == (const matrix4x4& v) const
 	{
 		const_iterator oi = v.M.begin();
 		for (const_iterator i = M.begin(), end = M.end(); i != end; ++i, ++oi)
@@ -1520,7 +1310,7 @@ struct Matrix4x4
 		}
 		return true;
 	}
-	bool operator != (const Matrix4x4& v) const
+	bool operator != (const matrix4x4& v) const
 	{
 		return !(*this == v);
 	}
@@ -1528,63 +1318,63 @@ struct Matrix4x4
 	/*---------------------------------------------------------------------
 	* 単項演算子
 	*---------------------------------------------------------------------*/
-	Matrix4x4 operator + () const
+	matrix4x4 operator + () const
 	{
 		return *this;
 	}
-	Matrix4x4 operator - () const
+	matrix4x4 operator - () const
 	{
 #ifdef _USE_SIMD_ANONYMOUS
-		return Matrix4x4(simd::negate(M[0].mm), simd::negate(M[1].mm), simd::negate(M[2].mm), simd::negate(M[3].mm));
+		return matrix4x4(simd::negate(M[0].mm), simd::negate(M[1].mm), simd::negate(M[2].mm), simd::negate(M[3].mm));
 #else
-		return Matrix4x4(-M[0], -M[1], -M[2], -M[3]);
+		return matrix4x4(-M[0], -M[1], -M[2], -M[3]);
 #endif // _USE_SIMD_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------
 	* 二項演算子
 	*---------------------------------------------------------------------*/
-	Matrix4x4 operator + (const Matrix4x4& m) const
+	matrix4x4 operator + (const matrix4x4& m) const
 	{
 #ifdef _USE_SIMD_ANONYMOUS
-		return Matrix4x4(simd::add(M[0].mm, m.M[0].mm), simd::add(M[1].mm, m.M[1].mm), simd::add(M[2].mm, m.M[2].mm), simd::add(M[3].mm, m.M[3].mm));
+		return matrix4x4(simd::add(M[0].mm, m.M[0].mm), simd::add(M[1].mm, m.M[1].mm), simd::add(M[2].mm, m.M[2].mm), simd::add(M[3].mm, m.M[3].mm));
 #else
-		Matrix4x4 result(behavior::noinitialize);
+		matrix4x4 result(behavior::noinitialize);
 		return add(m, result);
 #endif // _USE_SIMD_ANONYMOUS
 	}
-	Matrix4x4 operator - (const Matrix4x4& m) const
+	matrix4x4 operator - (const matrix4x4& m) const
 	{
 #ifdef _USE_SIMD_ANONYMOUS
-		return Matrix4x4(simd::sub(M[0].mm, m.M[0].mm), simd::sub(M[1].mm, m.M[1].mm), simd::sub(M[2].mm, m.M[2].mm), simd::sub(M[3].mm, m.M[3].mm));
+		return matrix4x4(simd::sub(M[0].mm, m.M[0].mm), simd::sub(M[1].mm, m.M[1].mm), simd::sub(M[2].mm, m.M[2].mm), simd::sub(M[3].mm, m.M[3].mm));
 #else
-		Matrix4x4 result(behavior::noinitialize);
+		matrix4x4 result(behavior::noinitialize);
 		return subtract(m, result);
 #endif // _USE_SIMD_ANONYMOUS
 	}
-	Matrix4x4 operator * (const Matrix4x4& m) const
+	matrix4x4 operator * (const matrix4x4& m) const
 	{
-		Matrix4x4 result(behavior::noinitialize);
+		matrix4x4 result(behavior::noinitialize);
 		return multiply(m, result);
 	}
-	Matrix4x4 operator * (T f) const
+	matrix4x4 operator * (T f) const
 	{
 #ifdef _USE_SIMD_ANONYMOUS
 		const simd_type factor = simd::set(f);
-		return Matrix4x4(simd::mul(M[0].mm, factor), simd::mul(M[1].mm, factor), simd::mul(M[2].mm, factor), simd::mul(M[3].mm, factor));
+		return matrix4x4(simd::mul(M[0].mm, factor), simd::mul(M[1].mm, factor), simd::mul(M[2].mm, factor), simd::mul(M[3].mm, factor));
 #else
-		Matrix4x4 result(behavior::noinitialize);
+		matrix4x4 result(behavior::noinitialize);
 		return multiply(f, result);
 #endif // _USE_SIMD_ANONYMOUS
 	}
-	Matrix4x4 operator / (T f) const
+	matrix4x4 operator / (T f) const
 	{
 #ifdef _USE_SIMD_ANONYMOUS
-		_DEB_ASSERT(f != math_type::Zero);
+		_DEB_ASSERT(f != math_type::zero);
 		const simd_type factor = simd::set(math_type::reciprocal(f));
-		return Matrix4x4(simd::mul(M[0].mm, factor), simd::mul(M[1].mm, factor), simd::mul(M[2].mm, factor), simd::mul(M[3].mm, factor));
+		return matrix4x4(simd::mul(M[0].mm, factor), simd::mul(M[1].mm, factor), simd::mul(M[2].mm, factor), simd::mul(M[3].mm, factor));
 #else
-		Matrix4x4 result(behavior::noinitialize);
+		matrix4x4 result(behavior::noinitialize);
 		return divide(f, result);
 #endif // _USE_SIMD_ANONYMOUS
 	}
@@ -1592,16 +1382,16 @@ struct Matrix4x4
 	/*---------------------------------------------------------------------
 	* 代入演算子
 	*---------------------------------------------------------------------*/
-	Matrix4x4& operator = (const behavior::_zero_t&)
+	matrix4x4& operator = (const behavior::_zero_t&)
 	{
 		return load_zero();
 	}
-	Matrix4x4& operator = (const behavior::_identity_t&)
+	matrix4x4& operator = (const behavior::_identity_t&)
 	{
 		return load_identity();
 	}
 #ifdef _USE_CXX11
-	Matrix4x4& operator = (const std::initializer_list<T>& t)
+	matrix4x4& operator = (const std::initializer_list<T>& t)
 	{
 		_DEB_ASSERT(t.size() <= 16);
 
@@ -1618,7 +1408,7 @@ struct Matrix4x4
 	/*---------------------------------------------------------------------
 	* 複合演算子
 	*---------------------------------------------------------------------*/
-	Matrix4x4& operator += (const Matrix4x4& m)
+	matrix4x4& operator += (const matrix4x4& m)
 	{
 		const_iterator oi = m.M.begin();
 		for (iterator i = M.begin(), end = M.end(); i != end; ++i, ++oi)
@@ -1627,7 +1417,7 @@ struct Matrix4x4
 		}
 		return *this;
 	}
-	Matrix4x4& operator -= (const Matrix4x4& m)
+	matrix4x4& operator -= (const matrix4x4& m)
 	{
 		const_iterator oi = m.M.begin();
 		for (iterator i = M.begin(), end = M.end(); i != end; ++i, ++oi)
@@ -1636,13 +1426,12 @@ struct Matrix4x4
 		}
 		return *this;
 	}
-	Matrix4x4& operator *= (const Matrix4x4& m)
+	matrix4x4& operator *= (const matrix4x4& m)
 	{
-		const Matrix4x4 c = *this;
-		c.multiply(m, *this);
-		return *this;
+		const matrix4x4 c = *this;
+		return c.multiply(m, *this);
 	}
-	Matrix4x4& operator *= (T s)
+	matrix4x4& operator *= (T s)
 	{
 #ifdef _USE_SIMD_ANONYMOUS
 		simd_type factor = simd::set(s);
@@ -1652,17 +1441,17 @@ struct Matrix4x4
 #ifdef _USE_SIMD_ANONYMOUS
 			i->mm = simd::mul(i->mm, factor);
 #else
-			i->X *= s;
-			i->Y *= s;
-			i->Z *= s;
-			i->W *= s;
+			i->x *= s;
+			i->y *= s;
+			i->z *= s;
+			i->w *= s;
 #endif // _USE_SIMD_ANONYMOUS
 		}
 		return *this;
 	}
-	Matrix4x4& operator /= (T s)
+	matrix4x4& operator /= (T s)
 	{
-		_DEB_ASSERT(s != math_type::Zero);
+		_DEB_ASSERT(s != math_type::zero);
 		return operator*=(math_type::reciprocal(s));
 	}
 
@@ -1670,69 +1459,69 @@ struct Matrix4x4
 	* タグでの関数呼び出し
 	*------------------------------------------------------------------------------------------*/
 
-	Matrix4x4& operator () (const behavior::_zero_t&)
+	matrix4x4& operator () (const behavior::_zero_t&)
 	{
 		return load_zero();
 	}
-	Matrix4x4& operator () (const behavior::_identity_t&)
+	matrix4x4& operator () (const behavior::_identity_t&)
 	{
 		return load_identity();
 	}
 
-	Matrix4x4 operator () (const behavior::_plus_t&) const
+	matrix4x4 operator () (const behavior::_plus_t&) const
 	{
 		return operator+();
 	}
-	Matrix4x4 operator () (const behavior::_negate_t&) const
+	matrix4x4 operator () (const behavior::_negate_t&) const
 	{
 		return operator-();
 	}
-	Matrix4x4 operator () (const behavior::_add_t&, const Matrix4x4& m) const
+	matrix4x4 operator () (const behavior::_add_t&, const matrix4x4& m) const
 	{
 		return operator+(m);
 	}
-	Matrix4x4 operator () (const behavior::_sub_t&, const Matrix4x4& m) const
+	matrix4x4 operator () (const behavior::_sub_t&, const matrix4x4& m) const
 	{
 		return operator-(m);
 	}
-	Matrix4x4 operator () (const behavior::_mul_t&, T f) const
+	matrix4x4 operator () (const behavior::_mul_t&, T f) const
 	{
 		return operator*(f);
 	}
-	Matrix4x4 operator () (const behavior::_mul_t&, const Matrix4x4& m) const
+	matrix4x4 operator () (const behavior::_mul_t&, const matrix4x4& m) const
 	{
 		return operator*(m);
 	}
-	Matrix4x4 operator () (const behavior::_div_t&, T f) const
+	matrix4x4 operator () (const behavior::_div_t&, T f) const
 	{
 		return operator/(f);
 	}
 
-	Matrix4x4& operator () (const behavior::_add_assign_t&, const Matrix4x4& m)
+	matrix4x4& operator () (const behavior::_add_assign_t&, const matrix4x4& m)
 	{
 		return operator+=(m);
 	}
-	Matrix4x4& operator () (const behavior::_sub_assign_t&, const Matrix4x4& m)
+	matrix4x4& operator () (const behavior::_sub_assign_t&, const matrix4x4& m)
 	{
 		return operator-=(m);
 	}
-	Matrix4x4& operator () (const behavior::_mul_assign_t&, T f)
+	matrix4x4& operator () (const behavior::_mul_assign_t&, T f)
 	{
 		return operator*=(f);
 	}
-	Matrix4x4& operator () (const behavior::_mul_assign_t&, const Matrix4x4& m)
+	matrix4x4& operator () (const behavior::_mul_assign_t&, const matrix4x4& m)
 	{
 		return operator*=(m);
 	}
-	Matrix4x4& operator () (const behavior::_div_assign_t&, T f)
+	matrix4x4& operator () (const behavior::_div_assign_t&, T f)
 	{
 		return operator/=(f);
 	}
-	Vector4<T>& operator () (const behavior::_at_t&, int i)
+	vector4<T>& operator () (const behavior::_at_t&, int i)
 	{
 		return operator[](i);
 	}
-	const Vector4<T>& operator () (const behavior::_at_t&, int i) const
+	const vector4<T>& operator () (const behavior::_at_t&, int i) const
 	{
 		return operator[](i);
 	}
@@ -1744,11 +1533,11 @@ struct Matrix4x4
 	{
 		return operator()(y, x);
 	}
-	T& operator () (const behavior::_at_t&, const MatrixPoint& p)
+	T& operator () (const behavior::_at_t&, const matrix_point& p)
 	{
 		return operator[](p);
 	}
-	const T& operator () (const behavior::_at_t&, const MatrixPoint& p) const
+	const T& operator () (const behavior::_at_t&, const matrix_point& p) const
 	{
 		return operator[](p);
 	}
@@ -1761,15 +1550,15 @@ struct Matrix4x4
 		return operator const T*();
 	}
 
-	bool operator () (const behavior::_equal_t&, const Matrix4x4& m) const
+	bool operator () (const behavior::_equal_t&, const matrix4x4& m) const
 	{
 		return operator==(m);
 	}
-	bool operator () (const behavior::_not_equal_t&, const Matrix4x4& m) const
+	bool operator () (const behavior::_not_equal_t&, const matrix4x4& m) const
 	{
 		return operator!=(m);
 	}
-	bool operator () (const behavior::_near_t&, const Matrix4x4& m) const
+	bool operator () (const behavior::_near_t&, const matrix4x4& m) const
 	{
 		return is_near(m);
 	}
@@ -1778,184 +1567,168 @@ struct Matrix4x4
 		return is_near_zero();
 	}
 
-	Vector3<T> operator () (const behavior::_scale_t&) const
+	vector3<T> operator () (const behavior::_scale_t&) const
 	{
 		return scale();
 	}
-	Vector3<T>& operator () (const behavior::_right_t&)
+	vector3<T>& operator () (const behavior::_right_t&)
 	{
-#ifdef _USE_ANONYMOUS_NON_POD
-		return Right;
-#else
-		return reinterpret_cast<Vector3<T>&>(M[0]);
-#endif // _USE_ANONYMOUS_NON_POD
+		return right();
 	}
-	const Vector3<T>& operator () (const behavior::_right_t&) const
+	const vector3<T>& operator () (const behavior::_right_t&) const
 	{
-		return (*this)(behavior::right);
+		return right();
 	}
-	Vector3<T>& operator () (const behavior::_up_t&)
+	vector3<T>& operator () (const behavior::_up_t&)
 	{
-#ifdef _USE_ANONYMOUS_NON_POD
-		return Up;
-#else
-		return reinterpret_cast<Vector3<T>&>(M[1]);
-#endif // _USE_ANONYMOUS_NON_POD
+		return up();
 	}
-	const Vector3<T>& operator () (const behavior::_up_t&) const
+	const vector3<T>& operator () (const behavior::_up_t&) const
 	{
-		return (*this)(behavior::up);
+		return up();
 	}
-	Vector3<T>& operator () (const behavior::_front_t&)
+	vector3<T>& operator () (const behavior::_front_t&)
 	{
-#ifdef _USE_ANONYMOUS_NON_POD
-		return Forward;
-#else
-		return reinterpret_cast<Vector3<T>&>(M[2]);
-#endif // _USE_ANONYMOUS_NON_POD
+		return forward();
 	}
-	const Vector3<T>& operator () (const behavior::_front_t&) const
+	const vector3<T>& operator () (const behavior::_front_t&) const
 	{
-		return (*this)(behavior::front);
+		return forward();
 	}
-	Vector3<T>& operator () (const behavior::_axis_t&, const behavior::_x_t&)
+	vector3<T>& operator () (const behavior::_axis_t&, const behavior::_x_t&)
 	{
-		return (*this)(behavior::right);
+		return right();
 	}
-	const Vector3<T>& operator () (const behavior::_axis_t&, const behavior::_x_t&) const
+	const vector3<T>& operator () (const behavior::_axis_t&, const behavior::_x_t&) const
 	{
-		return (*this)(behavior::right);
+		return right();
 	}
-	Vector3<T>& operator () (const behavior::_axis_t&, const behavior::_y_t&)
+	vector3<T>& operator () (const behavior::_axis_t&, const behavior::_y_t&)
 	{
-		return (*this)(behavior::up);
+		return up();
 	}
-	const Vector3<T>& operator () (const behavior::_axis_t&, const behavior::_y_t&) const
+	const vector3<T>& operator () (const behavior::_axis_t&, const behavior::_y_t&) const
 	{
-		return (*this)(behavior::up);
+		return up();
 	}
-	Vector3<T>& operator () (const behavior::_axis_t&, const behavior::_z_t&)
+	vector3<T>& operator () (const behavior::_axis_t&, const behavior::_z_t&)
 	{
-		return (*this)(behavior::front);
+		return forward();
 	}
-	const Vector3<T>& operator () (const behavior::_axis_t&, const behavior::_z_t&) const
+	const vector3<T>& operator () (const behavior::_axis_t&, const behavior::_z_t&) const
 	{
-		return (*this)(behavior::front);
+		return forward();
 	}
-	Vector3<T>& operator () (const behavior::_position_t&)
+	vector3<T>& operator () (const behavior::_position_t&)
 	{
-#ifdef _USE_ANONYMOUS_NON_POD
-		return Position;
-#else
-		return reinterpret_cast<Vector3<T>&>(M[3]);
-#endif // _USE_ANONYMOUS_NON_POD
+		return position();
 	}
-	const Vector3<T>& operator () (const behavior::_position_t&) const
+	const vector3<T>& operator () (const behavior::_position_t&) const
 	{
-		return (*this)(behavior::position);
+		return position();
 	}
 
-	Matrix4x4& operator () (const behavior::_scale_t&, const Vector3<T>& v)
+	matrix4x4& operator () (const behavior::_scale_t&, const vector3<T>& v)
 	{
 		return load_scale(v);
 	}
-	Matrix4x4& operator () (const behavior::_scale_t&, T x, T y, T z)
+	matrix4x4& operator () (const behavior::_scale_t&, T x, T y, T z)
 	{
 		return load_scale(x, y, z);
 	}
-	Matrix4x4& operator () (const behavior::_scale_t&, T s)
+	matrix4x4& operator () (const behavior::_scale_t&, T s)
 	{
 		return load_scale(s);
 	}
-	Matrix4x4& operator () (const behavior::_rotate_t&, const behavior::_x_t&, T angle)
+	matrix4x4& operator () (const behavior::_rotate_t&, const behavior::_x_t&, T angle)
 	{
 		return load_rotate_x(angle);
 	}
-	Matrix4x4& operator () (const behavior::_rotate_t&, const behavior::_y_t&, T angle)
+	matrix4x4& operator () (const behavior::_rotate_t&, const behavior::_y_t&, T angle)
 	{
 		return load_rotate_y(angle);
 	}
-	Matrix4x4& operator () (const behavior::_rotate_t&, const behavior::_z_t&, T angle)
+	matrix4x4& operator () (const behavior::_rotate_t&, const behavior::_z_t&, T angle)
 	{
 		return load_rotate_z(angle);
 	}
-	Matrix4x4& operator () (const behavior::_rotate_t&, const behavior::_roll_pitch_yaw_t&, T roll, T pitch, T yaw)
+	matrix4x4& operator () (const behavior::_rotate_t&, const behavior::_roll_pitch_yaw_t&, T roll, T pitch, T yaw)
 	{
 		return load_rotate_roll_pitch_yaw(roll, pitch, yaw);
 	}
-	Matrix4x4& operator () (const behavior::_rotate_t&, const Quaternion<T>& q)
+	matrix4x4& operator () (const behavior::_rotate_t&, const quaternion<T>& q)
 	{
 		return load_rotate_quaternion(q);
 	}
-	Matrix4x4& operator () (const behavior::_rotate_t&, const Vector3<T>& axis, T angle)
+	matrix4x4& operator () (const behavior::_rotate_t&, const vector3<T>& axis, T angle)
 	{
 		return load_rotate_axis_angle(axis, angle);
 	}
-	Matrix4x4& operator () (const behavior::_translate_t&, const Vector3<T>& t)
+	matrix4x4& operator () (const behavior::_translate_t&, const vector3<T>& t)
 	{
 		return load_translate(t);
 	}
-	Matrix4x4& operator () (const behavior::_translate_t&, T x, T y, T z)
+	matrix4x4& operator () (const behavior::_translate_t&, T x, T y, T z)
 	{
 		return load_translate(x, y, z);
 	}
-	Matrix4x4& operator () (const behavior::_world_t&, const Vector3<T>& s, T roll, T pitch, T yaw, const Vector3<T>& p)
+	matrix4x4& operator () (const behavior::_world_t&, const vector3<T>& s, T roll, T pitch, T yaw, const vector3<T>& p)
 	{
 		return load_world(s, roll, pitch, yaw, p);
 	}
-	Matrix4x4& operator () (const behavior::_world_t&, T s, T roll, T pitch, T yaw, const Vector3<T>& p)
+	matrix4x4& operator () (const behavior::_world_t&, T s, T roll, T pitch, T yaw, const vector3<T>& p)
 	{
 		return load_world(s, roll, pitch, yaw, p);
 	}
-	Matrix4x4& operator () (const behavior::_world_t&, const Vector3<T>& s, const Quaternion<T>& q, const Vector3<T>& p)
+	matrix4x4& operator () (const behavior::_world_t&, const vector3<T>& s, const quaternion<T>& q, const vector3<T>& p)
 	{
 		return load_world(s, q, p);
 	}
-	Matrix4x4& operator () (const behavior::_world_t&, T s, const Quaternion<T>& q, const Vector3<T>& p)
+	matrix4x4& operator () (const behavior::_world_t&, T s, const quaternion<T>& q, const vector3<T>& p)
 	{
 		return load_world(s, q, p);
 	}
-	Matrix4x4& operator () (const behavior::_perspective_field_of_view_t&, T fovy, T aspect, T n, T f)
+	matrix4x4& operator () (const behavior::_perspective_field_of_view_t&, T fovy, T aspect, T n, T f)
 	{
 		return load_perspective_field_of_view(fovy, aspect, n, f);
 	}
-	Matrix4x4& operator () (const behavior::_orthographics_t&, T left, T right, T up, T bottom, T n, T f)
+	matrix4x4& operator () (const behavior::_orthographics_t&, T left, T right, T up, T bottom, T n, T f)
 	{
 		return load_orthographics(left, right, up, bottom, n, f);
 	}
-	Matrix4x4& operator () (const behavior::_orthographics_t&, T width, T height, T n, T f)
+	matrix4x4& operator () (const behavior::_orthographics_t&, T width, T height, T n, T f)
 	{
 		return load_orthographics(width, height, n, f);
 	}
-	Matrix4x4& operator () (const behavior::_orthographics2d_t&, T left, T right, T up, T bottom)
+	matrix4x4& operator () (const behavior::_orthographics2d_t&, T left, T right, T up, T bottom)
 	{
 		return load_orthographics2d(left, right, up, bottom);
 	}
-	Matrix4x4& operator () (const behavior::_orthographics2d_t&, T width, T height)
+	matrix4x4& operator () (const behavior::_orthographics2d_t&, T width, T height)
 	{
 		return load_orthographics2d(width, height);
 	}
-	Matrix4x4& operator () (const behavior::_look_to_t&, const Vector3<T>& eye, const Vector3<T>& to, const Vector3<T>& up = Vector3<T>::Up)
+	matrix4x4& operator () (const behavior::_look_to_t&, const vector3<T>& eye, const vector3<T>& to, const vector3<T>& up = vector3<T>::up)
 	{
 		return load_lookto(eye, to, up);
 	}
-	Matrix4x4& operator () (const behavior::_look_to_t&, T ex, T ey, T ez, T tx, T ty, T tz, T ux = math_type::Zero, T uy = math_type::One, T uz = math_type::Zero)
+	matrix4x4& operator () (const behavior::_look_to_t&, T ex, T ey, T ez, T tx, T ty, T tz, T ux = math_type::zero, T uy = math_type::one, T uz = math_type::zero)
 	{
 		return load_lookto(ex, ey, ez, tx, ty, tz, ux, uy, uz);
 	}
-	Matrix4x4& operator () (const behavior::_look_at_t&, const Vector3<T>& eye, const Vector3<T>& center, const Vector3<T>& up = Vector3<T>::Up)
+	matrix4x4& operator () (const behavior::_look_at_t&, const vector3<T>& eye, const vector3<T>& center, const vector3<T>& up = vector3<T>::up)
 	{
 		return load_lookat(eye, center, up);
 	}
-	Matrix4x4& operator () (const behavior::_look_at_t&, T ex, T ey, T ez, T tx, T ty, T tz, T ux = math_type::Zero, T uy = math_type::One, T uz = math_type::Zero)
+	matrix4x4& operator () (const behavior::_look_at_t&, T ex, T ey, T ez, T tx, T ty, T tz, T ux = math_type::zero, T uy = math_type::one, T uz = math_type::zero)
 	{
 		return load_lookat(ex, ey, ez, tx, ty, tz, ux, uy, uz);
 	}
-	Matrix4x4& operator () (const behavior::_transpose_t&)
+	matrix4x4& operator () (const behavior::_transpose_t&)
 	{
 		return transpose();
 	}
-	Matrix4x4 operator () (const behavior::_transposed_t&) const
+	matrix4x4 operator () (const behavior::_transposed_t&) const
 	{
 		return transposed();
 	}
@@ -1963,27 +1736,27 @@ struct Matrix4x4
 	{
 		return determinant();
 	}
-	Matrix4x4 operator () (const behavior::_inverse_t&) const
+	matrix4x4 operator () (const behavior::_inverse_t&) const
 	{
-		return inversed();
+		return inverse();
 	}
-	Matrix4x4 operator () (const behavior::_slerp_t&, const Matrix4x4& m, T t) const
+	matrix4x4 operator () (const behavior::_slerp_t&, const matrix4x4& m, T t) const
 	{
 		return slerp(m, t);
 	}
-	Vector3<T> operator () (const behavior::_transform_t&, const Vector3<T>& v) const
+	vector3<T> operator () (const behavior::_transform_t&, const vector3<T>& v) const
 	{
 		return transform(v);
 	}
-	Vector3<T> operator () (const behavior::_transform_coord_t&, const Vector3<T>& v) const
+	vector3<T> operator () (const behavior::_transform_coord_t&, const vector3<T>& v) const
 	{
 		return transform_coord(v);
 	}
-	Vector3<T> operator () (const behavior::_transform_normal_t&, const Vector3<T>& v) const
+	vector3<T> operator () (const behavior::_transform_normal_t&, const vector3<T>& v) const
 	{
 		return transform_normal(v);
 	}
-	Vector4<T> operator () (const behavior::_transform_t&, const Vector4<T>& v) const
+	vector4<T> operator () (const behavior::_transform_t&, const vector4<T>& v) const
 	{
 		return transform(v);
 	}
@@ -2002,113 +1775,113 @@ struct Matrix4x4
 };
 
 template <typename T>
-const Matrix4x4<T> Matrix4x4<T>::Zero(math_type::Zero);
+const matrix4x4<T> matrix4x4<T>::zero(math_type::zero);
 template <typename T>
-const Matrix4x4<T> Matrix4x4<T>::Identity(math_type::One);
+const matrix4x4<T> matrix4x4<T>::identity(math_type::one);
 
 /*---------------------------------------------------------------------
-* Vector3.transform
+* vector3.transform
 *---------------------------------------------------------------------*/
 template <typename T> inline
-Vector3<T>& Vector3<T>::transform(const Matrix4x4<T>& m)
+vector3<T>& vector3<T>::transform(const matrix4x4<T>& m)
 {
-	Vector3<T> v = *this;
+	const vector3<T> v = *this;
 	return m.transform(v, *this);
 }
 template <typename T> inline
-Vector3<T> Vector3<T>::transformed(const Matrix4x4<T>& m) const
-{
-	Vector3<T> v(behavior::noinitialize);
-	return m.transform(*this, v);
-}
-template <typename T> inline
-Vector3<T>& Vector3<T>::transformed(const Matrix4x4<T>& m, Vector3<T>& result) const
+vector3<T>& vector3<T>::transform(const matrix4x4<T>& m, vector3<T>& result) const
 {
 	return m.transform(*this, result);
 }
 template <typename T> inline
-Vector3<T>& Vector3<T>::transform_coord(const Matrix4x4<T>& m)
+vector3<T> vector3<T>::transformed(const matrix4x4<T>& m) const
 {
-	Vector3<T> v = *this;
+	vector3<T> v(behavior::noinitialize);
+	return m.transform(*this, v);
+}
+template <typename T> inline
+vector3<T>& vector3<T>::transform_coord(const matrix4x4<T>& m)
+{
+	const vector3<T> v = *this;
 	return m.transform_coord(v, *this);
 }
 template <typename T> inline
-Vector3<T> Vector3<T>::transformed_coord(const Matrix4x4<T>& m) const
-{
-	Vector3<T> v(behavior::noinitialize);
-	return m.transform_coord(*this, v);
-}
-template <typename T> inline
-Vector3<T>& Vector3<T>::transformed_coord(const Matrix4x4<T>& m, Vector3<T>& result) const
+vector3<T>& vector3<T>::transform_coord(const matrix4x4<T>& m, vector3<T>& result) const
 {
 	return m.transform_coord(*this, result);
 }
 template <typename T> inline
-Vector3<T>& Vector3<T>::transform_normal(const Matrix4x4<T>& m)
+vector3<T> vector3<T>::transformed_coord(const matrix4x4<T>& m) const
 {
-	Vector3<T> v = *this;
+	vector3<T> v(behavior::noinitialize);
+	return m.transform_coord(*this, v);
+}
+template <typename T> inline
+vector3<T>& vector3<T>::transform_normal(const matrix4x4<T>& m)
+{
+	const vector3<T> v = *this;
 	return m.transform_normal(v, *this);
 }
 template <typename T> inline
-Vector3<T> Vector3<T>::transformed_normal(const Matrix4x4<T>& m) const
-{
-	Vector3<T> v(behavior::noinitialize);
-	return m.transform_normal(*this, v);
-}
-template <typename T> inline
-Vector3<T>& Vector3<T>::transformed_normal(const Matrix4x4<T>& m, Vector3<T>& result) const
+vector3<T>& vector3<T>::transform_normal(const matrix4x4<T>& m, vector3<T>& result) const
 {
 	return m.transform_normal(*this, result);
 }
+template <typename T> inline
+vector3<T> vector3<T>::transformed_normal(const matrix4x4<T>& m) const
+{
+	vector3<T> v(behavior::noinitialize);
+	return m.transform_normal(*this, v);
+}
 
 /*---------------------------------------------------------------------
-* Vector4.transform
+* vector4.transform
 *---------------------------------------------------------------------*/
 template <typename T> inline
-Vector4<T>& Vector4<T>::transform(const Matrix4x4<T>& m)
+vector4<T>& vector4<T>::transform(const matrix4x4<T>& m)
 {
-	Vector4<T> v = *this;
+	const vector4<T> v = *this;
 	return m.transform(v, *this);
 }
 template <typename T> inline
-Vector4<T> Vector4<T>::transformed(const Matrix4x4<T>& m) const
+vector4<T> vector4<T>::transformed(const matrix4x4<T>& m) const
 {
-	Vector4<T> v(behavior::noinitialize);
+	vector4<T> v(behavior::noinitialize);
 	return m.transform(*this, v);
 }
 template <typename T> inline
-Vector4<T>& Vector4<T>::transformed(const Matrix4x4<T>& m, Vector4<T>& result) const
+vector4<T>& vector4<T>::transform(const matrix4x4<T>& m, vector4<T>& result) const
 {
 	return m.transform(*this, result);
 }
 template <typename T> inline
-Vector4<T>& Vector4<T>::transform_coord(const Matrix4x4<T>& m)
+vector4<T>& vector4<T>::transform_coord(const matrix4x4<T>& m)
 {
-	Vector4<T> v = *this;
+	const vector4<T> v = *this;
 	return m.transform_coord(v, *this);
 }
 template <typename T> inline
-Vector4<T> Vector4<T>::transformed_coord(const Matrix4x4<T>& m) const
-{
-	Vector4<T> v(behavior::noinitialize);
-	return m.transform_coord(*this, v);
-}
-template <typename T> inline
-Vector4<T>& Vector4<T>::transformed_coord(const Matrix4x4<T>& m, Vector4<T>& result) const
+vector4<T>& vector4<T>::transform_coord(const matrix4x4<T>& m, vector4<T>& result) const
 {
 	return m.transform_coord(*this, result);
 }
+template <typename T> inline
+vector4<T> vector4<T>::transformed_coord(const matrix4x4<T>& m) const
+{
+	vector4<T> v(behavior::noinitialize);
+	return m.transform_coord(*this, v);
+}
 
 template <typename T> inline
-Vector3<T> Vector3<T>::operator * (const Matrix4x4<T>& m) const
+vector3<T> vector3<T>::operator * (const matrix4x4<T>& m) const
 {
-	Vector3<T> r(behavior::noinitialize);
+	vector3<T> r(behavior::noinitialize);
 	return m.transform(*this, r);
 }
 template <typename T> inline
-Vector4<T> Vector4<T>::operator * (const Matrix4x4<T>& m) const
+vector4<T> vector4<T>::operator * (const matrix4x4<T>& m) const
 {
-	Vector4<T> r(behavior::noinitialize);
+	vector4<T> r(behavior::noinitialize);
 	return m.transform(*this, r);
 }
 
@@ -2116,76 +1889,76 @@ Vector4<T> Vector4<T>::operator * (const Matrix4x4<T>& m) const
 * 行列からクォータニオンを求める
 *---------------------------------------------------------------------*/
 template <typename T> inline
-Quaternion<T>& Quaternion<T>::from_matrix(const Matrix4x4<T>& m)
+quaternion<T>& quaternion<T>::from_matrix(const matrix4x4<T>& m)
 {
-	const Vector4<T>* v0 = &m.M[0];
-	const Vector4<T>* v1 = &m.M[1];
-	const Vector4<T>* v2 = &m.M[2];
+	const vector4<T>* v0 = &m.M[0];
+	const vector4<T>* v1 = &m.M[1];
+	const vector4<T>* v2 = &m.M[2];
 
-	T tr = v0->X + v1->Y + v2->Z + m.M[3].W;
-	if (tr >= math_type::One)
+	T tr = v0->x + v1->y + v2->z + m.M[3].w;
+	if (tr >= math_type::one)
 	{
-		T fourD = math_type::Two * math_type::sqrt(tr);
-		T dFourD = math_type::One / fourD;
-		X = (v1->Z - v2->Y) * dFourD;
-		Y = (v2->X - v0->Z) * dFourD;
-		Z = (v0->Y - v1->X) * dFourD;
-		// fourD / math_type::Four
-		W = fourD * math_type::HalfOfHalf;
+		T fourD = math_type::two * math_type::sqrt(tr);
+		T dFourD = math_type::one / fourD;
+		x = (v1->z - v2->y) * dFourD;
+		y = (v2->x - v0->z) * dFourD;
+		z = (v0->y - v1->x) * dFourD;
+		// fourD / math_type::four
+		w = fourD * math_type::half_of_half;
 		return *this;
 	}
 
 	int i = 0;
-	if (v0->X <= v1->Y)
+	if (v0->x <= v1->y)
 	{
 		++i;
 	}
-	if (v2->Z > m[i][i])
+	if (v2->z > m[i][i])
 	{
 		++i;
 	}
 	int j = (i + 1) % 3;
 	int k = (j + 1) % 3;
 
-	tr = m[i][i] - m[j][j] - m[k][k] + math_type::One;
-	T fourD = math_type::Two * math_type::sqrt(tr);
-	T dFourD = math_type::One / fourD;
+	tr = m[i][i] - m[j][j] - m[k][k] + math_type::one;
+	T fourD = math_type::two * math_type::sqrt(tr);
+	T dFourD = math_type::one / fourD;
 
-	(*this)[i] = fourD * math_type::HalfOfHalf;
+	(*this)[i] = fourD * math_type::half_of_half;
 	(*this)[j] = (m[j][i] + m[i][j]) * dFourD;
 	(*this)[k] = (m[k][i] + m[i][k]) * dFourD;
-	W = (m[j][k] - m[k][j]) * dFourD;
+	w = (m[j][k] - m[k][j]) * dFourD;
 
 	return *this;
 }
 
 // 4x4行列からの作成
 template <typename T> inline
-Matrix3x3<T>::Matrix3x3(const Matrix4x4<T>& m)
+matrix3x3<T>::matrix3x3(const matrix4x4<T>& m)
 {
-	const Vector4<T>* m0 = &m[0];
-	const Vector4<T>* m1 = &m[1];
-	const Vector4<T>* m2 = &m[2];
-	Vector3<T>* p0 = &M[0];
-	Vector3<T>* p1 = &M[1];
-	Vector3<T>* p2 = &M[2];
+	const vector4<T>* m0 = &m[0];
+	const vector4<T>* m1 = &m[1];
+	const vector4<T>* m2 = &m[2];
+	vector3<T>* p0 = &M[0];
+	vector3<T>* p1 = &M[1];
+	vector3<T>* p2 = &M[2];
 
-	p0->X = m0->X;
-	p0->Y = m0->Y;
-	p0->Z = m0->Z;
+	p0->x = m0->x;
+	p0->y = m0->y;
+	p0->z = m0->z;
 
-	p1->X = m1->X;
-	p1->Y = m1->Y;
-	p1->Z = m1->Z;
+	p1->x = m1->x;
+	p1->y = m1->y;
+	p1->z = m1->z;
 
-	p2->X = m2->X;
-	p2->Y = m2->Y;
-	p2->Z = m2->Z;
+	p2->x = m2->x;
+	p2->y = m2->y;
+	p2->z = m2->z;
 }
 
 #ifdef _USING_MATH_IO
 template <typename CharT, typename CharTraits, typename T> inline
-std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const Matrix4x4<T>& v)
+std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const matrix4x4<T>& v)
 {
 	//{
 	//	V0
@@ -2193,19 +1966,19 @@ std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, Ch
 	//	V2
 	//	V3
 	//}
-	os << out_char::braces_left << out_char::line;
-	for (typename Matrix4x4<T>::const_iterator i = v.M.begin(), end = v.M.end(); i != end; ++i)
+	os << io::braces_left << io::line;
+	for (typename matrix4x4<T>::const_iterator i = v.M.begin(), end = v.M.end(); i != end; ++i)
 	{
-		os << out_char::tab << *i << out_char::line;
+		os << io::tab << *i << io::line;
 	}
-	os << out_char::braces_right;
+	os << io::braces_right;
 	return os;
 }
 template <typename CharT, typename CharTraits, typename T> inline
-std::basic_istream<CharT, CharTraits>& operator >> (std::basic_istream<CharT, CharTraits>& is, Matrix4x4<T>& v)
+std::basic_istream<CharT, CharTraits>& operator >> (std::basic_istream<CharT, CharTraits>& is, matrix4x4<T>& v)
 {
 	is.ignore();
-	for (typename Matrix4x4<T>::iterator i = v.M.begin(), end = v.M.end(); i != end; ++i)
+	for (typename matrix4x4<T>::iterator i = v.M.begin(), end = v.M.end(); i != end; ++i)
 	{
 		is >> *i;
 	}
@@ -2213,21 +1986,21 @@ std::basic_istream<CharT, CharTraits>& operator >> (std::basic_istream<CharT, Ch
 	return is;
 }
 template <typename CharT, typename CharTraits, typename T> inline
-std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, CharTraits>& os, const Matrix4x4<T>& v)
+std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, CharTraits>& os, const matrix4x4<T>& v)
 {
-	os << out_char::braces_left << out_char::line;
-	for (typename Matrix4x4<T>::const_iterator i = v.M.begin(), end = v.M.end(); i != end; ++i)
+	os << io::braces_left << io::line;
+	for (typename matrix4x4<T>::const_iterator i = v.M.begin(), end = v.M.end(); i != end; ++i)
 	{
-		os << out_char::tab << *i << out_char::line;
+		os << io::tab << *i << io::line;
 	}
-	os << out_char::braces_right;
+	os << io::braces_right;
 	return os;
 }
 template <typename CharT, typename CharTraits, typename T> inline
-std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, CharTraits>& is, Matrix4x4<T>& v)
+std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, CharTraits>& is, matrix4x4<T>& v)
 {
 	is.ignore();
-	for (typename Matrix4x4<T>::iterator i = v.M.begin(), end = v.M.end(); i != end; ++i)
+	for (typename matrix4x4<T>::iterator i = v.M.begin(), end = v.M.end(); i != end; ++i)
 	{
 		is >> *i;
 	}
