@@ -152,6 +152,7 @@
     <ClInclude Include="config.h" />
     <ClInclude Include="container\array.h" />
     <ClInclude Include="debug.h" />
+    <ClInclude Include="fixed_array.h" />
     <ClInclude Include="fwd.h" />
     <ClInclude Include="io.h" />
     <ClInclude Include="math\all.h" />

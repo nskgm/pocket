@@ -11,6 +11,7 @@
 //#define _USING_MATH_DOUBLE
 
 #include "math/all.h"
+#include "fixed_array.h"
 #include <string>
 #include <cstdlib>
 #include <iomanip>
@@ -76,12 +77,13 @@ int main(int argc, char** argv)
 		<< pocket::rectanglef(0.0f, 320.0f, 0.0f, 240.0f) << endl
 		<< pocket::colorf::white << endl
 		<< pocket::math_traitsf::sin_cos_t(320.0f) << endl << endl
-		<< pocket::planef::up << endl
-		;
+		<< pocket::planef::up << endl;
+
+	namespace behavior = pocket::behavior;
 	pocket::matrix4x4f s, r, t;
-	s(pocket::behavior::scale, 2.0f);
-	r(pocket::behavior::rotate, pocket::behavior::x, 30.0f);
-	t(pocket::behavior::translate, 0.0f, 1.0f, 2.0f);
+	s(behavior::scale, 2.0f);
+	r(behavior::rotate, behavior::x, 30.0f);
+	t(behavior::translate, 0.0f, 1.0f, 2.0f);
 
 	cout << s * r * t << endl;
 
@@ -93,24 +95,27 @@ int main(int argc, char** argv)
 	cout << simd::greater_equal(zero, one) << endl;
 	cout << simd::less_equal(zero, one) << endl;
 
-	pocket::vector4f v, d(2.0f, 5.0f, 4.0f, 0.0f);
-	v.from_pitch_yaw(45.0f, 15.0f);
-	cout << v << endl;
-	v += d;
-	cout << v << endl;
-#ifdef _USE_SIMD_ANONYMOUS
-	v.w1();
-	cout << v << endl;
-	pocket::vector4f v2(simd::select1110(v.mm));
-	cout << v2 << endl;
-#endif // _USE_SIMD_ANONYMOUS
+	pocket::float2 f2(5.0f, 1.0f);
+	cout << f2 << endl;
+	pocket::float3 f3a(f2, 2.0f);
+	cout << f3a << endl;
+	pocket::float3 f3b(10.0f, f2);
+	cout << f3b << endl;
+	pocket::float4 f4a(f3a, 100.0f);
+	cout << f4a << endl;
+	pocket::float4 f4b(-10.0f, f2, 100.0f);
+	cout << f4b << endl;
 
-	cout << v.cross(d) << endl;
-
-	pocket::bool2 b = {true, false};
-	cout << b << endl;
-	pocket::float3 f = {4.0f, 1.0f, 5.0f};
-	cout << f << endl;
+	pocket::bool4 b4(true, true, false, true);
+	cout << b4 << endl;
+	pocket::bool3 b3(true, false, true);
+	cout << b3 << endl;
+	pocket::bool2 b2(b3);
+	cout << b2 << endl;
+	pocket::bool2 b2a(b4);
+	cout << b2a << endl;
+	pocket::bool4 b4a(true, b2, false);
+	cout << b4a << endl;
 
 	return 0;
 }

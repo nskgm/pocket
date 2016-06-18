@@ -90,6 +90,9 @@
     <ClInclude Include="container\array.h">
       <Filter>ヘッダー ファイル\container</Filter>
     </ClInclude>
+    <ClInclude Include="fixed_array.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
