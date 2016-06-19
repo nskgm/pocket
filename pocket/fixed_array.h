@@ -71,6 +71,24 @@ struct fixed_array
 
 	array_type data;
 
+	T* address()
+	{
+		return &data[0];
+	}
+	const T* address() const
+	{
+		return &data[0];
+	}
+
+	char* c_address()
+	{
+		return reinterpret_cast<char*>(address());
+	}
+	const char* c_address() const
+	{
+		return reinterpret_cast<const char*>(address());
+	}
+
 	fixed_array& operator = (value_type a)
 	{
 		data.fill(a);
@@ -178,6 +196,57 @@ struct fixed_array<T, 2>
 	fixed_array(const fixed_array<T, 3>&);
 	fixed_array(const fixed_array<T, 4>&);
 
+	T* address()
+	{
+		return &data[0];
+	}
+	const T* address() const
+	{
+		return &data[0];
+	}
+
+	char* c_address()
+	{
+		return reinterpret_cast<char*>(address());
+	}
+	const char* c_address() const
+	{
+		return reinterpret_cast<const char*>(address());
+	}
+
+	bool all(value_type a) const
+	{
+		return x == a && y == a;
+	}
+	bool all(value_type a, value_type b) const
+	{
+		return x == a && y == b;
+	}
+	bool any(value_type a) const
+	{
+		return x == a || y == a;
+	}
+	bool any(value_type a, value_type b) const
+	{
+		return x == a || y == b;
+	}
+	bool none(value_type a) const
+	{
+		return x != a && y != a;
+	}
+	bool none(value_type a, value_type b) const
+	{
+		return x != a && y != b;
+	}
+	bool any_none(value_type a) const
+	{
+		return x != a || y != a;
+	}
+	bool any_none(value_type a, value_type b) const
+	{
+		return x != a || y != b;
+	}
+
 	fixed_array& operator = (value_type a)
 	{
 		x = y = a;
@@ -252,6 +321,57 @@ struct fixed_array<T, 3>
 
 	}
 	fixed_array(const fixed_array<T, 4>&);
+
+	T* address()
+	{
+		return &data[0];
+	}
+	const T* address() const
+	{
+		return &data[0];
+	}
+
+	char* c_address()
+	{
+		return reinterpret_cast<char*>(address());
+	}
+	const char* c_address() const
+	{
+		return reinterpret_cast<const char*>(address());
+	}
+
+	bool all(value_type a) const
+	{
+		return x == a && y == a && z == a;
+	}
+	bool all(value_type a, value_type b, value_type c) const
+	{
+		return x == a && y == b && z == c;
+	}
+	bool any(value_type a) const
+	{
+		return x == a || y == a || z == a;
+	}
+	bool any(value_type a, value_type b, value_type c) const
+	{
+		return x == a || y == b || z == c;
+	}
+	bool none(value_type a) const
+	{
+		return x != a && y != a && z != a;
+	}
+	bool none(value_type a, value_type b, value_type c) const
+	{
+		return x != a && y != b && z != c;
+	}
+	bool any_none(value_type a) const
+	{
+		return x != a || y != a || z != a;
+	}
+	bool any_none(value_type a, value_type b, value_type c) const
+	{
+		return x != a || y != b || z != c;
+	}
 
 	fixed_array& operator = (value_type a)
 	{
@@ -348,6 +468,57 @@ struct fixed_array<T, 4>
 		x(x), y(yzw.x), z(yzw.y), w(yzw.z)
 	{
 
+	}
+
+	T* address()
+	{
+		return &data[0];
+	}
+	const T* address() const
+	{
+		return &data[0];
+	}
+
+	char* c_address()
+	{
+		return reinterpret_cast<char*>(address());
+	}
+	const char* c_address() const
+	{
+		return reinterpret_cast<const char*>(address());
+	}
+
+	bool all(value_type a) const
+	{
+		return x == a && y == a && z == a && w == a;
+	}
+	bool all(value_type a, value_type b, value_type c, value_type d) const
+	{
+		return x == a && y == b && z == c && w == d;
+	}
+	bool any(value_type a) const
+	{
+		return x == a || y == a || z == a || w == a;
+	}
+	bool any(value_type a, value_type b, value_type c, value_type d) const
+	{
+		return x == a || y == b || z == c || w == d;
+	}
+	bool none(value_type a) const
+	{
+		return x != a && y != a && z != a && w == a;
+	}
+	bool none(value_type a, value_type b, value_type c, value_type d) const
+	{
+		return x != a && y != b && z != c && w != d;
+	}
+	bool any_none(value_type a) const
+	{
+		return x != a || y != a || z != a || w == a;
+	}
+	bool any_none(value_type a, value_type b, value_type c, value_type d) const
+	{
+		return x != a || y != b || z != c || w != d;
 	}
 
 	fixed_array& operator = (value_type a)

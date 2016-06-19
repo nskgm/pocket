@@ -648,6 +648,17 @@ struct vector2
 	{
 		return operator=(math_type::half_of_half);
 	}
+	template <typename U>
+	vector2& operator = (const vector2<U>& v)
+	{
+		x = static_cast<T>(v.x);
+		y = static_cast<T>(v.y);
+		return *this;
+	}
+	vector2& operator = (const vector3<T>&);
+	template <typename U> vector2& operator = (const vector3<U>&); // vector3.h
+	vector2& operator = (const vector4<T>&);
+	template <typename U> vector2& operator = (const vector4<U>&); // vector4.h
 
 	/*---------------------------------------------------------------------
 	* 複合演算子

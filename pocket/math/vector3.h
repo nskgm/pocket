@@ -822,6 +822,29 @@ struct vector3
 	{
 		return operator=(math_type::half_of_half);
 	}
+	vector3& operator = (const vector2<T>& v)
+	{
+		x = v.x;
+		y = v.y;
+		return *this;
+	}
+	template <typename U>
+	vector3& operator = (const vector2<U>& v)
+	{
+		x = static_cast<T>(v.x);
+		y = static_cast<T>(v.y);
+		return *this;
+	}
+	template <typename U>
+	vector3& operator = (const vector3<U>& v)
+	{
+		x = static_cast<T>(v.x);
+		y = static_cast<T>(v.y);
+		z = static_cast<T>(v.z);
+		return *this;
+	}
+	vector3& operator = (const vector4<T>&);
+	template <typename U> vector3& operator = (const vector4<U>&); // vector4.h
 
 	/*---------------------------------------------------------------------
 	* 複合演算子
@@ -1159,8 +1182,10 @@ vector3<T> operator * (T f, const vector3<T>& v)
 	return v * f;
 }
 
-// vector2がvector3から値取得をするコンストラクタ
 
+/*---------------------------------------------------------------------
+* vector2
+*---------------------------------------------------------------------*/
 template <typename T> inline
 vector2<T>::vector2(const vector3<T>& v) :
 	x(v.x), y(v.y)
@@ -1182,6 +1207,22 @@ vector3<T> vector2<T>::swizzle(int x, int y, int z) const
 	_DEB_RANGE_ASSERT(y, 0, 2);
 	_DEB_RANGE_ASSERT(z, 0, 2);
 	return vector3<T>((*this)[x], (*this)[y], (*this)[z]);
+}
+
+template <typename T> inline
+vector2<T>& vector2<T>::operator = (const vector3<T>& v)
+{
+	x = v.x;
+	y = v.y;
+	return *this;
+}
+template <typename T>
+template <typename U> inline
+vector2<T>& vector2<T>::operator = (const vector3<U>& v)
+{
+	x = static_cast<T>(v.x);
+	y = static_cast<T>(v.y);
+	return *this;
 }
 
 #ifdef _USING_MATH_IO

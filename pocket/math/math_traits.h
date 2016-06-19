@@ -934,8 +934,8 @@ const T math_traits<T>::deg2rad = math_traits<T>::pi / math_traits<T>::half_angl
 namespace detail
 {
 #ifndef _UNUSING_MATH_INT_FLOAT
-typedef typename math_traits<int>::sin_cos_t math_traits_sin_cos_ti;
-typedef typename math_traits<float>::sin_cos_t math_traits_sin_cos_tf;
+typedef math_traits<int>::sin_cos_t math_traits_sin_cos_ti;
+typedef math_traits<float>::sin_cos_t math_traits_sin_cos_tf;
 #endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
 typedef math_traits<double>::sin_cos_t math_traits_sin_cos_td;

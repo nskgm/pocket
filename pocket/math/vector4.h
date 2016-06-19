@@ -1243,6 +1243,27 @@ struct vector4
 	{
 		return operator=(math_type::half_of_half);
 	}
+	vector4& operator = (const vector2<T>& v)
+	{
+#ifdef _USE_SIMD_ANONYMOUS
+		mm = simd::set(v.x, v.y, z, w);
+#else
+		x = v.x;
+		y = v.y;
+#endif // _USE_SIMD_ANONYMOUS
+		return *this;
+	}
+	template <typename U>
+	vector4& operator = (const vector2<U>& v)
+	{
+#ifdef _USE_SIMD_ANONYMOUS
+		mm = simd::set(static_cast<T>(v.x), static_cast<T>(v.y), z, w);
+#else
+		x = static_cast<T>(v.x);
+		y = static_cast<T>(v.y);
+#endif // _USE_SIMD_ANONYMOUS
+		return *this;
+	}
 	vector4& operator = (const vector3<T>& v)
 	{
 #ifdef _USE_SIMD_ANONYMOUS
@@ -1251,6 +1272,31 @@ struct vector4
 		x = v.x;
 		y = v.y;
 		z = v.z;
+#endif // _USE_SIMD_ANONYMOUS
+		return *this;
+	}
+	template <typename U>
+	vector4& operator = (const vector3<U>& v)
+	{
+#ifdef _USE_SIMD_ANONYMOUS
+		mm = simd::set(static_cast<T>(v.x), static_cast<T>(v.y), static_cast<T>(v.z), w);
+#else
+		x = static_cast<T>(v.x);
+		y = static_cast<T>(v.y);
+		z = static_cast<T>(v.z);
+#endif // _USE_SIMD_ANONYMOUS
+		return *this;
+	}
+	template <typename U>
+	vector4& operator = (const vector4<U>& v)
+	{
+#ifdef _USE_SIMD_ANONYMOUS
+		mm = simd::set(static_cast<T>(v.x), static_cast<T>(v.y), static_cast<T>(v.z), static_cast<T>(v.w));
+#else
+		x = static_cast<T>(v.x);
+		y = static_cast<T>(v.y);
+		z = static_cast<T>(v.z);
+		w = static_cast<T>(v.w);
 #endif // _USE_SIMD_ANONYMOUS
 		return *this;
 	}
@@ -1602,6 +1648,22 @@ vector4<T> vector2<T>::swizzle(int x, int y, int z, int w) const
 	return vector4<T>((*this)[x], (*this)[y], (*this)[z], (*this)[w]);
 }
 
+template <typename T> inline
+vector2<T>& vector2<T>::operator = (const vector4<T>& v)
+{
+	x = v.x;
+	y = v.y;
+	return *this;
+}
+template <typename T>
+template <typename U> inline
+vector2<T>& vector2<T>::operator = (const vector4<U>& v)
+{
+	x = static_cast<T>(v.x);
+	y = static_cast<T>(v.y);
+	return *this;
+}
+
 // vector3がvector4から値を取得するコンストラクタ
 
 template <typename T> inline
@@ -1633,6 +1695,22 @@ vector4<T> vector3<T>::swizzle(int x, int y, int z, int w) const
 {
 	_DEB_ASSERT(x < 3 && y < 3 && z < 3 && w < 3);
 	return vector4<T>((*this)[x], (*this)[y], (*this)[z], (*this)[w]);
+}
+
+template <typename T> inline
+vector3<T>& vector3<T>::operator = (const vector4<T>& v)
+{
+	x = v.x;
+	y = v.y;
+	return *this;
+}
+template <typename T>
+template <typename U> inline
+vector3<T>& vector3<T>::operator = (const vector4<U>& v)
+{
+	x = static_cast<T>(v.x);
+	y = static_cast<T>(v.y);
+	return *this;
 }
 
 #ifdef _USING_MATH_IO

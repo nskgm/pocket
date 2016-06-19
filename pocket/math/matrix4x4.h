@@ -55,7 +55,7 @@ struct matrix4x4
 
 #ifdef _USE_SIMD_ANONYMOUS
 	typedef typename vector4<T>::simd simd;
-	typedef typename simd::type simd_type;
+	typedef typename vector4<T>::simd_type simd_type;
 #endif // _USE_SIMD_ANONYMOUS
 
 	typedef container::array<vector4<T>, 4> array4x4_type;
@@ -213,20 +213,6 @@ struct matrix4x4
 		M[3] = row_type::unit_w;
 #endif // _USE_ANONYMOUS_NON_POD
 	}
-#ifdef _USE_SIMD_ANONYMOUS
-	matrix4x4(simd_type mm1, simd_type mm2, simd_type mm3, simd_type mm4)
-#ifdef _USE_ANONYMOUS_NON_POD
-		: mv0(mm1), mv1(mm2), mv2(mm3), mv3(mm4)
-#endif // _USE_ANONYMOUS_NON_POD
-	{
-#ifndef _USE_ANONYMOUS_NON_POD
-		M[0].mm = mm1;
-		M[1].mm = mm2;
-		M[2].mm = mm3;
-		M[3].mm = mm4;
-#endif // _USE_ANONYMOUS_NON_POD
-	}
-#endif // _USE_SIMD_ANONYMOUS
 
 	/*-----------------------------------------------------------------------------------------
 	* Functions
@@ -1324,11 +1310,7 @@ struct matrix4x4
 	}
 	matrix4x4 operator - () const
 	{
-#ifdef _USE_SIMD_ANONYMOUS
-		return matrix4x4(simd::negate(M[0].mm), simd::negate(M[1].mm), simd::negate(M[2].mm), simd::negate(M[3].mm));
-#else
 		return matrix4x4(-M[0], -M[1], -M[2], -M[3]);
-#endif // _USE_SIMD_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------
@@ -1336,21 +1318,11 @@ struct matrix4x4
 	*---------------------------------------------------------------------*/
 	matrix4x4 operator + (const matrix4x4& m) const
 	{
-#ifdef _USE_SIMD_ANONYMOUS
-		return matrix4x4(simd::add(M[0].mm, m.M[0].mm), simd::add(M[1].mm, m.M[1].mm), simd::add(M[2].mm, m.M[2].mm), simd::add(M[3].mm, m.M[3].mm));
-#else
-		matrix4x4 result(behavior::noinitialize);
-		return add(m, result);
-#endif // _USE_SIMD_ANONYMOUS
+		return matrix4x4(M[0] + m.M[0], M[1] + m.M[1], M[2] + m.M[2], M[3] + m.M[3]);
 	}
 	matrix4x4 operator - (const matrix4x4& m) const
 	{
-#ifdef _USE_SIMD_ANONYMOUS
-		return matrix4x4(simd::sub(M[0].mm, m.M[0].mm), simd::sub(M[1].mm, m.M[1].mm), simd::sub(M[2].mm, m.M[2].mm), simd::sub(M[3].mm, m.M[3].mm));
-#else
-		matrix4x4 result(behavior::noinitialize);
-		return subtract(m, result);
-#endif // _USE_SIMD_ANONYMOUS
+		return matrix4x4(M[0] - m.M[0], M[1] - m.M[1], M[2] - m.M[2], M[3] - m.M[3]);
 	}
 	matrix4x4 operator * (const matrix4x4& m) const
 	{
@@ -1359,24 +1331,13 @@ struct matrix4x4
 	}
 	matrix4x4 operator * (T f) const
 	{
-#ifdef _USE_SIMD_ANONYMOUS
-		const simd_type factor = simd::set(f);
-		return matrix4x4(simd::mul(M[0].mm, factor), simd::mul(M[1].mm, factor), simd::mul(M[2].mm, factor), simd::mul(M[3].mm, factor));
-#else
-		matrix4x4 result(behavior::noinitialize);
-		return multiply(f, result);
-#endif // _USE_SIMD_ANONYMOUS
+		return matrix4x4(M[0] * f, M[1] * f, M[2] * f, M[3] * f);
 	}
 	matrix4x4 operator / (T f) const
 	{
-#ifdef _USE_SIMD_ANONYMOUS
 		_DEB_ASSERT(f != math_type::zero);
-		const simd_type factor = simd::set(math_type::reciprocal(f));
-		return matrix4x4(simd::mul(M[0].mm, factor), simd::mul(M[1].mm, factor), simd::mul(M[2].mm, factor), simd::mul(M[3].mm, factor));
-#else
-		matrix4x4 result(behavior::noinitialize);
-		return divide(f, result);
-#endif // _USE_SIMD_ANONYMOUS
+		T r = math_type::reciprocal(f);
+		return matrix4x4(M[0] * r, M[1] * r, M[2] * r, M[3] * r);
 	}
 
 	/*---------------------------------------------------------------------

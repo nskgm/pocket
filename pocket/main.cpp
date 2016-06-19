@@ -78,14 +78,14 @@ int main(int argc, char** argv)
 	pocket::matrix4x4f m4(behavior::identity);
 	pocket::quaternionf q(behavior::identity);
 	pocket::rectanglef r(640.0f, 480.0f);
-	pocket::colorf c(0.5f);
+	pocket::colorf c(0xFF007FFF);
 	pocket::planef p(behavior::down, 40.0f);
 	pocket::math_traitsf::sin_cos_t sc = 30.0f;
 	pocket::ray3f r2(pocket::vector3f::up);
 	pocket::line3f l(r2, 50.0f);
 
 	pocket::frustumf::look_at_t la(pocket::vector3f(0.0f, 0.0f, 10.0f), pocket::vector3f::zero);
-	pocket::frustumf::projection_field_of_view_t fov(45.0f, 16.0f / 9.0f, 0.1f, 100.0f);
+	pocket::frustumf::projection_field_of_view_t fov(45.0f, r.aspect(), 0.1f, 100.0f);
 	pocket::frustumf f(la, fov);
 
 	cout <<
@@ -110,6 +110,19 @@ int main(int argc, char** argv)
 	cout << simd::equal(zero, zero) << endl;
 	cout << simd::greater_equal(zero, one) << endl;
 	cout << simd::less_equal(zero, one) << endl;
+
+#define __PMX 'P', 'M', 'X'
+	pocket::byte3 b4(__PMX);
+	cout << b4 << endl;
+	cout << b4.all(__PMX) << endl;
+	cout << b4.all('P') << endl;
+	cout << b4.any(__PMX) << endl;
+	cout << b4.any('M') << endl;
+	cout << b4.none(__PMX) << endl;
+	cout << b4.any_none('P', 'm', 'd') << endl;
+	cout << sizeof(pocket::byte2) << endl;
+	cout << sizeof(pocket::byte3) << endl;
+	cout << sizeof(pocket::byte4) << endl;
 
 	return 0;
 }

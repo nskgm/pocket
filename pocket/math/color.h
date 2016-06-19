@@ -46,6 +46,8 @@ struct color
 	typedef typename array_type::reference reference;
 	typedef typename array_type::const_reference const_reference;
 
+	typedef typename math_type::value_int_type int_type;
+
 	/*------------------------------------------------------------------------------------------
 	* Members
 	*------------------------------------------------------------------------------------------*/
@@ -122,7 +124,7 @@ struct color
 	{
 
 	}
-	color(uint32_t bytes) :
+	color(int_type bytes) :
 		r(color::byte_to_float_r(bytes)),
 		g(color::byte_to_float_g(bytes)),
 		b(color::byte_to_float_b(bytes)),
@@ -272,9 +274,12 @@ struct color
 	/*---------------------------------------------------------------------
 	* html形式のバイトへ変換
 	*---------------------------------------------------------------------*/
-	uint32_t to_bytes() const
+	int_type to_bytes() const
 	{
-		return ((color::float_to_byte(r) << 24) | (color::float_to_byte(g) << 16) | (color::float_to_byte(b) << 8) | color::float_to_byte(a));
+		return ((color::float_to_byte(r) << 24) |
+			(color::float_to_byte(g) << 16) |
+			(color::float_to_byte(b) << 8) |
+			color::float_to_byte(a));
 	}
 
 	/*---------------------------------------------------------------------
@@ -288,19 +293,19 @@ struct color
 	/*---------------------------------------------------------------------
 	* html形式配色値から値の変換
 	*---------------------------------------------------------------------*/
-	static inline T byte_to_float_r(uint32_t bytes)
+	static inline T byte_to_float_r(int_type bytes)
 	{
 		return static_cast<T>((bytes >> 24) & 0xFF) * color::byte2float;
 	}
-	static inline T byte_to_float_g(uint32_t bytes)
+	static inline T byte_to_float_g(int_type bytes)
 	{
 		return static_cast<T>((bytes >> 16) & 0xFF) * color::byte2float;
 	}
-	static inline T byte_to_float_b(uint32_t bytes)
+	static inline T byte_to_float_b(int_type bytes)
 	{
 		return static_cast<T>((bytes >> 8) & 0xFF) * color::byte2float;
 	}
-	static inline T byte_to_float_a(uint32_t bytes)
+	static inline T byte_to_float_a(int_type bytes)
 	{
 		return static_cast<T>(bytes & 0xFF) * color::byte2float;
 	}

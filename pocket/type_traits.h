@@ -124,6 +124,7 @@ struct remove_cv_reference
 *---------------------------------------------------------------------*/
 #if _VCXX_VER(14) || _CXX_VER(11)
 using std::integral_constant;
+
 #else
 // VC++12には存在していない
 template <typename T, T N>
