@@ -1897,24 +1897,9 @@ quaternion<T>& quaternion<T>::from_matrix(const matrix4x4<T>& m)
 template <typename T> inline
 matrix3x3<T>::matrix3x3(const matrix4x4<T>& m)
 {
-	const vector4<T>* m0 = &m[0];
-	const vector4<T>* m1 = &m[1];
-	const vector4<T>* m2 = &m[2];
-	vector3<T>* p0 = &M[0];
-	vector3<T>* p1 = &M[1];
-	vector3<T>* p2 = &M[2];
-
-	p0->x = m0->x;
-	p0->y = m0->y;
-	p0->z = m0->z;
-
-	p1->x = m1->x;
-	p1->y = m1->y;
-	p1->z = m1->z;
-
-	p2->x = m2->x;
-	p2->y = m2->y;
-	p2->z = m2->z;
+	M[0] = m[0];
+	M[1] = m[1];
+	M[2] = m[2];
 }
 
 #ifdef _USING_MATH_IO

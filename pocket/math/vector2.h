@@ -151,6 +151,11 @@ struct vector2
 	{
 
 	}
+	explicit vector2(const T* p) :
+		x(p[0]), y(p[1])
+	{
+
+	}
 
 	explicit vector2(const vector3<T>&);
 	template <typename U> explicit vector2(const vector3<U>&); // vector3.h

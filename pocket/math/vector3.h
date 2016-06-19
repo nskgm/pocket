@@ -230,6 +230,16 @@ struct vector3
 	{
 
 	}
+	vector3(const T* p) :
+#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+		x(p[0]), y(p[1]),
+#else
+		xy(p[0], p[1]),
+#endif
+		z(p[2])
+	{
+
+	}
 
 	explicit vector3(const vector4<T>&);
 	template <typename U> explicit vector3(const vector4<U>&); // vector4.h

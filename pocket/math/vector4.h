@@ -418,6 +418,20 @@ struct vector4
 	{
 
 	}
+	explicit vector4(const T* p) :
+#ifdef _USE_SIMD_ANONYMOUS
+		mm(simd::load(p))
+#else
+#	ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+		x(p[0]), y(p[1]), z(p[2]),
+#	else
+		xyz(p[0], p[1], p[2]),
+#	endif
+		w(p[3])
+#endif // _USE_SIMD_ANONYMOUS
+	{
+
+	}
 #ifdef _USE_SIMD_ANONYMOUS
 	vector4(simd_type mm) :
 		mm(mm)
@@ -1651,8 +1665,13 @@ vector4<T> vector2<T>::swizzle(int x, int y, int z, int w) const
 template <typename T> inline
 vector2<T>& vector2<T>::operator = (const vector4<T>& v)
 {
+#ifdef _USE_SIMD_ANONYMOUS
+	typedef simd_traits<T> simd;
+	simd::store2(&x, &y, v.mm);
+#else
 	x = v.x;
 	y = v.y;
+#endif // _USE_SIMD_ANONYMOUS
 	return *this;
 }
 template <typename T>
@@ -1700,8 +1719,14 @@ vector4<T> vector3<T>::swizzle(int x, int y, int z, int w) const
 template <typename T> inline
 vector3<T>& vector3<T>::operator = (const vector4<T>& v)
 {
+#ifdef _USE_SIMD_ANONYMOUS
+	typedef simd_traits<T> simd;
+	simd::store3(&x, &y, &z, v.mm);
+#else
 	x = v.x;
 	y = v.y;
+	z = v.z;
+#endif // _USE_SIMD_ANONYMOUS
 	return *this;
 }
 template <typename T>
@@ -1710,6 +1735,7 @@ vector3<T>& vector3<T>::operator = (const vector4<U>& v)
 {
 	x = static_cast<T>(v.x);
 	y = static_cast<T>(v.y);
+	z = static_cast<T>(v.z);
 	return *this;
 }
 
