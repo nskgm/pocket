@@ -1,5 +1,5 @@
-﻿#ifndef __POCKET_MATH_SIMD_H__
-#define __POCKET_MATH_SIMD_H__
+﻿#ifndef __POCKET_MATH_SIMD_TRAITS_H__
+#define __POCKET_MATH_SIMD_TRAITS_H__
 
 #include "../config.h"
 #ifdef _USE_PRAGMA_ONCE
@@ -1377,4 +1377,4 @@ std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, 
 
 #endif // _USE_SIMD
 
-#endif // __POCKET_MATH_SIMD_H__
+#endif // __POCKET_MATH_SIMD_TRAITS_H__

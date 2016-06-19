@@ -1,5 +1,5 @@
-﻿#ifndef __POCKET_MATH_MATH_H__
-#define __POCKET_MATH_MATH_H__
+﻿#ifndef __POCKET_MATH_MATH_TRAITS_H__
+#define __POCKET_MATH_MATH_TRAITS_H__
 
 #include "../config.h"
 #ifdef _USE_PRAGMA_ONCE
@@ -225,9 +225,9 @@ struct math_traits
 		sc.sin = math_traits::sin(deg);
 		sc.cos = math_traits::cos(deg);
 	}
-	static inline typename math_traits::sin_cos_t sin_cos(T deg)
+	static inline sin_cos_t sin_cos(T deg)
 	{
-		return typename math_traits::sin_cos_t(math_traits::sin(deg), math_traits::cos(deg));
+		return sin_cos_t(math_traits::sin(deg), math_traits::cos(deg));
 	}
 
 	/*---------------------------------------------------------------------
@@ -1090,4 +1090,4 @@ pocket::vector4<T> operator * (const T& f, const pocket::behavior::_vec4_t&)
 }
 #endif // _USE_CXX11
 
-#endif // __POCKET_MATH_MATH_H__
+#endif // __POCKET_MATH_MATH_TRAITS_H__

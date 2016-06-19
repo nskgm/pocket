@@ -219,7 +219,7 @@ struct frustum
 	{
 		matrix4x4_type view(behavior::noinitialize), proj(behavior::noinitialize);
 		view.load_lookat(lookat.eye, lookat.center, lookat.up);
-		proj.load_perspective_field_of_view(fov.fovy, fov.aspect, fov.near, fov.far);
+		proj.load_perspective_field_of_view(fov.fovy, fov.aspect, fov.n, fov.f);
 
 		return from_view_projection_matrix(view, proj);
 	}
@@ -258,12 +258,12 @@ struct frustum
 
 		// 上
 		plane_type& p2 = planes[2];
-		p2 = plane_type(v0.w - v0.y, v1.w - v1.y, v2.w - v2.y; v3.w - v3.y);
+		p2 = plane_type(v0.w - v0.y, v1.w - v1.y, v2.w - v2.y, v3.w - v3.y);
 		p2.normalize();
 
 		// 下
 		plane_type& p3 = planes[3];
-		p3 = plane_type(v0.w + v0.y, v1.w + v1.y, v2.w + v2.y; v3.w + v3.y);
+		p3 = plane_type(v0.w + v0.y, v1.w + v1.y, v2.w + v2.y, v3.w + v3.y);
 		p3.normalize();
 
 		// 近

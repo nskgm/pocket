@@ -63,29 +63,45 @@ private:
 int main(int argc, char** argv)
 {
 	cout << std::fixed << std::boolalpha << std::showpos;
+	std::setw(2);
 	//const long N = LONG_MAX / 10;
 
 	pocket::container::array<int, 3> ary = {0, 1, 20};
 	cout << ary << endl;
 
-	cout << pocket::vector2f::unit_x << endl
-		<< pocket::vector3f::unit_y << endl
-		<< pocket::vector4f::unit_z << endl
-		<< pocket::matrix3x3f::identity << endl
-		<< pocket::matrix4x4f::identity << endl
-		<< pocket::quaternionf::identity << endl
-		<< pocket::rectanglef(0.0f, 320.0f, 0.0f, 240.0f) << endl
-		<< pocket::colorf::white << endl
-		<< pocket::math_traitsf::sin_cos_t(320.0f) << endl << endl
-		<< pocket::planef::up << endl;
-
 	namespace behavior = pocket::behavior;
-	pocket::matrix4x4f s, r, t;
-	s(behavior::scale, 2.0f);
-	r(behavior::rotate, behavior::x, 30.0f);
-	t(behavior::translate, 0.0f, 1.0f, 2.0f);
 
-	cout << s * r * t << endl;
+	pocket::vector2f v2(behavior::zero);
+	pocket::vector3f v3(behavior::zero);
+	pocket::vector4f v4(behavior::zero);
+	pocket::matrix3x3f m3(behavior::identity);
+	pocket::matrix4x4f m4(behavior::identity);
+	pocket::quaternionf q(behavior::identity);
+	pocket::rectanglef r(640.0f, 480.0f);
+	pocket::colorf c(0.5f);
+	pocket::planef p(behavior::down, 40.0f);
+	pocket::math_traitsf::sin_cos_t sc = 30.0f;
+	pocket::ray3f r2(pocket::vector3f::up);
+	pocket::line3f l(r2, 50.0f);
+
+	pocket::frustumf::look_at_t la(pocket::vector3f(0.0f, 0.0f, 10.0f), pocket::vector3f::zero);
+	pocket::frustumf::projection_field_of_view_t fov(45.0f, 16.0f / 9.0f, 0.1f, 100.0f);
+	pocket::frustumf f(la, fov);
+
+	cout <<
+		v2 << endl <<
+		v3 << endl <<
+		v4 << endl <<
+		m3 << endl <<
+		m4 << endl <<
+		q << endl <<
+		r << endl <<
+		c << endl <<
+		p << endl <<
+		sc << endl <<
+		f << endl <<
+		r2 << endl <<
+		l << endl;
 
 	typedef pocket::simd_traits<float> simd;
 	cout << simd::is_vectorize() << endl;
@@ -94,28 +110,6 @@ int main(int argc, char** argv)
 	cout << simd::equal(zero, zero) << endl;
 	cout << simd::greater_equal(zero, one) << endl;
 	cout << simd::less_equal(zero, one) << endl;
-
-	pocket::float2 f2(5.0f, 1.0f);
-	cout << f2 << endl;
-	pocket::float3 f3a(f2, 2.0f);
-	cout << f3a << endl;
-	pocket::float3 f3b(10.0f, f2);
-	cout << f3b << endl;
-	pocket::float4 f4a(f3a, 100.0f);
-	cout << f4a << endl;
-	pocket::float4 f4b(-10.0f, f2, 100.0f);
-	cout << f4b << endl;
-
-	pocket::bool4 b4(true, true, false, true);
-	cout << b4 << endl;
-	pocket::bool3 b3(true, false, true);
-	cout << b3 << endl;
-	pocket::bool2 b2(b3);
-	cout << b2 << endl;
-	pocket::bool2 b2a(b4);
-	cout << b2a << endl;
-	pocket::bool4 b4a(true, b2, false);
-	cout << b4a << endl;
 
 	return 0;
 }

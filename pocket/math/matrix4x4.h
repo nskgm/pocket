@@ -776,7 +776,7 @@ struct matrix4x4
 
 		t = math_type::reciprocal(f - n);
 
-		row_type& r2 = &M[2];
+		row_type& r2 = M[2];
 		r2.z = (f + n) * t;
 		r2.w = -math_type::one;
 
@@ -806,7 +806,7 @@ struct matrix4x4
 		M[1].y = math_type::two * dy;
 		M[2].z = -math_type::two * dz; // 右手特有
 
-		row_type& r3 = &M[3];
+		row_type& r3 = M[3];
 		r3.x = -(right + left) * dx;
 		r3.y = -(bottom + top) * dy;
 		r3.z = -(far + near) * dz;
@@ -831,7 +831,7 @@ struct matrix4x4
 		M[1].y = math_type::two * dy;
 		M[2].z = -math_type::one;
 
-		row_type& r3 = &M[3];
+		row_type& r3 = M[3];
 		r3.x = -(right + left) * dx;
 		r3.y = -(bottom + top) * dy;
 
