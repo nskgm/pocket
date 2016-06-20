@@ -400,7 +400,47 @@ struct vector2
 	{
 		return vector2(math_type::clamp01(x), math_type::clamp01(y));
 	}
-	
+
+	/*---------------------------------------------------------------------
+	* 最大値にする
+	*---------------------------------------------------------------------*/
+	vector2& maximize(const vector2& v)
+	{
+		x = math_type::max(x, v.x);
+		y = math_type::max(y, v.y);
+		return *this;
+	}
+	vector2& maximize(const vector2& v, vector2& result) const
+	{
+		result.x = math_type::max(x, v.x);
+		result.y = math_type::max(y, v.y);
+		return result;
+	}
+	vector2 maximized(const vector2& v) const
+	{
+		return vector2(math_type::max(x, v.x), math_type::max(y, v.y));
+	}
+
+	/*---------------------------------------------------------------------
+	* 最小値にする
+	*---------------------------------------------------------------------*/
+	vector2& minimize(const vector2& v)
+	{
+		x = math_type::min(x, v.x);
+		y = math_type::min(y, v.y);
+		return *this;
+	}
+	vector2& minimize(const vector2& v, vector2& result) const
+	{
+		result.x = math_type::min(x, v.x);
+		result.y = math_type::min(y, v.y);
+		return result;
+	}
+	vector2 minimized(const vector2& v) const
+	{
+		return vector2(math_type::min(x, v.x), math_type::min(y, v.y));
+	}
+
 	/*---------------------------------------------------------------------
 	* 角度を求める
 	*---------------------------------------------------------------------*/

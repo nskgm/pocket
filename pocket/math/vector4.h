@@ -14,7 +14,7 @@
 #include "vector3.h"
 #ifdef _USE_SIMD_ANONYMOUS
 #include "simd_traits.h"
-#endif // _USE_SIMD_ANONYMOUS_ANONYMOUS
+#endif // _USE_SIMD_ANONYMOUS
 #ifdef _USING_MATH_IO
 #include "../io.h"
 #endif // _USING_MATH_IO
@@ -60,7 +60,7 @@ struct vector4
 #ifdef _USE_SIMD_ANONYMOUS
 	typedef simd_traits<T> simd;
 	typedef typename simd::type simd_type;
-#endif // _USE_SIMD_ANONYMOUS_ANONYMOUS
+#endif // _USE_SIMD_ANONYMOUS
 
 	/*-----------------------------------------------------------------------------------------
 	* Members
@@ -96,7 +96,7 @@ struct vector4
 #ifdef _USE_SIMD_ANONYMOUS
 		// simdが使用できる場合は演算に使用する
 		simd_type mm;
-#endif // _USE_SIMD_ANONYMOUS_ANONYMOUS
+#endif // _USE_SIMD_ANONYMOUS
 
 		array_type data;
 	};
@@ -438,7 +438,7 @@ struct vector4
 	{
 
 	}
-#endif // _USE_SIMD_ANONYMOUS_ANONYMOUS
+#endif // _USE_SIMD_ANONYMOUS
 
 	/*-----------------------------------------------------------------------------------------
 	* Functions
@@ -605,7 +605,7 @@ struct vector4
 		return simd::equal(mm, vector4::zero.mm);
 #else
 		return (x == math_type::zero && y == math_type::zero && z == math_type::zero && w == math_type::zero);
-#endif // _USE_SIMD_ANONYMOUS_ANONYMOUS
+#endif // _USE_SIMD_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------
@@ -660,7 +660,7 @@ struct vector4
 		const vector4 t(simd::select1110(simd::sub(mm, v.mm)));
 #else
 		const vector4 t(x - v.x, y - v.y, z - v.z, math_type::zero);
-#endif // _USE_SIMD_ANONYMOUS_ANONYMOUS
+#endif // _USE_SIMD_ANONYMOUS
 		return t.length();
 	}
 	/*---------------------------------------------------------------------
@@ -672,7 +672,7 @@ struct vector4
 		vector4 t(simd::select1110(simd::sub(to.mm, mm)));
 #else
 		vector4 t(to.x - x, to.y - y, to.z - z, math_type::zero);
-#endif // _USE_SIMD_ANONYMOUS_ANONYMOUS
+#endif // _USE_SIMD_ANONYMOUS
 		return t.normalize();
 	}
 	vector4& direction(const vector4& to, vector4& result) const
@@ -684,7 +684,7 @@ struct vector4
 		result.y = to.y - y;
 		result.z = to.z - z;
 		result.w = math_type::zero;
-#endif // _USE_SIMD_ANONYMOUS_ANONYMOUS
+#endif // _USE_SIMD_ANONYMOUS
 		return result.normalize();
 	}
 	/*---------------------------------------------------------------------
@@ -887,6 +887,79 @@ struct vector4
 			math_type::clamp01(w));
 #endif // _USE_SIMD_ANONYMOUS
 	}
+
+	/*---------------------------------------------------------------------
+	* 最大値にする
+	*---------------------------------------------------------------------*/
+	vector4& maximize(const vector4& v)
+	{
+#ifdef _USE_SIMD_ANONYMOUS
+		mm = simd::max(mm, v.mm);
+#else
+		x = math_type::max(x, v.x);
+		y = math_type::max(y, v.y);
+		z = math_type::max(z, v.z);
+		w = math_type::max(w, v.w);
+#endif // _USE_SIMD_ANONYMOUS
+		return *this;
+	}
+	vector4& maximize(const vector4& v, vector4& result) const
+	{
+#ifdef _USE_SIMD_ANONYMOUS
+		result.mm = simd::max(mm, v.mm);
+#else
+		result.x = math_type::max(x, v.x);
+		result.y = math_type::max(y, v.y);
+		result.z = math_type::max(z, v.z);
+		result.w = math_type::max(w, v.w);
+#endif // _USE_SIMD_ANONYMOUS
+		return result;
+	}
+	vector4 maximized(const vector4& v) const
+	{
+#ifdef _USE_SIMD_ANONYMOUS
+		return vector4(simd::max(mm, v.mm));
+#else
+		return vector4(math_type::max(x, v.x), math_type::max(y, v.y), math_type::max(z, v.z), math_type::max(w, v.w));
+#endif // _USE_SIMD_ANONYMOUS
+	}
+
+	/*---------------------------------------------------------------------
+	* 最小値にする
+	*---------------------------------------------------------------------*/
+	vector4& minimize(const vector4& v)
+	{
+#ifdef _USE_SIMD_ANONYMOUS
+		mm = simd::min(mm, v.mm);
+#else
+		x = math_type::min(x, v.x);
+		y = math_type::min(y, v.y);
+		z = math_type::min(z, v.z);
+		w = math_type::min(w, v.w);
+#endif // _USE_SIMD_ANONYMOUS
+		return *this;
+	}
+	vector4& minimize(const vector4& v, vector4& result) const
+	{
+#ifdef _USE_SIMD_ANONYMOUS
+		result.mm = simd::min(mm, v.mm);
+#else
+		result.x = math_type::min(x, v.x);
+		result.y = math_type::min(y, v.y);
+		result.z = math_type::min(z, v.z);
+		result.w = math_type::min(w, v.w);
+#endif // _USE_SIMD_ANONYMOUS
+		return result;
+	}
+	vector4 minimized(const vector4& v) const
+	{
+#ifdef _USE_SIMD_ANONYMOUS
+		return vector4(simd::min(mm, v.mm));
+#else
+		return vector4(math_type::min(x, v.x), math_type::min(y, v.y), math_type::min(z, v.z), math_type::min(w, v.w));
+#endif // _USE_SIMD_ANONYMOUS
+	}
+
 	/*---------------------------------------------------------------------
 	* x軸回転角度を求める
 	*---------------------------------------------------------------------*/
@@ -919,7 +992,7 @@ struct vector4
 	vector4& transform(const matrix4x4<T>&); // matrix4x4.h
 	vector4& transform(const matrix4x4<T>&, vector4& result) const;
 	vector4 transformed(const matrix4x4<T>&) const;
-	vector4& transform_coord(const matrix4x4<T>&); // matrix4x4.h
+	vector4& transform_coord(const matrix4x4<T>&);
 	vector4& transform_coord(const matrix4x4<T>&, vector4& result) const;
 	vector4 transformed_coord(const matrix4x4<T>&) const;
 	/*---------------------------------------------------------------------
@@ -1049,7 +1122,7 @@ struct vector4
 		return simd::equal(mm, v.mm);
 #else
 		return (x == v.x) && (y == v.y) && (z == v.z) && (w == v.w);
-#endif // _USE_SIMD_ANONYMOUS_ANONYMOUS
+#endif // _USE_SIMD_ANONYMOUS
 	}
 	bool operator != (const vector4& v) const
 	{
@@ -1061,7 +1134,7 @@ struct vector4
 		return simd::less(mm, v.mm);
 #else
 		return x < v.x && y < v.y && z < v.z && w < v.w;
-#endif // _USE_SIMD_ANONYMOUS_ANONYMOUS
+#endif // _USE_SIMD_ANONYMOUS
 	}
 	bool operator <= (const vector4& v) const
 	{
@@ -1069,7 +1142,7 @@ struct vector4
 		return simd::less_equal(mm, v.mm);
 #else
 		return x <= v.x && y <= v.y && z <= v.z && w <= v.w;
-#endif // _USE_SIMD_ANONYMOUS_ANONYMOUS
+#endif // _USE_SIMD_ANONYMOUS
 	}
 	bool operator > (const vector4& v) const
 	{
@@ -1077,7 +1150,7 @@ struct vector4
 		return simd::greater(mm, v.mm);
 #else
 		return x > v.x && y > v.y && z > v.z && w > v.w;
-#endif // _USE_SIMD_ANONYMOUS_ANONYMOUS
+#endif // _USE_SIMD_ANONYMOUS
 	}
 	bool operator >= (const vector4& v) const
 	{
@@ -1085,7 +1158,7 @@ struct vector4
 		return simd::greater_equal(mm, v.mm);
 #else
 		return x >= v.x && y >= v.y && z >= v.z && w >= v.w;
-#endif // _USE_SIMD_ANONYMOUS_ANONYMOUS
+#endif // _USE_SIMD_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------
@@ -1112,7 +1185,7 @@ struct vector4
 		++y;
 		++z;
 		++w;
-#endif // _USE_SIMD_ANONYMOUS_ANONYMOUS
+#endif // _USE_SIMD_ANONYMOUS
 		return *this;
 	}
 	vector4 operator ++ (int)
@@ -1130,7 +1203,7 @@ struct vector4
 		--y;
 		--z;
 		--w;
-#endif // _USE_SIMD_ANONYMOUS_ANONYMOUS
+#endif // _USE_SIMD_ANONYMOUS
 		return *this;
 	}
 	vector4 operator -- (int)
@@ -1231,7 +1304,7 @@ struct vector4
 		mm = simd::set(f);
 #else
 		x = y = z = w = f;
-#endif // _USE_SIMD_ANONYMOUS_ANONYMOUS
+#endif // _USE_SIMD_ANONYMOUS
 		return *this;
 	}
 	template <typename U, _TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>

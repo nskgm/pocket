@@ -391,6 +391,17 @@ struct simd_traits
 		return mm.mm[INDEX];
 	}
 	template <int X, int Y, int Z, int W>
+	static _INLINE_FORCE type shuffle(type_const_reference mm1, type_const_reference mm2)
+	{
+		type result = {
+			mm1.mm[X],
+			mm1.mm[Y],
+			mm2.mm[Z],
+			mm2.mm[W]
+		};
+		return result;
+	}
+	template <int X, int Y, int Z, int W>
 	static _INLINE_FORCE type permute(type_const_reference mm)
 	{
 		type result = {
@@ -401,14 +412,43 @@ struct simd_traits
 		};
 		return result;
 	}
-	template <int I>
-	static _INLINE_FORCE type permute(type_const_reference mm)
+	static _INLINE_FORCE type permute_x(type_const_reference mm)
 	{
 		type result = {
-			mm.mm[I],
-			mm.mm[I],
-			mm.mm[I],
-			mm.mm[I]
+			mm.mm[0],
+			mm.mm[0],
+			mm.mm[0],
+			mm.mm[0]
+		};
+		return result;
+	}
+	static _INLINE_FORCE type permute_y(type_const_reference mm)
+	{
+		type result = {
+			mm.mm[1],
+			mm.mm[1],
+			mm.mm[1],
+			mm.mm[1]
+		};
+		return result;
+	}
+	static _INLINE_FORCE type permute_z(type_const_reference mm)
+	{
+		type result = {
+			mm.mm[2],
+			mm.mm[2],
+			mm.mm[2],
+			mm.mm[2]
+		};
+		return result;
+	}
+	static _INLINE_FORCE type permute_w(type_const_reference mm)
+	{
+		type result = {
+			mm.mm[3],
+			mm.mm[3],
+			mm.mm[3],
+			mm.mm[3]
 		};
 		return result;
 	}
@@ -992,6 +1032,11 @@ struct simd_traits<float>
 		return _mm_cvtss_f32(simd_traits::template permute<INDEX>(mm));
 	}
 	template <int X, int Y, int Z, int W>
+	static _INLINE_FORCE type shuffle(type mm1, type mm2)
+	{
+		return _mm_shuffle_ps(mm1, mm2, _MM_SHUFFLE(W, Z, Y, X));
+	}
+	template <int X, int Y, int Z, int W>
 	static _INLINE_FORCE type permute(type mm)
 	{
 #ifdef _USE_SIMD_256
@@ -1000,13 +1045,36 @@ struct simd_traits<float>
 		return _mm_shuffle_ps(mm, mm, _MM_SHUFFLE(W, Z, Y, X));
 #endif // _USE_SIMD_256
 	}
-	template <int I>
-	static _INLINE_FORCE type permute(type mm)
+	static _INLINE_FORCE type permute_x(type mm)
 	{
 #ifdef _USE_SIMD_256
-		return _mm_permute_ps(mm, _MM_SHUFFLE(I, I, I, I));
+		return _mm_permute_ps(mm, _MM_SHUFFLE(0, 0, 0, 0));
 #else
-		return _mm_shuffle_ps(mm, mm, _MM_SHUFFLE(I, I, I, I));
+		return _mm_shuffle_ps(mm, mm, _MM_SHUFFLE(0, 0, 0, 0));
+#endif // _USE_SIMD_256
+	}
+	static _INLINE_FORCE type permute_y(type mm)
+	{
+#ifdef _USE_SIMD_256
+		return _mm_permute_ps(mm, _MM_SHUFFLE(1, 1, 1, 1));
+#else
+		return _mm_shuffle_ps(mm, mm, _MM_SHUFFLE(1, 1, 1, 1));
+#endif // _USE_SIMD_256
+	}
+	static _INLINE_FORCE type permute_z(type mm)
+	{
+#ifdef _USE_SIMD_256
+		return _mm_permute_ps(mm, _MM_SHUFFLE(2, 2, 2, 2));
+#else
+		return _mm_shuffle_ps(mm, mm, _MM_SHUFFLE(2, 2, 2, 2));
+#endif // _USE_SIMD_256
+	}
+	static _INLINE_FORCE type permute_w(type mm)
+	{
+#ifdef _USE_SIMD_256
+		return _mm_permute_ps(mm, _MM_SHUFFLE(3, 3, 3, 3));
+#else
+		return _mm_shuffle_ps(mm, mm, _MM_SHUFFLE(3, 3, 3, 3));
 #endif // _USE_SIMD_256
 	}
 

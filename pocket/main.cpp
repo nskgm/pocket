@@ -71,14 +71,14 @@ int main(int argc, char** argv)
 
 	namespace behavior = pocket::behavior;
 
-	pocket::vector2f v2(behavior::zero);
-	pocket::vector3f v3(behavior::zero);
-	pocket::vector4f v4(behavior::zero);
+	pocket::vector2f v2(behavior::half_of_half);
+	pocket::vector3f v3(behavior::half);
+	pocket::vector4f v4(behavior::zero, behavior::position);
 	pocket::matrix3x3f m3(behavior::identity);
 	pocket::matrix4x4f m4(behavior::identity);
 	pocket::quaternionf q(behavior::identity);
 	pocket::rectanglef r(640.0f, 480.0f);
-	pocket::colorf c(0xFF007FFF);
+	pocket::colorf c(0xFF0080FF);
 	pocket::planef p(behavior::down, 40.0f);
 	pocket::math_traitsf::sin_cos_t sc = 30.0f;
 	pocket::ray3f r2(pocket::vector3f::up);
@@ -88,41 +88,52 @@ int main(int argc, char** argv)
 	pocket::frustumf::projection_field_of_view_t fov(45.0f, r.aspect(), 0.1f, 100.0f);
 	pocket::frustumf f(la, fov);
 
-	cout <<
-		v2 << endl <<
-		v3 << endl <<
-		v4 << endl <<
-		m3 << endl <<
-		m4 << endl <<
-		q << endl <<
-		r << endl <<
-		c << endl <<
-		p << endl <<
-		sc << endl <<
-		f << endl <<
-		r2 << endl <<
-		l << endl;
+	cout << endl << "--------------------" << endl <<
+		"vector2(half_of_half):" << v2 << endl <<
+		"vector3(half): " << v3 << endl <<
+		"vector4(zero, position): " << v4 << endl <<
+		"matrix3x3(identity): " << m3 << endl <<
+		"matrix4x4(identity): " << m4 << endl <<
+		"quaternion(identity): " << q << endl <<
+		"rectangle(640, 480): " << r << endl <<
+		"color(0xFF0080FF): " << c << endl <<
+		"plane(down, 40): " << p << endl <<
+		"sin_cos_t(30): " << sc << endl <<
+		"ray3(up): " << r2 << endl <<
+		"line3(ray3, 50): " << l << endl <<
+		"frustum: " << f << endl <<
+		"--------------------" << endl << endl;
+
+	pocket::vector4f a(3.0f, -1.0f, 5.0f, -10.0f);
+	a.minimize(v4);
+	cout << "minimize(zero, (3, -1, 5, -10)): " << a << endl << endl;
 
 	typedef pocket::simd_traits<float> simd;
-	cout << simd::is_vectorize() << endl;
 	simd::type zero = simd::zero();
 	simd::type one = simd::one();
-	cout << simd::equal(zero, zero) << endl;
-	cout << simd::greater_equal(zero, one) << endl;
-	cout << simd::less_equal(zero, one) << endl;
+	simd::type set = simd::set(4.0f, 2.0f, 5.0f, 3.0f);
+	simd::type set2 = simd::set(14.0f, 12.0f, 15.0f, 13.0f);
+	cout << "-----simd-----" << endl <<
+		"is_vectorize: " << simd::is_vectorize() << endl <<
+		"set(4, 2, 5, 3): " << set << endl <<
+		"set2(14, 12, 15, 13): " << set2 << endl <<
+		"permute_y: " << simd::permute_y(set) << endl <<
+		"shuffle<1, 0, 2, 1>(set, set2): " << simd::shuffle<1, 0, 3, 2>(set, set2) << endl <<
+		"equal(zero, zero): " << simd::equal(zero, zero) << endl <<
+		"greater_equal(zero, one): " << simd::greater_equal(zero, one) << endl <<
+		"less_equal(zero, one): " << simd::less_equal(zero, one) << endl <<
+		"---------------" << endl;
 
-#define __PMX 'P', 'M', 'X'
-	pocket::byte3 b4(__PMX);
-	cout << b4 << endl;
-	cout << b4.all(__PMX) << endl;
-	cout << b4.all('P') << endl;
-	cout << b4.any(__PMX) << endl;
-	cout << b4.any('M') << endl;
-	cout << b4.none(__PMX) << endl;
-	cout << b4.any_none('P', 'm', 'd') << endl;
-	cout << sizeof(pocket::byte2) << endl;
-	cout << sizeof(pocket::byte3) << endl;
-	cout << sizeof(pocket::byte4) << endl;
+	pocket::bool4 b4(true, false, false, true);
+	pocket::int4 i4(0, 1, 2, 3);
+	pocket::float4 f4(1.0f, 2.0f, 5.0f, 3.0f);
+	pocket::byte4 by4('A', 'b', 'c', 'D');
+	cout << "-----fixed_array-----" << endl <<
+		b4 << endl <<
+		i4 << endl <<
+		f4 << endl <<
+		by4 << endl <<
+		"---------------" << endl;
 
 	return 0;
 }

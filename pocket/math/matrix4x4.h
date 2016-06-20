@@ -291,10 +291,10 @@ struct matrix4x4
 		const_pointer j;
 		for (const_iterator i = M.begin(), end = M.end(); i != end; ++i, ++ri)
 		{
-			simd_type mx = simd::template permute<0>(i->mm);
-			simd_type my = simd::template permute<1>(i->mm);
-			simd_type mz = simd::template permute<2>(i->mm);
-			simd_type mw = simd::template permute<3>(i->mm);
+			simd_type mx = simd::permute_x(i->mm);
+			simd_type my = simd::permute_y(i->mm);
+			simd_type mz = simd::permute_z(i->mm);
+			simd_type mw = simd::permute_w(i->mm);
 
 			j = mi;
 			mx = simd::mul(mx, j->mm);

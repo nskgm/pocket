@@ -512,6 +512,50 @@ struct vector3
 	}
 
 	/*---------------------------------------------------------------------
+	* 最大値にする
+	*---------------------------------------------------------------------*/
+	vector3& maximize(const vector3& v)
+	{
+		x = math_type::max(x, v.x);
+		y = math_type::max(y, v.y);
+		z = math_type::max(z, v.z);
+		return *this;
+	}
+	vector3& maximize(const vector3& v, vector3& result) const
+	{
+		result.x = math_type::max(x, v.x);
+		result.y = math_type::max(y, v.y);
+		result.z = math_type::max(z, v.z);
+		return result;
+	}
+	vector3 maximized(const vector3& v) const
+	{
+		return vector3(math_type::max(x, v.x), math_type::max(y, v.y), math_type::max(z, v.z));
+	}
+
+	/*---------------------------------------------------------------------
+	* 最小値にする
+	*---------------------------------------------------------------------*/
+	vector3& minimize(const vector3& v)
+	{
+		x = math_type::min(x, v.x);
+		y = math_type::min(y, v.y);
+		z = math_type::min(z, v.z);
+		return *this;
+	}
+	vector3& minimize(const vector3& v, vector3& result) const
+	{
+		result.x = math_type::min(x, v.x);
+		result.y = math_type::min(y, v.y);
+		result.z = math_type::min(z, v.z);
+		return result;
+	}
+	vector3 minimized(const vector3& v) const
+	{
+		return vector3(math_type::min(x, v.x), math_type::min(y, v.y), math_type::min(z, v.z));
+	}
+
+	/*---------------------------------------------------------------------
 	* x軸回転角度を求める
 	*---------------------------------------------------------------------*/
 	T pitch() const
@@ -1129,7 +1173,7 @@ struct vector3
 
 	T operator () (const behavior::_yaw_t&) const
 	{
-		return Yaw();
+		return yaw();
 	}
 	T operator () (const behavior::_pitch_t&) const
 	{
