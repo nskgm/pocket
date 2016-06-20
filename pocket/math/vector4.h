@@ -867,8 +867,7 @@ struct vector4
 	vector4& saturate(vector4& result) const
 	{
 #ifdef _USE_SIMD_ANONYMOUS
-		result.mm = mm;
-		result.saturate();
+		result.mm = simd::clamp01(mm);
 #else
 		result.x = math_type::clamp01(x);
 		result.y = math_type::clamp01(y);
@@ -898,7 +897,7 @@ struct vector4
 		T len = length_sq();
 		if (len > math_type::zero)
 		{
-			return math_type::ASin(-y / math_type::sqrt(len));
+			return math_type::asin(-y / math_type::sqrt(len));
 		}
 		return math_type::zero;
 	}

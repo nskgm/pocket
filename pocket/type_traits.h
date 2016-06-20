@@ -120,6 +120,41 @@ struct remove_cv_reference
 };
 
 /*---------------------------------------------------------------------
+* ポインターを外す
+*---------------------------------------------------------------------*/
+#ifndef _USE_CXX11
+template <typename T>
+struct remove_pointer
+{
+	typedef T type;
+};
+template <typename T>
+struct remove_pointer<T*>
+{
+	typedef T type;
+};
+template <typename T>
+struct remove_pointer<T* const>
+{
+	typedef T type;
+};
+template <typename T>
+struct remove_pointer<T* volatile>
+{
+	typedef T type;
+};
+template <typename T>
+struct remove_pointer<T* const volatile>
+{
+	typedef T type;
+};
+#else
+
+using std::remove_pointer;
+#endif // _USE_CXX11
+
+
+/*---------------------------------------------------------------------
 * 整数型定数
 *---------------------------------------------------------------------*/
 #if _VCXX_VER(14) || _CXX_VER(11)
