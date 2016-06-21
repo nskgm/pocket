@@ -1029,7 +1029,9 @@ struct simd_traits<float>
 	template <int INDEX>
 	static _INLINE_FORCE float at(type mm)
 	{
-		return _mm_cvtss_f32(simd_traits::template permute<INDEX>(mm));
+		return _mm_cvtss_f32(
+			simd_traits::template permute<INDEX, INDEX, INDEX, INDEX>(mm)
+		);
 	}
 	template <int X, int Y, int Z, int W>
 	static _INLINE_FORCE type shuffle(type mm1, type mm2)
@@ -1202,14 +1204,13 @@ struct simd_traits<float>
 	static _INLINE_FORCE bool near_equal_zero(type mm)
 	{
 		const type z = _mm_setzero_ps();
-		return simd_traits::near_equal(z, mm);
+		return near_equal(z, mm);
 	}
 	static _INLINE_FORCE bool near_equal(type mm1, type mm2)
 	{
 		const type epsilon = _mm_set_ps1(math_type::epsilon);
 		type delta = _mm_sub_ps(mm1, mm2);
-		delta = simd_traits::abs(delta);
-		return mask_all(_mm_cmple_ps(delta, epsilon));
+		return mask_all(_mm_cmple_ps(abs(delta), epsilon));
 	}
 
 	/*---------------------------------------------------------------------

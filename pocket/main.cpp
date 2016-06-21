@@ -122,6 +122,7 @@ int main(int argc, char** argv)
 		"equal(zero, zero): " << simd::equal(zero, zero) << endl <<
 		"greater_equal(zero, one): " << simd::greater_equal(zero, one) << endl <<
 		"less_equal(zero, one): " << simd::less_equal(zero, one) << endl <<
+		"at<2>(set): " << simd::at<2>(set) << endl <<
 		"---------------" << endl;
 
 	pocket::bool4 b4(true, false, false, true);
