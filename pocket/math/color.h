@@ -9,6 +9,9 @@
 #include "../behavior.h"
 #include "../container/array.h"
 #include "math_traits.h"
+#ifdef _USE_SIMD_ANONYMOUS
+#include "simd_traits.h"
+#endif // _USE_SIMD_ANONYMOUS
 #ifdef _USING_MATH_IO
 #include "../io.h"
 #endif // _USING_MATH_IO
@@ -48,6 +51,11 @@ struct color
 
 	typedef typename math_type::value_int_type int_type;
 
+#ifdef _USE_SIMD_ANONYMOUS
+	typedef simd_traits<T> simd;
+	typedef typename simd::type simd_type;
+#endif // _USE_SIMD_ANONYMOUS
+
 	/*------------------------------------------------------------------------------------------
 	* Members
 	*------------------------------------------------------------------------------------------*/
@@ -66,6 +74,10 @@ struct color
 
 #ifdef _USE_ANONYMOUS
 		};
+
+#ifdef _USE_SIMD_ANONYMOUS
+		simd_type mm;
+#endif // _USE_SIMD_ANONYMOUS
 
 		array_type data;
 	};
@@ -103,7 +115,11 @@ struct color
 
 	}
 	color(T r, T g, T b, T a) :
+#ifdef _USE_SIMD_ANONYMOUS
+		mm(simd::set(r, g, b, a))
+#else
 		r(r), g(g), b(b), a(a)
+#endif // _USE_SIMD_ANONYMOUS
 	{
 
 	}
@@ -114,32 +130,47 @@ struct color
 		_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U3)
 	>
 	color(U r, U1 g, U2 b, U3 a) :
+#ifdef _USE_SIMD_ANONYMOUS
+		mm(simd::set(static_cast<T>(r), static_cast<T>(g), static_cast<T>(b), static_cast<T>(a)))
+#else
 		r(static_cast<T>(r)), g(static_cast<T>(g)), b(static_cast<T>(b)), a(static_cast<T>(a))
+#endif // _USE_SIMD_ANONYMOUS
 	{
 
 	}
 	template <typename U>
 	color(const color<U>& c) :
+#ifdef _USE_SIMD_ANONYMOUS
+		mm(simd::set(static_cast<T>(c.r), static_cast<T>(c.g), static_cast<T>(c.b), static_cast<T>(c.a)))
+#else
 		r(static_cast<T>(c.r)), g(static_cast<T>(c.g)), b(static_cast<U>(c.b)), a(static_cast<U>(c.a))
+#endif // _USE_SIMD_ANONYMOUS
 	{
 
 	}
 	color(int_type bytes) :
+#ifdef _USE_SIMD_ANONYMOUS
+		mm(simd::set(
+			color::byte_to_float_r(bytes),
+			color::byte_to_float_g(bytes),
+			color::byte_to_float_b(bytes),
+			color::byte_to_float_a(bytes)))
+#else
 		r(color::byte_to_float_r(bytes)),
 		g(color::byte_to_float_g(bytes)),
 		b(color::byte_to_float_b(bytes)),
 		a(color::byte_to_float_a(bytes))
+#endif // _USE_SIMD_ANONYMOUS
 	{
 
 	}
-	explicit color(T a) :
-		r(math_type::one),
-		g(math_type::one),
-		b(math_type::one),
-		a(a)
+#ifdef _USE_SIMD_ANONYMOUS
+	explicit color(simd_type mm) :
+		mm(mm)
 	{
 
 	}
+#endif // _USE_SIMD_ANONYMOUS
 
 	/*------------------------------------------------------------------------------------------
 	* Functions
@@ -150,10 +181,14 @@ struct color
 	*---------------------------------------------------------------------*/
 	color& add(const color& c, color& result) const
 	{
+#ifdef _USE_SIMD_ANONYMOUS
+		result.mm = simd::add(mm, c.mm);
+#else
 		result.r = r + c.r;
 		result.g = g + c.g;
 		result.b = b + c.b;
 		result.a = a + c.a;
+#endif // _USE_SIMD_ANONYMOUS
 		return result;
 	}
 	/*---------------------------------------------------------------------
@@ -161,10 +196,14 @@ struct color
 	*---------------------------------------------------------------------*/
 	color& subtract(const color& c, color& result) const
 	{
+#ifdef _USE_SIMD_ANONYMOUS
+		result.mm = simd::sub(mm, c.mm);
+#else
 		result.r = r - c.r;
 		result.g = g - c.g;
 		result.b = b - c.b;
 		result.a = a - c.a;
+#endif // _USE_SIMD_ANONYMOUS
 		return result;
 	}
 	/*---------------------------------------------------------------------
@@ -172,18 +211,26 @@ struct color
 	*---------------------------------------------------------------------*/
 	color& multiply(T f, color& result) const
 	{
+#ifdef _USE_SIMD_ANONYMOUS
+		result.mm = simd::mul(mm, f);
+#else
 		result.r = r * f;
 		result.g = g * f;
 		result.b = b * f;
 		result.a = a * f;
+#endif // _USE_SIMD_ANONYMOUS
 		return result;
 	}
 	color& multiply(const color& c, color& result) const
 	{
+#ifdef _USE_SIMD_ANONYMOUS
+		result.mm = simd::mul(mm, c.mm);
+#else
 		result.r = r * c.r;
 		result.g = g * c.g;
 		result.b = b * c.b;
 		result.a = a * c.a;
+#endif // _USE_SIMD_ANONYMOUS
 		return result;
 	}
 	color& modulate(const color& c, color& result) const
@@ -196,29 +243,67 @@ struct color
 	color& divide(T f, color& result) const
 	{
 		_DEB_ASSERT(f != math_type::zero);
-		return multiply(math_type::reciprocal(f), result);
+#ifdef _USE_SIMD_ANONYMOUS
+		result.mm = simd::div(mm, f);
+#else
+		f = math_type::reciprocal(f);
+		result.r = r * f;
+		result.g = g * f;
+		result.b = b * f;
+		result.a = a * f;
+#endif // _USE_SIMD_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------
 	* 値が等しいか
 	*---------------------------------------------------------------------*/
-	bool is_near(const color& q) const
+	bool is_near(const color& c) const
 	{
-		return (math_type::is_near(r, q.r) && math_type::is_near(g, q.g) && math_type::is_near(b, q.b) && math_type::is_near(a, q.a));
+#ifdef _USE_SIMD_ANONYMOUS
+		return simd::near_equal(mm, c.mm);
+#else
+		return (math_type::is_near(r, c.r) && math_type::is_near(g, c.g) && math_type::is_near(b, c.b) && math_type::is_near(a, c.a));
+#endif // _USE_SIMD_ANONYMOUS
 	}
 	/*---------------------------------------------------------------------
 	* 値がすべてゼロに等しいか
 	*---------------------------------------------------------------------*/
 	bool is_near_zero() const
 	{
+#ifdef _USE_SIMD_ANONYMOUS
+		return simd::near_equal_zero(mm, c.mm);
+#else
 		return (math_type::is_near_zero(r) && math_type::is_near_zero(g) && math_type::is_near_zero(b) && math_type::is_near_zero(a));
+#endif // _USE_SIMD_ANONYMOUS
 	}
 	/*---------------------------------------------------------------------
 	* 値がすべてゼロか
 	*---------------------------------------------------------------------*/
 	bool is_zero() const
 	{
+#ifdef _USE_SIMD_ANONYMOUS
+		return simd::equal(mm, simd::zero());
+#else
 		return (r == math_type::zero && g == math_type::zero && b == math_type::zero && a == math_type::zero);
+#endif // _USE_SIMD_ANONYMOUS
+	}
+
+	/*---------------------------------------------------------------------
+	* aを0に設定
+	*---------------------------------------------------------------------*/
+	color& a0()
+	{
+		a = math_type::zero;
+		return *this;
+	}
+
+	/*---------------------------------------------------------------------
+	* aを1に設定
+	*---------------------------------------------------------------------*/
+	color& a1()
+	{
+		a = math_type::one;
+		return *this;
 	}
 
 	/*---------------------------------------------------------------------
@@ -226,26 +311,38 @@ struct color
 	*---------------------------------------------------------------------*/
 	color& saturate()
 	{
+#ifdef _USE_SIMD_ANONYMOUS
+		mm = simd::clamp01(mm);
+#else
 		r = math_type::clamp01(r);
 		g = math_type::clamp01(g);
 		b = math_type::clamp01(b);
 		a = math_type::clamp01(a);
+#endif // _USE_SIMD_ANONYMOUS
 		return *this;
 	}
 	color& saturate(color& result) const
 	{
+#ifdef _USE_SIMD_ANONYMOUS
+		result.mm = simd::clamp01(mm);
+#else
 		result.r = math_type::clamp01(r);
 		result.g = math_type::clamp01(g);
 		result.b = math_type::clamp01(b);
 		result.a = math_type::clamp01(a);
+#endif // _USE_SIMD_ANONYMOUS
 		return result;
 	}
 	color saturated() const
 	{
+#ifdef _USE_SIMD_ANONYMOUS
+		return color(simd::clamp01(mm));
+#else
 		return color(math_type::clamp01(r),
 			math_type::clamp01(g),
 			math_type::clamp01(b),
 			math_type::clamp01(a));
+#endif // _USE_SIMD_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------
@@ -253,17 +350,26 @@ struct color
 	*---------------------------------------------------------------------*/
 	color lerp(const color& to, T t) const
 	{
+#ifdef _USE_SIMD_ANONYMOUS
+		return color(simd::lerp(mm, to.mm, t));
+#else
+
 		return color(math_type::lerp(r, to.r, t),
 			math_type::lerp(g, to.g, t),
 			math_type::lerp(b, to.b, t),
 			math_type::lerp(a, to.a, t));
+#endif // _USE_SIMD_ANONYMOUS
 	}
 	color& lerp(const color& to, T t, color& result) const
 	{
+#ifdef _USE_SIMD_ANONYMOUS
+		result.mm = simd::lerp(mm, to.mm, t);
+#else
 		result.r = math_type::lerp(r, to.r, t);
 		result.g = math_type::lerp(g, to.g, t);
 		result.b = math_type::lerp(b, to.b, t);
 		result.a = math_type::lerp(a, to.a, t);
+#endif // _USE_SIMD_ANONYMOUS
 		return result;
 	}
 	color& lerp(const color& from, const color& to, T t)
@@ -280,6 +386,18 @@ struct color
 			(color::float_to_byte(g) << 16) |
 			(color::float_to_byte(b) << 8) |
 			color::float_to_byte(a));
+	}
+
+	/*---------------------------------------------------------------------
+	* 透過値の生成
+	*---------------------------------------------------------------------*/
+	static color alpha(T a)
+	{
+#ifdef _USE_SIMD_ANONYMOUS
+		return color(simd::set(math_type::one, math_type::one, math_type::one, a));
+#else
+		return color(math_type::one, math_type::one, math_type::one, a);
+#endif // _USE_SIMD_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------
@@ -366,7 +484,11 @@ struct color
 	*---------------------------------------------------------------------*/
 	bool operator == (const color& c) const
 	{
+#ifdef _USE_SIMD_ANONYMOUS
+		return simd::equal(mm, c.mm);
+#else
 		return r == c.r && g == c.g && b == c.b && a == c.a;
+#endif // _USE_SIMD_ANONYMOUS
 	}
 	bool operator != (const color& c) const
 	{
@@ -382,36 +504,61 @@ struct color
 	}
 	color operator - () const
 	{
+#ifdef _USE_SIMD_ANONYMOUS
+		return color(simd::sub(simd::one(), mm));
+#else
 		return color(math_type::one - r, math_type::one - g, math_type::one - b, math_type::one - a);
+#endif // _USE_SIMD_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------
 	* 二項演算子
 	*---------------------------------------------------------------------*/
-	color operator + (const color& q) const
+	color operator + (const color& c) const
 	{
+#ifdef _USE_SIMD_ANONYMOUS
+		return color(simd::add(mm, c.mm));
+#else
 		color result(behavior::noinitialize);
-		return add(q, result);
+		return add(c, result);
+#endif // _USE_SIMD_ANONYMOUS
 	}
-	color operator - (const color& q) const
+	color operator - (const color& c) const
 	{
+#ifdef _USE_SIMD_ANONYMOUS
+		return color(simd::sub(mm, c.mm));
+#else
 		color result(behavior::noinitialize);
-		return subtract(q, result);
+		return subtract(c, result);
+#endif // _USE_SIMD_ANONYMOUS
 	}
 	color operator * (T f) const
 	{
+#ifdef _USE_SIMD_ANONYMOUS
+		return color(simd::mul(mm, f));
+#else
 		color result(behavior::noinitialize);
 		return multiply(f, result);
+#endif // _USE_SIMD_ANONYMOUS
 	}
-	color operator * (const color& q) const
+	color operator * (const color& c) const
 	{
+#ifdef _USE_SIMD_ANONYMOUS
+		return color(simd::mul(mm, c.mm));
+#else
 		color result(behavior::noinitialize);
-		return multiply(q, result);
+		return multiply(c, result);
+#endif // _USE_SIMD_ANONYMOUS
 	}
 	color operator / (T f) const
 	{
+#ifdef _USE_SIMD_ANONYMOUS
+		_DEB_ASSERT(f != math_type::zero);
+		return color(simd::div(mm, f));
+#else
 		color result(behavior::noinitialize);
 		return divide(f, result);
+#endif // _USE_SIMD_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------
@@ -419,40 +566,24 @@ struct color
 	*---------------------------------------------------------------------*/
 	color& operator += (const color& c)
 	{
-		r += c.r;
-		g += c.g;
-		b += c.b;
-		a += c.a;
-		return *this;
+		return add(c, *this);
 	}
 	color& operator -= (const color& c)
 	{
-		r -= c.r;
-		g -= c.g;
-		b -= c.b;
-		a -= c.a;
-		return *this;
+		return subtract(c, *this);
 	}
 	color& operator *= (T f)
 	{
-		r *= f;
-		g *= f;
-		b *= f;
-		a *= f;
-		return *this;
+		return multiply(f, *this);
 	}
 	color& operator *= (const color& c)
 	{
-		r *= c.r;
-		g *= c.g;
-		b *= c.b;
-		a *= c.a;
-		return *this;
+		return modulate(c, *this);
 	}
 	color& operator /= (T f)
 	{
 		_DEB_ASSERT(f != math_type::zero);
-		return *this *= math_type::reciprocal(f);
+		return operator*=(math_type::reciprocal(f));
 	}
 };
 

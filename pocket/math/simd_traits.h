@@ -245,6 +245,16 @@ struct simd_traits
 		};
 		return result;
 	}
+	static _INLINE_FORCE type mul(type_const_reference mm, value_type f)
+	{
+		type result = {
+			mm.mm[0] * f,
+			mm.mm[1] * f,
+			mm.mm[2] * f,
+			mm.mm[3] * f
+		};
+		return result;
+	}
 	static _INLINE_FORCE type mad(type_const_reference mm1, type_const_reference mm2, type_const_reference mm3)
 	{
 		type result = {
@@ -259,6 +269,16 @@ struct simd_traits
 	{
 		type result = {
 			_SIMD_BINOMIAL_OPERATOR_4(/ )
+		};
+		return result;
+	}
+	static _INLINE_FORCE type div(type_const_reference mm, value_type f)
+	{
+		type result = {
+			mm.mm[0] / f,
+			mm.mm[1] / f,
+			mm.mm[2] / f,
+			mm.mm[3] / f
 		};
 		return result;
 	}
@@ -943,6 +963,10 @@ struct simd_traits<float>
 	{
 		return _mm_mul_ps(mm1, mm2);
 	}
+	static _INLINE_FORCE type mul(type mm, value_type f)
+	{
+		return _mm_mul_ps(mm, _mm_set_ps1(f));
+	}
 	static _INLINE_FORCE type mad(type mm1, type mm2, type mm3)
 	{
 		return _mm_add_ps(_mm_mul_ps(mm1, mm2), mm3);
@@ -950,6 +974,10 @@ struct simd_traits<float>
 	static _INLINE_FORCE type div(type mm1, type mm2)
 	{
 		return _mm_div_ps(mm1, mm2);
+	}
+	static _INLINE_FORCE type div(type mm, value_type f)
+	{
+		return _mm_div_ps(mm, _mm_set_ps1(f));
 	}
 	static _INLINE_FORCE type or_(type mm1, type mm2)
 	{

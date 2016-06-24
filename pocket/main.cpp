@@ -78,7 +78,7 @@ int main(int argc, char** argv)
 	pocket::matrix4x4f m4(behavior::identity);
 	pocket::quaternionf q(behavior::identity);
 	pocket::rectanglef r(640.0f, 480.0f);
-	pocket::colorf c(0xFF0080FF);
+	pocket::colorf c(0x7F5080FF);
 	pocket::planef p(behavior::down, 40.0f);
 	pocket::math_traitsf::sin_cos_t sc = 30.0f;
 	pocket::ray3f r2(pocket::vector3f::up);
@@ -104,10 +104,6 @@ int main(int argc, char** argv)
 		"frustum: " << f << endl <<
 		"--------------------" << endl << endl;
 
-	pocket::vector4f a(3.0f, -1.0f, 5.0f, -10.0f);
-	a.minimize(v4);
-	cout << "minimize(zero, (3, -1, 5, -10)): " << a << endl << endl;
-
 	typedef pocket::simd_traits<float> simd;
 	simd::type zero = simd::zero();
 	simd::type one = simd::one();
@@ -117,12 +113,9 @@ int main(int argc, char** argv)
 		"is_vectorize: " << simd::is_vectorize() << endl <<
 		"set(4, 2, 5, 3): " << set << endl <<
 		"set2(14, 12, 15, 13): " << set2 << endl <<
-		"permute_y: " << simd::permute_y(set) << endl <<
 		"shuffle<1, 0, 2, 1>(set, set2): " << simd::shuffle<1, 0, 3, 2>(set, set2) << endl <<
 		"equal(zero, zero): " << simd::equal(zero, zero) << endl <<
-		"greater_equal(zero, one): " << simd::greater_equal(zero, one) << endl <<
 		"less_equal(zero, one): " << simd::less_equal(zero, one) << endl <<
-		"at<2>(set): " << simd::at<2>(set) << endl <<
 		"---------------" << endl;
 
 	pocket::bool4 b4(true, false, false, true);

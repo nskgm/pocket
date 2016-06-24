@@ -525,7 +525,7 @@ struct vector4
 	vector4& multiply(T f, vector4& result) const
 	{
 #ifdef _USE_SIMD_ANONYMOUS
-		result.mm = simd::mul(mm, simd::set(f));
+		result.mm = simd::mul(mm, f);
 #else
 		result.x = x * f;
 		result.y = y * f;
@@ -546,7 +546,7 @@ struct vector4
 	{
 		_DEB_ASSERT(f != math_type::zero);
 #ifdef _USE_SIMD_ANONYMOUS
-		result.mm = simd::div(mm, simd::set(f));
+		result.mm = simd::div(mm, f);
 		return result;
 #else
 		return multiply(math_type::reciprocal(f), result);
@@ -609,7 +609,7 @@ struct vector4
 	}
 
 	/*---------------------------------------------------------------------
-	* wをゼロに設定
+	* wを0に設定
 	*---------------------------------------------------------------------*/
 	vector4& w0()
 	{
@@ -1251,7 +1251,7 @@ struct vector4
 	vector4 operator * (T f) const
 	{
 #ifdef _USE_SIMD_ANONYMOUS
-		return vector4(simd::mul(mm, simd::set(f)));
+		return vector4(simd::mul(mm, f));
 #else
 		vector4 result(behavior::noinitialize);
 		return multiply(f, result);
@@ -1270,7 +1270,7 @@ struct vector4
 	vector4 operator / (T f) const
 	{
 #ifdef _USE_SIMD_ANONYMOUS
-		return vector4(simd::div(mm, simd::set(f)));
+		return vector4(simd::div(mm, f));
 #else
 		vector4 result(behavior::noinitialize);
 		return divide(f, result);
@@ -1280,7 +1280,7 @@ struct vector4
 	vector4 operator / (U f) const
 	{
 #ifdef _USE_SIMD_ANONYMOUS
-		return vector4(simd::div(mm, simd::set(static_cast<T>(f))));
+		return vector4(simd::div(mm, static_cast<T>(f)));
 #else
 		vector4 result(behavior::noinitialize);
 		return divide<U>(f, result);

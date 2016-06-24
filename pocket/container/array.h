@@ -1,5 +1,5 @@
-﻿#ifndef __POCKET_MATH_ARRAY_H__
-#define __POCKET_MATH_ARRAY_H__
+﻿#ifndef __POCKET_CONTAINER_ARRAY_H__
+#define __POCKET_CONTAINER_ARRAY_H__
 
 #include "../config.h"
 #ifdef _USE_PRAGMA_ONCE
@@ -279,4 +279,4 @@ namespace std
 
 #endif // _USE_CXX11
 
-#endif // __POCKET_MATH_ARRAY_H__
+#endif // __POCKET_CONTAINER_ARRAY_H__
