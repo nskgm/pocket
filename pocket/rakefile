@@ -1,0 +1,216 @@
+#---------------------------------------------------------------------
+# config
+#---------------------------------------------------------------------
+
+# 出力実行ファイル名
+EXECUTE_FILE = "main.exe"
+# C++バージョン
+CXX_VER = 14
+# ライブラリディレクトリ
+INC_DIRS = [
+	# 文字列配列
+]
+LIB_DIRS = [
+	# 文字列配列
+]
+# 事前に定義
+DEFINES = [
+	# 文字列配列
+]
+# 事前定義に対しての値を設定
+DEFINE_PAIRS = {
+	# 文字列に対して値
+	# "macro" => 1
+}
+# 事前にて定義を無効
+UNDEFINES = [
+	# 文字列配列
+]
+# デバッグを有効にするか
+DEBUG = false
+# 警告を有効にするか
+WARNING = true
+
+#---------------------------------------------------------------------
+# implementatioin
+#---------------------------------------------------------------------
+require "rake/clean"
+# 中間ファイルディレクトリ
+OBJ_DIR = "obj/"
+DEP_DIR = OBJ_DIR+"dep/"
+# 削除対象ファイルorディレクトリ
+CLEAN_LIST = [EXECUTE_FILE, "#{OBJ_DIR}*.o", "#{DEP_DIR}*.d", DEP_DIR, OBJ_DIR]
+CLEAN.include CLEAN_LIST
+CLOBBER.include CLEAN_LIST
+
+#--------------------
+# デフォルトタスク
+#--------------------
+desc "default: build_and_run"
+task :default => [:build_and_run]
+
+#--------------------
+# 実行ファイルを作成
+#--------------------
+desc "build #{EXECUTE_FILE}"
+task :build => [OBJ_DIR, DEP_DIR, EXECUTE_FILE]
+
+#--------------------
+# 実行ファイルを作成し直す
+#--------------------
+desc "rebuild #{EXECUTE_FILE}"
+task :rebuild => [:clean, :build]
+
+#--------------------
+# 実行ファイルを実行
+#--------------------
+desc "execute #{EXECUTE_FILE}"
+task :run => [:build] do |t|
+	sh "#{EXECUTE_FILE}"
+end
+
+#--------------------
+# 実行ファイルを作成して実行
+#--------------------
+desc "build and run: #{EXECUTE_FILE}"
+task :build_and_run => [:build, :run]
+
+#--------------------
+# 実行ファイルを作成し直して実行
+#--------------------
+desc "rebuild and run: #{EXECUTE_FILE}"
+task :rebuild_and_run => [:rebuild, :run]
+
+# 対象コンパイラ
+COMPILER = "g++"
+# コンパイル対象拡張子
+EXT_LIST = [".c", ".cpp", ".cxx"]
+# 拡張子に対するファイルの列挙
+FILE_LIST = FileList[EXT_LIST.map do |e| "**/*#{e}" end]
+# 中間ファイル
+OBJ_LIST = FILE_LIST.ext "o"
+
+# ファイル名をディレクトリ＋ファイル名の形で作成
+def filename(dir, path, suffix="")
+	def replace(d, a, r, s)
+		f = File.dirname(a)
+		f.gsub!(r, "-")
+		"#{d}#{f}-#{File.basename(a, s)}"
+	end
+
+	# ディレクトリが含まれている場合は文字列置換
+	return replace(dir, path, "/", suffix) if path.index("/") != nil
+	return replace(dir, path, "\\", suffix) if path.index("\\") != nil
+	# 含まれない場合
+	"#{dir}#{File.basename(path, suffix)}"
+end
+
+def dep_filename(s)
+	"#{filename(DEP_DIR, s, ".*")}.d"
+end
+
+task :test => DEP_DIR do
+	HEADER_LIST = FileList["**/*.h", "**/*.hpp"]
+
+	# ヘッダーチェックタスク作成
+	changed_list = []
+	HEADER_LIST.each do |s|
+		# makefile用
+		name = dep_filename(s)
+		file name => s do |t|
+			changed_list.push t.source
+		end
+		#Rake::FileTask[name].invoke
+	end
+	p changed_list
+
+	FILE_LIST.each do |s|
+		# 外部コマンド実行
+		# -MM: 依存関係のあるヘッダを出力してくれる
+		result = `g++ #{s} -MM`
+		# 中間ファイル名: ソースファイル名 依存ヘッダーパス...
+		# と出力されるのでスペース区切りで分割
+		list = result.split(" ")
+		# ヘッダーを知りたいので最初の二つは削除
+		list.slice!(0, 2)
+
+		p list
+
+		# Rake::FileTask[s].invoke
+	end if changed_list.length > 0 # 変更が合ったヘッダーが合った場合のみ実行
+end
+
+# 中間ファイル出力ディレクトリ
+def obj_filename(s)
+	filename(OBJ_DIR, s)
+end
+
+# 配列から連結文字列を作成
+def array_to_join_string(a, sep=" ")
+	tmp = a.map do |e| yield e end if a.length > 0
+	r = tmp.join sep if tmp != nil
+end
+# ハッシュから連結文字列を作成
+def hash_to_join_string(a, sep=" ")
+	tmp = a.map do |k, v| yield k, v end if a.length > 0
+	r = tmp.join sep if tmp != nil
+end
+
+# 事前に定義する配列
+defines = array_to_join_string DEFINES do |e| "-D#{e}" end
+define_pairs = hash_to_join_string DEFINE_PAIRS do |k, v| "-D#{k}=#{v}" end
+undefines = array_to_join_string UNDEFINES do |e| "-U#{e}" end
+# ライブラリ文字列の連結
+inc = array_to_join_string INC_DIRS do |e| "-I#{e}" end
+lib = array_to_join_string LIB_DIRS do |e| "-L#{e}" end
+
+# 拡張子に対する中間ファイルルールを生成
+EXT_LIST.each do |ext|
+	#--------------------
+	# 指定拡張子用作成ルール
+	#--------------------
+	rule ".o" => ext do |t|
+		# 対象ファイル名
+		name = obj_filename t.name
+		#--------------------
+		# ルールで検出したファイルの変更監視
+		#--------------------
+		file name => t.source do |ft|
+			# 依存ヘッダーファイル
+			sh "#{COMPILER} -MM #{ft.source} > #{dep_filename ft.source}"
+
+			# 実行するシェルコマンド
+			command = "#{COMPILER} -c #{ft.source} -o #{ft.name} -std=c++#{CXX_VER}" # CXX_VERでソースをコンパイル
+			command += " -Wall -Wextra -Wcast-qual" if WARNING # 警告
+			command += " -w" if not WARNING # 警告をすべて無効
+			command += " -g" if DEBUG # デバッグ情報をつける
+			command += " -O2 -march=native" if not DEBUG # 最高の最適化＋コンパイルマシン最適化
+			command += " #{inc}" if inc != nil # システムinclude
+			command += " #{lib}" if lib != nil # システムlibrary
+			command += " #{defines}" if defines != nil # 事前定義
+			command += " #{define_pairs}" if define_pairs != nil # 事前定義+値
+			command += " #{undefines}" if undefines != nil # 事前定義無効
+			# シェル実行
+			sh command
+		end
+		# 上で作成したタスク実行
+		Rake::FileTask[name].invoke
+	end
+end
+
+#--------------------
+# 中間ファイル用ディレクトリ作成
+#--------------------
+directory OBJ_DIR
+
+directory DEP_DIR => OBJ_DIR
+
+#--------------------
+# 実行ファイル作成
+#--------------------
+file EXECUTE_FILE => OBJ_LIST do |t|
+	# 中間ファイル名リスト
+	obj_list = t.prerequisites.map do |n| obj_filename n end
+	command = "#{COMPILER} -o #{EXECUTE_FILE} #{obj_list.join(" ")} -std=c++#{CXX_VER} -lm"
+	sh command
+end
