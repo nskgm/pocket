@@ -28,6 +28,8 @@ UNDEFINES = [
 ]
 # デバッグを有効にするか
 DEBUG = false
+# リリースを有効にするか
+RELEASE = false
 # 警告を有効にするか
 WARNING = true
 
@@ -37,7 +39,7 @@ WARNING = true
 require "rake/clean"
 # 中間ファイルディレクトリ
 OBJ_DIR = "obj/"
-DEP_DIR = OBJ_DIR+"dep/"
+DEP_DIR = OBJ_DIR+"dep/" # dependencies
 # 削除対象ファイルorディレクトリ
 CLEAN_LIST = [EXECUTE_FILE, "#{OBJ_DIR}*.o", "#{DEP_DIR}*.d", DEP_DIR, OBJ_DIR]
 CLEAN.include CLEAN_LIST
@@ -59,7 +61,7 @@ task :build => [OBJ_DIR, DEP_DIR, EXECUTE_FILE]
 # 実行ファイルを作成し直す
 #--------------------
 desc "rebuild #{EXECUTE_FILE}"
-task :rebuild => [:clean, :build]
+task :rebuild => [:clean, :reset_timespamp, :build]
 
 #--------------------
 # 実行ファイルを実行
@@ -80,6 +82,16 @@ task :build_and_run => [:build, :run]
 #--------------------
 desc "rebuild and run: #{EXECUTE_FILE}"
 task :rebuild_and_run => [:rebuild, :run]
+
+#--------------------
+# 中間ファイル用ディレクトリ作成
+#--------------------
+directory OBJ_DIR
+
+#--------------------
+# ファイル依存関係ファイルディレクトリ作成
+#--------------------
+directory DEP_DIR => OBJ_DIR
 
 # 対象コンパイラ
 COMPILER = "g++"
@@ -104,45 +116,13 @@ def filename(dir, path, suffix="")
 	# 含まれない場合
 	"#{dir}#{File.basename(path, suffix)}"
 end
-
+# 依存ファイル出力ディレクトリ
 def dep_filename(s)
 	"#{filename(DEP_DIR, s, ".*")}.d"
 end
-
-task :test => DEP_DIR do
-	HEADER_LIST = FileList["**/*.h", "**/*.hpp"]
-
-	# ヘッダーチェックタスク作成
-	changed_list = []
-	HEADER_LIST.each do |s|
-		# makefile用
-		name = dep_filename(s)
-		file name => s do |t|
-			changed_list.push t.source
-		end
-		#Rake::FileTask[name].invoke
-	end
-	p changed_list
-
-	FILE_LIST.each do |s|
-		# 外部コマンド実行
-		# -MM: 依存関係のあるヘッダを出力してくれる
-		result = `g++ #{s} -MM`
-		# 中間ファイル名: ソースファイル名 依存ヘッダーパス...
-		# と出力されるのでスペース区切りで分割
-		list = result.split(" ")
-		# ヘッダーを知りたいので最初の二つは削除
-		list.slice!(0, 2)
-
-		p list
-
-		# Rake::FileTask[s].invoke
-	end if changed_list.length > 0 # 変更が合ったヘッダーが合った場合のみ実行
-end
-
 # 中間ファイル出力ディレクトリ
 def obj_filename(s)
-	filename(OBJ_DIR, s)
+	"#{filename(OBJ_DIR, s, ".*")}.o"
 end
 
 # 配列から連結文字列を作成
@@ -171,20 +151,24 @@ EXT_LIST.each do |ext|
 	#--------------------
 	rule ".o" => ext do |t|
 		# 対象ファイル名
-		name = obj_filename t.name
+		name = obj_filename t.source
 		#--------------------
 		# ルールで検出したファイルの変更監視
 		#--------------------
 		file name => t.source do |ft|
 			# 依存ヘッダーファイル
-			sh "#{COMPILER} -MM #{ft.source} > #{dep_filename ft.source}"
+			obj = dep_filename ft.source
+			# -MM システムinclude以外の依存includeを調べるファイル
+			# -MT 中間ファイルターゲット名
+			# -MF 出力ファイルパス
+			sh "#{COMPILER} -MM #{ft.source} -MT #{ft.name} -MF #{obj}"
 
 			# 実行するシェルコマンド
 			command = "#{COMPILER} -c #{ft.source} -o #{ft.name} -std=c++#{CXX_VER}" # CXX_VERでソースをコンパイル
 			command += " -Wall -Wextra -Wcast-qual" if WARNING # 警告
-			command += " -w" if not WARNING # 警告をすべて無効
+			command += " -w" unless WARNING # 警告をすべて無効
 			command += " -g" if DEBUG # デバッグ情報をつける
-			command += " -O2 -march=native" if not DEBUG # 最高の最適化＋コンパイルマシン最適化
+			command += " -O2 -march=native" if RELEASE # 最高の最適化＋コンパイルマシン最適化
 			command += " #{inc}" if inc != nil # システムinclude
 			command += " #{lib}" if lib != nil # システムlibrary
 			command += " #{defines}" if defines != nil # 事前定義
@@ -194,16 +178,13 @@ EXT_LIST.each do |ext|
 			sh command
 		end
 		# 上で作成したタスク実行
-		Rake::FileTask[name].invoke
+		file(name).invoke
 	end
 end
 
-#--------------------
-# 中間ファイル用ディレクトリ作成
-#--------------------
-directory OBJ_DIR
-
-directory DEP_DIR => OBJ_DIR
+task :dependencies => [OBJ_DIR, DEP_DIR] do
+	DEP_LIST = FileList["#{DEP_DIR}*.d"]
+end
 
 #--------------------
 # 実行ファイル作成
@@ -213,4 +194,48 @@ file EXECUTE_FILE => OBJ_LIST do |t|
 	obj_list = t.prerequisites.map do |n| obj_filename n end
 	command = "#{COMPILER} -o #{EXECUTE_FILE} #{obj_list.join(" ")} -std=c++#{CXX_VER} -lm"
 	sh command
+end
+
+task :reset_timespamp do
+	FileUtils.touch FILE_LIST
+end
+
+task :test => OBJ_LIST do
+	DEP_LIST = FileList["#{DEP_DIR}*.d"]
+
+	abs = File.expand_path __FILE__
+	dir = File.dirname abs
+
+	table = {}
+
+	DEP_LIST.each do |fname|
+		# ファイル全体取得
+		all = File.read fname
+		# 邪魔な文字を削除
+		["\\", "\n"].each do |s| all.delete! s end
+		# 空白で分割
+		arg = all.split ' '
+
+		# キー
+		key = arg[0]
+		key.strip!
+		key.delete! ":"
+		# 中間ファイル名とソースファイル名を削除
+		2.times do arg.shift end
+
+		# パスの正規化
+		res = []
+		arg.each do |s|
+			s.strip!
+			a = File.expand_path s
+			len = a.length - dir.length
+			res.push a.slice(dir.length+1, len)
+			#next unless s.index "../" != nil
+		end
+
+		table[key] = res
+		#p arg
+	end
+
+	p table
 end
