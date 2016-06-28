@@ -4,21 +4,28 @@
 
 # 出力実行ファイル名
 EXECUTE_FILE = "main.exe"
+# 実行ファイル引数
+EXECUTE_ARGS = [
+
+]
 # C++バージョン
 CXX_VER = 14
 # ライブラリディレクトリ
 INC_DIRS = [
 	# 文字列配列
+	"inc",
+	"inc/gl"
 ]
 LIB_DIRS = [
 	# 文字列配列
+	"lib"
 ]
 # 事前に定義
 DEFINES = [
 	# 文字列配列
 ]
 # 事前定義に対しての値を設定
-DEFINE_PAIRS = {
+DEFINE_VALUES = {
 	# 文字列に対して値
 	# "macro" => 1
 }
@@ -28,8 +35,6 @@ UNDEFINES = [
 ]
 # デバッグを有効にするか
 DEBUG = false
-# リリースを有効にするか
-RELEASE = false
 # 警告を有効にするか
 WARNING = true
 
@@ -38,12 +43,23 @@ WARNING = true
 #---------------------------------------------------------------------
 require "rake/clean"
 # 中間ファイルディレクトリ
-OBJ_DIR = "obj/"
-DEP_DIR = OBJ_DIR+"dep/" # dependencies
+OBJ_DIR = "obj"
+DEP_DIR = OBJ_DIR+"/dep" # dependencies
 # 削除対象ファイルorディレクトリ
-CLEAN_LIST = [EXECUTE_FILE, "#{OBJ_DIR}*.o", "#{DEP_DIR}*.d", DEP_DIR, OBJ_DIR]
+CLEAN_LIST = [EXECUTE_FILE, "**/*.o", "**/*.d", OBJ_DIR]
 CLEAN.include CLEAN_LIST
 CLOBBER.include CLEAN_LIST
+
+# 配列から連結文字列を作成
+def array_to_join_string(a, sep=" ")
+	tmp = a.map do |e| yield e end if a.length > 0
+	r = tmp.join sep if tmp != nil
+end
+# ハッシュから連結文字列を作成
+def hash_to_join_string(a, sep=" ")
+	tmp = a.map do |k, v| yield k, v end if a.length > 0
+	r = tmp.join sep if tmp != nil
+end
 
 #--------------------
 # デフォルトタスク
@@ -55,20 +71,25 @@ task :default => [:build_and_run]
 # 実行ファイルを作成
 #--------------------
 desc "build #{EXECUTE_FILE}"
-task :build => [OBJ_DIR, DEP_DIR, EXECUTE_FILE]
+task :build => [:elapsed_begin, OBJ_DIR, DEP_DIR, EXECUTE_FILE, :elapsed_end]
 
 #--------------------
 # 実行ファイルを作成し直す
 #--------------------
 desc "rebuild #{EXECUTE_FILE}"
-task :rebuild => [:clean, :reset_timespamp, :build]
+task :rebuild => [:clean, :build]
 
 #--------------------
 # 実行ファイルを実行
 #--------------------
 desc "execute #{EXECUTE_FILE}"
-task :run => [:build] do |t|
-	sh "#{EXECUTE_FILE}"
+task :run do |t|
+	command = "#{EXECUTE_FILE}"
+
+	# 実行ファイルの引数の連結
+	args = array_to_join_string EXECUTE_ARGS do |e| e.to_s end
+	command += " #{args}" if args != nil
+	sh command
 end
 
 #--------------------
@@ -93,6 +114,19 @@ directory OBJ_DIR
 #--------------------
 directory DEP_DIR => OBJ_DIR
 
+
+# 経過時間の計測
+start_time = nil
+task :elapsed_begin do
+	start_time = Time.now
+end
+task :elapsed_end do
+	line = "#{"-"*50}\n"
+	print line
+	print "compile time: #{Time.now - start_time}s\n"
+	print line
+end
+
 # 対象コンパイラ
 COMPILER = "g++"
 # コンパイル対象拡張子
@@ -101,48 +135,48 @@ EXT_LIST = [".c", ".cpp", ".cxx"]
 FILE_LIST = FileList[EXT_LIST.map do |e| "**/*#{e}" end]
 # 中間ファイル
 OBJ_LIST = FILE_LIST.ext "o"
+# リリースを有効にするか
+RELEASE = !DEBUG
 
+# 拡張子を変更
+def replace_ext(path, ext)
+	path.gsub File.extname(path), ext
+end
 # ファイル名をディレクトリ＋ファイル名の形で作成
-def filename(dir, path, suffix="")
+def filepath(dir, path, suffix="")
+	# / or \ を - に置き換えてパスを作成
 	def replace(d, a, r, s)
-		f = File.dirname(a)
-		f.gsub!(r, "-")
-		"#{d}#{f}-#{File.basename(a, s)}"
+		"#{d}/#{File.dirname(a).gsub(r, "-")}-#{File.basename(a, s)}"
 	end
 
 	# ディレクトリが含まれている場合は文字列置換
 	return replace(dir, path, "/", suffix) if path.index("/") != nil
 	return replace(dir, path, "\\", suffix) if path.index("\\") != nil
 	# 含まれない場合
-	"#{dir}#{File.basename(path, suffix)}"
-end
-# 依存ファイル出力ディレクトリ
-def dep_filename(s)
-	"#{filename(DEP_DIR, s, ".*")}.d"
-end
-# 中間ファイル出力ディレクトリ
-def obj_filename(s)
-	"#{filename(OBJ_DIR, s, ".*")}.o"
+	"#{dir}/#{File.basename(path, suffix)}"
 end
 
-# 配列から連結文字列を作成
-def array_to_join_string(a, sep=" ")
-	tmp = a.map do |e| yield e end if a.length > 0
-	r = tmp.join sep if tmp != nil
+# ソースと同じ場所に配置するか
+PLACEMENT = false
+
+# 依存ファイル出力ディレクトリ
+def dep_filepath(s)
+	return replace_ext s, ".d" if PLACEMENT
+	"#{filepath(DEP_DIR, s, ".*")}.d"
 end
-# ハッシュから連結文字列を作成
-def hash_to_join_string(a, sep=" ")
-	tmp = a.map do |k, v| yield k, v end if a.length > 0
-	r = tmp.join sep if tmp != nil
+# 中間ファイル出力ディレクトリ
+def obj_filepath(s)
+	return replace_ext s, ".o" if PLACEMENT
+	"#{filepath(OBJ_DIR, s, ".*")}.o"
 end
 
 # 事前に定義する配列
 defines = array_to_join_string DEFINES do |e| "-D#{e}" end
-define_pairs = hash_to_join_string DEFINE_PAIRS do |k, v| "-D#{k}=#{v}" end
+define_values = hash_to_join_string DEFINE_VALUES do |k, v| "-D#{k}=#{v}" end
 undefines = array_to_join_string UNDEFINES do |e| "-U#{e}" end
 # ライブラリ文字列の連結
-inc = array_to_join_string INC_DIRS do |e| "-I#{e}" end
-lib = array_to_join_string LIB_DIRS do |e| "-L#{e}" end
+inc = array_to_join_string INC_DIRS do |e| "-I\"#{e}\"" end
+lib = array_to_join_string LIB_DIRS do |e| "-L\"#{e}\"" end
 
 # 拡張子に対する中間ファイルルールを生成
 EXT_LIST.each do |ext|
@@ -151,17 +185,15 @@ EXT_LIST.each do |ext|
 	#--------------------
 	rule ".o" => ext do |t|
 		# 対象ファイル名
-		name = obj_filename t.source
+		name = obj_filepath t.source
 		#--------------------
 		# ルールで検出したファイルの変更監視
 		#--------------------
 		file name => t.source do |ft|
-			# 依存ヘッダーファイル
-			obj = dep_filename ft.source
-			# -MM システムinclude以外の依存includeを調べるファイル
+			# -MM システムinclude以外の依存include
 			# -MT 中間ファイルターゲット名
 			# -MF 出力ファイルパス
-			sh "#{COMPILER} -MM #{ft.source} -MT #{ft.name} -MF #{obj}"
+			sh "#{COMPILER} -MM -MT #{obj_filepath ft.source} #{ft.source} -MF #{dep_filepath ft.source}"
 
 			# 実行するシェルコマンド
 			command = "#{COMPILER} -c #{ft.source} -o #{ft.name} -std=c++#{CXX_VER}" # CXX_VERでソースをコンパイル
@@ -172,7 +204,7 @@ EXT_LIST.each do |ext|
 			command += " #{inc}" if inc != nil # システムinclude
 			command += " #{lib}" if lib != nil # システムlibrary
 			command += " #{defines}" if defines != nil # 事前定義
-			command += " #{define_pairs}" if define_pairs != nil # 事前定義+値
+			command += " #{define_values}" if define_values != nil # 事前定義+値
 			command += " #{undefines}" if undefines != nil # 事前定義無効
 			# シェル実行
 			sh command
@@ -183,7 +215,7 @@ EXT_LIST.each do |ext|
 end
 
 task :dependencies => [OBJ_DIR, DEP_DIR] do
-	DEP_LIST = FileList["#{DEP_DIR}*.d"]
+	DEP_LIST = FileList["#{DEP_DIR}/*.d"]
 end
 
 #--------------------
@@ -191,23 +223,44 @@ end
 #--------------------
 file EXECUTE_FILE => OBJ_LIST do |t|
 	# 中間ファイル名リスト
-	obj_list = t.prerequisites.map do |n| obj_filename n end
-	command = "#{COMPILER} -o #{EXECUTE_FILE} #{obj_list.join(" ")} -std=c++#{CXX_VER} -lm"
+	obj_list = t.prerequisites.map do |n| obj_filepath n end
+	command = "#{COMPILER} -o #{EXECUTE_FILE} #{obj_list.join(" ")}"
 	sh command
+end
+
+#--------------------
+# 実行ファイル作成
+#--------------------
+rule ".d", [:src] do |t, argv|
+	# -MM システムinclude以外の依存includeを調べるファイル
+	# -MT 中間ファイルターゲット名
+	# -MF 出力ファイルパス
+	sh "#{COMPILER} -MM -MT #{obj_filepath argv.src} #{argv.src} -MF #{dep_filepath argv.src}"
 end
 
 task :reset_timespamp do
 	FileUtils.touch FILE_LIST
 end
 
-task :test => OBJ_LIST do
-	DEP_LIST = FileList["#{DEP_DIR}*.d"]
+task :reset_timespamp_h do
+	FileUtils.touch FileList["**/*.h", "**/*.hpp"]
+end
 
-	abs = File.expand_path __FILE__
-	dir = File.dirname abs
+task :test => [:reset_timespamp_h, OBJ_LIST].flatten do
+	DEP_LIST = FileList["**/*.d"]
+	#abs = File.expand_path __FILE__
+	#dir = File.dirname abs
+
+	DEP_LIST.each do |path|
+		import path
+	end
+	file(EXECUTE_FILE).invoke
+
+=begin
+
+	return []
 
 	table = {}
-
 	DEP_LIST.each do |fname|
 		# ファイル全体取得
 		all = File.read fname
@@ -217,25 +270,25 @@ task :test => OBJ_LIST do
 		arg = all.split ' '
 
 		# キー
-		key = arg[0]
-		key.strip!
-		key.delete! ":"
-		# 中間ファイル名とソースファイル名を削除
+		obj = arg[0].strip
+		src = arg[1].strip
+		obj.delete! ":"
 		2.times do arg.shift end
 
-		# パスの正規化
-		res = []
-		arg.each do |s|
-			s.strip!
-			a = File.expand_path s
-			len = a.length - dir.length
-			res.push a.slice(dir.length+1, len)
-			#next unless s.index "../" != nil
-		end
-
-		table[key] = res
-		#p arg
+		# 絶対パス
+		table[obj] = {
+			src => arg.map do |s| File.expand_path s.strip end
+		}
 	end
 
-	p table
+	table.each do |k, v|
+		p k
+		v.each do |s, a|
+			print "\t#{s}\n"
+			a.each do |e|
+				print "#{"\t"*2}#{e}\n"
+			end
+		end
+	end
+=end
 end
