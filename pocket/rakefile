@@ -46,7 +46,8 @@ require "rake/clean"
 OBJ_DIR = "obj"
 DEP_DIR = OBJ_DIR+"/dep" # dependencies
 # 削除対象ファイルorディレクトリ
-CLEAN_LIST = [EXECUTE_FILE, "**/*.o", "**/*.d", OBJ_DIR]
+# [EXECUTE_FILE, "**/*.o", "**/*.d", OBJ_DIR]
+CLEAN_LIST = [EXECUTE_FILE, OBJ_DIR]
 CLEAN.include CLEAN_LIST
 CLOBBER.include CLEAN_LIST
 
@@ -54,11 +55,13 @@ CLOBBER.include CLEAN_LIST
 def array_to_join_string(a, sep=" ")
 	tmp = a.map do |e| yield e end if a.length > 0
 	r = tmp.join sep if tmp != nil
+	r
 end
 # ハッシュから連結文字列を作成
 def hash_to_join_string(a, sep=" ")
 	tmp = a.map do |k, v| yield k, v end if a.length > 0
 	r = tmp.join sep if tmp != nil
+	r
 end
 
 #--------------------
@@ -71,7 +74,7 @@ task :default => [:build_and_run]
 # 実行ファイルを作成
 #--------------------
 desc "build #{EXECUTE_FILE}"
-task :build => [:elapsed_begin, OBJ_DIR, DEP_DIR, EXECUTE_FILE, :elapsed_end]
+task :build => [OBJ_DIR, DEP_DIR, :pre_build, EXECUTE_FILE, :post_build]
 
 #--------------------
 # 実行ファイルを作成し直す
@@ -114,30 +117,6 @@ directory OBJ_DIR
 #--------------------
 directory DEP_DIR => OBJ_DIR
 
-
-# 経過時間の計測
-start_time = nil
-task :elapsed_begin do
-	start_time = Time.now
-end
-task :elapsed_end do
-	line = "#{"-"*50}\n"
-	print line
-	print "compile time: #{Time.now - start_time}s\n"
-	print line
-end
-
-# 対象コンパイラ
-COMPILER = "g++"
-# コンパイル対象拡張子
-EXT_LIST = [".c", ".cpp", ".cxx"]
-# 拡張子に対するファイルの列挙
-FILE_LIST = FileList[EXT_LIST.map do |e| "**/*#{e}" end]
-# 中間ファイル
-OBJ_LIST = FILE_LIST.ext "o"
-# リリースを有効にするか
-RELEASE = !DEBUG
-
 # 拡張子を変更
 def replace_ext(path, ext)
 	path.gsub File.extname(path), ext
@@ -170,33 +149,66 @@ def obj_filepath(s)
 	"#{filepath(OBJ_DIR, s, ".*")}.o"
 end
 
-# 事前に定義する配列
-defines = array_to_join_string DEFINES do |e| "-D#{e}" end
-define_values = hash_to_join_string DEFINE_VALUES do |k, v| "-D#{k}=#{v}" end
-undefines = array_to_join_string UNDEFINES do |e| "-U#{e}" end
-# ライブラリ文字列の連結
-inc = array_to_join_string INC_DIRS do |e| "-I\"#{e}\"" end
-lib = array_to_join_string LIB_DIRS do |e| "-L\"#{e}\"" end
+# 対象コンパイラ
+COMPILER = "g++"
+# コンパイル対象拡張子
+EXT_LIST = [".c", ".cpp", ".cxx"]
+# 拡張子に対するファイルの列挙
+FILE_LIST = FileList[EXT_LIST.map do |e| "**/*#{e}" end]
+# 中間ファイル
+OBJ_LIST = FILE_LIST.map do |e| obj_filepath e end
+# 依存関係ファイル
+DEP_LIST = FILE_LIST.map do |e| dep_filepath e end
+# リリースを有効にするか
+RELEASE = !DEBUG
 
-# 拡張子に対する中間ファイルルールを生成
-EXT_LIST.each do |ext|
-	#--------------------
-	# 指定拡張子用作成ルール
-	#--------------------
-	rule ".o" => ext do |t|
-		# 対象ファイル名
-		name = obj_filepath t.source
-		#--------------------
-		# ルールで検出したファイルの変更監視
-		#--------------------
-		file name => t.source do |ft|
+# 経過時間の計測
+start_time = nil
+
+#--------------------
+# ビルド前処理（実装）
+#--------------------
+task :pre_build do |t|
+	# 開始時間取得
+	start_time = Time.now
+
+	# 事前に定義する配列
+	defines = array_to_join_string DEFINES do |e| "-D#{e}" end
+	define_values = hash_to_join_string DEFINE_VALUES do |k, v| "-D#{k}=#{v}" end
+	undefines = array_to_join_string UNDEFINES do |e| "-U#{e}" end
+	# ライブラリ文字列の連結
+	inc = array_to_join_string INC_DIRS do |e| "-I\"#{e}\"" end
+	lib = array_to_join_string LIB_DIRS do |e| "-L\"#{e}\"" end
+
+	# ファイルタスクを生成
+	for i in 0...FILE_LIST.length
+		source_file = FILE_LIST[i] # ソースファイル
+		obj_file = OBJ_LIST[i] # 中間ファイル
+		dep_file = DEP_LIST[i] # 依存関係ファイル
+
+		# ソースが変更されていたら依存関係ファイルを更新する
+		file dep_file => source_file do |t|
 			# -MM システムinclude以外の依存include
 			# -MT 中間ファイルターゲット名
 			# -MF 出力ファイルパス
-			sh "#{COMPILER} -MM -MT #{obj_filepath ft.source} #{ft.source} -MF #{dep_filepath ft.source}"
+			sh "#{COMPILER} -MM -MT #{obj_file} -MF #{t.name} #{t.source}"
+		end
+		file(dep_file).invoke
 
+		# 依存関係ファイルを書き込んだら読み込んで依存のファイルを読み込む
+		# ファイル全体取得
+		all = File.read dep_file
+		# 邪魔な文字を削除
+		["\\", "\n"].each do |s| all.delete! s end
+		# 空白で分割
+		headers = all.split ' '
+		# 中間ファイル名とソースファイル名をスキップ
+		2.times do headers.shift end
+
+		# ソースと依存しているヘッダを見て中間ファイルを作成
+		file obj_file => [source_file, headers].flatten do |t|
 			# 実行するシェルコマンド
-			command = "#{COMPILER} -c #{ft.source} -o #{ft.name} -std=c++#{CXX_VER}" # CXX_VERでソースをコンパイル
+			command = "#{COMPILER} -c #{t.source} -o #{t.name} -std=c++#{CXX_VER}" # CXX_VERでソースをコンパイル
 			command += " -Wall -Wextra -Wcast-qual" if WARNING # 警告
 			command += " -w" unless WARNING # 警告をすべて無効
 			command += " -g" if DEBUG # デバッグ情報をつける
@@ -209,86 +221,31 @@ EXT_LIST.each do |ext|
 			# シェル実行
 			sh command
 		end
-		# 上で作成したタスク実行
-		file(name).invoke
+		file(obj_file).invoke
 	end
 end
 
-task :dependencies => [OBJ_DIR, DEP_DIR] do
-	DEP_LIST = FileList["#{DEP_DIR}/*.d"]
+#--------------------
+# ビルド後処理
+#--------------------
+task :post_build do
+	line = "#{"-"*50}\n"
+	print line
+	print "compile time: #{Time.now - start_time}s\n"
+	print line
 end
 
 #--------------------
 # 実行ファイル作成
 #--------------------
-file EXECUTE_FILE => OBJ_LIST do |t|
+file EXECUTE_FILE do |t|
 	# 中間ファイル名リスト
-	obj_list = t.prerequisites.map do |n| obj_filepath n end
-	command = "#{COMPILER} -o #{EXECUTE_FILE} #{obj_list.join(" ")}"
+	#obj_list = t.prerequisites.map do |n| obj_filepath n end
+	command = "#{COMPILER} -o #{EXECUTE_FILE} #{OBJ_LIST.join(" ")}"
 	sh command
 end
 
-#--------------------
-# 実行ファイル作成
-#--------------------
-rule ".d", [:src] do |t, argv|
-	# -MM システムinclude以外の依存includeを調べるファイル
-	# -MT 中間ファイルターゲット名
-	# -MF 出力ファイルパス
-	sh "#{COMPILER} -MM -MT #{obj_filepath argv.src} #{argv.src} -MF #{dep_filepath argv.src}"
-end
-
-task :reset_timespamp do
-	FileUtils.touch FILE_LIST
-end
-
-task :reset_timespamp_h do
-	FileUtils.touch FileList["**/*.h", "**/*.hpp"]
-end
-
-task :test => [:reset_timespamp_h, OBJ_LIST].flatten do
-	DEP_LIST = FileList["**/*.d"]
-	#abs = File.expand_path __FILE__
-	#dir = File.dirname abs
-
-	DEP_LIST.each do |path|
-		import path
-	end
-	file(EXECUTE_FILE).invoke
-
-=begin
-
-	return []
-
-	table = {}
-	DEP_LIST.each do |fname|
-		# ファイル全体取得
-		all = File.read fname
-		# 邪魔な文字を削除
-		["\\", "\n"].each do |s| all.delete! s end
-		# 空白で分割
-		arg = all.split ' '
-
-		# キー
-		obj = arg[0].strip
-		src = arg[1].strip
-		obj.delete! ":"
-		2.times do arg.shift end
-
-		# 絶対パス
-		table[obj] = {
-			src => arg.map do |s| File.expand_path s.strip end
-		}
-	end
-
-	table.each do |k, v|
-		p k
-		v.each do |s, a|
-			print "\t#{s}\n"
-			a.each do |e|
-				print "#{"\t"*2}#{e}\n"
-			end
-		end
-	end
-=end
+task :test do
+	FileUtils.touch FileList["**/*.h"]
+	task(:build).invoke
 end
