@@ -5,15 +5,20 @@
 # 出力実行ファイル名
 EXECUTE_FILE = "main.exe"
 # 実行ファイル引数
+# 文字列はダブルコーテーションは外して渡される
+# ダブルコーテーションをつけるときは "\\\"NAME\\\""
 EXECUTE_ARGS = [
-
+	"Hello",
+	"World",
+	1,
+	2
 ]
 # C++バージョン
-CXX_VER = 14
+# 指定しない場合は0
+CXX_VER = 11
 # ライブラリディレクトリ
 INC_DIRS = [
 	# 文字列配列
-	"inc",
 	"inc/gl"
 ]
 LIB_DIRS = [
@@ -23,18 +28,23 @@ LIB_DIRS = [
 # 事前に定義
 DEFINES = [
 	# 文字列配列
+	"POCKET_HELLO",
+	"POCKET_WORLD"
 ]
 # 事前定義に対しての値を設定
+# 文字列で渡した場合は文字列で定義される
 DEFINE_VALUES = {
 	# 文字列に対して値
-	# "macro" => 1
+	"POCKET_HELLO_STR" => "Hello",
+	"POCKET_WORLD_STR" => "World",
+	"POCKET_VERSION_MAJOR" => 1
 }
 # 事前にて定義を無効
 UNDEFINES = [
 	# 文字列配列
 ]
 # デバッグを有効にするか
-DEBUG = false
+DEBUG = true
 # 警告を有効にするか
 WARNING = true
 
@@ -54,14 +64,17 @@ CLOBBER.include CLEAN_LIST
 # 配列から連結文字列を作成
 def array_to_join_string(a, sep=" ")
 	tmp = a.map do |e| yield e end if a.length > 0
-	r = tmp.join sep if tmp != nil
-	r
+	tmp.join sep if tmp != nil
 end
 # ハッシュから連結文字列を作成
 def hash_to_join_string(a, sep=" ")
 	tmp = a.map do |k, v| yield k, v end if a.length > 0
-	r = tmp.join sep if tmp != nil
-	r
+	tmp.join sep if tmp != nil
+end
+def to_pre_compile_option(a)
+	# 文字列じゃない場合はそのまま
+	return a unless a.kind_of? String
+	"\\\"#{a}\\\""
 end
 
 #--------------------
@@ -90,7 +103,7 @@ task :run do |t|
 	command = "#{EXECUTE_FILE}"
 
 	# 実行ファイルの引数の連結
-	args = array_to_join_string EXECUTE_ARGS do |e| e.to_s end
+	args = array_to_join_string EXECUTE_ARGS do |e| e end
 	command += " #{args}" if args != nil
 	sh command
 end
@@ -135,17 +148,14 @@ def filepath(dir, path, suffix="")
 	"#{dir}/#{File.basename(path, suffix)}"
 end
 
-# ソースと同じ場所に配置するか
-PLACEMENT = false
-
 # 依存ファイル出力ディレクトリ
 def dep_filepath(s)
-	return replace_ext s, ".d" if PLACEMENT
+	#return replace_ext s, ".d" if PLACEMENT
 	"#{filepath(DEP_DIR, s, ".*")}.d"
 end
 # 中間ファイル出力ディレクトリ
 def obj_filepath(s)
-	return replace_ext s, ".o" if PLACEMENT
+	#return replace_ext s, ".o" if PLACEMENT
 	"#{filepath(OBJ_DIR, s, ".*")}.o"
 end
 
@@ -154,11 +164,11 @@ COMPILER = "g++"
 # コンパイル対象拡張子
 EXT_LIST = [".c", ".cpp", ".cxx"]
 # 拡張子に対するファイルの列挙
-FILE_LIST = FileList[EXT_LIST.map do |e| "**/*#{e}" end]
+SOURCE_LIST = FileList[EXT_LIST.map do |e| "**/*#{e}" end]
 # 中間ファイル
-OBJ_LIST = FILE_LIST.map do |e| obj_filepath e end
+OBJ_LIST = SOURCE_LIST.map do |e| obj_filepath e end
 # 依存関係ファイル
-DEP_LIST = FILE_LIST.map do |e| dep_filepath e end
+DEP_LIST = SOURCE_LIST.map do |e| dep_filepath e end
 # リリースを有効にするか
 RELEASE = !DEBUG
 
@@ -173,21 +183,21 @@ task :pre_build do |t|
 	start_time = Time.now
 
 	# 事前に定義する配列
-	defines = array_to_join_string DEFINES do |e| "-D#{e}" end
-	define_values = hash_to_join_string DEFINE_VALUES do |k, v| "-D#{k}=#{v}" end
-	undefines = array_to_join_string UNDEFINES do |e| "-U#{e}" end
+	defines = array_to_join_string DEFINES do |e| "-D\"#{e}\"" end
+	define_values = hash_to_join_string DEFINE_VALUES do |k, v| "-D\"#{k}=#{to_pre_compile_option v}\"" end
+	undefines = array_to_join_string UNDEFINES do |e| "-U\"#{e}\"" end
 	# ライブラリ文字列の連結
 	inc = array_to_join_string INC_DIRS do |e| "-I\"#{e}\"" end
 	lib = array_to_join_string LIB_DIRS do |e| "-L\"#{e}\"" end
 
 	# ファイルタスクを生成
-	for i in 0...FILE_LIST.length
-		source_file = FILE_LIST[i] # ソースファイル
+	for i in 0...SOURCE_LIST.length
+		src_file = SOURCE_LIST[i] # ソースファイル
 		obj_file = OBJ_LIST[i] # 中間ファイル
 		dep_file = DEP_LIST[i] # 依存関係ファイル
 
 		# ソースが変更されていたら依存関係ファイルを更新する
-		file dep_file => source_file do |t|
+		file dep_file => src_file do |t|
 			# -MM システムinclude以外の依存include
 			# -MT 中間ファイルターゲット名
 			# -MF 出力ファイルパス
@@ -206,9 +216,10 @@ task :pre_build do |t|
 		2.times do headers.shift end
 
 		# ソースと依存しているヘッダを見て中間ファイルを作成
-		file obj_file => [source_file, headers].flatten do |t|
+		file obj_file => [src_file, headers].flatten do |t|
 			# 実行するシェルコマンド
-			command = "#{COMPILER} -c #{t.source} -o #{t.name} -std=c++#{CXX_VER}" # CXX_VERでソースをコンパイル
+			command = "#{COMPILER} -c #{t.source} -o #{t.name}"
+			command += " -std=c++#{CXX_VER == 03 ? "03" : CXX_VER}" if CXX_VER > 0 # CXX_VER
 			command += " -Wall -Wextra -Wcast-qual" if WARNING # 警告
 			command += " -w" unless WARNING # 警告をすべて無効
 			command += " -g" if DEBUG # デバッグ情報をつける
@@ -238,10 +249,10 @@ end
 #--------------------
 # 実行ファイル作成
 #--------------------
-file EXECUTE_FILE do |t|
+file EXECUTE_FILE => OBJ_LIST do |t|
 	# 中間ファイル名リスト
 	#obj_list = t.prerequisites.map do |n| obj_filepath n end
-	command = "#{COMPILER} -o #{EXECUTE_FILE} #{OBJ_LIST.join(" ")}"
+	command = "#{COMPILER} -o #{EXECUTE_FILE} #{t.prerequisites.join(" ")}"
 	sh command
 end
 
