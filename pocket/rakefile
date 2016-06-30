@@ -1,6 +1,10 @@
-#---------------------------------------------------------------------
+#-----------------------------------------------------------
 # config
-#---------------------------------------------------------------------
+#-----------------------------------------------------------
+
+# C++バージョン
+# 指定しない場合は0
+CXX_VER = 9
 
 # 出力実行ファイル名
 EXECUTE_FILE = "main.exe"
@@ -13,9 +17,6 @@ EXECUTE_ARGS = [
 	1,
 	2
 ]
-# C++バージョン
-# 指定しない場合は0
-CXX_VER = 11
 # ライブラリディレクトリ
 INC_DIRS = [
 	# 文字列配列
@@ -48,16 +49,17 @@ DEBUG = true
 # 警告を有効にするか
 WARNING = true
 
-#---------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------------------------------
 # implementatioin
-#---------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------------------------------
 require "rake/clean"
-# 中間ファイルディレクトリ
-OBJ_DIR = "obj"
-DEP_DIR = OBJ_DIR+"/dep" # dependencies
+BUILD_DIR = "builds" # ビルド用ディレクトリ
+OBJ_DIR = "#{BUILD_DIR}/obj" # 中間ファイル
+DEP_DIR = "#{BUILD_DIR}/dep" # 依存関係ファイル # dependencies
+ASM_DIR = "#{BUILD_DIR}/asm" # アセンブリファイル
 # 削除対象ファイルorディレクトリ
 # [EXECUTE_FILE, "**/*.o", "**/*.d", OBJ_DIR]
-CLEAN_LIST = [EXECUTE_FILE, OBJ_DIR]
+CLEAN_LIST = [EXECUTE_FILE, BUILD_DIR]
 CLEAN.include CLEAN_LIST
 CLOBBER.include CLEAN_LIST
 
@@ -77,27 +79,27 @@ def to_pre_compile_option(a)
 	"\\\"#{a}\\\""
 end
 
-#--------------------
+#--------------------------------------------------------------------------------
 # デフォルトタスク
-#--------------------
+#--------------------------------------------------------------------------------
 desc "default: build_and_run"
 task :default => [:build_and_run]
 
-#--------------------
+#--------------------------------------------------------------------------------
 # 実行ファイルを作成
-#--------------------
+#--------------------------------------------------------------------------------
 desc "build #{EXECUTE_FILE}"
-task :build => [OBJ_DIR, DEP_DIR, :pre_build, EXECUTE_FILE, :post_build]
+task :build => [:make_directory, :pre_build, EXECUTE_FILE, :post_build]
 
-#--------------------
+#--------------------------------------------------------------------------------
 # 実行ファイルを作成し直す
-#--------------------
+#--------------------------------------------------------------------------------
 desc "rebuild #{EXECUTE_FILE}"
 task :rebuild => [:clean, :build]
 
-#--------------------
+#--------------------------------------------------------------------------------
 # 実行ファイルを実行
-#--------------------
+#--------------------------------------------------------------------------------
 desc "execute #{EXECUTE_FILE}"
 task :run do |t|
 	command = "#{EXECUTE_FILE}"
@@ -108,27 +110,26 @@ task :run do |t|
 	sh command
 end
 
-#--------------------
+#--------------------------------------------------------------------------------
 # 実行ファイルを作成して実行
-#--------------------
+#--------------------------------------------------------------------------------
 desc "build and run: #{EXECUTE_FILE}"
 task :build_and_run => [:build, :run]
 
-#--------------------
+#--------------------------------------------------------------------------------
 # 実行ファイルを作成し直して実行
-#--------------------
+#--------------------------------------------------------------------------------
 desc "rebuild and run: #{EXECUTE_FILE}"
 task :rebuild_and_run => [:rebuild, :run]
 
-#--------------------
-# 中間ファイル用ディレクトリ作成
-#--------------------
-directory OBJ_DIR
-
-#--------------------
-# ファイル依存関係ファイルディレクトリ作成
-#--------------------
-directory DEP_DIR => OBJ_DIR
+#--------------------------------------------------------------------------------
+# ビルド用ディレクトリ作成
+#--------------------------------------------------------------------------------
+directory BUILD_DIR
+directory OBJ_DIR => BUILD_DIR
+directory DEP_DIR => BUILD_DIR
+directory ASM_DIR => BUILD_DIR
+task :make_directory => [BUILD_DIR, OBJ_DIR, DEP_DIR, ASM_DIR] # 全管理
 
 # 拡張子を変更
 def replace_ext(path, ext)
@@ -160,6 +161,12 @@ def obj_filepath(s)
 	#"#{filepath(OBJ_DIR, s, ".*")}.o"
 	"#{filepath(OBJ_DIR, s)}.o"
 end
+# アセンブラファイル出力ディレクトリ
+def asm_filepath(s)
+	#return replace_ext s, ".s" if PLACEMENT
+	#"#{filepath(OBJ_DIR, s, ".*")}.s"
+	"#{filepath(ASM_DIR, s)}.s"
+end
 
 # C++バージョンの調整
 CXX_VER_LIST = [98, 11, 14, 17]
@@ -168,14 +175,14 @@ def adjust_cxx_version(v)
 	return "03" if v == 03
 	# リストの中にあればそのまま
 	return v if CXX_VER_LIST.any? do |a| a == v end
-	# 近いバージョンを探す
+
 	def rng(v, a, b)
-		v > a && v < b
+		v > a and v < b
 	end
-	return 11 if rng v, 3, 11
-	return 14 if rng v, 11, 17
-	return 17 if v > 17
-	98
+	return "0x" if rng v, 3, 11
+	return "1y" if rng v, 11, 14
+	return "1z" if v > 14
+	"03"
 end
 # 調整後C++バージョン
 CXX_VERSION = adjust_cxx_version CXX_VER
@@ -188,8 +195,6 @@ EXT_LIST = [".c", ".cpp", ".cxx"]
 SOURCE_LIST = FileList[EXT_LIST.map do |e| "**/*#{e}" end]
 # 中間ファイル
 OBJ_LIST = SOURCE_LIST.map do |e| obj_filepath e end
-# 依存関係ファイル
-DEP_LIST = SOURCE_LIST.map do |e| dep_filepath e end
 # リリースを有効にするか
 RELEASE = !DEBUG
 
@@ -214,12 +219,17 @@ end
 # 経過時間の計測
 start_time = nil
 
-#--------------------
+#--------------------------------------------------------------------------------
 # ビルド前処理（実装）
-#--------------------
+#--------------------------------------------------------------------------------
 task :pre_build do |t|
 	# 開始時間取得
 	start_time = Time.now
+
+	# 依存関係ファイル
+	dep_list = SOURCE_LIST.map do |e| dep_filepath e end
+	# アセンブラファイル
+	asm_list = SOURCE_LIST.map do |e| asm_filepath e end if DEBUG
 
 	# 事前に定義する配列
 	defines = array_to_join_string DEFINES do |e| "-D\"#{e}\"" end
@@ -233,19 +243,35 @@ task :pre_build do |t|
 	for i in 0...SOURCE_LIST.length
 		src_file = SOURCE_LIST[i] # ソースファイル
 		obj_file = OBJ_LIST[i] # 中間ファイル
-		dep_file = DEP_LIST[i] # 依存関係ファイル
+		dep_file = dep_list[i] # 依存関係ファイル
+		asm_file = asm_list[i] if DEBUG
+		# タスクが実行されたか
+		is_dep = false
 
 		# ソースが変更されていたら依存関係ファイルを更新する
-		file dep_file => src_file do |t|
+		file dep_file => src_file do
 			# -MM システムinclude以外の依存include
 			# -MT 中間ファイルターゲット名
 			# -MF 出力ファイルパス
-			sh "#{COMPILER} -MM -MT #{obj_file} -MF #{t.name} #{t.source}"
+			sh "#{COMPILER} -E -MM -MT #{obj_file} -MF #{dep_file} #{src_file}"
+			is_dep = true
 		end
 		file(dep_file).invoke
 
-		# 依存ヘッダー
+		# 依存ヘッダー配列
 		headers = dep_to_headers_from_file dep_file
+
+		# ソースが変更されていない場合はヘッダが依存しているヘッダーを見る
+		unless is_dep then
+			file dep_file => headers do
+				sh "#{COMPILER} -E -MM -MT #{obj_file} -MF #{dep_file} #{src_file}"
+				is_dep = true
+			end
+			file(dep_file).invoke
+			if is_dep then
+				headers = dep_to_headers_from_file dep_file
+			end
+		end
 
 		# ソースと依存しているヘッダを見て中間ファイルを作成
 		file obj_file => [src_file, headers].flatten do |t|
@@ -263,32 +289,37 @@ task :pre_build do |t|
 			command += " #{undefines}" if undefines != nil # 事前定義無効
 			# シェル実行
 			sh command
+
+			next unless DEBUG
+			# デバッグではアセンブラファイル作成
+			command += " -S"
+			command.gsub! t.name, asm_file
+			sh command
 		end
 		file(obj_file).invoke
 	end
 end
 
-#--------------------
+#--------------------------------------------------------------------------------
 # ビルド後処理
-#--------------------
+#--------------------------------------------------------------------------------
 task :post_build do
+	next if start_time == nil
+
 	line = "#{"-"*50}\n"
 	print line
 	print "compile time: #{Time.now - start_time}s\n"
 	print line
+
+	start_time = nil
 end
 
-#--------------------
+#--------------------------------------------------------------------------------
 # 実行ファイル作成
-#--------------------
+#--------------------------------------------------------------------------------
 file EXECUTE_FILE => OBJ_LIST do |t|
 	# 中間ファイル名リスト
 	#obj_list = t.prerequisites.map do |n| obj_filepath n end
 	command = "#{COMPILER} -o #{EXECUTE_FILE} #{t.prerequisites.join(" ")}"
 	sh command
-end
-
-task :test do
-	FileUtils.touch FileList["**/*.h"]
-	task(:build).invoke
 end
