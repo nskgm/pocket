@@ -151,13 +151,34 @@ end
 # 依存ファイル出力ディレクトリ
 def dep_filepath(s)
 	#return replace_ext s, ".d" if PLACEMENT
-	"#{filepath(DEP_DIR, s, ".*")}.d"
+	#"#{filepath(DEP_DIR, s, ".*")}.d"
+	"#{filepath(DEP_DIR, s)}.d"
 end
 # 中間ファイル出力ディレクトリ
 def obj_filepath(s)
 	#return replace_ext s, ".o" if PLACEMENT
-	"#{filepath(OBJ_DIR, s, ".*")}.o"
+	#"#{filepath(OBJ_DIR, s, ".*")}.o"
+	"#{filepath(OBJ_DIR, s)}.o"
 end
+
+# C++バージョンの調整
+CXX_VER_LIST = [98, 11, 14, 17]
+def adjust_cxx_version(v)
+	# 3の場合は先頭に0をつける
+	return "03" if v == 03
+	# リストの中にあればそのまま
+	return v if CXX_VER_LIST.any? do |a| a == v end
+	# 近いバージョンを探す
+	def rng(v, a, b)
+		v > a && v < b
+	end
+	return 11 if rng v, 3, 11
+	return 14 if rng v, 11, 17
+	return 17 if v > 17
+	98
+end
+# 調整後C++バージョン
+CXX_VERSION = adjust_cxx_version CXX_VER
 
 # 対象コンパイラ
 COMPILER = "g++"
@@ -171,6 +192,24 @@ OBJ_LIST = SOURCE_LIST.map do |e| obj_filepath e end
 DEP_LIST = SOURCE_LIST.map do |e| dep_filepath e end
 # リリースを有効にするか
 RELEASE = !DEBUG
+
+# 依存関係ファイルを配列として読み込む
+def load_dep_from_file(path)
+	# ファイル全体取得
+	all = File.read path
+	# 邪魔な文字を削除
+	["\\", "\n"].each do |s| all.delete! s end
+	# 空白で分割
+	deps = all.split ' '
+	# 空白などを削除
+	deps.map do |e| e.strip end
+end
+# ヘッダーのみへ変換
+def dep_to_headers_from_file(path)
+	# 依存関係ファイルを読み込む
+	deps = load_dep_from_file path
+	deps.slice 2..deps.length
+end
 
 # 経過時間の計測
 start_time = nil
@@ -205,21 +244,14 @@ task :pre_build do |t|
 		end
 		file(dep_file).invoke
 
-		# 依存関係ファイルを書き込んだら読み込んで依存のファイルを読み込む
-		# ファイル全体取得
-		all = File.read dep_file
-		# 邪魔な文字を削除
-		["\\", "\n"].each do |s| all.delete! s end
-		# 空白で分割
-		headers = all.split ' '
-		# 中間ファイル名とソースファイル名をスキップ
-		2.times do headers.shift end
+		# 依存ヘッダー
+		headers = dep_to_headers_from_file dep_file
 
 		# ソースと依存しているヘッダを見て中間ファイルを作成
 		file obj_file => [src_file, headers].flatten do |t|
 			# 実行するシェルコマンド
 			command = "#{COMPILER} -c #{t.source} -o #{t.name}"
-			command += " -std=c++#{CXX_VER == 03 ? "03" : CXX_VER}" if CXX_VER > 0 # CXX_VER
+			command += " -std=c++#{CXX_VERSION}" if CXX_VER > 0
 			command += " -Wall -Wextra -Wcast-qual" if WARNING # 警告
 			command += " -w" unless WARNING # 警告をすべて無効
 			command += " -g" if DEBUG # デバッグ情報をつける
