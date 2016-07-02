@@ -7,10 +7,7 @@
 #endif // _USE_PRAGMA_ONCE
 
 #include "../debug.h"
-#include "../fwd.h"
-#ifdef _USING_MATH_IO
 #include "../io.h"
-#endif // _USING_MATH_IO
 
 #ifdef _USE_CXX11
 // C++11が使用できる場合は標準のものを使用
@@ -25,7 +22,6 @@ using array = std::array<T, N>;
 }
 }
 
-#ifdef _USING_MATH_IO
 template <typename CharT, typename CharTraits, typename T, size_t N> inline
 std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const std::array<T, N>& ary)
 {
@@ -58,7 +54,6 @@ std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, 
 	os << pocket::io::box_brackets_right;
 	return os;
 }
-#endif // _USING_MATH_IO
 
 #else
 // 使えない場合は簡単なクラスを定義
@@ -233,7 +228,6 @@ public:
 } // namespace container
 } // namespace pocket
 
-#ifdef _USING_MATH_IO
 template <typename CharT, typename CharTraits, typename T, size_t N> inline
 std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const pocket::container::array<T, N>& ary)
 {
@@ -266,7 +260,6 @@ std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, 
 	os << pocket::io::box_brackets_right;
 	return os;
 }
-#endif // _USING_MATH_IO
 
 namespace std
 {

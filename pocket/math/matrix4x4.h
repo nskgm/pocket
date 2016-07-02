@@ -19,9 +19,7 @@
 #ifdef _USE_CXX11
 #include <initializer_list>
 #endif // _USE_CXX11
-#ifdef _USING_MATH_IO
 #include "../io.h"
-#endif // _USING_MATH_IO
 
 namespace pocket
 {
@@ -1902,7 +1900,6 @@ matrix3x3<T>::matrix3x3(const matrix4x4<T>& m)
 	M[2] = m[2];
 }
 
-#ifdef _USING_MATH_IO
 template <typename CharT, typename CharTraits, typename T> inline
 std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const matrix4x4<T>& v)
 {
@@ -1953,7 +1950,6 @@ std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, 
 	is.ignore();
 	return is;
 }
-#endif // _USING_MATH_IO
 
 } // namespace pocket
 

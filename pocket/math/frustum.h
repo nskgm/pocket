@@ -13,9 +13,7 @@
 #include "vector3.h"
 #include "plane.h"
 #include "matrix4x4.h"
-#ifdef _USING_MATH_IO
 #include "../io.h"
-#endif // _USING_MATH_IO
 
 namespace pocket
 {
@@ -365,11 +363,11 @@ struct frustum
 	*---------------------------------------------------------------------*/
 	const vector3<T>& direction() const
 	{
-		return planes[4].normal;
+		return planes[4].normal();
 	}
 	vector3<T>& direction(vector3<T>& result) const
 	{
-		result = planes[4].normal;
+		result = planes[4].normal();
 		return result;
 	}
 
@@ -413,17 +411,17 @@ struct frustum
 	_CXX11_EXPLICIT operator T* ()
 	{
 #ifdef _USE_ANONYMOUS_NON_POD
-		return &left.normal.x;
+		return &left.a;
 #else
-		return &planes[0].normal.x;
+		return &planes[0].a;
 #endif // _USE_ANONYMOUS_NON_POD
 	}
 	_CXX11_EXPLICIT operator const T* () const
 	{
 #ifdef _USE_ANONYMOUS_NON_POD
-		return &left.normal.x;
+		return &left.a;
 #else
-		return &planes[0].normal.x;
+		return &planes[0].a;
 #endif // _USE_ANONYMOUS_NON_POD
 	}
 
@@ -472,7 +470,6 @@ bool operator >> (const ARRAY<T, N>& v, const frustum<T>& f)
 	return f << v;
 }
 
-#ifdef _USING_MATH_IO
 template <typename CharT, typename CharTraits, typename T> inline
 std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const frustum<T>& v)
 {
@@ -517,7 +514,6 @@ std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, 
 	is.ignore();
 	return is;
 }
-#endif // _USING_MATH_IO
 
 } // namespace pocket
 

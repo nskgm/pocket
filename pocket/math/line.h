@@ -11,10 +11,9 @@
 #include "math_traits.h"
 #include "vector2.h"
 #include "vector3.h"
+#include "vector4.h"
 #include "ray.h"
-#ifdef _USING_MATH_IO
 #include "../io.h"
-#endif // _USING_MATH_IO
 
 namespace pocket
 {
@@ -25,14 +24,17 @@ template <typename> struct plane;
 #ifndef _UNUSING_MATH_INT_FLOAT
 typedef line<float, vector2> line2f;
 typedef line<float, vector3> line3f;
+typedef line<float, vector4> line4f;
 #endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
 typedef line<double, vector2> line2d;
 typedef line<double, vector3> line3d;
+typedef line<double, vector4> line4d;
 #endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
 typedef line<long double, vector2> line2ld;
 typedef line<long double, vector3> line3ld;
+typedef line<long double, vector4> line4ld;
 #endif // _USING_MATH_LONG_DOUBLE
 
 template <typename T, template <typename> class VectorN>
@@ -248,7 +250,6 @@ ray<T, VectorN>& ray<T, VectorN>::from_line(const line<T, VectorN>& l)
 	return *this;
 }
 
-#ifdef _USING_MATH_IO
 template <typename CharT, typename CharTraits, typename T, template <typename> class VectorN> inline
 std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const line<T, VectorN>& v)
 {
@@ -282,7 +283,6 @@ std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, 
 	is.ignore();
 	return is;
 }
-#endif // _USING_MATH_IO
 
 } // namespace pocket
 

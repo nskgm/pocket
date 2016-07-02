@@ -6,7 +6,6 @@
 #pragma once
 #endif // _USE_PRAGMA_ONCE
 
-#include "fwd.h"
 #include <iostream>
 #include <limits>
 

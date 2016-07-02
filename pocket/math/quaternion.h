@@ -12,9 +12,7 @@
 #include "math_traits.h"
 #include "vector3.h"
 #include "vector4.h"
-#ifdef _USING_MATH_IO
 #include "io.h"
-#endif // _USING_MATH_IO
 
 namespace pocket
 {
@@ -897,7 +895,6 @@ vector4<T> vector4<T>::operator * (const quaternion<T>& q) const
 	return q.rotate(*this, r);
 }
 
-#ifdef _USING_MATH_IO
 template <typename CharT, typename CharTraits, typename T> inline
 std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const quaternion<T>& v)
 {
@@ -945,7 +942,6 @@ std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, 
 	is.ignore();
 	return is;
 }
-#endif // _USING_MATH_IO
 
 } // namespace pocket
 

@@ -9,9 +9,8 @@
 #include "math_traits.h"
 #include "vector2.h"
 #include "vector3.h"
-#ifdef _USING_MATH_IO
-#include <iostream>
-#endif // _USING_MATH_IO
+#include "vector4.h"
+#include "../io.h"
 
 namespace pocket
 {
@@ -23,14 +22,17 @@ template <typename> struct plane;
 #ifndef _UNUSING_MATH_INT_FLOAT
 typedef ray<float, vector2> ray2f;
 typedef ray<float, vector3> ray3f;
+typedef ray<float, vector4> ray4f;
 #endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
 typedef ray<double, vector2> ray2d;
 typedef ray<double, vector3> ray3d;
+typedef ray<double, vector4> ray4d;
 #endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
 typedef ray<long double, vector2> ray2ld;
 typedef ray<long double, vector3> ray3ld;
+typedef ray<long double, vector4> ray4ld;
 #endif // _USING_MATH_LONG_DOUBLE
 
 template <typename T, template <typename> class VectorN>
@@ -261,7 +263,6 @@ const ray<T, VectorN> ray<T, VectorN>::forward(vector_type::forward);
 template <typename T, template <typename> class VectorN>
 const ray<T, VectorN> ray<T, VectorN>::backward(vector_type::backward);
 
-#ifdef _USING_MATH_IO
 template <typename CharT, typename CharTraits, typename T, template <typename> class VectorN> inline
 std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const ray<T, VectorN>& v)
 {
@@ -295,7 +296,6 @@ std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, 
 	is.ignore();
 	return is;
 }
-#endif // _USING_MATH_IO
 
 } // namespace pocket
 

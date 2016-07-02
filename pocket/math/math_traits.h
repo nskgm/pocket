@@ -10,11 +10,9 @@
 #include "../behavior.h"
 #include "fwd.h"
 #include "../container/array.h"
+#include "../io.h"
 #include <cmath>
 #include <cfloat>
-#ifdef _USING_MATH_IO
-#include "../io.h"
-#endif // _USING_MATH_IO
 
 namespace pocket
 {
@@ -929,8 +927,6 @@ const T math_traits<T>::rad2deg = math_traits<T>::half_angle / math_traits<T>::p
 template <typename T>
 const T math_traits<T>::deg2rad = math_traits<T>::pi / math_traits<T>::half_angle;
 
-#ifdef _USING_MATH_IO
-
 namespace detail
 {
 #ifndef _UNUSING_MATH_INT_FLOAT
@@ -975,7 +971,6 @@ _MATH_SIN_COS_OUTPUT_OPERATOR(detail::math_traits_sin_cos_tld);
 #endif // _USING_MATH_LONG_DOUBLE
 
 #undef _MATH_SIN_COS_OUTPUT_OPERATOR
-#endif // _USING_MATH_IO
 
 } // namespace pocket
 

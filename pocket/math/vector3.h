@@ -11,9 +11,7 @@
 #include "../container/array.h"
 #include "math_traits.h"
 #include "vector2.h"
-#ifdef _USING_MATH_IO
 #include "../io.h"
-#endif // _USING_MATH_IO
 
 namespace pocket
 {
@@ -1279,7 +1277,6 @@ vector2<T>& vector2<T>::operator = (const vector3<U>& v)
 	return *this;
 }
 
-#ifdef _USING_MATH_IO
 template <typename CharT, typename CharTraits, typename T> inline
 std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const vector3<T>& v)
 {
@@ -1321,7 +1318,6 @@ std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, 
 	is.ignore();
 	return is;
 }
-#endif // _USING_MATH_IO
 
 } // namespace pocket
 

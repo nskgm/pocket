@@ -7,9 +7,7 @@
 #endif // _USE_PRAGMA_ONCE
 
 #include "container/array.h"
-#ifdef _USING_MATH_IO
 #include "io.h"
-#endif // _USING_MATH_IO
 
 namespace pocket
 {
@@ -837,20 +835,17 @@ fixed_array<T, 3>& fixed_array<T, 3>::operator = (const fixed_array<T, 4>& a)
 	return *this;
 }
 
-inline
-fixed_array<bool, 2>::fixed_array(const fixed_array<bool, 3>& a) :
+inline fixed_array<bool, 2>::fixed_array(const fixed_array<bool, 3>& a) :
 	data(a.data & 0x03)
 {
 
 }
-inline
-fixed_array<bool, 2>::fixed_array(const fixed_array<bool, 4>& a) :
+inline fixed_array<bool, 2>::fixed_array(const fixed_array<bool, 4>& a) :
 	data(a.data & 0x03)
 {
 
 }
-inline
-fixed_array<bool, 3>::fixed_array(const fixed_array<bool, 4>& a) :
+inline fixed_array<bool, 3>::fixed_array(const fixed_array<bool, 4>& a) :
 	data(a.data & 0x07)
 {
 
@@ -858,7 +853,6 @@ fixed_array<bool, 3>::fixed_array(const fixed_array<bool, 4>& a) :
 
 } // namespace pocket
 
-#ifdef _USING_MATH_IO
 template <typename CharT, typename CharTraits, typename T, size_t N> inline
 std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const pocket::fixed_array<T, N>& ary)
 {
@@ -910,7 +904,5 @@ _POCKET_OUTPUT_BOOL_FIXED_ARRAY(3);
 _POCKET_OUTPUT_BOOL_FIXED_ARRAY(4);
 
 #undef _POCKET_OUTPUT_BOOL_FIXED_ARRAY
-
-#endif // _USING_MATH_IO
 
 #endif // __POCKET_FIXED_ARRAY_H__

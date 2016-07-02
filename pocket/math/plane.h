@@ -14,9 +14,10 @@
 #include "vector4.h"
 #include "line.h"
 #include "ray.h"
-#ifdef _USING_MATH_IO
+#ifdef _USE_SIMD_ANONYMOUS
+#include "simd_traits.h"
+#endif // _USE_SIMD_ANONYMOUS
 #include "../io.h"
-#endif // _USING_MATH_IO
 
 namespace pocket
 {
@@ -45,8 +46,10 @@ struct plane
 	typedef math_traits<T> math_type;
 	typedef vector3<T> notmal_type;
 	typedef vector3<T> point_type;
-	typedef line<T, vector3> line_type;
-	typedef ray<T, vector3> ray_type;
+	typedef line<T, vector3> line3_type;
+	typedef line<T, vector4> line4_type;
+	typedef ray<T, vector3> ray3_type;
+	typedef ray<T, vector4> ray4_type;
 
 	typedef container::array<T, 4> array_type;
 	typedef typename array_type::value_type value_type;
@@ -56,6 +59,11 @@ struct plane
 	typedef typename array_type::const_pointer const_pointer;
 	typedef typename array_type::reference reference;
 	typedef typename array_type::const_reference const_reference;
+
+#ifdef _USE_SIMD_ANONYMOUS
+	typedef simd_traits<T> simd;
+	typedef typename simd::type simd_type;
+#endif // _USE_SIMD_ANONYMOUS
 
 	enum intersect_result
 	{
@@ -68,28 +76,35 @@ struct plane
 	* Members
 	*-----------------------------------------------------------------------------------------*/
 
-#ifdef _USE_ANONYMOUS_NON_POD
+#ifdef _USE_ANONYMOUS
 	union
 	{
 		struct
 		{
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // _USE_ANONYMOUS
 
-			vector3<T> normal; // 法線
-			T d; // 原点からの距離
-
-#ifdef _USE_ANONYMOUS_NON_POD
-		};
-		struct
-		{
 			T a; // 法線x成分
 			T b; // 法線y成分
 			T c; // 法線z成分
+			T d; // 原点からの距離
+
+#ifdef _USE_ANONYMOUS
+		};
+#ifdef _USE_ANONYMOUS_NON_POD
+		struct
+		{
+			vector3<T> n; // 法線
 			T distance;
 		};
+#endif // _USE_ANONYMOUS_NON_POD
+
+#ifdef _USE_SIMD_ANONYMOUS
+		simd_type mm;
+#endif // _USE_SIMD_ANONYMOUS
+
 		array_type data;
 	};
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // _USE_ANONYMOUS
 
 	/*-----------------------------------------------------------------------------------------
 	* Constants
@@ -112,54 +127,114 @@ struct plane
 
 	}
 	explicit plane(const behavior::_right_t&, T d) :
-		normal(math_type::one, math_type::zero, math_type::zero),
+#ifdef _USE_SIMD_ANONYMOUS
+		mm(simd::set(math_type::one, math_type::zero, math_type::zero, -d))
+#else
+#	ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+		a(math_type::one), b(math_type::zero), c(math_type::zero),
+#	else
+		n(math_type::one, math_type::zero, math_type::zero),
+#	endif
 		d(-d)
+#endif
 	{
 
 	}
 	explicit plane(const behavior::_left_t&, T d) :
-		normal(-math_type::one, math_type::zero, math_type::zero),
+#ifdef _USE_SIMD_ANONYMOUS
+		mm(simd::set(-math_type::one, math_type::zero, math_type::zero, -d))
+#else
+#	ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+		a(-math_type::one), b(math_type::zero), c(math_type::zero),
+#	else
+		n(-math_type::one, math_type::zero, math_type::zero),
+#	endif
 		d(-d)
+#endif
 	{
 
 	}
 	explicit plane(const behavior::_up_t&, T d) :
-		normal(math_type::zero, math_type::one, math_type::zero),
+#ifdef _USE_SIMD_ANONYMOUS
+		mm(simd::set(math_type::zero, math_type::one, math_type::zero, -d))
+#else
+#	ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+		a(math_type::zero), b(math_type::one), c(math_type::zero),
+#	else
+		n(math_type::zero, math_type::one, math_type::zero),
+#	endif
 		d(-d)
+#endif
 	{
 
 	}
 	explicit plane(const behavior::_down_t&, T d) :
-		normal(math_type::zero, -math_type::one, math_type::zero),
+#ifdef _USE_SIMD_ANONYMOUS
+		mm(simd::set(math_type::zero, -math_type::one, math_type::zero, -d))
+#else
+#	ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+		a(math_type::zero), b(-math_type::one), c(math_type::zero),
+#	else
+		n(math_type::zero, -math_type::one, math_type::zero),
+#	endif
 		d(-d)
+#endif
 	{
 
 	}
 	explicit plane(const behavior::_front_t&, T d) :
-		normal(math_type::zero, math_type::zero, math_type::one),
+#ifdef _USE_SIMD_ANONYMOUS
+		mm(simd::set(math_type::zero, math_type::zero, math_type::one, -d))
+#else
+#	ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+		a(math_type::zero), b(math_type::zero), c(math_type::one),
+#	else
+		n(math_type::zero, math_type::zero, math_type::one),
+#	endif
 		d(-d)
+#endif
 	{
 
 	}
 	explicit plane(const behavior::_back_t&, T d) :
-		normal(math_type::zero, math_type::zero, -math_type::one),
+#ifdef _USE_SIMD_ANONYMOUS
+		mm(simd::set(math_type::zero, math_type::zero, -math_type::one, -d))
+#else
+#	ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+		a(math_type::zero), b(math_type::zero), c(-math_type::one),
+#	else
+		n(math_type::zero, math_type::zero, -math_type::one),
+#	endif
 		d(-d)
+#endif
 	{
 
 	}
 	plane(T a, T b, T c, T d) :
-		normal(a, b, c), d(d)
+#ifdef _USE_SIMD_ANONYMOUS
+		mm(simd::set(a, b, c, d))
+#else
+#	ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+		a(a), b(b), c(c),
+#	else
+		n(a, b, c),
+#	endif
+		d(d)
+#endif
 	{
 
 	}
 	plane(const vector3<T>& n, T d) :
-		normal(n), d(d)
-	{
-
-	}
-	explicit plane(T d) : // 上方向での距離を渡すのみ
-		normal(math_type::zero, math_type::one, math_type::zero),
-		d(-d)
+#ifdef _USE_SIMD_ANONYMOUS
+		mm(simd::set(n.x, n.y, n.z, d))
+#else
+#	ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+		a(n.x), b(n.y), c(n.z),
+#	else
+		n(n),
+#	endif
+		d(d)
+#endif
 	{
 
 	}
@@ -167,10 +242,25 @@ struct plane
 	{
 		from_points(v0, v1, v2);
 	}
-	plane(const vector3<T>& normal, const vector3<T>& p)
+	plane(const vector4<T>& v0, const vector4<T>& v1, const vector4<T>& v2)
 	{
-		from_normal_point(normal, p);
+		from_points(v0, v1, v2);
 	}
+	plane(const vector3<T>& nrm, const vector3<T>& p)
+	{
+		from_normal_point(nrm, p);
+	}
+	plane(const vector4<T>& nrm, const vector4<T>& p)
+	{
+		from_normal_point(nrm, p);
+	}
+#ifdef _USE_SIMD_ANONYMOUS
+	plane(simd_type mm) :
+		mm(mm)
+	{
+
+	}
+#endif // _USE_SIMD_ANONYMOUS
 
 	/*-----------------------------------------------------------------------------------------
 	* Functions
@@ -181,21 +271,33 @@ struct plane
 	*---------------------------------------------------------------------*/
 	bool is_near(const plane& p) const
 	{
-		return (normal.is_near(p.normal) && math_type::is_near(d, p.d));
+#ifdef _USE_SIMD_ANONYMOUS
+		return simd::near_equal(mm, p.mm);
+#else
+		return (math_type::is_near(a, p.a) && math_type::is_near(b, p.b) && math_type::is_near(c, p.c) && math_type::is_near(d, p.d));
+#endif // _USE_SIMD_ANONYMOUS
 	}
 	/*---------------------------------------------------------------------
 	* 値がゼロに近いか
 	*---------------------------------------------------------------------*/
 	bool is_near_zero() const
 	{
-		return (normal.is_near_zero() && math_type::is_near_zero(d));
+#ifdef _USE_SIMD_ANONYMOUS
+		return simd::near_equal_zero(mm);
+#else
+		return (math_type::is_near_zero(a) && math_type::is_near_zero(b) && math_type::is_near_zero(c) && math_type::is_near_zero(d));
+#endif // _USE_SIMD_ANONYMOUS
 	}
 	/*---------------------------------------------------------------------
 	* 値がゼロか
 	*---------------------------------------------------------------------*/
 	bool is_zero() const
 	{
-		return (normal.is_zero() && d == math_type::zero);
+#ifdef _USE_SIMD_ANONYMOUS
+		return simd::equal(mm, simd::zero());
+#else
+		return (a == math_type::zero && b == math_type::zero && c == math_type::zero && d == math_type::zero);
+#endif // _USE_SIMD_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------
@@ -204,12 +306,16 @@ struct plane
 	plane& from_points(const vector3<T>& v0, const vector3<T>& v1, const vector3<T>& v2)
 	{
 		// v0からv1へのベクトル
-		vector3<T> d1(behavior::noinitialize);
-		v1.subtract(v0, d1);
+		vector3<T> d1 = v1 - v0;
 		// v1からv2へのベクトル
-		vector3<T> d2(behavior::noinitialize);
-		v2.subtract(v0, d2);
+		vector3<T> d2 = v2 - v0;
 		// 二つのベクトルから外積と基点となるv0を渡す
+		return from_normal_point(d1.cross(d2), v0);
+	}
+	plane& from_points(const vector4<T>& v0, const vector4<T>& v1, const vector4<T>& v2)
+	{
+		vector4<T> d1 = v1 - v0;
+		vector4<T> d2 = v2 - v0;
 		return from_normal_point(d1.cross(d2), v0);
 	}
 	/*---------------------------------------------------------------------
@@ -217,11 +323,49 @@ struct plane
 	*---------------------------------------------------------------------*/
 	plane& from_normal_point(const vector3<T>& normal, const vector3<T>& p)
 	{
+#ifdef _USE_SIMD_ANONYMOUS
+		simd_type m = simd::normalize(simd::set(normal.x, normal.y, normal.z, math_type::zero));
+		simd_type md = simd::negate(simd::dot(m, simd::set(p.x, p.y, p.z, math_type::zero)));
+		mm = simd::select1110(m, md);
+#else
+		a = normal.x;
+		b = normal.y;
+		c = normal.z;
 		// 正規化されていないことを考慮して渡されてきた法線ベクトルを正規化
-		normal.normalize(this->normal);
+		T l = normal_length_sq();
+		if (l > math_type::zero)
+		{
+			l = math_type::rsqrt(l);
+			a *= l;
+			b *= l;
+			c *= l;
+		}
 		// dotという名の平面の方程式から求められる値, [ax + by + cz + d] -> [d = -(ax + by + cz)]
 		// [a b c] = n
-		d = -this->normal.dot(p);
+		d = -dot_normal(p);
+#endif // _USE_SIMD_ANONYMOUS
+		return *this;
+	}
+	plane& from_normal_point(const vector4<T>& normal, const vector4<T>& p)
+	{
+#ifdef _USE_SIMD_ANONYMOUS
+		simd_type m = simd::normalize(normal.mm);
+		simd_type md = simd::negate(simd::dot(m, p.mm));
+		mm = simd::select1110(m, md);
+#else
+		a = normal.x;
+		b = normal.y;
+		c = normal.z;
+		T l = normal_length_sq();
+		if (l > math_type::zero)
+		{
+			l = math_type::rsqrt(l);
+			a *= l;
+			b *= l;
+			c *= l;
+		}
+		d = -dot_normal(p);
+#endif // _USE_SIMD_ANONYMOUS
 		return *this;
 	}
 	/*---------------------------------------------------------------------
@@ -229,21 +373,25 @@ struct plane
 	*---------------------------------------------------------------------*/
 	T dot(const vector4<T>& v) const
 	{
-		return normal.x * v.x + normal.y * v.y + normal.z * v.z + d * v.W;
+#ifdef _USE_SIMD_ANONYMOUS
+		return simd::first(simd::dot(mm, v.mm));
+#else
+		return a * v.x + b * v.y + c * v.z + d * v.w;
+#endif // _USE_SIMD_ANONYMOUS
 	}
 	/*---------------------------------------------------------------------
 	* 法線との内積を求める
 	*---------------------------------------------------------------------*/
 	T dot_normal(const vector3<T>& v) const
 	{
-		return normal.dot(v);
+		return normal_dot(v);
 	}
 	/*---------------------------------------------------------------------
 	* 内積を求める（W=1）
 	*---------------------------------------------------------------------*/
 	T dot_coord(const vector3<T>& v) const
 	{
-		return normal.dot(v) + d;
+		return dot_normal(v) + d;
 	}
 	/*---------------------------------------------------------------------
 	* 正規化
@@ -251,13 +399,21 @@ struct plane
 	plane& normalize()
 	{
 		// 法線の長さでdも正規化を行う
-		T length = normal.length_sq();
+#ifdef _USE_SIMD_ANONYMOUS
+		simd_type r = simd::dot3(mm, mm);
+		r = simd::rsqrt(r);
+		mm = simd::mul(mm, r);
+#else
+		T length = normal_length_sq();
 		if (length > math_type::zero)
 		{
 			length = math_type::rsqrt(length);
-			normal *= length;
+			a *= length;
+			b *= length;
+			c *= length;
 			d *= length;
 		}
+#endif // _USE_SIMD_ANONYMOUS
 		return *this;
 	}
 	plane& normalize(plane& result) const
@@ -277,15 +433,35 @@ struct plane
 	/*---------------------------------------------------------------------
 	* 平面が置かれている座標を求める
 	*---------------------------------------------------------------------*/
-	vector3<T> point() const
+	vector3<T> point3() const
 	{
 		// dは負の値になっているので反転
-		return normal * -d;
+		T dd = -d;
+		return vector3<T>(a*dd, b*dd, c*dd);
+	}
+	vector4<T> point4() const
+	{
+#ifdef _USE_SIMD_ANONYMOUS
+		simd_type m = simd::mul(mm, -d);
+		return vector4<T>(simd::select1110(m, simd::one()));
+#else
+		T dd = -d;
+		return vector4<T>(a*dd, b*dd, c*dd, math_type::one);
+#endif // _USE_SIMD_ANONYMOUS
 	}
 	vector3<T>& point(vector3<T>& result) const
 	{
-		result = normal;
-		result *= -d;
+		result = point3();
+		return result;
+	}
+	vector4<T>& point(vector4<T>& result) const
+	{
+#ifdef _USE_SIMD_ANONYMOUS
+		simd_type m = simd::mul(mm, -d);
+		result.mm = simd::select1110(m, simd::one());
+#else
+		result = point4();
+#endif // _USE_SIMD_ANONYMOUS
 		return result;
 	}
 	/*---------------------------------------------------------------------
@@ -293,12 +469,26 @@ struct plane
 	*---------------------------------------------------------------------*/
 	plane lerp(const plane& to, T t) const
 	{
-		return plane(normal.lerp(to.normal, t), math_type::lerp(d, to.d, t));
+#ifdef _USE_SIMD_ANONYMOUS
+		return plane(simd::lerp(mm, to.mm, t));
+#else
+		return plane(math_type::lerp(a, to.a, t),
+			math_type::lerp(b, to.b, t),
+			math_type::lerp(c, to.c, t),
+			math_type::lerp(d, to.d, t)
+		);
+#endif // _USE_SIMD_ANONYMOUS
 	}
 	plane& lerp(const plane& to, T t, plane& result) const
 	{
-		normal.lerp(to.normal, t, result.normal);
+#ifdef _USE_SIMD_ANONYMOUS
+		result.mm = simd::lerp(mm, to.mm, t);
+#else
+		result.a = math_type::lerp(a, to.a, t);
+		result.b = math_type::lerp(b, to.b, t);
+		result.c = math_type::lerp(c, to.c, t);
 		result.d = math_type::lerp(d, to.d, t);
+#endif
 		return result;
 	}
 	plane& lerp(const plane& from, const plane& to, T t)
@@ -308,11 +498,19 @@ struct plane
 	/*---------------------------------------------------------------------
 	* 交差判定（型で判定）
 	*---------------------------------------------------------------------*/
-	bool is_intersect(const line_type& line) const
+	bool is_intersect(const line3_type& line) const
 	{
 		return is_intersect_line(line.begin, line.end);
 	}
-	bool is_intersect(const ray_type& ray) const
+	bool is_intersect(const line4_type& line) const
+	{
+		return is_intersect_line(line.begin, line.end);
+	}
+	bool is_intersect(const ray3_type& ray) const
+	{
+		return is_intersect_ray(ray.origin, ray.direction);
+	}
+	bool is_intersect(const ray4_type& ray) const
 	{
 		return is_intersect_ray(ray.origin, ray.direction);
 	}
@@ -346,7 +544,21 @@ struct plane
 		return dot_coord(begin) * dot_coord(end) <= math_type::zero;
 #endif
 	}
-	bool is_intersect_line(const line_type& line) const
+	bool is_intersect_line(const line3_type& line) const
+	{
+		return is_intersect_line(line.begin, line.end);
+	}
+	bool is_intersect_line(const vector4<T>& begin, const vector4<T>& end) const
+	{
+#ifdef _USE_SIMD_ANONYMOUS
+		simd_type m1 = simd::dot(mm, begin.mm);
+		simd_type m2 = simd::dot(mm, end.mm);
+		return !simd::greater(simd::zero(), simd::mul(m1, m2));
+#else
+		return dot(begin) * dot(end) <= math_type::zero;
+#endif // _USE_SIMD_ANONYMOUS
+	}
+	bool is_intersect_line(const line4_type& line) const
 	{
 		return is_intersect_line(line.begin, line.end);
 	}
@@ -357,9 +569,23 @@ struct plane
 	{
 		// 法線との内積を行って0じゃなければいずれ交差する
 		static_cast<void>(position);
-		return normal.dot(direction) != math_type::zero;
+		return normal_dot(direction) != math_type::zero;
 	}
-	bool is_intersect_ray(const ray_type& ray) const
+	bool is_intersect_ray(const ray3_type& ray) const
+	{
+		return is_intersect_ray(ray.origin, ray.direction);
+	}
+	bool is_intersect_ray(const vector4<T>& position, const vector4<T>& direction) const
+	{
+		// 法線との内積を行って0じゃなければいずれ交差する
+		static_cast<void>(position);
+#ifdef _USE_SIMD_ANONYMOUS
+		return simd::not_equal(simd::dot(mm, direction.mm), simd::zero());
+#else
+		return dot(direction) != math_type::zero;
+#endif // _USE_SIMD_ANONYMOUS
+	}
+	bool is_intersect_ray(const ray4_type& ray) const
 	{
 		return is_intersect_ray(ray.origin, ray.direction);
 	}
@@ -382,6 +608,37 @@ struct plane
 		return on_plane;
 	}
 	bool is_intersect_point(const vector3<T>& point) const
+	{
+		return intersect_point(point) == on_plane;
+	}
+	intersect_result intersect_point(const vector4<T>& point) const
+	{
+#ifdef _USE_SIMD_ANONYMOUS
+		simd_type m = simd::dot(mm, point.mm);
+		simd_type ep = simd::set(math_type::epsilon);
+		if (simd::greater_equal(m, ep))
+		{
+			return on_forward;
+		}
+		if (simd::less_equal(m, simd::negate(ep)))
+		{
+			return on_backward;
+		}
+		return on_plane;
+#else
+		T distance = dot(point);
+		if (distance >= math_type::epsilon)
+		{
+			return on_forward;
+		}
+		if (distance <= -math_type::epsilon)
+		{
+			return on_backward;
+		}
+		return on_plane;
+#endif // _USE_SIMD_ANONYMOUS
+	}
+	bool is_intersect_point(const vector4<T>& point) const
 	{
 		return intersect_point(point) == on_plane;
 	}
@@ -408,6 +665,96 @@ struct plane
 	{
 		return intersect_sphere(center, radius) == on_plane;
 	}
+	intersect_result intersect_sphere(const vector4<T>& center, T radius) const
+	{
+#ifdef _USE_SIMD_ANONYMOUS
+		simd_type m = simd::dot(mm, center.mm);
+		simd_type r = simd::set(radius);
+		if (simd::less_equal(simd::abs(m), r))
+		{
+			return on_plane;
+		}
+		if (simd::greater(m, r))
+		{
+			return on_forward;
+		}
+		return on_backward;
+#else
+		T distance = dot(center);
+		if (math_type::abs(distance) <= radius)
+		{
+			return on_plane;
+		}
+		if (distance > radius)
+		{
+			return on_forward;
+		}
+		return on_backward;
+#endif // _USE_SIMD_ANONYMOUS
+	}
+	bool is_intersect_sphere(const vector4<T>& center, T radius) const
+	{
+		return intersect_sphere(center, radius) == on_plane;
+	}
+
+
+	/*---------------------------------------------------------------------
+	* 法線補助
+	*---------------------------------------------------------------------*/
+	T normal_dot(T pa, T pb, T pc) const
+	{
+#ifdef _USE_SIMD_ANONYMOUS
+		return simd::first(simd::dot3(mm, simd::set(pa, pb, pc, math_type::zero)));
+#else
+		return a * pa + b * pb + c * pc;
+#endif // _USE_SIMD_ANONYMOUS
+	}
+	T normal_dot(const vector3<T>& v) const
+	{
+#ifdef _USE_SIMD_ANONYMOUS
+		return simd::first(simd::dot3(mm, simd::set(v.x, v.y, v.z, math_type::zero)));
+#else
+		return a * v.x + b * v.y + c * v.z;
+#endif // _USE_SIMD_ANONYMOUS
+	}
+
+	T normal_length_sq() const
+	{
+		return normal_dot(a, b, c);
+	}
+
+	T normal_length() const
+	{
+		return math_type::sqrt(normal_length_sq());
+	}
+
+	vector3<T>& normal()
+	{
+#ifdef _USE_ANONYMOUS_NON_POD
+		return n;
+#else
+		return reinterpret_cast<vector3<T>&>(a);
+#endif // _USE_ANONYMOUS_NON_POD
+	}
+	const vector3<T>& normal() const
+	{
+#ifdef _USE_ANONYMOUS_NON_POD
+		return n;
+#else
+		return reinterpret_cast<const vector3<T>&>(a);
+#endif // _USE_ANONYMOUS_NON_POD
+	}
+	plane& normal(const vector3<T>& v)
+	{
+#ifdef _USE_ANONYMOUS_NON_POD
+		n = v;
+#else
+		a = v.x;
+		b = v.y;
+		c = v.z;
+#endif // _USE_ANONYMOUS_NON_POD
+		return *this;
+	}
 
 	/*-----------------------------------------------------------------------------------------
 	* Operators
@@ -422,7 +769,7 @@ struct plane
 #ifdef _USE_ANONYMOUS_NON_POD
 		return data[i];
 #else
-		return (&normal.x)[i];
+		return (&a)[i];
 #endif // _USE_ANONYMOUS_NON_POD
 	}
 	const T& operator [] (int i) const
@@ -431,7 +778,7 @@ struct plane
 #ifdef _USE_ANONYMOUS_NON_POD
 		return data[i];
 #else
-		return (&normal.x)[i];
+		return (&a)[i];
 #endif // _USE_ANONYMOUS_NON_POD
 	}
 
@@ -441,14 +788,14 @@ struct plane
 	template <typename U>
 	_CXX11_EXPLICIT operator plane<U>() const
 	{
-		return plane<U>(static_cast<U>(normal.x), static_cast<U>(normal.y), static_cast<U>(normal.z), static_cast<U>(d));
+		return plane<U>(static_cast<U>(a), static_cast<U>(b), static_cast<U>(c), static_cast<U>(d));
 	}
 	_CXX11_EXPLICIT operator T* ()
 	{
 #ifdef _USE_ANONYMOUS_NON_POD
 		return &data[0];
 #else
-		return &normal.x;
+		return &a;
 #endif // _USE_ANONYMOUS_NON_POD
 	}
 	_CXX11_EXPLICIT operator const T* () const
@@ -456,7 +803,7 @@ struct plane
 #ifdef _USE_ANONYMOUS_NON_POD
 		return &data[0];
 #else
-		return &normal.x;
+		return &a;
 #endif // _USE_ANONYMOUS_NON_POD
 	}
 
@@ -465,7 +812,7 @@ struct plane
 	*---------------------------------------------------------------------*/
 	bool operator == (const plane& p) const
 	{
-		return normal == p.normal && d == p.d;
+		return a == p.a && b == p.b && c == p.c && d == p.d;
 	}
 	bool operator != (const plane& p) const
 	{
@@ -481,7 +828,11 @@ struct plane
 	}
 	plane operator - () const
 	{
-		return plane(-normal, -d);
+#ifdef _USE_SIMD_ANONYMOUS
+		return plane(simd::negate(mm));
+#else
+		return plane(-a, -b, -c, -d);
+#endif // _USE_SIMD_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------
@@ -489,19 +840,19 @@ struct plane
 	*---------------------------------------------------------------------*/
 	plane operator + (T d)
 	{
-		return plane(normal.x, normal.y, normal.z, d - d);
+		return plane(a, b, c, d - d);
 	}
 	plane operator - (T d)
 	{
-		return plane(normal.x, normal.y, normal.z, d + d);
+		return plane(a, b, c, d + d);
 	}
 	plane operator * (T s)
 	{
-		return plane(normal.x, normal.y, normal.z, d * s);
+		return plane(a, b, c, d * s);
 	}
 	plane operator / (T s)
 	{
-		return plane(normal.x, normal.y, normal.z, d / s);
+		return plane(a, b, c, d / s);
 	}
 
 	/*---------------------------------------------------------------------
@@ -509,32 +860,32 @@ struct plane
 	*---------------------------------------------------------------------*/
 	plane& operator = (const behavior::_right_t&)
 	{
-		normal = vector3<T>::right;
+		normal() = vector3<T>::right;
 		return *this;
 	}
 	plane& operator = (const behavior::_left_t&)
 	{
-		normal = vector3<T>::left;
+		normal() = vector3<T>::left;
 		return *this;
 	}
 	plane& operator = (const behavior::_up_t&)
 	{
-		normal = vector3<T>::up;
+		normal() = vector3<T>::up;
 		return *this;
 	}
 	plane& operator = (const behavior::_down_t&)
 	{
-		normal = vector3<T>::down;
+		normal() = vector3<T>::down;
 		return *this;
 	}
 	plane& operator = (const behavior::_front_t&)
 	{
-		normal = vector3<T>::forward;
+		normal() = vector3<T>::forward;
 		return *this;
 	}
 	plane& operator = (const behavior::_back_t&)
 	{
-		normal = vector3<T>::backward;
+		normal() = vector3<T>::backward;
 		return *this;
 	}
 
@@ -569,32 +920,32 @@ struct plane
 
 	plane& operator () (const behavior::_right_t&)
 	{
-		normal = vector3<T>::right;
+		normal() = vector3<T>::right;
 		return *this;
 	}
 	plane& operator () (const behavior::_left_t&)
 	{
-		normal = vector3<T>::left;
+		normal() = vector3<T>::left;
 		return *this;
 	}
 	plane& operator () (const behavior::_up_t&)
 	{
-		normal = vector3<T>::up;
+		normal() = vector3<T>::up;
 		return *this;
 	}
 	plane& operator () (const behavior::_down_t&)
 	{
-		normal = vector3<T>::down;
+		normal() = vector3<T>::down;
 		return *this;
 	}
 	plane& operator () (const behavior::_front_t&)
 	{
-		normal = vector3<T>::forward;
+		normal() = vector3<T>::forward;
 		return *this;
 	}
 	plane& operator () (const behavior::_back_t&)
 	{
-		normal = vector3<T>::backward;
+		normal() = vector3<T>::backward;
 		return *this;
 	}
 	plane operator () (const behavior::_add_t&, T f) const
@@ -744,41 +1095,53 @@ bool ray<T, VectorN>::is_intersect(const plane<T>& p) const
 	return p.is_intersect_ray(origin, direction);
 }
 
-#ifdef _USING_MATH_IO
 template <typename CharT, typename CharTraits, typename T> inline
-std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const plane<T>& p)
+std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const plane<T>& v)
 {
-	// (normal, d)
-	os << io::parentheses_left << p.normal << io::comma_space << p.d << io::parentheses_right;
+	// (x, y, z, w)
+	os << io::parentheses_left << v.a << io::comma_space
+		<< v.b << io::comma_space
+		<< v.c << io::comma_space
+		<< v.d << io::parentheses_right;
 	return os;
 }
 template <typename CharT, typename CharTraits, typename T> inline
-std::basic_istream<CharT, CharTraits>& operator >> (std::basic_istream<CharT, CharTraits>& is, plane<T>& p)
+std::basic_istream<CharT, CharTraits>& operator >> (std::basic_istream<CharT, CharTraits>& is, plane<T>& v)
 {
 	is.ignore();
-	is >> p.normal;
+	is >> v.a;
 	is.ignore();
-	is >> p.d;
+	is >> v.b;
+	is.ignore();
+	is >> v.c;
+	is.ignore();
+	is >> v.d;
 	is.ignore();
 	return is;
 }
 template <typename CharT, typename CharTraits, typename T> inline
-std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, CharTraits>& os, const plane<T>& p)
+std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, CharTraits>& os, const plane<T>& v)
 {
-	os << io::parentheses_left << p.normal << io::comma_space << p.d << io::parentheses_right;
+	os << io::parentheses_left << v.a << io::comma_space
+		<< v.b << io::comma_space
+		<< v.c << io::comma_space
+		<< v.d << io::parentheses_right;
 	return os;
 }
 template <typename CharT, typename CharTraits, typename T> inline
-std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, CharTraits>& is, plane<T>& p)
+std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, CharTraits>& is, plane<T>& v)
 {
 	is.ignore();
-	is >> p.normal;
+	is >> v.a;
 	is.ignore();
-	is >> p.d;
+	is >> v.b;
+	is.ignore();
+	is >> v.c;
+	is.ignore();
+	is >> v.d;
 	is.ignore();
 	return is;
 }
-#endif // _USING_MATH_IO
 
 } // namespace pocket
 

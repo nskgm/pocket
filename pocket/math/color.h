@@ -12,9 +12,7 @@
 #ifdef _USE_SIMD_ANONYMOUS
 #include "simd_traits.h"
 #endif // _USE_SIMD_ANONYMOUS
-#ifdef _USING_MATH_IO
 #include "../io.h"
-#endif // _USING_MATH_IO
 
 namespace pocket
 {
@@ -150,8 +148,7 @@ struct color
 	}
 	color(int_type bytes) :
 #ifdef _USE_SIMD_ANONYMOUS
-		mm(simd::set(
-			color::byte_to_float_r(bytes),
+		mm(simd::set(color::byte_to_float_r(bytes),
 			color::byte_to_float_g(bytes),
 			color::byte_to_float_b(bytes),
 			color::byte_to_float_a(bytes)))
@@ -271,7 +268,7 @@ struct color
 	bool is_near_zero() const
 	{
 #ifdef _USE_SIMD_ANONYMOUS
-		return simd::near_equal_zero(mm, c.mm);
+		return simd::near_equal_zero(mm);
 #else
 		return (math_type::is_near_zero(r) && math_type::is_near_zero(g) && math_type::is_near_zero(b) && math_type::is_near_zero(a));
 #endif // _USE_SIMD_ANONYMOUS
@@ -353,7 +350,6 @@ struct color
 #ifdef _USE_SIMD_ANONYMOUS
 		return color(simd::lerp(mm, to.mm, t));
 #else
-
 		return color(math_type::lerp(r, to.r, t),
 			math_type::lerp(g, to.g, t),
 			math_type::lerp(b, to.b, t),
@@ -624,7 +620,6 @@ template <> const long double color<long double>::float2byte = 255.0L;
 template <> const long double color<long double>::byte2float = 1.0L / 255.0L;
 #endif // _USING_MATH_LONG_DOUBLE
 
-#ifdef _USING_MATH_IO
 template <typename CharT, typename CharTraits, typename T> inline
 std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const color<T>& c)
 {
@@ -671,7 +666,6 @@ std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, 
 	is.ignore();
 	return is;
 }
-#endif // _USING_MATH_IO
 
 } // namespace pocket
 

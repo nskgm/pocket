@@ -15,9 +15,7 @@
 #ifdef _USE_SIMD_ANONYMOUS
 #include "simd_traits.h"
 #endif // _USE_SIMD_ANONYMOUS
-#ifdef _USING_MATH_IO
 #include "../io.h"
-#endif // _USING_MATH_IO
 
 namespace pocket
 {
@@ -773,10 +771,7 @@ struct vector4
 	vector4& normalize()
 	{
 #ifdef _USE_SIMD_ANONYMOUS
-		simd_type r = simd::length_sq(mm);
-		// 1.0 / sqrt
-		r = simd::rsqrt(r);
-		mm = simd::mul(mm, r);
+		mm = simd::normalize(mm);
 #else
 		T len = length_sq();
 		// ゼロ割対策
@@ -1811,7 +1806,6 @@ vector3<T>& vector3<T>::operator = (const vector4<U>& v)
 	return *this;
 }
 
-#ifdef _USING_MATH_IO
 template <typename CharT, typename CharTraits, typename T> inline
 std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const vector4<T>& v)
 {
@@ -1859,7 +1853,6 @@ std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, 
 	is.ignore();
 	return is;
 }
-#endif // _USING_MATH_IO
 
 } // namespace pocket
 

@@ -3,6 +3,9 @@
 /pocket/x64
 /pocket/Release
 /Release
+/pocket/Debug
+/Debug
+*.db
 *.opendb
 *.exe
 *.db

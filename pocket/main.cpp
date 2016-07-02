@@ -2,11 +2,9 @@
 * _UNUSING_MATH_INT_FLOAT	: int, float型を使用しない
 * _USING_MATH_DOUBLE		: double型を使用する
 * _USING_MATH_LONG_DOUBLE	: long double型を使用する
-* _USING_MATH_IO			: 数学クラスの入出力オペレーターを使用する
 * _UNUSING_SIMD				: SIMDが使用できる環境でも使用しないようにする
 *---------------------------------------------------------------------*/
 
-#define _USING_MATH_IO
 //#define _UNUSING_SIMD
 //#define _USING_MATH_DOUBLE
 
@@ -66,14 +64,18 @@ int main(int argc, char** argv)
 	std::setw(2);
 	//const long N = LONG_MAX / 10;
 
-	pocket::container::array<int, 3> ary = {0, 1, 20};
+	pocket::container::array<pocket::vector2f, 3> ary = {
+		pocket::vector2f::zero,
+		pocket::vector2f::one,
+		pocket::vector2f::unit_x
+	};
 	cout << ary << endl;
 
 	namespace behavior = pocket::behavior;
 
 	pocket::vector2f v2(behavior::half_of_half);
 	pocket::vector3f v3(behavior::half);
-	pocket::vector4f v4(behavior::zero, behavior::position);
+	pocket::vector4f v4(behavior::one, behavior::direction);
 	pocket::matrix3x3f m3(behavior::identity);
 	pocket::matrix4x4f m4(behavior::identity);
 	pocket::quaternionf q(behavior::identity);
@@ -84,14 +86,14 @@ int main(int argc, char** argv)
 	pocket::ray3f r2(pocket::vector3f::up);
 	pocket::line3f l(r2, 50.0f);
 
-	pocket::frustumf::look_at_t la(pocket::vector3f(0.0f, 0.0f, 10.0f), pocket::vector3f::zero);
+	pocket::frustumf::look_at_t la(pocket::vector3f(0.0f, 5.0f, 10.0f), pocket::vector3f::zero);
 	pocket::frustumf::projection_field_of_view_t fov(45.0f, r.aspect(), 0.1f, 100.0f);
 	pocket::frustumf f(la, fov);
 
 	cout << endl << "--------------------" << endl <<
-		"vector2(half_of_half):" << v2 << endl <<
+		"vector2(half_of_half): " << v2 << endl <<
 		"vector3(half): " << v3 << endl <<
-		"vector4(zero, position): " << v4 << endl <<
+		"vector4(one, position): " << v4 << endl <<
 		"matrix3x3(identity): " << m3 << endl <<
 		"matrix4x4(identity): " << m4 << endl <<
 		"quaternion(identity): " << q << endl <<

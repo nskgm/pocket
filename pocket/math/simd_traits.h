@@ -8,9 +8,7 @@
 
 #include "math_traits.h"
 #include <limits>
-#ifdef _USING_MATH_IO
 #include "../io.h"
-#endif // _USING_MATH_IO
 
 namespace pocket
 {
@@ -712,6 +710,14 @@ struct simd_traits
 		};
 		return result;
 	}
+	static _INLINE_FORCE type dot3(type_const_reference mm1, type_const_reference mm2)
+	{
+		value_type d = mm1.mm[0] * mm2.mm[0] + mm1.mm[1] * mm2.mm[1] + mm1.mm[2] * mm2.mm[2];
+		type result = {
+			d, d, d, d
+		};
+		return result;
+	}
 	static _INLINE_FORCE type length_sq(type_const_reference mm)
 	{
 		return dot(mm, mm);
@@ -724,6 +730,14 @@ struct simd_traits
 			l, l, l, l
 		};
 		return result;
+	}
+	static _INLINE_FORCE type rlength(type_const_reference mm)
+	{
+		return rsqrt(length_sq(mm));
+	}
+	static _INLINE_FORCE type normalize(type_const_reference mm)
+	{
+		return mul(mm, rlength(mm));
 	}
 	static _INLINE_FORCE type lerp(type_const_reference from, type_const_reference to, value_type f)
 	{
@@ -768,7 +782,6 @@ private:
 
 } // namespace pocket
 
-#ifdef _USING_MATH_IO
 template <typename CharT, typename CharTraits, typename T, size_t N> inline
 std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const pocket::detail::_mvector<T, N>& v)
 {
@@ -788,7 +801,6 @@ std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, 
 		<< v.mm[3] << pocket::io::box_brackets_right;
 	return os;
 }
-#endif // _USING_MATH_IO
 
 #undef _SIMD_BINOMIAL_OPERATOR_2
 #undef _SIMD_BINOMIAL_OPERATOR_3
@@ -1304,6 +1316,20 @@ struct simd_traits<float>
 		return _mm_add_ps(r, perm);
 #endif // _USE_SIMD_TYPE >= _SIMD_TYPE_SSE4_1
 	}
+	static _INLINE_FORCE type dot3(type mm1, type mm2)
+	{
+#if _USE_SIMD_TYPE >= _SIMD_TYPE_SSE4_1
+		return _mm_dp_ps(mm1, mm2, 0x3F);
+#else
+		// X*X, Y*Y, Z*Z, W*W
+		type r = _mm_mul_ps(mm1, mm2);
+		type x = permute_x(r);
+		type y = permute_y(r);
+		type z = permute_z(r);
+		y = _mm_add_ps(y, z);
+		return _mm_add_ps(x, y);
+#endif // _USE_SIMD_TYPE >= _SIMD_TYPE_SSE4_1
+	}
 	static _INLINE_FORCE type length_sq(type mm)
 	{
 		return dot(mm, mm);
@@ -1311,6 +1337,14 @@ struct simd_traits<float>
 	static _INLINE_FORCE type length(type mm)
 	{
 		return _mm_sqrt_ps(length_sq(mm));
+	}
+	static _INLINE_FORCE type rlength(type mm)
+	{
+		return rsqrt(length_sq(mm));
+	}
+	static _INLINE_FORCE type normalize(type mm)
+	{
+		return mul(mm, rlength(mm));
 	}
 	static _INLINE_FORCE type lerp(type from, type to, value_type f)
 	{
@@ -1444,7 +1478,6 @@ struct simd_traits<uint64_t>
 
 } // namespace pocket
 
-#ifdef _USING_MATH_IO
 template <typename CharT, typename CharTraits> inline
 std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const __m128& v)
 {
@@ -1470,8 +1503,6 @@ std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, 
 		<< mm[3] << pocket::io::box_brackets_right;
 	return os;
 }
-#endif // _USING_MATH_IO
-
 #endif // _USE_SIMD
 
 #endif // __POCKET_MATH_SIMD_TRAITS_H__
