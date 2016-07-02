@@ -1,7 +1,6 @@
 #-----------------------------------------------------------
 # config
 #-----------------------------------------------------------
-
 # C++バージョン
 # 指定しない場合は0
 CXX_VER = 11
@@ -10,7 +9,7 @@ DEBUG = false
 # 警告を有効にするか
 WARNING = true
 
-# 出力実行ファイル名
+# 出力実行ファイル
 EXECUTE_FILE = "main.exe"
 # 実行ファイル引数
 # 文字列はダブルコーテーションは外して渡される
@@ -137,14 +136,14 @@ end
 def filepath(dir, path, suffix="")
 	# / or \ を - に置き換えてパスを作成
 	def replace(d, a, r, s)
-		"#{d}/#{File.dirname(a).gsub(r, "-")}-#{File.basename(a, s)}"
+		"#{d}/#{File.dirname(a).gsub r, "-"}-#{File.basename a, s}"
 	end
 
 	# ディレクトリが含まれている場合は文字列置換
-	return replace(dir, path, "/", suffix) if path.index("/") != nil
-	return replace(dir, path, "\\", suffix) if path.index("\\") != nil
+	return replace dir, path, "/", suffix if path.index("/") != nil
+	return replace dir, path, "\\", suffix if path.index("\\") != nil
 	# 含まれない場合
-	"#{dir}/#{File.basename(path, suffix)}"
+	"#{dir}/#{File.basename path, suffix}"
 end
 
 # 依存ファイル出力ディレクトリ
@@ -166,11 +165,11 @@ def asm_filepath(s)
 	"#{filepath(ASM_DIR, s)}.s"
 end
 
-def adjust_cxx_version(v)
+def adjust_cxx_version(v, version)
 	# 3の場合は先頭に0をつける
 	return "03" if v == 03
 	# リストの中にあればそのまま
-	return v if CXX_VER_LIST.any? do |a| a == v end
+	return v if version.any? do |a| a == v end
 
 	def rng(v, a, b)
 		v > a and v < b
@@ -203,10 +202,8 @@ end
 # 内部設定
 #--------------------------------------------------------------------------------
 
-# C++バージョンの調整
-CXX_VER_LIST = [98, 11, 14, 17]
 # 調整後C++バージョン
-CXX_VERSION = adjust_cxx_version CXX_VER
+CXX_VERSION = adjust_cxx_version CXX_VER, [98, 03, "0x", 11, "1y", 14, "1z", 17]
 
 # 対象コンパイラ
 COMPILER = "g++"
@@ -282,6 +279,7 @@ task :pre_build do |t|
 		# ソースと依存しているヘッダを見て中間ファイルを作成
 		file obj_file => [src_file, headers].flatten do |t|
 			# 実行するシェルコマンド
+			# -x c++
 			command = "#{COMPILER} -c #{src_file} -o #{obj_file}"
 			command += " -std=c++#{CXX_VERSION}" if CXX_VER > 0
 			command += " -Wall -Wextra -Wcast-qual" if WARNING # 警告
@@ -297,8 +295,8 @@ task :pre_build do |t|
 			# シェル実行
 			sh command
 
+			# アセンブラファイル作成
 			next unless ASSEMBLY
-			# デバッグではアセンブラファイル作成
 			command += " -S"
 			command.gsub! obj_file, asm_file
 			sh command
