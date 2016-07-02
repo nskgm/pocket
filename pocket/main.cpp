@@ -60,8 +60,10 @@ private:
 
 int main(int argc, char** argv)
 {
+	static_cast<void>(argc);
+	static_cast<void>(argv);
+
 	cout << std::fixed << std::boolalpha << std::showpos;
-	std::setw(2);
 	//const long N = LONG_MAX / 10;
 
 	pocket::container::array<pocket::vector2f, 3> ary = {

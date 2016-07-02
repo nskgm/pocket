@@ -806,6 +806,7 @@ bool math_traits<int>::is_near(int f)
 template <> inline
 int math_traits<int>::reciprocal(int f)
 {
+	static_cast<void>(f);
 	return 0;
 }
 template <> inline

@@ -1,5 +1,5 @@
 # pocket library
-ちょこちょこ追加していく小さなライブラリ.
+小さなライブラリ.
 
 ## test compiler
 ***
@@ -49,8 +49,6 @@ std::cout << std::boolalpha <<
 #define _USING_MATH_DOUBLE
 // long double型を使用する
 #define _USING_MATH_LONG_DOUBLE
-// 数学クラスの入出力オペレーターを使用する
-#define _USING_MATH_IO
 // SIMDが使用できる環境でも使用しないようにする
 #define _UNUSING_SIMD
 ```

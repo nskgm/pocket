@@ -171,7 +171,7 @@
 #	if defined(_MSC_VER)
 #		pragma warning(disable: 4201)
 #	elif defined(__GNUC__)
-#		pragma anon_unions
+//#		pragma anon_unions
 #	endif // _MSC_VER
 #endif // _USE_ANONYMOUS
 

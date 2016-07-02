@@ -10,3 +10,4 @@
 *.exe
 *.db
 *.obj
+/builds

@@ -8,9 +8,8 @@
 
 #ifdef _USE_CXX11
 #include <type_traits>
-#else
-#include <cstddef>
 #endif // _USE_CXX11
+#include <stddef.h>
 
 #ifndef _TEMPLATE_TYPE_VALIDATE
 #	ifdef _USE_CXX11

@@ -4,7 +4,11 @@
 
 # C++バージョン
 # 指定しない場合は0
-CXX_VER = 9
+CXX_VER = 11
+# デバッグを有効にするか
+DEBUG = false
+# 警告を有効にするか
+WARNING = true
 
 # 出力実行ファイル名
 EXECUTE_FILE = "main.exe"
@@ -13,8 +17,6 @@ EXECUTE_FILE = "main.exe"
 # ダブルコーテーションをつけるときは "\\\"NAME\\\""
 EXECUTE_ARGS = [
 	"Hello",
-	"World",
-	1,
 	2
 ]
 # ライブラリディレクトリ
@@ -26,28 +28,23 @@ LIB_DIRS = [
 	# 文字列配列
 	"lib"
 ]
+# 使用するアーカイブ名
+LIBRARIES = [
+	# 文字列配列
+]
 # 事前に定義
 DEFINES = [
 	# 文字列配列
-	"POCKET_HELLO",
-	"POCKET_WORLD"
 ]
 # 事前定義に対しての値を設定
 # 文字列で渡した場合は文字列で定義される
 DEFINE_VALUES = {
 	# 文字列に対して値
-	"POCKET_HELLO_STR" => "Hello",
-	"POCKET_WORLD_STR" => "World",
-	"POCKET_VERSION_MAJOR" => 1
 }
 # 事前にて定義を無効
 UNDEFINES = [
 	# 文字列配列
 ]
-# デバッグを有効にするか
-DEBUG = true
-# 警告を有効にするか
-WARNING = true
 
 #---------------------------------------------------------------------------------------------------------------------------------
 # implementatioin
@@ -57,6 +54,7 @@ BUILD_DIR = "builds" # ビルド用ディレクトリ
 OBJ_DIR = "#{BUILD_DIR}/obj" # 中間ファイル
 DEP_DIR = "#{BUILD_DIR}/dep" # 依存関係ファイル # dependencies
 ASM_DIR = "#{BUILD_DIR}/asm" # アセンブリファイル
+
 # 削除対象ファイルorディレクトリ
 # [EXECUTE_FILE, "**/*.o", "**/*.d", OBJ_DIR]
 CLEAN_LIST = [EXECUTE_FILE, BUILD_DIR]
@@ -168,8 +166,6 @@ def asm_filepath(s)
 	"#{filepath(ASM_DIR, s)}.s"
 end
 
-# C++バージョンの調整
-CXX_VER_LIST = [98, 11, 14, 17]
 def adjust_cxx_version(v)
 	# 3の場合は先頭に0をつける
 	return "03" if v == 03
@@ -184,19 +180,6 @@ def adjust_cxx_version(v)
 	return "1z" if v > 14
 	"03"
 end
-# 調整後C++バージョン
-CXX_VERSION = adjust_cxx_version CXX_VER
-
-# 対象コンパイラ
-COMPILER = "g++"
-# コンパイル対象拡張子
-EXT_LIST = [".c", ".cpp", ".cxx"]
-# 拡張子に対するファイルの列挙
-SOURCE_LIST = FileList[EXT_LIST.map do |e| "**/*#{e}" end]
-# 中間ファイル
-OBJ_LIST = SOURCE_LIST.map do |e| obj_filepath e end
-# リリースを有効にするか
-RELEASE = !DEBUG
 
 # 依存関係ファイルを配列として読み込む
 def load_dep_from_file(path)
@@ -216,6 +199,28 @@ def dep_to_headers_from_file(path)
 	deps.slice 2..deps.length
 end
 
+#--------------------------------------------------------------------------------
+# 内部設定
+#--------------------------------------------------------------------------------
+
+# C++バージョンの調整
+CXX_VER_LIST = [98, 11, 14, 17]
+# 調整後C++バージョン
+CXX_VERSION = adjust_cxx_version CXX_VER
+
+# 対象コンパイラ
+COMPILER = "g++"
+# コンパイル対象拡張子
+EXT_LIST = [".c", ".cpp", ".cxx"]
+# 拡張子に対するファイルの列挙
+SOURCE_LIST = FileList[EXT_LIST.map do |e| "**/*#{e}" end]
+# 中間ファイル
+OBJ_LIST = SOURCE_LIST.map do |e| obj_filepath e end
+# リリースを有効にするか
+RELEASE = !DEBUG
+# アセンブラを出力するか
+ASSEMBLY = true
+
 # 経過時間の計測
 start_time = nil
 
@@ -229,7 +234,7 @@ task :pre_build do |t|
 	# 依存関係ファイル
 	dep_list = SOURCE_LIST.map do |e| dep_filepath e end
 	# アセンブラファイル
-	asm_list = SOURCE_LIST.map do |e| asm_filepath e end if DEBUG
+	asm_list = SOURCE_LIST.map do |e| asm_filepath e end if ASSEMBLY
 
 	# 事前に定義する配列
 	defines = array_to_join_string DEFINES do |e| "-D\"#{e}\"" end
@@ -238,13 +243,14 @@ task :pre_build do |t|
 	# ライブラリ文字列の連結
 	inc = array_to_join_string INC_DIRS do |e| "-I\"#{e}\"" end
 	lib = array_to_join_string LIB_DIRS do |e| "-L\"#{e}\"" end
+	libs = array_to_join_string LIBRARIES do |e| "-l\"#{e}\"" end
 
 	# ファイルタスクを生成
 	for i in 0...SOURCE_LIST.length
 		src_file = SOURCE_LIST[i] # ソースファイル
 		obj_file = OBJ_LIST[i] # 中間ファイル
 		dep_file = dep_list[i] # 依存関係ファイル
-		asm_file = asm_list[i] if DEBUG
+		asm_file = asm_list[i] if ASSEMBLY
 		# タスクが実行されたか
 		is_dep = false
 
@@ -276,7 +282,7 @@ task :pre_build do |t|
 		# ソースと依存しているヘッダを見て中間ファイルを作成
 		file obj_file => [src_file, headers].flatten do |t|
 			# 実行するシェルコマンド
-			command = "#{COMPILER} -c #{t.source} -o #{t.name}"
+			command = "#{COMPILER} -c #{src_file} -o #{obj_file}"
 			command += " -std=c++#{CXX_VERSION}" if CXX_VER > 0
 			command += " -Wall -Wextra -Wcast-qual" if WARNING # 警告
 			command += " -w" unless WARNING # 警告をすべて無効
@@ -284,16 +290,17 @@ task :pre_build do |t|
 			command += " -O2 -march=native" if RELEASE # 最高の最適化＋コンパイルマシン最適化
 			command += " #{inc}" if inc != nil # システムinclude
 			command += " #{lib}" if lib != nil # システムlibrary
+			command += " #{libs}" if libs != nil
 			command += " #{defines}" if defines != nil # 事前定義
 			command += " #{define_values}" if define_values != nil # 事前定義+値
 			command += " #{undefines}" if undefines != nil # 事前定義無効
 			# シェル実行
 			sh command
 
-			next unless DEBUG
+			next unless ASSEMBLY
 			# デバッグではアセンブラファイル作成
 			command += " -S"
-			command.gsub! t.name, asm_file
+			command.gsub! obj_file, asm_file
 			sh command
 		end
 		file(obj_file).invoke
