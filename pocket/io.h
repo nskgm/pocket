@@ -6,6 +6,7 @@
 #pragma once
 #endif // _USE_PRAGMA_ONCE
 
+#include "type_traits.h"
 #include <iostream>
 #include <limits>
 

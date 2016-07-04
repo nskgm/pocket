@@ -68,7 +68,7 @@ OPTIONS = [
 PCH_HEADERS = [
 	# 文字列配列
 	#"a/**",
-	#"test.h"
+	"test.h"
 ]
 # 必ずインクルードされるヘッダ
 AUTO_INCLUDE_HEADERS = [
@@ -87,7 +87,7 @@ ASM_DIR = "#{BUILD_DIR}/asm" # アセンブリファイル
 
 # 削除対象ファイルorディレクトリ
 # [EXECUTE_FILE, "**/*.o", "**/*.d", OBJ_DIR]
-CLEAN_LIST = [EXECUTE_FILE, BUILD_DIR]
+CLEAN_LIST = [EXECUTE_FILE, BUILD_DIR, "**/*.h.gch", "**/*.hpp.gch"]
 CLEAN.include CLEAN_LIST
 CLOBBER.include CLEAN_LIST
 
@@ -322,10 +322,17 @@ task :pre_build do |t|
 
 		# タスク実行
 		pch.each do |path|
+			# 依存ヘッダーを調べる
+			# ファイルには保存しないで実行結果を受け取る
+			dep = `#{COMPILER} -E -MM #{path}`
+			["\\", "\n"].each do |s| dep.delete! s end
+			deps = dep.split " "
+			headers = deps.slice 2..deps.length
+			headers.each do |e| e.strip! end
+
 			gch = "#{path}.gch"
-			file gch => path do
-				command = "#{COMPILER} #{path}"
-				sh command
+			file gch => [path, headers].flatten do
+				sh "#{COMPILER} #{path}"
 			end
 			file(gch).invoke
 		end
