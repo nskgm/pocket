@@ -68,7 +68,7 @@ OPTIONS = [
 PCH_HEADERS = [
 	# 文字列配列
 	#"a/**",
-	"test.h"
+	#"test.h"
 ]
 # 必ずインクルードされるヘッダ
 AUTO_INCLUDE_HEADERS = [
@@ -401,7 +401,7 @@ task :post_build do
 
 	elapsed = Time.now - start_time
 	# コンパイルが行われていない可能性
-	next if elapsed < 0.005
+	next if elapsed < 0.01
 
 	line = "#{"-"*50}\n"
 	print line
