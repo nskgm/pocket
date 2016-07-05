@@ -16,10 +16,10 @@
 #ifdef _USE_SIMD_ANONYMOUS
 #include "simd_traits.h"
 #endif // _USE_SIMD_ANONYMOUS
+#include "../io.h"
 #ifdef _USE_CXX11
 #include <initializer_list>
 #endif // _USE_CXX11
-#include "../io.h"
 
 namespace pocket
 {

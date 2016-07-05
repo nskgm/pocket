@@ -1,7 +1,10 @@
 ﻿#ifndef __POCKET_MATH_RAY_H__
 #define __POCKET_MATH_RAY_H__
 
+#include "../config.h"
+#ifdef _USE_PRAGMA_ONCE
 #pragma once
+#endif // _USE_PRAGMA_ONCE
 
 #include "../behavior.h"
 #include "../debug.h"

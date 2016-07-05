@@ -7,7 +7,6 @@
 #endif // _USE_PRAGMA_ONCE
 
 #include "../behavior.h"
-#include "fwd.h"
 #include "math_traits.h"
 #include "vector2.h"
 #include "vector3.h"

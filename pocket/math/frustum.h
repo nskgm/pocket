@@ -19,6 +19,7 @@ namespace pocket
 {
 
 template <typename> struct frustum;
+
 #ifndef _UNUSING_MATH_INT_FLOAT
 typedef frustum<float> frustumf;
 #endif // _UNUSING_MATH_INT_FLOAT

@@ -5,7 +5,7 @@
 # 指定しない場合は0
 CXX_VER = 11
 # デバッグを有効にするか
-DEBUG = false
+DEBUG = true
 # 警告を有効にするか
 WARNING = true
 
@@ -69,6 +69,7 @@ PCH_HEADERS = [
 	# 文字列配列
 	#"a/**",
 	#"test.h"
+	#"pocket/math/**"
 ]
 # 必ずインクルードされるヘッダ
 AUTO_INCLUDE_HEADERS = [
@@ -211,22 +212,28 @@ def adjust_cxx_version(v, version)
 	"03"
 end
 
-# 依存関係ファイルスペース区切りの配列へ
-def load_dep_to_array(path)
-	# ファイル全体取得
-	all = File.read path
+# 文字列から配列へ変換
+def string_dep_to_array(string)
 	# 邪魔な文字を削除
-	["\\", "\n"].each do |s| all.delete! s end
+	deleted = string.delete "\\\\\n"
 	# 空白で分割
-	deps = all.split ' '
+	deps = deleted.split ' '
 	# 空白などを削除
 	deps.map do |e| e.strip end
 end
-# ヘッダーのみへ変換
-def load_dep_to_headers(path)
-	# 依存関係ファイルを読み込む
-	deps = load_dep_to_array path
+# 配列からヘッダのみを抜き出す
+def string_dep_to_headers(string)
+	deps = string_dep_to_array string
 	deps.slice 2..deps.length
+end
+
+# 依存関係の一時結果をヘッダーのみに変換
+def exec_dep_to_headers(path)
+	string_dep_to_headers `#{COMPILER} -E -MM #{path}`
+end
+# 保存されている依存関係の内容をヘッダーに変換
+def load_dep_to_headers(path)
+	string_dep_to_headers File.read(path)
 end
 
 #--------------------------------------------------------------------------------
@@ -296,40 +303,24 @@ task :pre_build do |t|
 	if PCH_HEADERS.length > 0 then
 		# ディレクトリを指定しているか
 		def is_dir_pch(p)
-			(p.index("/") != nil or p.index("\\") != nil) and p.index("/**") != nil
+			p.index("/**") != nil
 		end
-		# .hを調べる
 		pch_headers = PCH_HEADERS.map do |e|
 			if is_dir_pch e then
-				"#{e}.h"
+				# ディレクトリを指定している場合は配列で返してあとで一次配列
+				["#{e}.h", "#{e}.hpp"]
 			else
+				# ファイルはそのまま
 				e
 			end
 		end
-		# hppを調べる
-		hpp = PCH_HEADERS.map do |e|
-			if is_dir_pch e then
-				"#{e}.hpp"
-			else
-				e
-			end
-		end
-		pch_headers.concat hpp
-		# 重複回避
-		pch_headers.uniq!
+		flt = pch_headers.flatten
 		# ファイルリストで拡張子に対するファイルを持ってくる
-		pch = FileList[pch_headers]
+		pch = FileList[flt.uniq]
 
 		# タスク実行
 		pch.each do |path|
-			# 依存ヘッダーを調べる
-			# ファイルには保存しないで実行結果を受け取る
-			dep = `#{COMPILER} -E -MM #{path}`
-			["\\", "\n"].each do |s| dep.delete! s end
-			deps = dep.split " "
-			headers = deps.slice 2..deps.length
-			headers.each do |e| e.strip! end
-
+			headers = exec_dep_to_headers path
 			gch = "#{path}.gch"
 			file gch => [path, headers].flatten do
 				sh "#{COMPILER} #{path}"
@@ -378,8 +369,7 @@ task :pre_build do |t|
 		file obj_file => [src_file, headers].flatten do |t|
 			# 実行するシェルコマンド
 			# -x c++
-			command = "#{COMPILER} -c #{src_file} -o #{obj_file}"
-			command += addition_command if addition_command != ""
+			command = "#{COMPILER} -c #{src_file} -o #{obj_file}#{addition_command}"
 			# シェル実行
 			sh command
 
@@ -399,13 +389,9 @@ end
 task :post_build do
 	next if start_time == nil
 
-	elapsed = Time.now - start_time
-	# コンパイルが行われていない可能性
-	next if elapsed < 0.01
-
 	line = "#{"-"*50}\n"
 	print line
-	print "compile time: #{elapsed}s\n"
+	print "build time: #{Time.now - start_time}s\n"
 	print line
 
 	start_time = nil

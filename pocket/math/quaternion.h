@@ -12,7 +12,7 @@
 #include "math_traits.h"
 #include "vector3.h"
 #include "vector4.h"
-#include "io.h"
+#include "../io.h"
 
 namespace pocket
 {

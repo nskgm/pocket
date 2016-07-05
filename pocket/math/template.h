@@ -37,12 +37,12 @@ struct __template_struct
 	*------------------------------------------------------------------------------------------*/
 
 	typedef container::array<T, 1> array_type;
-	typedef array_type::iterator iterator;
-	typedef array_type::const_iterator const_iterator;
-	typedef array_type::pointer pointer;
-	typedef array_type::const_pointer const_pointer;
-	typedef array_type::reference reference;
-	typedef array_type::const_reference const_reference;
+	typedef typename array_type::iterator iterator;
+	typedef typename array_type::const_iterator const_iterator;
+	typedef typename array_type::pointer pointer;
+	typedef typename array_type::const_pointer const_pointer;
+	typedef typename array_type::reference reference;
+	typedef typename array_type::const_reference const_reference;
 
 	/*------------------------------------------------------------------------------------------
 	* Members

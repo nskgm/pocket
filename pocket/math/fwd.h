@@ -31,7 +31,7 @@ typedef math_traits<long double> math_traitsld;
 *------------------------------------------------------------------------------------------*/
 template <typename> struct vector2;
 #ifndef _UNUSING_MATH_INT_FLOAT
-typedef vector2<int> Point2;
+typedef vector2<int> point2;
 typedef vector2<int> vector2i;
 typedef vector2<float> vector2f;
 #endif // _UNUSING_MATH_INT_FLOAT
@@ -47,7 +47,7 @@ typedef vector2<long double> vector2ld;
 *------------------------------------------------------------------------------------------*/
 template <typename> struct vector3;
 #ifndef _UNUSING_MATH_INT_FLOAT
-typedef vector3<int> Point3;
+typedef vector3<int> point3;
 typedef vector3<int> vector3i;
 typedef vector3<float> vector3f;
 #endif // _UNUSING_MATH_INT_FLOAT
@@ -63,7 +63,7 @@ typedef vector3<long double> vector3ld;
 *------------------------------------------------------------------------------------------*/
 template <typename> struct vector4;
 #ifndef _UNUSING_MATH_INT_FLOAT
-typedef vector4<int> Point4;
+typedef vector4<int> point4;
 typedef vector4<int> vector4i;
 typedef vector4<float> vector4f;
 #endif // _UNUSING_MATH_INT_FLOAT
@@ -157,14 +157,17 @@ template <typename, template<typename> class> struct line;
 #ifndef _UNUSING_MATH_INT_FLOAT
 typedef line<float, vector2> line2f;
 typedef line<float, vector3> line3f;
+typedef line<float, vector4> line4f;
 #endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
 typedef line<double, vector2> line2d;
 typedef line<double, vector3> line3d;
+typedef line<double, vector4> line4d;
 #endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
 typedef line<long double, vector2> line2ld;
 typedef line<long double, vector3> line3ld;
+typedef line<long double, vector4> line4ld;
 #endif // _USING_MATH_LONG_DOUBLE
 
 /*------------------------------------------------------------------------------------------
@@ -174,14 +177,17 @@ template <typename, template<typename> class> struct ray;
 #ifndef _UNUSING_MATH_INT_FLOAT
 typedef ray<float, vector2> ray2f;
 typedef ray<float, vector3> ray3f;
+typedef ray<float, vector4> ray4f;
 #endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
 typedef ray<double, vector2> ray2d;
 typedef ray<double, vector3> ray3d;
+typedef ray<double, vector4> ray4d;
 #endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
 typedef ray<long double, vector2> ray2ld;
 typedef ray<long double, vector3> ray3ld;
+typedef ray<long double, vector4> ray4ld;
 #endif // _USING_MATH_LONG_DOUBLE
 
 } // namespace pocket
