@@ -236,6 +236,51 @@ def load_dep_to_headers(path)
 	string_dep_to_headers File.read(path)
 end
 
+
+def color_element(e)
+	# カラーシーケンス文字を作成
+	def color(num)
+		"\e[01;#{num}m"
+	end
+
+	case e
+	# 色を戻す
+	when :reset, :default then
+		color 0
+	when :black then
+		color 30
+	when :red then
+		color 31
+	when :green then
+		color 32
+	when :yellow then
+		color 33
+	when :blue then
+		color 34
+	when :magenta then
+		color 35
+	when :cyan then
+		color 36
+	when :white then
+		color 37
+	else
+		color 0
+	end
+end
+
+# 色付きで標準出力へ出力
+# c: 変えたい色
+# d: 戻す色
+def color_print_impl(c, d)
+	print color_element(c)
+	yield
+	print color_element(d)
+end
+# 変えたい色に変更してブロックが終了したら標準に色に戻す
+def color_print(c)
+	color_print_impl c, :default do yield end
+end
+
 #--------------------------------------------------------------------------------
 # 内部設定
 #--------------------------------------------------------------------------------
@@ -303,7 +348,8 @@ task :pre_build do |t|
 	if PCH_HEADERS.length > 0 then
 		# ディレクトリを指定しているか
 		def is_dir_pch(p)
-			p.index("/**") != nil
+			#p.index("/**") != nil
+			/.+\/\*\*/ =~ p
 		end
 		pch_headers = PCH_HEADERS.map do |e|
 			if is_dir_pch e then
@@ -327,6 +373,9 @@ task :pre_build do |t|
 			end
 			file(gch).invoke
 		end
+		# まとめられる…？
+		#gch = array_to_join_string pch do |e| e end
+		#sh "#{COMPILER} -x c++-header -o a.gch #{gch}"
 	end
 
 	# ファイルタスクを生成
@@ -337,6 +386,11 @@ task :pre_build do |t|
 		asm_file = asm_list[i] if ASSEMBLY
 		# タスクが実行されたか
 		is_dep = false
+
+		# 現在のコンパイルしているソースファイルを紅色で出力
+		color_print :red do
+			print "--- #{src_file}\n"
+		end
 
 		# ソースが変更されていたら依存関係ファイルを更新する
 		file dep_file => src_file do
