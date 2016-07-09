@@ -1,11 +1,8 @@
 /.vs
-/x64
-/pocket/x64
-/pocket/Release
-/Release
-/pocket/Debug
-/Debug
-*.db
+/.vscode
+**/x64
+**/Release
+**/Debug
 *.opendb
 *.exe
 *.db

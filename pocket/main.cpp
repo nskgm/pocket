@@ -10,6 +10,7 @@
 
 #include "math/all.h"
 #include "fixed_array.h"
+#include "nullobj.h"
 #include <string>
 #include <cstdlib>
 #include <iomanip>
@@ -57,6 +58,13 @@ private:
 	std::clock_t c;
 #endif
 };
+
+void func(int i, float f, int* p)
+{
+	static_cast<void>(i);
+	static_cast<void>(f);
+	static_cast<void>(p);
+}
 
 int main(int argc, char** argv)
 {
@@ -133,6 +141,10 @@ int main(int argc, char** argv)
 		by4 << endl <<
 		"---------------" << endl;
 
+	int i = 5 + pocket::nullobj;
+	cout << i << endl;
+	i = pocket::nullobj + 5;
+	cout << i << endl;
 
 	return 0;
 }

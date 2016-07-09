@@ -304,6 +304,19 @@
 #	endif // _USE_CXX11
 #endif // _DEFAULT_CONSTRUCTOR
 
+/*------------------------------------------------------------------------------------------
+* 一度のみ宣言するタグ用
+*------------------------------------------------------------------------------------------*/
+#ifndef _DECL_ONCE_ARGMENT_TAG
+// pragma once が使用できる場合はstruct
+#	ifdef _USE_PRAGMA_ONCE
+#		define _DECL_ONCE_ARGMENT_TAG(NAME) struct _##NAME##_t {}; static const _##NAME##_t NAME = {}
+// 以外はenumで型判定
+#	else
+#		define _DECL_ONCE_ARGMENT_TAG(NAME) enum _##NAME##_t { NAME }
+#	endif
+#endif // _DECL_ONCE_ARGMENT_TAG
+
 /*---------------------------------------------------------------------------------------
 * 静的なアサーションをするための設定. msgはすべてつなげて書く
 *---------------------------------------------------------------------------------------*/
