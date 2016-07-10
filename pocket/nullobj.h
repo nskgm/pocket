@@ -15,6 +15,10 @@ namespace pocket
 {
 struct nullobj_t
 {
+	nullobj_t()
+	{
+	}
+
 	operator bool () const
 	{
 		return false;
@@ -134,6 +138,11 @@ struct nullobj_t
 	{
 		return *this;
 	}
+	template <typename T>
+	const nullobj_t& operator & () const
+	{
+		return *this;
+	}
 	const nullobj_t& operator ++ () const
 	{
 		return *this;
@@ -150,15 +159,115 @@ struct nullobj_t
 	{
 		return *this;
 	}
-	template <typename T>
-	T* operator & () const
+
+	const nullobj_t& operator [] (int) const
 	{
-		return operator T*();
+		return *this;
+	}
+	const nullobj_t* operator -> () const
+	{
+		return this;
+	}
+
+	template <typename T>
+	const nullobj_t& operator + (const T&) const
+	{
+		return *this;
 	}
 	template <typename T>
-	const T* operator & () const
+	const nullobj_t& operator += (const T&) const
 	{
-		return operator const T*();
+		return *this;
+	}
+	template <typename T>
+	const nullobj_t& operator - (const T&) const
+	{
+		return *this;
+	}
+	template <typename T>
+	const nullobj_t& operator -= (const T&) const
+	{
+		return *this;
+	}
+	template <typename T>
+	const nullobj_t& operator * (const T&) const
+	{
+		return *this;
+	}
+	template <typename T>
+	const nullobj_t& operator *= (const T&) const
+	{
+		return *this;
+	}
+	template <typename T>
+	const nullobj_t& operator / (const T&) const
+	{
+		return *this;
+	}
+	template <typename T>
+	const nullobj_t& operator /= (const T&) const
+	{
+		return *this;
+	}
+	template <typename T>
+	const nullobj_t& operator & (const T&) const
+	{
+		return *this;
+	}
+	template <typename T>
+	const nullobj_t& operator &= (const T&) const
+	{
+		return *this;
+	}
+	template <typename T>
+	const nullobj_t& operator | (const T&) const
+	{
+		return *this;
+	}
+	template <typename T>
+	const nullobj_t& operator |= (const T&) const
+	{
+		return *this;
+	}
+	template <typename T>
+	const nullobj_t& operator ^ (const T&) const
+	{
+		return *this;
+	}
+	template <typename T>
+	const nullobj_t& operator ^= (const T&) const
+	{
+		return *this;
+	}
+	template <typename T>
+	const nullobj_t& operator % (const T&) const
+	{
+		return *this;
+	}
+	template <typename T>
+	const nullobj_t& operator %= (const T&) const
+	{
+		return *this;
+	}
+	template <typename T>
+	const nullobj_t& operator << (const T&) const
+	{
+		return *this;
+	}
+	template <typename T>
+	const nullobj_t& operator <<= (const T&) const
+	{
+		return *this;
+	}
+	template <typename T>
+	const nullobj_t& operator >> (const T&) const
+	{
+		return *this;
+	}
+	template <typename T>
+	const nullobj_t& operator >>= (const T&) const
+	{
+		return *this;
 	}
 
 #ifdef _USE_CXX11
@@ -210,9 +319,20 @@ struct nullobj_t
 #endif // _USE_CXX11
 
 private:
+	nullobj_t(const nullobj_t&);
+	template <typename T>
+	nullobj_t(const T&);
 	nullobj_t& operator = (const nullobj_t&);
 	template <typename T>
 	nullobj_t& operator = (const T&);
+#ifdef _USE_CXX11
+	nullobj_t(nullobj_t&&);
+	template <typename T>
+	nullobj_t(T&&);
+	nullobj_t& operator = (nullobj_t&&);
+	template <typename T>
+	nullobj_t& operator = (T&&);
+#endif // _USE_CXX11
 };
 
 // +
@@ -222,17 +342,7 @@ const T& operator + (const T& a, const nullobj_t&)
 	return a;
 }
 template <typename T> inline
-const nullobj_t& operator + (const nullobj_t& a, const T&)
-{
-	return a;
-}
-template <typename T> inline
 const T& operator += (const T& a, const nullobj_t&)
-{
-	return a;
-}
-template <typename T> inline
-const nullobj_t& operator += (const nullobj_t& a, const T&)
 {
 	return a;
 }
@@ -243,17 +353,7 @@ const T& operator - (const T& a, const nullobj_t&)
 	return a;
 }
 template <typename T> inline
-const nullobj_t& operator - (const nullobj_t& a, const T&)
-{
-	return a;
-}
-template <typename T> inline
 const T& operator -= (const T& a, const nullobj_t&)
-{
-	return a;
-}
-template <typename T> inline
-const nullobj_t& operator -= (const nullobj_t& a, const T&)
 {
 	return a;
 }
@@ -264,17 +364,7 @@ const T& operator * (const T& a, const nullobj_t&)
 	return a;
 }
 template <typename T> inline
-const nullobj_t& operator * (const nullobj_t& a, const T&)
-{
-	return a;
-}
-template <typename T> inline
 const T& operator *= (const T& a, const nullobj_t&)
-{
-	return a;
-}
-template <typename T> inline
-const nullobj_t& operator *= (const nullobj_t& a, const T&)
 {
 	return a;
 }
@@ -285,17 +375,7 @@ const T& operator / (const T& a, const nullobj_t&)
 	return a;
 }
 template <typename T> inline
-const nullobj_t& operator / (const nullobj_t& a, const T&)
-{
-	return a;
-}
-template <typename T> inline
 const T& operator /= (const T& a, const nullobj_t&)
-{
-	return a;
-}
-template <typename T> inline
-const nullobj_t& operator /= (const nullobj_t& a, const T&)
 {
 	return a;
 }
@@ -306,17 +386,7 @@ const T& operator % (const T& a, const nullobj_t&)
 	return a;
 }
 template <typename T> inline
-const nullobj_t& operator % (const nullobj_t& a, const T&)
-{
-	return a;
-}
-template <typename T> inline
 const T& operator %= (const T& a, const nullobj_t&)
-{
-	return a;
-}
-template <typename T> inline
-const nullobj_t& operator %= (const nullobj_t& a, const T&)
 {
 	return a;
 }
@@ -327,17 +397,7 @@ const T& operator & (const T& a, const nullobj_t&)
 	return a;
 }
 template <typename T> inline
-const nullobj_t& operator & (const nullobj_t& a, const T&)
-{
-	return a;
-}
-template <typename T> inline
 const T& operator &= (const T& a, const nullobj_t&)
-{
-	return a;
-}
-template <typename T> inline
-const nullobj_t& operator &= (const nullobj_t& a, const T&)
 {
 	return a;
 }
@@ -348,17 +408,18 @@ const T& operator | (const T& a, const nullobj_t&)
 	return a;
 }
 template <typename T> inline
-const nullobj_t& operator | (const nullobj_t& a, const T&)
-{
-	return a;
-}
-template <typename T> inline
 const T& operator |= (const T& a, const nullobj_t&)
 {
 	return a;
 }
+// ^
 template <typename T> inline
-const nullobj_t& operator |= (const nullobj_t& a, const T&)
+const T& operator ^ (const T& a, const nullobj_t&)
+{
+	return a;
+}
+template <typename T> inline
+const T& operator ^= (const T& a, const nullobj_t&)
 {
 	return a;
 }
@@ -369,17 +430,7 @@ const T& operator << (const T& a, const nullobj_t&)
 	return a;
 }
 template <typename T> inline
-const nullobj_t& operator << (const nullobj_t& a, const T&)
-{
-	return a;
-}
-template <typename T> inline
 const T& operator <<= (const T& a, const nullobj_t&)
-{
-	return a;
-}
-template <typename T> inline
-const nullobj_t& operator <<= (const nullobj_t& a, const T&)
 {
 	return a;
 }
@@ -390,83 +441,73 @@ const T& operator >> (const T& a, const nullobj_t&)
 	return a;
 }
 template <typename T> inline
-const nullobj_t& operator >> (const nullobj_t& a, const T&)
-{
-	return a;
-}
-template <typename T> inline
 const T& operator >>= (const T& a, const nullobj_t&)
-{
-	return a;
-}
-template <typename T> inline
-const nullobj_t& operator >>= (const nullobj_t& a, const T&)
 {
 	return a;
 }
 // <
 template <typename T> inline
-bool operator < (const T& a, const nullobj_t&)
+bool operator < (const T&, const nullobj_t&)
 {
 	return false;
 }
 template <typename T> inline
-bool operator < (const nullobj_t&, const T& a)
+bool operator < (const nullobj_t&, const T&)
 {
 	return true;
 }
 // >
 template <typename T> inline
-bool operator > (const T& a, const nullobj_t&)
+bool operator > (const T&, const nullobj_t&)
 {
 	return true;
 }
 template <typename T> inline
-bool operator > (const nullobj_t&, const T& a)
+bool operator > (const nullobj_t&, const T&)
 {
 	return false;
 }
 // >=
 template <typename T> inline
-bool operator >= (const T& a, const nullobj_t&)
+bool operator >= (const T&, const nullobj_t&)
 {
 	return false;
 }
 template <typename T> inline
-bool operator >= (const nullobj_t&, const T& a)
+bool operator >= (const nullobj_t&, const T&)
 {
 	return false;
 }
 // <=
 template <typename T> inline
-bool operator <= (const T& a, const nullobj_t&)
+bool operator <= (const T&, const nullobj_t&)
 {
 	return false;
 }
 template <typename T> inline
-bool operator <= (const nullobj_t&, const T& a)
+bool operator <= (const nullobj_t&, const T&)
 {
 	return false;
 }
 // ==
 template <typename T> inline
-bool operator == (const T& a, const nullobj_t&)
+bool operator == (const T&, const nullobj_t&)
 {
 	return false;
 }
 template <typename T> inline
-bool operator == (const nullobj_t&, const T& a)
+bool operator == (const nullobj_t&, const T&)
 {
 	return false;
 }
 // !=
 template <typename T> inline
-bool operator != (const T& a, const nullobj_t&)
+bool operator != (const T&, const nullobj_t&)
 {
 	return true;
 }
 template <typename T> inline
-bool operator != (const nullobj_t&, const T& a)
+bool operator != (const nullobj_t&, const T&)
 {
 	return true;
 }

@@ -141,10 +141,22 @@ int main(int argc, char** argv)
 		by4 << endl <<
 		"---------------" << endl;
 
-	int i = 5 + pocket::nullobj;
-	cout << i << endl;
-	i = pocket::nullobj + 5;
-	cout << i << endl;
+	const auto& null = pocket::nullobj;
+
+	float* fp = null;
+	const char* cp = null;
+	int i = null;
+	struct S
+	{
+		int i;
+		float f;
+	} s = null;
+	null[0][0]()[0](10, 40, 50)[0][0][0][0];
+	null(null)()("a", v2, v4)(v3)()(0, 0, 0)(5.0f, 1.0f, 0)(10, "a");
+	0 * ***++***++***null++++;
+	+++++++null[0]++(10)++ / 1;
+	((------null--++[0]++-- % 2)[9] + 0) << 23 && true;
+	null++++[0] %= 10;
 
 	return 0;
 }
