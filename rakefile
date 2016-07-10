@@ -69,9 +69,10 @@ PCH_HEADERS = [
 	# 文字列配列
 	#"a/**",
 	#"test.h"
-	#"pocket/math/**"
+	"pocket/math/**"
 ]
 # 必ずインクルードされるヘッダ
+# プリコンパイル対象ヘッダを一つでも指定していた場合はPCH_FILEが必ず指定される
 AUTO_INCLUDE_HEADERS = [
 	# 文字列配列
 	#"test.h"
@@ -86,11 +87,15 @@ OBJ_DIR = "#{BUILD_DIR}/obj" # 中間ファイル
 DEP_DIR = "#{BUILD_DIR}/dep" # 依存関係ファイル # dependencies
 ASM_DIR = "#{BUILD_DIR}/asm" # アセンブリファイル
 
+# プリコンパイル用ファイル名
+PCH_FILE = "pocket/pch.h"
+
 # 削除対象ファイルorディレクトリ
 # [EXECUTE_FILE, "**/*.o", "**/*.d", OBJ_DIR]
-CLEAN_LIST = [EXECUTE_FILE, BUILD_DIR, "**/*.h.gch", "**/*.hpp.gch"]
+CLEAN_LIST = [EXECUTE_FILE, BUILD_DIR, PCH_FILE, "**/*.h.gch", "**/*.hpp.gch"]
 CLEAN.include CLEAN_LIST
-CLOBBER.include CLEAN_LIST
+# clobberのほうではVCの設定ファイルもすべて削除
+CLOBBER.include [CLEAN_LIST, "**/Debug", "**/Release", "**/x64", "**/*.VC.db"].flatten
 
 # 配列から連結文字列を作成
 def array_to_join_string(a, sep=" ")
@@ -236,7 +241,6 @@ def load_dep_to_headers(path)
 	string_dep_to_headers File.read(path)
 end
 
-
 def color_element(e)
 	# カラーシーケンス文字を作成
 	def color(num)
@@ -328,28 +332,12 @@ task :pre_build do |t|
 	# アセンブラファイル
 	asm_list = SOURCE_LIST.map do |e| asm_filepath e end if ASSEMBLY
 
-	# コンパイル時に付加されるコマンド
-	addition_command = ""
-	addition_command += " -std=c++#{CXX_VERSION}" if CXX_VER > 0
-	addition_command += " -Wall -Wextra -Wcast-qual" if WARNING # 警告
-	addition_command += " -w" unless WARNING # 警告をすべて無効
-	addition_command += " -g" if DEBUG # デバッグ情報をつける
-	addition_command += " -O2 -march=native" if RELEASE # 最高の最適化＋コンパイルマシン最適化
-	addition_command += " #{auto_include}" if auto_include != nil # 自動でインクルードするファイル
-	addition_command += " #{defines}" if defines != nil # 事前定義
-	addition_command += " #{define_values}" if define_values != nil # 事前定義+値
-	addition_command += " #{undefines}" if undefines != nil # 事前定義無効
-	addition_command += " #{inc}" if inc != nil # システムinclude
-	addition_command += " #{lib}" if lib != nil # システムlibrary
-	addition_command += " #{lib_name}" if lib_name != nil # 使用ライブラリ名
-	addition_command += " #{options}" if options != nil # その他オプション
-
 	# 事前にコンパイルするヘッダ
 	if PCH_HEADERS.length > 0 then
 		# ディレクトリを指定しているか
 		def is_dir_pch(p)
 			#p.index("/**") != nil
-			/.+\/\*\*/ =~ p
+			/.+\/\*\*$/ =~ p
 		end
 		pch_headers = PCH_HEADERS.map do |e|
 			if is_dir_pch e then
@@ -364,19 +352,69 @@ task :pre_build do |t|
 		# ファイルリストで拡張子に対するファイルを持ってくる
 		pch = FileList[flt.uniq]
 
-		# タスク実行
-		pch.each do |path|
-			headers = exec_dep_to_headers path
-			gch = "#{path}.gch"
-			file gch => [path, headers].flatten do
-				sh "#{COMPILER} #{path}"
-			end
-			file(gch).invoke
+		# ディレクトリ作成
+		dir = File.dirname PCH_FILE
+		if dir != "." then
+			directory(dir).invoke
 		end
-		# まとめられる…？
-		#gch = array_to_join_string pch do |e| e end
-		#sh "#{COMPILER} -x c++-header -o a.gch #{gch}"
+
+		# プリコンパイルヘッダが設定されていたら専用ファイルを作成
+		file PCH_FILE => pch do |t|
+			# すでに存在している場合は削除
+			File.unlink PCH_FILE if File.exist? PCH_FILE
+
+			# 全てのファイルをインクルード
+			files = "#ifndef __POCKET_PCH_H__\n#define __POCKET_PCH_H__\n\n"
+			files += array_to_join_string t.prerequisites, "\n" do |e|
+				if e.match("^#{dir}/") != nil
+					"#include \"#{e.gsub dir, "."}\""
+				else
+					"#include \"#{e}\""
+				end
+			end
+			files += "\n\n#endif // __POCKET_PCH_H__\n"
+			File.write PCH_FILE, files
+
+			# プリコンパイル用バイナリファイル作成
+			sh "#{COMPILER} #{PCH_FILE}"
+		end
+		file(PCH_FILE).invoke
+
+		# 自動でインクルードするように設定
+		add_include_cmd = "-include #{PCH_FILE}"
+		if auto_include == nil then
+			auto_include = add_include_cmd
+		else
+			add_include_cmd += " #{add_include_cmd}"
+		end
+
+		#pch_cpp_file = pch_file.gsub ".h", ".cpp"
+		#file pch_cpp_file => pch_file do
+		#	# 存在していない場合はヘッダをインクルードするだけのソースファイルを作成
+		#	unless File.exist? pch_cpp_file then
+		#		File.write pch_cpp_file, "#include \"pch.h\"\n"
+		#	end
+		#	# ヘッダーが変更されているので再コンパイル
+		#	sh "#{COMPILER} -o #{obj_filepath pch_cpp_file} -c #{pch_cpp_file}"
+		#end
+		#file(pch_cpp_file).invoke
 	end
+
+	# コンパイル時に付加されるコマンド事前作成
+	addition_command = ""
+	addition_command += " -std=c++#{CXX_VERSION}" if CXX_VER > 0
+	addition_command += " -Wall -Wextra -Wcast-qual" if WARNING # 警告
+	addition_command += " -w" unless WARNING # 警告をすべて無効
+	addition_command += " -g" if DEBUG # デバッグ情報をつける
+	addition_command += " -O2 -march=native" if RELEASE # 最高の最適化＋コンパイルマシン最適化
+	addition_command += " #{auto_include}" if auto_include != nil # 自動でインクルードするファイル
+	addition_command += " #{defines}" if defines != nil # 事前定義
+	addition_command += " #{define_values}" if define_values != nil # 事前定義+値
+	addition_command += " #{undefines}" if undefines != nil # 事前定義無効
+	addition_command += " #{inc}" if inc != nil # システムinclude
+	addition_command += " #{lib}" if lib != nil # システムlibrary
+	addition_command += " #{lib_name}" if lib_name != nil # 使用ライブラリ名
+	addition_command += " #{options}" if options != nil # その他オプション
 
 	# ファイルタスクを生成
 	for i in 0...SOURCE_LIST.length
