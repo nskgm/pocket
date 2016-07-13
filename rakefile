@@ -88,7 +88,8 @@ DEP_DIR = "#{BUILD_DIR}/dep" # 依存関係ファイル # dependencies
 ASM_DIR = "#{BUILD_DIR}/asm" # アセンブリファイル
 
 # プリコンパイル用ファイル名
-PCH_FILE = "pocket/pch.h"
+# ディレクトリ自動補間
+PCH_FILE = "pre_compile_headers.h"
 
 # 削除対象ファイルorディレクトリ
 # [EXECUTE_FILE, "**/*.o", "**/*.d", OBJ_DIR]
@@ -229,7 +230,7 @@ end
 # 配列からヘッダのみを抜き出す
 def string_dep_to_headers(string)
 	deps = string_dep_to_array string
-	deps.slice 2..deps.length
+	deps.slice 2...deps.length
 end
 
 # 依存関係の一時結果をヘッダーのみに変換
@@ -363,16 +364,28 @@ task :pre_build do |t|
 			# すでに存在している場合は削除
 			File.unlink PCH_FILE if File.exist? PCH_FILE
 
+			# ディレクトリが含まれている場合の相対パス用文字列
+			count = PCH_FILE.count "/"
+			count += PCH_FILE.count "\\"
+			dir_depth = "../"*count if count > 0
+
 			# 全てのファイルをインクルード
-			files = "#ifndef __POCKET_PCH_H__\n#define __POCKET_PCH_H__\n\n"
+			files = "#ifndef __POCKET_PRE_COMPILE_HEADERS_H__\n#define __POCKET_PRE_COMPILE_HEADERS_H__\n\n"
 			files += array_to_join_string t.prerequisites, "\n" do |e|
+				# すでに存在しているパスでは先頭ディレクトリ名を省く
 				if e.match("^#{dir}/") != nil
-					"#include \"#{e.gsub dir, "."}\""
+					"#include \"#{e.slice dir.length+1...e.length}\""
 				else
-					"#include \"#{e}\""
+					# 別ディレクトリに存在している場合の相対パス
+					if dir_depth != nil
+						"#include \"#{dir_depth+e}\""
+					else
+						# 直に置かれている場合
+						"#include \"#{e}\""
+					end
 				end
 			end
-			files += "\n\n#endif // __POCKET_PCH_H__\n"
+			files += "\n\n#endif // __POCKET_PRE_COMPILE_HEADERS_H__\n"
 			File.write PCH_FILE, files
 
 			# プリコンパイル用バイナリファイル作成
@@ -385,7 +398,7 @@ task :pre_build do |t|
 		if auto_include == nil then
 			auto_include = add_include_cmd
 		else
-			add_include_cmd += " #{add_include_cmd}"
+			auto_include += " #{add_include_cmd}"
 		end
 
 		#pch_cpp_file = pch_file.gsub ".h", ".cpp"
