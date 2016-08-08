@@ -9,6 +9,9 @@ DEBUG = true
 # 警告を有効にするか
 WARNING = true
 
+## %w() で空白ごとに文字列の配列を作成
+## %i() で空白ごとにシンボルの配列を作成
+
 # 出力実行ファイル名
 EXECUTE_FILE = "main.exe"
 # 実行ファイル引数
@@ -97,6 +100,10 @@ CLEAN_LIST = [EXECUTE_FILE, BUILD_DIR, PCH_FILE, "**/*.h.gch", "**/*.hpp.gch"]
 CLEAN.include CLEAN_LIST
 # clobberのほうではVCの設定ファイルもすべて削除
 CLOBBER.include [CLEAN_LIST, "**/Debug", "**/Release", "**/x64", "**/*.VC.db"].flatten
+
+## map簡略化
+## map do |e| e.name end
+## -> map &:name
 
 # 配列から連結文字列を作成
 def array_to_join_string(a, sep=" ")
@@ -286,6 +293,48 @@ def color_print(c)
 	color_print_impl c, :default do yield end
 end
 
+# プラットフォーム判定
+require "rbconfig"
+def os?
+	# @http://qiita.com/Kumassy/items/491cbde86405cf002636
+
+	host = RbConfig::CONFIG['host_os']
+	case host
+    when /mswin|msys|mingw|cygwin|bccwin|wince|emc/ then
+		:windows
+    when /darwin|mac os/ then
+		:mac
+    when /linux/ then
+		:linux
+    when /solaris|bsd/ then
+		:unix
+    else
+		:unknown
+	end
+end
+
+# ウィンドウズか
+def windows?
+	os? == :windows
+end
+# MacOSXか
+def mac?
+	os? == :mac
+end
+# Linuxか
+def linux?
+	os? == :linux
+end
+# Unixか
+def unix?
+	os? == :unix
+end
+
+TEST = [
+	"aa" if windows?,
+	"bb" if mac?
+]
+
 #--------------------------------------------------------------------------------
 # 内部設定
 #--------------------------------------------------------------------------------
@@ -304,7 +353,7 @@ OBJ_LIST = SOURCE_LIST.map do |e| obj_filepath e end
 # リリースを有効にするか
 RELEASE = !DEBUG
 # アセンブラを出力するか
-ASSEMBLY = true
+ASSEMBLY = false
 
 # 経過時間の計測
 start_time = nil
@@ -440,7 +489,7 @@ task :pre_build do |t|
 
 		# 現在のコンパイルしているソースファイルを紅色で出力
 		color_print :red do
-			print "--- #{src_file}\n"
+			print "-- #{src_file}\n"
 		end
 
 		# ソースが変更されていたら依存関係ファイルを更新する
@@ -494,10 +543,12 @@ end
 task :post_build do
 	next if start_time == nil
 
-	line = "#{"-"*50}\n"
-	print line
-	print "build time: #{Time.now - start_time}s\n"
-	print line
+	color_print :magenta do
+		line = "#{"-"*50}\n"
+		print line
+		print "build time: #{Time.now - start_time}s\n"
+		print line
+	end
 
 	start_time = nil
 end

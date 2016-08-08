@@ -116,32 +116,7 @@ int main(int argc, char** argv)
 		"frustum: " << f << endl <<
 		"--------------------" << endl << endl;
 
-	typedef pocket::simd_traits<float> simd;
-	simd::type zero = simd::zero();
-	simd::type one = simd::one();
-	simd::type set = simd::set(4.0f, 2.0f, 5.0f, 3.0f);
-	simd::type set2 = simd::set(14.0f, 12.0f, 15.0f, 13.0f);
-	cout << "-----simd-----" << endl <<
-		"is_vectorize: " << simd::is_vectorize() << endl <<
-		"set(4, 2, 5, 3): " << set << endl <<
-		"set2(14, 12, 15, 13): " << set2 << endl <<
-		"shuffle<1, 0, 2, 1>(set, set2): " << simd::shuffle<1, 0, 3, 2>(set, set2) << endl <<
-		"equal(zero, zero): " << simd::equal(zero, zero) << endl <<
-		"less_equal(zero, one): " << simd::less_equal(zero, one) << endl <<
-		"---------------" << endl;
-
-	pocket::bool4 b4(true, false, false, true);
-	pocket::int4 i4(0, 1, 2, 3);
-	pocket::float4 f4(1.0f, 2.0f, 5.0f, 3.0f);
-	pocket::byte4 by4('A', 'b', 'c', 'D');
-	cout << "-----fixed_array-----" << endl <<
-		b4 << endl <<
-		i4 << endl <<
-		f4 << endl <<
-		by4 << endl <<
-		"---------------" << endl;
-
-	const auto& null = pocket::nullobj;
+	/*const auto& null = pocket::nullobj;
 
 	float* fp = null;
 	const char* cp = null;
@@ -156,7 +131,7 @@ int main(int argc, char** argv)
 	0 * ***++***++***null++++;
 	+++++++null[0]++(10)++ / 1;
 	((------null--++[0]++-- % 2)[9] + 0) << 23 && true;
-	null++++[0] %= 10;
+	null++++[0] %= 10;*/
 
 	return 0;
 }
