@@ -49,6 +49,8 @@ _DECL_OUT_CHAR_FUNCTION(exclamation, '!');
 _DECL_OUT_CHAR_FUNCTION(colon, ':');
 _DECL_OUT_CHAR_FUNCTION(semicolon, ';');
 
+#undef _DECL_OUT_CHAR_FUNCTION
+
 // [, ]
 template <typename CharT, typename CharTraits> inline
 std::basic_ostream<CharT, CharTraits>& comma_space(std::basic_ostream<CharT, CharTraits>& os)
@@ -63,26 +65,145 @@ std::basic_iostream<CharT, CharTraits>& comma_space(std::basic_iostream<CharT, C
 	return os;
 }
 
-#undef _DECL_OUT_CHAR_FUNCTION
+/*---------------------------------------------------------------------
+* widen
+*---------------------------------------------------------------------*/
+
+template <typename T>
+struct widen_holder;
+
+template <>
+struct widen_holder<char>
+{
+	char c;
+
+	widen_holder(char c) :
+		c(c)
+	{
+
+	}
+
+	template <typename CharT, typename CharTraits>
+	std::basic_ostream<CharT, CharTraits>& apply(std::basic_ostream<CharT, CharTraits>& os) const
+	{
+		os.put(os.widen(c));
+		return os;
+	}
+	template <typename CharT, typename CharTraits>
+	std::basic_ostream<CharT, CharTraits>& apply(std::basic_iostream<CharT, CharTraits>& os) const
+	{
+		os.put(os.widen(c));
+		return os;
+	}
+};
+template <>
+struct widen_holder<const char*>
+{
+	const char* str;
+
+	widen_holder(const char* s) :
+		str(s)
+	{
+
+	}
+
+	template <typename CharT, typename CharTraits>
+	std::basic_ostream<CharT, CharTraits>& apply(std::basic_ostream<CharT, CharTraits>& os) const
+	{
+		const char* s = str;
+		while (*s != '\0')
+		{
+			os.put(os.widen(*s));
+			++s;
+		}
+		return os;
+	}
+	template <typename CharT, typename CharTraits>
+	std::basic_ostream<CharT, CharTraits>& apply(std::basic_iostream<CharT, CharTraits>& os) const
+	{
+		const char* s = str;
+		while (*s != '\0')
+		{
+			os.put(os.widen(*s));
+			++s;
+		}
+		return os;
+	}
+};
+template <std::size_t N>
+struct widen_holder<const char[N]>
+{
+	const char* str;
+
+	widen_holder(const char(&s)[N]) :
+		str(&s[0])
+	{
+
+	}
+
+	template <typename CharT, typename CharTraits>
+	std::basic_ostream<CharT, CharTraits>& apply(std::basic_ostream<CharT, CharTraits>& os) const
+	{
+		const char* s = str;
+		while (*s != '\0')
+		{
+			os.put(os.widen(*s));
+			++s;
+		}
+		return os;
+	}
+	template <typename CharT, typename CharTraits>
+	std::basic_ostream<CharT, CharTraits>& apply(std::basic_iostream<CharT, CharTraits>& os) const
+	{
+		const char* s = str;
+		while (*s != '\0')
+		{
+			os.put(os.widen(*s));
+			++s;
+		}
+		return os;
+	}
+};
+
+template <typename T> inline
+widen_holder<T> widen(T s)
+{
+	return widen_holder<T>(s);
+}
+
+template <typename CharT, typename CharTraits, typename T> inline
+std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const widen_holder<T>& holder)
+{
+	return holder.apply(os);
+}
+template <typename CharT, typename CharTraits, typename T> inline
+std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, CharTraits>& os, const widen_holder<T>& holder)
+{
+	return holder.apply(os);
+}
+
+/*---------------------------------------------------------------------
+* ignore
+*---------------------------------------------------------------------*/
 
 template <typename CharT>
-struct ignore_delimiter_t
+struct ignore_delimiter
 {
 	typedef CharT char_type;
 
 	char_type delimiter;
 
-	ignore_delimiter_t(char_type d) :
+	ignore_delimiter(char_type d) :
 		delimiter(d)
 	{
 
 	}
 };
-struct ignore_count_t
+struct ignore_count
 {
 	std::streamsize count;
 
-	ignore_count_t(std::streamsize c) :
+	ignore_count(std::streamsize c) :
 		count(c)
 	{
 
@@ -120,14 +241,14 @@ struct is_char<wchar_t> : type_traits::true_type
 };
 
 template <typename CharT> inline
-ignore_delimiter_t<CharT> ignore_impl(CharT d, type_traits::true_type)
+ignore_delimiter<CharT> ignore_impl(CharT d, type_traits::true_type)
 {
-	return ignore_delimiter_t<CharT>(d);
+	return ignore_delimiter<CharT>(d);
 }
 template <typename T> inline
-ignore_count_t ignore_impl(T c, type_traits::false_type)
+ignore_count ignore_impl(T c, type_traits::false_type)
 {
-	return ignore_count_t(static_cast<std::streamsize>(c));
+	return ignore_count(static_cast<std::streamsize>(c));
 }
 
 template <typename CharT>
@@ -135,13 +256,10 @@ struct conditional_ignore
 {
 	typedef typename type_traits::remove_cv_reference<CharT>::type literal_char_type;
 	typedef is_char<literal_char_type> _is_char;
-	typedef typename type_traits::conditional<_is_char::value, ignore_delimiter_t<literal_char_type>, ignore_count_t>::type type;
+	typedef typename type_traits::conditional<_is_char::value, ignore_delimiter<literal_char_type>, ignore_count>::type type;
 };
 }
 
-/*---------------------------------------------------------------------
-* ignore
-*---------------------------------------------------------------------*/
 template <typename CharT> inline
 typename detail::conditional_ignore<CharT>::type ignore(CharT c)
 {
@@ -150,22 +268,22 @@ typename detail::conditional_ignore<CharT>::type ignore(CharT c)
 }
 
 template <typename CharT, typename CharTraits> inline
-std::basic_istream<CharT, CharTraits>& operator >> (std::basic_istream<CharT, CharTraits>& is, const ignore_delimiter_t<CharT>& ig)
+std::basic_istream<CharT, CharTraits>& operator >> (std::basic_istream<CharT, CharTraits>& is, const ignore_delimiter<CharT>& ig)
 {
 	return is.ignore(std::numeric_limits<std::streamsize>::max(), ig.delimiter);
 }
 template <typename CharT, typename CharTraits> inline
-std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, CharTraits>& is, const ignore_delimiter_t<CharT>& ig)
+std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, CharTraits>& is, const ignore_delimiter<CharT>& ig)
 {
 	return is.ignore(std::numeric_limits<std::streamsize>::max(), ig.delimiter);
 }
 template <typename CharT, typename CharTraits> inline
-std::basic_istream<CharT, CharTraits>& operator >> (std::basic_istream<CharT, CharTraits>& is, const ignore_count_t& ig)
+std::basic_istream<CharT, CharTraits>& operator >> (std::basic_istream<CharT, CharTraits>& is, const ignore_count& ig)
 {
 	return is.ignore(ig.count, CharTraits::eof());
 }
 template <typename CharT, typename CharTraits> inline
-std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, CharTraits>& is, const ignore_count_t& ig)
+std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, CharTraits>& is, const ignore_count& ig)
 {
 	return is.ignore(ig.count, CharTraits::eof());
 }

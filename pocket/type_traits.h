@@ -188,13 +188,9 @@ const T integral_constant<T, N>::value;
 *---------------------------------------------------------------------*/
 #ifndef _USE_CXX11
 struct true_type : integral_constant<bool, true>
-{
-
-};
+{};
 struct false_type : integral_constant<bool, false>
-{
-
-};
+{};
 #else
 
 using std::true_type;
@@ -206,66 +202,46 @@ using std::false_type;
 *---------------------------------------------------------------------*/
 template <typename T>
 struct is_math_type : false_type
-{
-
-};
+{};
 template <typename T>
 struct is_math_floating_type : false_type
-{
-
-};
+{};
 
 #ifndef _UNUSING_MATH_INT_FLOAT
 template <>
 struct is_math_type<int> : true_type
-{
-
-};
+{};
 template <>
 struct is_math_type<float> : true_type
-{
-
-};
+{};
 template <>
 struct is_math_floating_type<float> : true_type
-{
-
-};
+{};
 #endif // _UNUSING_MATH_INT_FLOAT
 #ifdef _USING_MATH_DOUBLE
 template <>
 struct is_math_type<double> : true_type
-{
-
-};
+{};
 template <>
 struct is_math_floating_type<double> : true_type
-{
-
-};
+{};
 #endif // _USING_MATH_DOUBLE
 #ifdef _USING_MATH_LONG_DOUBLE
 template <>
 struct is_math_type<long double> : true_type
-{
-
-};
+{};
 template <>
 struct is_math_floating_type<long double> : true_type
-{
-
-};
+{};
 #endif // _USING_MATH_LONG_DOUBLE
 
 /*---------------------------------------------------------------------
 * bool Cが真の時のみ型を定義、コンパイル時エラーチェック
 *---------------------------------------------------------------------*/
 #ifndef _USE_CXX11
-template <bool C, typename T>
+template <bool C, typename T = void>
 struct enable_if
-{
-
-};
+{};
 template <typename T>
 struct enable_if<true, T>
 {
@@ -283,70 +259,44 @@ using std::enable_if;
 #ifndef _USE_CXX11
 template <typename T>
 struct is_integral_base : false_type
-{
-
-};
+{};
 template <>
 struct is_integral_base<bool> : true_type
-{
-
-};
+{};
 template <>
 struct is_integral_base<char> : true_type
-{
-
-};
+{};
 template <>
 struct is_integral_base<unsigned char> : true_type
-{
-
-};
+{};
 template <>
 struct is_integral_base<short> : true_type
-{
-
-};
+{};
 template <>
 struct is_integral_base<unsigned short> : true_type
-{
-
-};
+{};
 template <>
 struct is_integral_base<int> : true_type
-{
-
-};
+{};
 template <>
 struct is_integral_base<unsigned int> : true_type
-{
-
-};
+{};
 template <>
 struct is_integral_base<long> : true_type
-{
-
-};
+{};
 template <>
 struct is_integral_base<unsigned long> : true_type
-{
-
-};
+{};
 template <>
 struct is_integral_base<long long> : true_type
-{
-
-};
+{};
 template <>
 struct is_integral_base<unsigned long long> : true_type
-{
-
-};
+{};
 
 template <typename T>
 struct is_integral : is_integral_base<typename remove_cv_reference<T>::type>
-{
-
-};
+{};
 #else
 
 using std::is_integral;
@@ -358,29 +308,19 @@ using std::is_integral;
 #ifndef _USE_CXX11
 template <typename T>
 struct is_floating_point_base : false_type
-{
-
-};
+{};
 template <>
 struct is_floating_point_base<float> : true_type
-{
-
-};
+{};
 template <>
 struct is_floating_point_base<double> : true_type
-{
-
-};
+{};
 template <>
 struct is_floating_point_base<long double> : true_type
-{
-
-};
+{};
 template <typename T>
 struct is_floating_point : is_floating_point_base<typename remove_cv_reference<T>::type>
-{
-
-};
+{};
 #else
 
 using std::is_floating_point;
@@ -392,9 +332,7 @@ using std::is_floating_point;
 #ifndef _USE_CXX11
 template <typename T>
 struct is_arithmetic : integral_constant<bool, is_integral<T>::value || is_floating_point<T>::value>
-{
-
-};
+{};
 
 #else
 

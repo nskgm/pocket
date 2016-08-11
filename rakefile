@@ -36,15 +36,15 @@ LIB_DIRS = [
 # glfw3とglew32はgdi32に依存しているのでgdi32より前に記述
 LIB_NAMES = [
 	# 文字列配列
-	#"glew32",
-	#"glfw3",
-	#"gdi32",
-	#"opengl32",
+	"glew32",
+	"glfw3",
+	"gdi32",
+	"opengl32",
 ]
 # コンパイルする前に定義
 DEFINES = [
 	# 文字列配列
-	#"GLEW_STATIC", # glewを静的利用
+	"GLEW_STATIC", # glewを静的利用
 ]
 # 事前定義に対しての値を設定
 # 式をそのまま定義するときは文字列
@@ -65,6 +65,14 @@ OPTIONS = [
 	# 文字列配列
 	#"mwindows", # ウィンドウズ用にビルド(コンソールを出さないように制御)
 ]
+# Mac用Frameworkオプション
+FRAMEWORKS = [
+	# 主にglfw依存
+	"Cocoa",
+	"OpenGL",
+	"IOKit",
+	"CoreVideo"
+]
 # プリコンパイルを行なうヘッダ
 # ファイル単体かディレクトリ指定
 # ディレクトリ指定: "DIR/**"
@@ -72,7 +80,7 @@ PCH_HEADERS = [
 	# 文字列配列
 	#"a/**",
 	#"test.h"
-	"pocket/math/**"
+	#"pocket/math/**"
 ]
 # 必ずインクルードされるヘッダ
 # プリコンパイル対象ヘッダを一つでも指定していた場合はPCH_FILEが必ず指定される
@@ -330,17 +338,12 @@ def unix?
 	os? == :unix
 end
 
-TEST = [
-	"aa" if windows?,
-	"bb" if mac?
-]
-
 #--------------------------------------------------------------------------------
 # 内部設定
 #--------------------------------------------------------------------------------
 
 # 調整後C++バージョン
-CXX_VERSION = adjust_cxx_version CXX_VER, [98, 03, "0x", 11, "1y", 14, "1z", 17]
+CXX_VERSION = adjust_cxx_version CXX_VER, [98, 03, "03", "0x", 11, "1y", 14, "1z", 17]
 
 # 対象コンパイラ
 COMPILER = "g++"
@@ -353,7 +356,7 @@ OBJ_LIST = SOURCE_LIST.map do |e| obj_filepath e end
 # リリースを有効にするか
 RELEASE = !DEBUG
 # アセンブラを出力するか
-ASSEMBLY = false
+ASSEMBLY = true
 
 # 経過時間の計測
 start_time = nil
@@ -368,6 +371,8 @@ lib = array_to_join_string LIB_DIRS do |e| "-L\"#{e}\"" end
 lib_name = array_to_join_string LIB_NAMES do |e| "-l\"#{e}\"" end
 # その他オプション
 options = array_to_join_string OPTIONS do |e| "-#{e}" end
+# frameworkオプション
+frameworks = array_to_join_string FRAMEWORKS do |e| "-framework #{e}" end
 # 自動インクルートするファイル
 auto_include = array_to_join_string AUTO_INCLUDE_HEADERS do |e| "-include \"#{e}\"" end
 
@@ -474,8 +479,9 @@ task :pre_build do |t|
 	addition_command += " #{define_values}" if define_values != nil # 事前定義+値
 	addition_command += " #{undefines}" if undefines != nil # 事前定義無効
 	addition_command += " #{inc}" if inc != nil # システムinclude
-	addition_command += " #{lib}" if lib != nil # システムlibrary
-	addition_command += " #{lib_name}" if lib_name != nil # 使用ライブラリ名
+	#addition_command += " #{lib}" if lib != nil # システムlibrary
+	#addition_command += " #{lib_name}" if lib_name != nil # 使用ライブラリ名
+	#addition_command += " #{frameworks}" if frameworks != nil # frameworkオプション
 	addition_command += " #{options}" if options != nil # その他オプション
 
 	# ファイルタスクを生成
@@ -497,7 +503,9 @@ task :pre_build do |t|
 			# -MM システムinclude以外の依存include
 			# -MT 中間ファイルターゲット名
 			# -MF 出力ファイルパス
-			sh "#{COMPILER} -E -MM -MT #{obj_file} -MF #{dep_file} #{src_file}"
+			command = "#{COMPILER} -E -MM -MT #{obj_file} -MF #{dep_file} #{src_file}"
+			command += " #{inc}" if inc != nil
+			sh command
 			is_dep = true
 		end
 		file(dep_file).invoke
@@ -565,6 +573,7 @@ file EXECUTE_FILE => OBJ_LIST do |t|
 	command += " #{inc}" if inc != nil
 	command += " #{lib}" if lib != nil
 	command += " #{lib_name}" if lib_name != nil
+	command += " #{frameworks}" if frameworks != nil && mac?
 	command += " #{options}" if options != nil
 	sh command
 end
