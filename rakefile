@@ -13,7 +13,8 @@ WARNING = true
 ## %i() で空白ごとにシンボルの配列を作成
 
 # 出力実行ファイル名
-EXECUTE_FILE = "main.exe"
+# Windowsの場合は.exeが付く
+EXECUTE_FILE = "main"
 # 実行ファイル引数
 # 文字列はダブルコーテーションは外して渡される
 # ダブルコーテーションをつけるときは "\\\"NAME\\\""
@@ -78,9 +79,8 @@ FRAMEWORKS = [
 # ディレクトリ指定: "DIR/**"
 PCH_HEADERS = [
 	# 文字列配列
-	#"a/**",
-	#"test.h"
-	#"pocket/math/**"
+	#"pocket/math/**",
+	#"pocket/gl/**"
 ]
 # 必ずインクルードされるヘッダ
 # プリコンパイル対象ヘッダを一つでも指定していた場合はPCH_FILEが必ず指定される
@@ -92,7 +92,44 @@ AUTO_INCLUDE_HEADERS = [
 #---------------------------------------------------------------------------------------------------------------------------------
 # implementatioin
 #---------------------------------------------------------------------------------------------------------------------------------
-require "rake/clean"
+
+# プラットフォーム判定
+require "rbconfig"
+def os?
+	# @http://qiita.com/Kumassy/items/491cbde86405cf002636
+
+	host = RbConfig::CONFIG['host_os']
+	case host
+    when /mswin|msys|mingw|cygwin|bccwin|wince|emc/ then
+		:windows
+    when /darwin|mac os/ then
+		:mac
+    when /linux/ then
+		:linux
+    when /solaris|bsd/ then
+		:unix
+    else
+		:unknown
+	end
+end
+
+# ウィンドウズか
+def windows?
+	os? == :windows
+end
+# MacOSXか
+def mac?
+	os? == :mac
+end
+# Linuxか
+def linux?
+	os? == :linux
+end
+# Unixか
+def unix?
+	os? == :unix
+end
+
 BUILD_DIR = "builds" # ビルド用ディレクトリ
 OBJ_DIR = "#{BUILD_DIR}/obj" # 中間ファイル
 DEP_DIR = "#{BUILD_DIR}/dep" # 依存関係ファイル # dependencies
@@ -100,11 +137,15 @@ ASM_DIR = "#{BUILD_DIR}/asm" # アセンブリファイル
 
 # プリコンパイル用ファイル名
 # ディレクトリ自動補間
-PCH_FILE = "pre_compile_headers.h"
+PCH_FILE_NAME = "pch.h"
+# 実行ファイル名
+EXECUTABLE_FILE_NAME = windows? ? "#{EXECUTE_FILE}.exe" : EXECUTE_FILE
+
+require "rake/clean"
 
 # 削除対象ファイルorディレクトリ
 # [EXECUTE_FILE, "**/*.o", "**/*.d", OBJ_DIR]
-CLEAN_LIST = [EXECUTE_FILE, BUILD_DIR, PCH_FILE, "**/*.h.gch", "**/*.hpp.gch"]
+CLEAN_LIST = [EXECUTABLE_FILE_NAME, BUILD_DIR, PCH_FILE_NAME, "**/*.h.gch", "**/*.hpp.gch"]
 CLEAN.include CLEAN_LIST
 # clobberのほうではVCの設定ファイルもすべて削除
 CLOBBER.include [CLEAN_LIST, "**/Debug", "**/Release", "**/x64", "**/*.VC.db"].flatten
@@ -138,21 +179,21 @@ task :default => [:build_and_run]
 #--------------------------------------------------------------------------------
 # 実行ファイルを作成
 #--------------------------------------------------------------------------------
-desc "build #{EXECUTE_FILE}"
-task :build => [:make_directory, :pre_build, EXECUTE_FILE, :post_build]
+desc "build #{EXECUTABLE_FILE_NAME}"
+task :build => [:make_directory, :pre_build, EXECUTABLE_FILE_NAME, :post_build]
 
 #--------------------------------------------------------------------------------
 # 実行ファイルを作成し直す
 #--------------------------------------------------------------------------------
-desc "rebuild #{EXECUTE_FILE}"
+desc "rebuild #{EXECUTABLE_FILE_NAME}"
 task :rebuild => [:clean, :build]
 
 #--------------------------------------------------------------------------------
 # 実行ファイルを実行
 #--------------------------------------------------------------------------------
-desc "execute #{EXECUTE_FILE}"
+desc "execute #{EXECUTABLE_FILE_NAME}"
 task :run do |t|
-	command = "#{EXECUTE_FILE}"
+	command = "#{EXECUTABLE_FILE_NAME}"
 
 	# 実行ファイルの引数の連結
 	args = array_to_join_string EXECUTE_ARGS do |e| e.to_s end
@@ -163,13 +204,13 @@ end
 #--------------------------------------------------------------------------------
 # 実行ファイルを作成して実行
 #--------------------------------------------------------------------------------
-desc "build and run: #{EXECUTE_FILE}"
+desc "build and run: #{EXECUTABLE_FILE_NAME}"
 task :build_and_run => [:build, :run]
 
 #--------------------------------------------------------------------------------
 # 実行ファイルを作成し直して実行
 #--------------------------------------------------------------------------------
-desc "rebuild and run: #{EXECUTE_FILE}"
+desc "rebuild and run: #{EXECUTABLE_FILE_NAME}"
 task :rebuild_and_run => [:rebuild, :run]
 
 #--------------------------------------------------------------------------------
@@ -301,43 +342,6 @@ def color_print(c)
 	color_print_impl c, :default do yield end
 end
 
-# プラットフォーム判定
-require "rbconfig"
-def os?
-	# @http://qiita.com/Kumassy/items/491cbde86405cf002636
-
-	host = RbConfig::CONFIG['host_os']
-	case host
-    when /mswin|msys|mingw|cygwin|bccwin|wince|emc/ then
-		:windows
-    when /darwin|mac os/ then
-		:mac
-    when /linux/ then
-		:linux
-    when /solaris|bsd/ then
-		:unix
-    else
-		:unknown
-	end
-end
-
-# ウィンドウズか
-def windows?
-	os? == :windows
-end
-# MacOSXか
-def mac?
-	os? == :mac
-end
-# Linuxか
-def linux?
-	os? == :linux
-end
-# Unixか
-def unix?
-	os? == :unix
-end
-
 #--------------------------------------------------------------------------------
 # 内部設定
 #--------------------------------------------------------------------------------
@@ -374,7 +378,7 @@ options = array_to_join_string OPTIONS do |e| "-#{e}" end
 # frameworkオプション
 frameworks = array_to_join_string FRAMEWORKS do |e| "-framework #{e}" end
 # 自動インクルートするファイル
-auto_include = array_to_join_string AUTO_INCLUDE_HEADERS do |e| "-include \"#{e}\"" end
+auto_include = array_to_join_string AUTO_INCLUDE_HEADERS do |e| "-include\"#{e}\"" end
 
 #--------------------------------------------------------------------------------
 # ビルド前処理（実装）
@@ -408,19 +412,19 @@ task :pre_build do |t|
 		pch = FileList[flt.uniq]
 
 		# ディレクトリ作成
-		dir = File.dirname PCH_FILE
+		dir = File.dirname PCH_FILE_NAME
 		if dir != "." then
 			directory(dir).invoke
 		end
 
 		# プリコンパイルヘッダが設定されていたら専用ファイルを作成
-		file PCH_FILE => pch do |t|
+		file PCH_FILE_NAME => pch do |t|
 			# すでに存在している場合は削除
-			File.unlink PCH_FILE if File.exist? PCH_FILE
+			File.unlink PCH_FILE_NAME if File.exist? PCH_FILE_NAME
 
 			# ディレクトリが含まれている場合の相対パス用文字列
-			count = PCH_FILE.count "/"
-			count += PCH_FILE.count "\\"
+			count = PCH_FILE_NAME.count "/"
+			count += PCH_FILE_NAME.count "\\"
 			dir_depth = "../"*count if count > 0
 
 			# 全てのファイルをインクルード
@@ -440,15 +444,20 @@ task :pre_build do |t|
 				end
 			end
 			files += "\n\n#endif // __POCKET_PRE_COMPILE_HEADERS_H__\n"
-			File.write PCH_FILE, files
+			File.write PCH_FILE_NAME, files
 
 			# プリコンパイル用バイナリファイル作成
-			sh "#{COMPILER} #{PCH_FILE}"
+			command = "#{COMPILER} #{PCH_FILE_NAME}"
+			command += " #{defines}" if defines != nil # 事前定義
+			command += " #{define_values}" if define_values != nil # 事前定義+値
+			command += " #{undefines}" if undefines != nil # 事前定義無効
+			command += " #{inc}" if inc != nil
+			sh command
 		end
-		file(PCH_FILE).invoke
+		file(PCH_FILE_NAME).invoke
 
 		# 自動でインクルードするように設定
-		add_include_cmd = "-include #{PCH_FILE}"
+		add_include_cmd = "-include\"#{PCH_FILE_NAME}\""
 		if auto_include == nil then
 			auto_include = add_include_cmd
 		else
@@ -564,8 +573,8 @@ end
 #--------------------------------------------------------------------------------
 # 実行ファイル作成
 #--------------------------------------------------------------------------------
-file EXECUTE_FILE => OBJ_LIST do |t|
-	command = "#{COMPILER} -o #{EXECUTE_FILE} #{t.prerequisites.join " "}"
+file EXECUTABLE_FILE_NAME => OBJ_LIST do |t|
+	command = "#{COMPILER} -o #{EXECUTABLE_FILE_NAME} #{t.prerequisites.join " "}"
 	command += " #{auto_include}" if auto_include != nil
 	command += " #{defines}" if defines != nil
 	command += " #{define_values}" if define_values != nil
