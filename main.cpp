@@ -67,7 +67,11 @@ int main()
 
 	glfwSwapInterval(1);
 
-	pocket::gl::shader vert = pocket::gl::make_vertex_shader("test.vert");
+	const char* paths[] = {
+		"test_inv.vert",
+		"test.vert"
+	};
+	pocket::gl::shader vert = pocket::gl::make_vertex_shader(paths);
 	if (!vert)
 	{
 		std::cout << vert << std::endl;
@@ -82,6 +86,8 @@ int main()
 	{
 		std::cout << prog << std::endl;
 	}
+
+	prog[prog["b1"]] = 0;
 
 	float time = 0.0f;
 

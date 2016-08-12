@@ -11,9 +11,6 @@
 #include "../io.h"
 #include <string>
 #include <fstream>
-#ifdef _USE_CXX11
-#include <utility>
-#endif // _USE_CXX11
 
 namespace pocket
 {
@@ -35,8 +32,8 @@ public:
 		vertex,
 		fragment,
 		geometry,
-		tessellation_control,
-		tessellation_evaluate,
+		tess_control,
+		tess_evaluate,
 		compute,
 
 		unknown
@@ -81,6 +78,11 @@ public:
 	{
 		initialize(type, str, comp);
 	}
+	template <int N>
+	shader(shader_type type, const char*(&str)[N], compile_type comp = file)
+	{
+		initialize(type, str, comp);
+	}
 	shader(const shader& s) :
 		_type(s._type),
 		_handle(s._handle),
@@ -109,16 +111,28 @@ public:
 	*------------------------------------------------------------------------------------------*/
 
 	// 初期化
-	bool initialize(shader_type type, const char* s, compile_type comp = file)
+	bool initialize(shader_type type, const char* s, compile_type compile = file)
 	{
 		finalize();
 		// ファイルから作成
-		if (comp == file)
+		if (compile == file)
 		{
 			return create_from_file(type, s);
 		}
 		// 文字列から作成
-		return create_from_memory(type, s);
+		return create_from_memory(type, 1, &s);
+	}
+	template <int N>
+	bool initialize(shader_type type, const char*(&s)[N], compile_type compile = file)
+	{
+		finalize();
+		// ファイルから作成
+		if (compile == file)
+		{
+			return create_from_files(type, s);
+		}
+		// 文字列から作成
+		return create_from_memory(type, N, &s[0]);
 	}
 	// 終了処理
 	void finalize()
@@ -152,7 +166,7 @@ public:
 		_DEB_ASSERT(valid());
 		std::string source(length, '\0');
 		glGetShaderSource(_handle, length, NULL, &source[0]);
-		return source;
+		return _CXX11_MOVE(source);
 	}
 
 	// エラー文
@@ -247,9 +261,9 @@ private:
 	{
 		_DEB_ASSERT(path != NULL);
 
-		std::ifstream fs(path, std::ios::in | std::ios::ate);
+		std::ifstream fs(path, std::ios_base::in | std::ios_base::ate);
 		// ファイルが存在していない
-		if (fs.fail())
+		if (!fs.is_open())
 		{
 			_error_bitfield |= error_file_not_exist;
 			return false;
@@ -257,25 +271,53 @@ private:
 
 		// ファイルサイズ取得
 		std::ifstream::pos_type size = fs.tellg();
-		fs.seekg(0, std::ios::beg);
+		fs.seekg(0, std::ios_base::beg);
 		// ファイル全内容
 		std::string source(size, '\0');
 		fs.read(&source[0], size);
-
 		fs.close();
 
 		// ファイル内容からコンパイル
-		return create_from_memory(type, source.c_str());
+		const char* c_str = source.c_str();
+		return create_from_memory(type, 1, &c_str);
 	}
-	bool create_from_memory(shader_type type, const char* s)
+	template <int N>
+	bool create_from_files(shader_type type, const char*(&path)[N])
+	{
+		// ファイルごとの文字列
+		std::string sources[N];
+		const char* c_sources[N];
+
+		for (int i = 0; i < N; ++i)
+		{
+			std::ifstream fs(path[i], std::ios_base::in | std::ios_base::ate);
+			// ファイルが存在していない
+			if (!fs.is_open())
+			{
+				_error_bitfield |= error_file_not_exist;
+				return false;
+			}
+			std::ifstream::pos_type size = fs.tellg();
+			fs.seekg(0, std::ios_base::beg);
+			sources[i].resize(size, '\0');
+			fs.read(&sources[i][0], size);
+			fs.close();
+
+			// ポインタを渡す
+			c_sources[i] = sources[i].c_str();
+		}
+
+		// ファイル内容からコンパイル
+		return create_from_memory(type, N, &c_sources[0]);
+	}
+	bool create_from_memory(shader_type type, GLsizei count, const char** str)
 	{
 		_DEB_ASSERT(s != NULL);
 
 		_type = type;
 
 		// シェーダーハンドル作成
-		GLuint gl_type = to_gl_shader_type();
-		_handle = glCreateShader(gl_type);
+		_handle = glCreateShader(to_gl_shader_type());
 		// 作成失敗
 		if (_handle == 0)
 		{
@@ -283,7 +325,7 @@ private:
 			return false;
 		}
 		// ソースファイルのコンパイル
-		glShaderSource(_handle, 1, &s, NULL);
+		glShaderSource(_handle, count, str, NULL);
 		glCompileShader(_handle);
 
 		GLint compiled;
@@ -306,9 +348,9 @@ private:
 				return GL_FRAGMENT_SHADER;
 			case geometry:
 				return GL_GEOMETRY_SHADER;
-			case tessellation_control:
+			case tess_control:
 				return GL_TESS_CONTROL_SHADER;
-			case tessellation_evaluate:
+			case tess_evaluate:
 				return GL_TESS_EVALUATION_SHADER;
 			case compute:
 				return GL_COMPUTE_SHADER;
@@ -387,9 +429,37 @@ shader& make_shader(shader& sdr, const char* s, shader::compile_type compile = s
 	return sdr;
 }
 
-// 頂点シェーダー作成
+#define __POCKET_MAKE_SHADER_TYPE(TYPE) inline \
+	shader make_##TYPE##_shader(const char* s, shader::compile_type compile = shader::file) \
+	{ \
+		return shader(shader::TYPE, s, compile); \
+	} \
+	template <int N> inline \
+	shader make_##TYPE##_shader(const char*(&s)[N], shader::compile_type compile = shader::file) \
+	{ \
+		return shader(shader::TYPE, s, compile); \
+	} \
+	inline \
+	shader& make_##TYPE##_shader(shader& sdr, const char* s, shader::compile_type compile = shader::file) \
+	{ \
+		sdr.initialize(shader::TYPE, s, compile); \
+		return sdr; \
+	} \
+	template <int N> inline \
+	shader& make_##TYPE##_shader(shader& sdr, const char*(&s)[N], shader::compile_type compile = shader::file) \
+	{ \
+		sdr.initialize(shader::TYPE, s, compile); \
+		return sdr; \
+	}
+
+// 頂点シェーダー作成（サンプルでマクロを使用しない）
 inline
 shader make_vertex_shader(const char* s, shader::compile_type compile = shader::file)
+{
+	return shader(shader::vertex, s, compile);
+}
+template <int N> inline
+shader make_vertex_shader(const char*(&s)[N], shader::compile_type compile = shader::file)
 {
 	return shader(shader::vertex, s, compile);
 }
@@ -399,66 +469,24 @@ shader& make_vertex_shader(shader& sdr, const char* s, shader::compile_type comp
 	sdr.initialize(shader::vertex, s, compile);
 	return sdr;
 }
+template <int N> inline
+shader& make_vertex_shader(shader& sdr, const char*(&s)[N], shader::compile_type compile = shader::file)
+{
+	sdr.initialize(shader::vertex, s, compile);
+	return sdr;
+}
 // ピクセルシェーダー作成
-inline
-shader make_fragment_shader(const char* s, shader::compile_type compile = shader::file)
-{
-	return shader(shader::fragment, s, compile);
-}
-inline
-shader& make_fragment_shader(shader& sdr, const char* s, shader::compile_type compile = shader::file)
-{
-	sdr.initialize(shader::fragment, s, compile);
-	return sdr;
-}
+__POCKET_MAKE_SHADER_TYPE(fragment);
 // ジオメトリシェーダー作成
-inline
-shader make_geometry_shader(const char* s, shader::compile_type compile = shader::file)
-{
-	return shader(shader::geometry, s, compile);
-}
-inline
-shader& make_geometry_shader(shader& sdr, const char* s, shader::compile_type compile = shader::file)
-{
-	sdr.initialize(shader::geometry, s, compile);
-	return sdr;
-}
+__POCKET_MAKE_SHADER_TYPE(geometry);
 // テセレーション制御シェーダー作成
-inline
-shader make_tess_control_shader(const char* s, shader::compile_type compile = shader::file)
-{
-	return shader(shader::tessellation_control, s, compile);
-}
-inline
-shader& make_tess_control_shader(shader& sdr, const char* s, shader::compile_type compile = shader::file)
-{
-	sdr.initialize(shader::tessellation_control, s, compile);
-	return sdr;
-}
+__POCKET_MAKE_SHADER_TYPE(tess_control);
 // テセレーション評価シェーダー作成
-inline
-shader make_tess_eval_shader(const char* s, shader::compile_type compile = shader::file)
-{
-	return shader(shader::tessellation_evaluate, s, compile);
-}
-inline
-shader& make_tess_eval_shader(shader& sdr, const char* s, shader::compile_type compile = shader::file)
-{
-	sdr.initialize(shader::tessellation_evaluate, s, compile);
-	return sdr;
-}
+__POCKET_MAKE_SHADER_TYPE(tess_evaluate);
 // コンピュートシェーダー作成
-inline
-shader make_compute_shader(const char* s, shader::compile_type compile = shader::file)
-{
-	return shader(shader::compute, s, compile);
-}
-inline
-shader& make_computel_shader(shader& sdr, const char* s, shader::compile_type compile = shader::file)
-{
-	sdr.initialize(shader::compute, s, compile);
-	return sdr;
-}
+__POCKET_MAKE_SHADER_TYPE(compute);
+
+#undef __POCKET_MAKE_SHADER_TYPE
 
 template <typename CharT, typename CharTraits> inline
 std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const shader& v)
@@ -475,11 +503,11 @@ std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, Ch
 		case shader::geometry:
 			type = "geometry";
 			break;
-		case shader::tessellation_control:
-			type = "tessellation_control";
+		case shader::tess_control:
+			type = "tess_control";
 			break;
-		case shader::tessellation_evaluate:
-			type = "tessellation_evaluate";
+		case shader::tess_evaluate:
+			type = "tess_evaluate";
 			break;
 		case shader::compute:
 			type = "compute";

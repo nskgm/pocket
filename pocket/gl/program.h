@@ -13,9 +13,6 @@
 #include "shader.h"
 #include <string>
 #include <fstream>
-#ifdef _USE_CXX11
-#include <utility>
-#endif // _USE_CXX11
 
 namespace pocket
 {
@@ -27,11 +24,74 @@ class program;
 
 struct program_uniform_assign
 {
+	const GLuint& prog;
+	const GLint location;
 
+	program_uniform_assign(const GLuint& p, GLint l) :
+		prog(p), location(l)
+	{
+
+	}
+
+	template <typename T>
+	void operator = (const T&) const
+	{
+
+	}
 };
 
 namespace detail
 {
+
+// ロケーションを取得する型
+template <typename T>
+struct call_uniform
+{
+	static void call(GLuint, const T&)
+	{}
+};
+template <>
+struct call_uniform<char*>
+{
+	static GLint call(GLuint prog, const char* name)
+	{
+		return glGetUniformLocation(prog, name);
+	}
+};
+template <std::size_t N>
+struct call_uniform<char[N]>
+{
+	static GLint call(GLuint prog, const char(&name)[N])
+	{
+		return glGetUniformLocation(prog, &name[0]);
+	}
+};
+template <>
+struct call_uniform<std::string>
+{
+	static GLint call(GLuint prog, const std::string& name)
+	{
+		return glGetUniformLocation(prog, name.c_str());
+	}
+};
+
+// ロケーションから代入するための型
+template <>
+struct call_uniform<int>
+{
+	static program_uniform_assign call(const GLuint& prog, int location)
+	{
+		return program_uniform_assign(prog, static_cast<GLint>(location));
+	}
+};
+template <>
+struct call_uniform<unsigned int>
+{
+	static program_uniform_assign call(const GLuint& prog, unsigned int location)
+	{
+		return program_uniform_assign(prog, static_cast<GLint>(location));
+	}
+};
 
 // ロケーションを取得する型
 template <typename T>
@@ -48,36 +108,28 @@ struct is_uniform_get_location_type<std::string> : type_traits::true_type
 {};
 
 template <typename T>
-struct is_uniform_type : is_uniform_get_location_type<typename type_traits::remove_cv_reference<T>::type>
-{};
-
-// ロケーションから代入するための型
-template <typename T>
-struct is_uniform_assign_type_base : type_traits::false_type
+struct is_uniform_assign_type : type_traits::false_type
 {};
 template <>
-struct is_uniform_assign_type_base<int> : type_traits::true_type
+struct is_uniform_assign_type<int> : type_traits::true_type
 {};
 template <>
-struct is_uniform_assign_type_base<unsigned int> : type_traits::true_type
-{};
-
-template <typename T>
-struct is_uniform_assign_type : is_uniform_assign_type_base<typename type_traits::remove_cv_reference<T>::type>
+struct is_uniform_assign_type<unsigned int> : type_traits::true_type
 {};
 
 // 型に対する戻り値
 template <typename T>
 struct uniform_return_type
 {
+	typedef typename type_traits::remove_cv_reference<T>::type _type;
+
 	typedef typename type_traits::conditional<
 		// 文字列の場合はint
-		is_uniform_get_location_type<T>::value,
-		int,
-
+		is_uniform_get_location_type<_type>::value,
+		GLint,
 		// 整数の場合は代入するためのクラス
 		typename type_traits::conditional<
-			is_uniform_assign_type<T>::value,
+			is_uniform_assign_type<_type>::value,
 			program_uniform_assign,
 			void
 		>::type
@@ -406,7 +458,7 @@ private:
 			_error_bitfield |= error_validate;
 			return false;
 		}*/
-		return glIsProgram(_handle) == GL_TRUE;
+		return true;
 	}
 	// シェーダーリンク
 	/*bool link(const shader& first, ...)
@@ -475,6 +527,15 @@ public:
 		return *this;
 	}
 #endif // _USE_CXX11
+
+	template <typename T
+		/*, typename type_traits::enable_if<!type_traits::is_same<typename detail::uniform_return_type<T>::type, void>::value>::type */
+	>
+	typename detail::uniform_return_type<T>::type operator [] (const T& v) const
+	{
+		typedef typename type_traits::remove_cv_reference<T>::type _type;
+		return detail::call_uniform<_type>::call(_handle, v);
+	}
 };
 
 // プログラム作成
