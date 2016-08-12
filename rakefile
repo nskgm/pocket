@@ -130,7 +130,7 @@ def unix?
 	os? == :unix
 end
 
-BUILD_DIR = "builds" # ビルド用ディレクトリ
+BUILD_DIR = "build" # ビルド用ディレクトリ
 OBJ_DIR = "#{BUILD_DIR}/obj" # 中間ファイル
 DEP_DIR = "#{BUILD_DIR}/dep" # 依存関係ファイル # dependencies
 ASM_DIR = "#{BUILD_DIR}/asm" # アセンブリファイル
@@ -216,11 +216,10 @@ task :rebuild_and_run => [:rebuild, :run]
 #--------------------------------------------------------------------------------
 # ビルド用ディレクトリ作成
 #--------------------------------------------------------------------------------
-directory BUILD_DIR
-directory OBJ_DIR => BUILD_DIR
-directory DEP_DIR => BUILD_DIR
-directory ASM_DIR => BUILD_DIR
-task :make_directory => [BUILD_DIR, OBJ_DIR, DEP_DIR, ASM_DIR] # 全管理
+directory OBJ_DIR
+directory DEP_DIR
+directory ASM_DIR
+task :make_directory => [OBJ_DIR, DEP_DIR, ASM_DIR] # 全管理
 
 # 拡張子を変更
 def replace_ext(path, ext)

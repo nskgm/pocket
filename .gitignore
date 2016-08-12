@@ -7,4 +7,4 @@
 *.exe
 *.db
 *.obj
-/builds
+/build
