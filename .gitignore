@@ -7,4 +7,5 @@
 *.exe
 *.db
 *.obj
+*.shbin
 /build
