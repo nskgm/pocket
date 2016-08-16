@@ -112,34 +112,36 @@ def os?
 		:unknown
 	end
 end
+# OS判断用にキャッシュ
+OS = os?.freeze
 
 # ウィンドウズか
 def windows?
-	os? == :windows
+	OS == :windows
 end
 # MacOSXか
 def mac?
-	os? == :mac
+	OS == :mac
 end
 # Linuxか
 def linux?
-	os? == :linux
+	OS == :linux
 end
 # Unixか
 def unix?
-	os? == :unix
+	OS == :unix
 end
 
-BUILD_DIR = "build" # ビルド用ディレクトリ
-OBJ_DIR = "#{BUILD_DIR}/obj" # 中間ファイル
-DEP_DIR = "#{BUILD_DIR}/dep" # 依存関係ファイル # dependencies
-ASM_DIR = "#{BUILD_DIR}/asm" # アセンブリファイル
+BUILD_DIR = "build".freeze # ビルド用ディレクトリ
+OBJ_DIR = "#{BUILD_DIR}/obj".freeze # 中間ファイル
+DEP_DIR = "#{BUILD_DIR}/dep".freeze # 依存関係ファイル # dependencies
+ASM_DIR = "#{BUILD_DIR}/asm".freeze # アセンブリファイル
 
 # プリコンパイル用ファイル名
 # ディレクトリ自動補間
-PCH_FILE_NAME = "pch.h"
+PCH_FILE_NAME = "pch.h".freeze
 # 実行ファイル名
-EXECUTABLE_FILE_NAME = windows? ? "#{EXECUTE_FILE}.exe" : EXECUTE_FILE
+EXECUTABLE_FILE_NAME = (windows? ? "#{EXECUTE_FILE}.exe" : EXECUTE_FILE).freeze
 
 require "rake/clean"
 
@@ -270,7 +272,7 @@ def adjust_cxx_version(v, version)
 	return "0x" if rng v, 3, 11
 	return "1y" if rng v, 11, 14
 	return "1z" if rng v, 14, 17
-	"03"
+	nil
 end
 
 # 文字列から配列へ変換
@@ -346,10 +348,10 @@ end
 #--------------------------------------------------------------------------------
 
 # 調整後C++バージョン
-CXX_VERSION = adjust_cxx_version CXX_VER, [98, 03, "03", "0x", 11, "1y", 14, "1z", 17]
+CXX_VERSION = adjust_cxx_version(CXX_VER, [98, 03, "03", "0x", 11, "1y", 14, "1z", 17]).freeze
 
 # 対象コンパイラ
-COMPILER = "g++"
+COMPILER = (mac? ? "g++-6" : "g++").freeze
 # コンパイル対象拡張子
 EXT_LIST = [".c", ".cpp", ".cxx"]
 # 拡張子に対するファイルの列挙
@@ -406,9 +408,8 @@ task :pre_build do |t|
 				e
 			end
 		end
-		flt = pch_headers.flatten
 		# ファイルリストで拡張子に対するファイルを持ってくる
-		pch = FileList[flt.uniq]
+		pch = FileList[pch_headers.flatten.uniq]
 
 		# ディレクトリ作成
 		dir = File.dirname PCH_FILE_NAME
@@ -477,7 +478,7 @@ task :pre_build do |t|
 
 	# コンパイル時に付加されるコマンド事前作成
 	addition_command = ""
-	addition_command += " -std=c++#{CXX_VERSION}" if CXX_VER > 0
+	addition_command += " -std=c++#{CXX_VERSION}" if CXX_VERSION != nil
 	addition_command += " -Wall -Wextra -Wcast-qual" if WARNING # 警告
 	addition_command += " -w" unless WARNING # 警告をすべて無効
 	addition_command += " -g" if DEBUG # デバッグ情報をつける
@@ -567,6 +568,18 @@ task :post_build do
 	end
 
 	start_time = nil
+end
+
+#--------------------------------------------------------------------------------
+# ソースファイルのタイムスタンプ更新
+#--------------------------------------------------------------------------------
+task :touch do
+	# Windowsの場合はcopyコマンドを代用
+	# メッセージは邪魔なので破棄
+	proc = windows? ? Proc.new{ |n| sh "copy /B #{n} +,, > nul" } : Proc.new{ |n| sh "touch #{n}" }
+	SOURCE_LIST.each do |name|
+		proc.call name
+	end
 end
 
 #--------------------------------------------------------------------------------

@@ -145,26 +145,12 @@ public:
 	* Types
 	*------------------------------------------------------------------------------------------*/
 
-	class lock
+	typedef binder<program> binder_type;
+
+	enum program_error_bitfield
 	{
-	public:
-		lock(const program& p) :
-			prog(&p)
-		{
-			p.bind();
-		}
-		~lock()
-		{
-			prog->unbind();
-		}
-
-		const program* operator -> () const
-		{
-			return prog;
-		}
-
-	private:
-		const program* prog;
+		error_insufficient_format_count = error_bitfield_last_bit << 1,
+		error_insufficient_binary_length = error_bitfield_last_bit << 2
 	};
 
 private:
@@ -172,7 +158,7 @@ private:
 	* Members
 	*------------------------------------------------------------------------------------------*/
 
-	GLuint _handle;
+	GLuint _id;
 	int _error_bitfield;
 
 public:
@@ -187,43 +173,64 @@ public:
 	*------------------------------------------------------------------------------------------*/
 
 	program() :
-		_handle(0),
+		_id(0),
+		_error_bitfield(0)
+	{}
+	explicit program(const shader& s, bool save_bin = false) :
 		_error_bitfield(0)
 	{
-
+		initialize(s, save_bin);
 	}
-	program(const shader& s)
+	explicit program(const shader& s1, const shader& s2, bool save_bin = false) :
+		_error_bitfield(0)
 	{
-		initialize(s);
+		initialize(s1, s2, save_bin);
 	}
-	program(const shader& s1, const shader& s2)
+	explicit program(const shader& s1, const shader& s2, const shader& s3, bool save_bin = false) :
+		_error_bitfield(0)
 	{
-		initialize(s1, s2);
+		initialize(s1, s2, s3, save_bin);
 	}
-	program(const shader& s1, const shader& s2, const shader& s3)
+	explicit program(const shader& s1, const shader& s2, const shader& s3, const shader& s4, bool save_bin = false) :
+		_error_bitfield(0)
 	{
-		initialize(s1, s2, s3);
+		initialize(s1, s2, s3, s4, save_bin);
 	}
-	program(const shader& s1, const shader& s2, const shader& s3, const shader& s4)
+	explicit program(const shader& s1, const shader& s2, const shader& s3, const shader& s4, const shader& s5, bool save_bin = false) :
+		_error_bitfield(0)
 	{
-		initialize(s1, s2, s3, s4);
+		initialize(s1, s2, s3, s4, s5, save_bin);
 	}
-	program(const shader& s1, const shader& s2, const shader& s3, const shader& s4, const shader& s5)
+	explicit program(const char* path, GLenum format, bool file_front_format_written = true) :
+		_error_bitfield(0)
 	{
-		initialize(s1, s2, s3, s4, s5);
+		initialize(path, format, file_front_format_written);
+	}
+	explicit program(const std::string& path, GLenum format, bool file_front_format_written = true) :
+		_error_bitfield(0)
+	{
+		initialize(path, format, file_front_format_written);
+	}
+	explicit program(const char* path, bool file_front_format_written = true) :
+		_error_bitfield(0)
+	{
+		initialize(path, file_front_format_written);
+	}
+	explicit program(const std::string& path, bool file_front_format_written = true) :
+		_error_bitfield(0)
+	{
+		initialize(path, file_front_format_written);
 	}
 	program(const program& s) :
-		_handle(s._handle),
+		_id(s._id),
 		_error_bitfield(s._error_bitfield)
-	{
-
-	}
+	{}
 #ifdef _USE_CXX11
 	program(program&& s) :
-		_handle(std::move(s._handle)),
+		_id(std::move(s._id)),
 		_error_bitfield(std::move(s._error_bitfield))
 	{
-		s._handle = 0;
+		s._id = 0;
 		s._error_bitfield = 0;
 	}
 #endif // _USE_CXX11
@@ -237,93 +244,137 @@ public:
 	*------------------------------------------------------------------------------------------*/
 
 	// 初期化
-	bool initialize(const shader& s)
+	bool initialize(const shader& s, bool save_bin = false)
 	{
-		if (!create())
+		if (!create(save_bin))
 		{
 			return false;
 		}
 		// シェーダーのアタッチ
-		s.attach(_handle);
+		s.attach(_id);
 		if (!link())
 		{
 			return false;
 		}
 		return true;
 	}
-	bool initialize(const shader& s1, const shader& s2)
+	bool initialize(const shader& s1, const shader& s2, bool save_bin = false)
 	{
-		if (!create())
+		if (!create(save_bin))
 		{
 			return false;
 		}
 		// シェーダーのアタッチ
-		s1.attach(_handle);
-		s2.attach(_handle);
+		s1.attach(_id);
+		s2.attach(_id);
 		if (!link())
 		{
 			return false;
 		}
 		return true;
 	}
-	bool initialize(const shader& s1, const shader& s2, const shader& s3)
+	bool initialize(const shader& s1, const shader& s2, const shader& s3, bool save_bin = false)
 	{
-		if (!create())
+		if (!create(save_bin))
 		{
 			return false;
 		}
 		// シェーダーのアタッチ
-		s1.attach(_handle);
-		s2.attach(_handle);
-		s3.attach(_handle);
+		s1.attach(_id);
+		s2.attach(_id);
+		s3.attach(_id);
 		if (!link())
 		{
 			return false;
 		}
 		return true;
 	}
-	bool initialize(const shader& s1, const shader& s2, const shader& s3, const shader& s4)
+	bool initialize(const shader& s1, const shader& s2, const shader& s3, const shader& s4, bool save_bin = false)
 	{
-		if (!create())
+		if (!create(save_bin))
 		{
 			return false;
 		}
 		// シェーダーのアタッチ
-		s1.attach(_handle);
-		s2.attach(_handle);
-		s3.attach(_handle);
-		s4.attach(_handle);
+		s1.attach(_id);
+		s2.attach(_id);
+		s3.attach(_id);
+		s4.attach(_id);
 		if (!link())
 		{
 			return false;
 		}
 		return true;
 	}
-	bool initialize(const shader& s1, const shader& s2, const shader& s3, const shader& s4, const shader& s5)
+	bool initialize(const shader& s1, const shader& s2, const shader& s3, const shader& s4, const shader& s5, bool save_bin = false)
 	{
-		if (!create())
+		if (!create(save_bin))
 		{
 			return false;
 		}
 		// シェーダーのアタッチ
-		s1.attach(_handle);
-		s2.attach(_handle);
-		s3.attach(_handle);
-		s4.attach(_handle);
-		s5.attach(_handle);
+		s1.attach(_id);
+		s2.attach(_id);
+		s3.attach(_id);
+		s4.attach(_id);
+		s5.attach(_id);
 		if (!link())
 		{
 			return false;
 		}
 		return true;
 	}
+	// バイナリファイルから作成
+	bool initialize(const char* path, GLenum format, bool file_front_format_written = true)
+	{
+		if (!create(false))
+		{
+			return false;
+		}
+		// ファイルの情報を読み取る
+		std::string bin;
+		GLsizei length;
+		if (!read(path, bin, format, length, file_front_format_written))
+		{
+			return false;
+		}
+		// バイナリ情報を送る
+		glProgramBinary(_id, format, bin.data(), length);
+		// リンクできているか
+		return is_linked();
+	}
+	bool initialize(const std::string& path, GLenum format, bool file_front_format_written = true)
+	{
+		return initialize(path.c_str(), format, file_front_format_written);
+	}
+	bool initialize(const char* path, bool file_front_format_written = true)
+	{
+		if (!create(false))
+		{
+			return false;
+		}
+		std::string bin;
+		GLenum format = GL_INVALID_ENUM;
+		GLsizei length;
+		if (!read(path, bin, format, length, file_front_format_written))
+		{
+			return false;
+		}
+		glProgramBinary(_id, format, bin.data(), length);
+		return is_linked();
+	}
+	bool initialize(const std::string& path, bool file_front_format_written = true)
+	{
+		return initialize(path.c_str(), file_front_format_written);
+	}
+
 	// 終了処理
 	void finalize()
 	{
-		if (_handle != 0)
+		if (_id != 0)
 		{
-			glDeleteProgram(_handle);
-			_handle = 0;
+			glDeleteProgram(_id);
+			_id = 0;
 		}
 		_error_bitfield = 0;
 	}
@@ -331,7 +382,7 @@ public:
 	// バインド
 	void bind() const
 	{
-		glUseProgram(_handle);
+		glUseProgram(_id);
 	}
 
 	// バインド解除
@@ -343,14 +394,92 @@ public:
 	// シェーダーの解除
 	void detach(const shader& s) const
 	{
-		s.detach(_handle);
+		s.detach(_id);
+	}
+
+	// シェーダーから作成されたアセンブラバイナリを保存する
+	bool save_binary(const char* path, GLenum& format, bool file_front_format_write = true)
+	{
+#ifdef _INTERNAL_USE_GLEW
+		// サポートされていない
+		if (!GLEW_ARB_get_program_binary)
+#else
+		// あまり効率は良くないが拡張が使用できるかを判断
+		if (!gl::is_extension_support("GL_ARB_get_program_binary"))
+#endif // _INTERNAL_USE_GLEW
+		{
+			_error_bitfield |= error_unsupported;
+			return false;
+		}
+
+		// 使用できるバイナリフォーマット数
+		GLint format_count = 0;
+		glGetIntegerv(GL_NUM_PROGRAM_BINARY_FORMATS, &format_count);
+		if (format_count == 0)
+		{
+			// 一つ以上ないと対応していない
+			_error_bitfield |= error_insufficient_format_count;
+			return false;
+		}
+
+		// バイナリファイルのサイズ
+		GLint binary_length;
+		glGetProgramiv(_id, GL_PROGRAM_BINARY_LENGTH, &binary_length);
+		if (binary_length == 0)
+		{
+			_error_bitfield |= error_insufficient_binary_length;
+			return false;
+		}
+
+		// フォーマット一覧を取得
+		//std::vector<GLint> formats(format_count);
+		//glGetIntegerv(GL_PROGRAM_BINARY_FORMATS, &formats[0]);
+
+		// バイナリ情報を取得
+		std::string binary(binary_length, '\0');
+		glGetProgramBinary(_id, binary_length, NULL, &format, &binary[0]);
+
+		// ファイルに書き込む
+		std::ofstream file(path, std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
+		// 書き込み、ファイルの作成ができない
+		if (!file.is_open())
+		{
+			_error_bitfield |= error_file_not_write;
+			return false;
+		}
+		// ファイルの最初にフォーマットを保存
+		if (file_front_format_write)
+		{
+			// 独自のフォーマットとなるので引数で変えられるように
+			file.write(reinterpret_cast<char*>(&format), sizeof(GLenum));
+		}
+		// フォーマットを書き込んだらバイナリデータを保存
+		file.write(&binary[0], binary_length);
+		file.close();
+
+		return true;
+	}
+	bool save_binary(const std::string& path, GLenum& format, bool file_front_format_write = true)
+	{
+		return save_binary(path.c_str(), format, file_front_format_write);
+	}
+	// フォーマットを一時的にのみ保持
+	bool save_binary(const char* path, bool file_front_format_write = true)
+	{
+		GLenum format;
+		return save_binary(path, format, file_front_format_write);
+	}
+	bool save_binary(const std::string& path, bool file_front_format_write = true)
+	{
+		GLenum format;
+		return save_binary(path, format, file_front_format_write);
 	}
 
 	// エラー文
 	std::string error() const
 	{
 		// シェーダーハンドルの作成に失敗している
-		if (error_status(error_create_program))
+		if (error_status(error_creating))
 		{
 			return "failed. glCreateProgram().";
 		}
@@ -364,14 +493,14 @@ public:
 		if (error_status(error_link))
 		{
 			// GL側エラー文の取得
-			if (_handle != 0)
+			if (_id != 0)
 			{
 				GLint length = 0;
-				glGetProgramiv(_handle, GL_INFO_LOG_LENGTH, &length);
+				glGetProgramiv(_id, GL_INFO_LOG_LENGTH, &length);
 				if (length > 0)
 				{
 					std::string log(length, '\0');
-					glGetProgramInfoLog(_handle, length, NULL, &log[0]);
+					glGetProgramInfoLog(_id, length, NULL, &log[0]);
 					return "failed. link program. #" + log;
 				}
 				else
@@ -384,9 +513,30 @@ public:
 				return "failed. link program.";
 			}
 		}
+
+		// バイナリ保存中に起きたエラー群
+
+		// 保存用フォーマット数が不足
+		if (error_status(static_cast<error_bitfield>(error_insufficient_format_count)))
+		{
+			return "failed. insfficient format count.";
+		}
+
+		// バイナリが保存できていない
+		if (error_status(static_cast<error_bitfield>(error_insufficient_binary_length)))
+		{
+			return "failed. binary is not stored.";
+		}
+
+		// ファイルが書き込みできない
+		if (error_status(error_file_not_write))
+		{
+			return "failed. file not write.";
+		}
+
 		// 作成されていない
 		// またはすでに破棄済み
-		if (_handle == 0)
+		if (_id == 0)
 		{
 			return "not created. or already destroyed.";
 		}
@@ -403,61 +553,70 @@ public:
 	// 有効な状態か
 	bool valid() const
 	{
-		if (_handle == 0 ||
+		if (_id == 0 ||
 			_error_bitfield != 0)
 		{
 			return false;
 		}
-		return glIsProgram(_handle) == GL_TRUE;
+		return glIsProgram(_id) == GL_TRUE;
 	}
 
 	// ハンドルの取得
 	GLuint& get()
 	{
-		return _handle;
+		return _id;
 	}
 	const GLuint& get() const
 	{
-		return _handle;
+		return _id;
 	}
 
 private:
 	// 共通事前初期化
-	bool create()
+	bool create(bool save_bin)
 	{
 		finalize();
 		// プログラム作成
-		_handle = glCreateProgram();
-		if (_handle == 0)
+		_id = glCreateProgram();
+		if (_id == 0)
 		{
-			_error_bitfield |= error_create_program;
+			_error_bitfield |= error_creating;
 			return false;
 		}
-		return glIsProgram(_handle) == GL_TRUE;
+		if (save_bin)
+		{
+			glProgramParameteri(_id, GL_PROGRAM_BINARY_RETRIEVABLE_HINT, GL_TRUE);
+		}
+		return glIsProgram(_id) == GL_TRUE;
 	}
 	bool link()
 	{
 		// プログラムのリンク
-		glLinkProgram(_handle);
-		// リンクできているか
-		GLint linked;
-		glGetProgramiv(_handle, GL_LINK_STATUS, &linked);
-		if (linked == GL_FALSE)
-		{
-			_error_bitfield |= error_link;
-			return false;
-		}
+		glLinkProgram(_id);
+
 		// プログラムの検証
 		// 現在描画できるにあるか検証してくれる
 		// 初期化時には行わない様にする
-		/*glValidateProgram(_handle);
+		/*glValidateProgram(_id);
 		GLint validated;
-		glGetProgramiv(_handle, GL_VALIDATE_STATUS, &validated);
+		glGetProgramiv(_id, GL_VALIDATE_STATUS, &validated);
 		if (validated == GL_FALSE)
 		{
 			_error_bitfield |= error_validate;
 			return false;
 		}*/
+		return is_linked();
+	}
+	bool is_linked()
+	{
+		// リンクできているか
+		GLint linked;
+		glGetProgramiv(_id, GL_LINK_STATUS, &linked);
+		if (linked == GL_FALSE)
+		{
+			_error_bitfield |= error_link;
+			return false;
+		}
 		return true;
 	}
 	// シェーダーリンク
@@ -470,12 +629,52 @@ private:
 		// 可変長引数の全引数をアタッチ
 		while (list != NULL)
 		{
-			list->attach(_handle);
+			list->attach(_id);
 			// 次の可変長引数へ
 			list = &va_arg(ap, const shader&);
 		}
 		va_end(ap);
 	}*/
+
+	bool read(const char* path, std::string& bin, GLenum& format, GLsizei& length, bool file_front_format_written)
+	{
+		std::ifstream fs(path, std::ios_base::in | std::ios_base::ate | std::ios_base::binary);
+		if (!fs.is_open())
+		{
+			_error_bitfield |= error_file_not_exist;
+			return false;
+		}
+		// ファイル全体のサイズ
+		std::size_t file_size = static_cast<std::size_t>(fs.tellg());
+		fs.seekg(0, std::ios_base::beg);
+		// 最初に書き込まれている場合はGLenum文引く
+		std::size_t bin_size = file_front_format_written ? file_size - sizeof(GLenum) : file_size;
+		// フォーマットを取得
+		if (file_front_format_written)
+		{
+			// 指定された値がすでに渡されている場合は無視
+#ifdef GL_DONT_CARE
+			if (format != GL_INVALID_ENUM && format != GL_DONT_CARE)
+#else
+			if (format != GL_INVALID_ENUM)
+#endif // GL_DONT_CARE
+			{
+				// std::ifstream::traits_type::eof()
+				fs.ignore(sizeof(GLenum));
+			}
+			else
+			{
+				fs.read(reinterpret_cast<char*>(&format), sizeof(GLenum));
+			}
+		}
+		bin.resize(bin_size);
+		fs.read(&bin[0], bin_size);
+		fs.close();
+
+		length = static_cast<GLsizei>(bin_size);
+
+		return true;
+	}
 
 	/*------------------------------------------------------------------------------------------
 	* Operators
@@ -484,7 +683,7 @@ private:
 public:
 	_CXX11_EXPLICIT operator GLuint () const
 	{
-		return _handle;
+		return _id;
 	}
 
 	_CXX11_EXPLICIT operator bool () const
@@ -498,7 +697,7 @@ public:
 
 	bool operator == (const program& p) const
 	{
-		return _handle == p._handle;
+		return _id == p._id;
 	}
 	bool operator != (const program& p) const
 	{
@@ -507,16 +706,16 @@ public:
 
 	program& operator = (const program& p)
 	{
-		_handle = p._handle;
+		_id = p._id;
 		_error_bitfield = p._error_bitfield;
 		return *this;
 	}
 #ifdef _USE_CXX11
 	program& operator = (program&& p)
 	{
-		_handle = std::move(p._handle);
+		_id = std::move(p._id);
 		_error_bitfield = std::move(p._error_bitfield);
-		p._handle = 0;
+		p._id = 0;
 		p._error_bitfield = 0;
 		return *this;
 	}
@@ -534,65 +733,87 @@ public:
 	typename detail::uniform_return_type<T>::type operator [] (const T& v) const
 	{
 		typedef typename type_traits::remove_cv_reference<T>::type _type;
-		return detail::call_uniform<_type>::call(_handle, v);
+		return detail::call_uniform<_type>::call(_id, v);
 	}
 };
 
 // プログラム作成
 inline
-program make_program(const shader& s)
+program make_program(const shader& s, bool save_bin = false)
 {
-	return program(s);
+	return program(s, save_bin);
 }
 inline
-program& make_program(program& prog, const shader& s)
+program& make_program(program& prog, const shader& s, bool save_bin = false)
 {
-	prog.initialize(s);
+	prog.initialize(s, save_bin);
 	return prog;
 }
 inline
-program make_program(const shader& s1, const shader& s2)
+program make_program(const shader& s1, const shader& s2, bool save_bin = false)
 {
-	return program(s1, s2);
+	return program(s1, s2, save_bin);
 }
 inline
-program& make_program(program& prog, const shader& s1, const shader& s2)
+program& make_program(program& prog, const shader& s1, const shader& s2, bool save_bin = false)
 {
-	prog.initialize(s1, s2);
+	prog.initialize(s1, s2, save_bin);
 	return prog;
 }
 inline
-program make_program(const shader& s1, const shader& s2, const shader& s3)
+program make_program(const shader& s1, const shader& s2, const shader& s3, bool save_bin = false)
 {
-	return program(s1, s2, s3);
+	return program(s1, s2, s3, save_bin);
 }
 inline
-program& make_program(program& prog, const shader& s1, const shader& s2, const shader& s3)
+program& make_program(program& prog, const shader& s1, const shader& s2, const shader& s3, bool save_bin = false)
 {
-	prog.initialize(s1, s2, s3);
+	prog.initialize(s1, s2, s3, save_bin);
 	return prog;
 }
 inline
-program make_program(const shader& s1, const shader& s2, const shader& s3, const shader& s4)
+program make_program(const shader& s1, const shader& s2, const shader& s3, const shader& s4, bool save_bin = false)
 {
-	return program(s1, s2, s3, s4);
+	return program(s1, s2, s3, s4, save_bin);
 }
 inline
-program& make_program(program& prog, const shader& s1, const shader& s2, const shader& s3, const shader& s4)
+program& make_program(program& prog, const shader& s1, const shader& s2, const shader& s3, const shader& s4, bool save_bin = false)
 {
-	prog.initialize(s1, s2, s3, s4);
+	prog.initialize(s1, s2, s3, s4, save_bin);
 	return prog;
 }
 inline
-program make_program(const shader& s1, const shader& s2, const shader& s3, const shader& s4, const shader& s5)
+program make_program(const shader& s1, const shader& s2, const shader& s3, const shader& s4, const shader& s5, bool save_bin = false)
 {
-	return program(s1, s2, s3, s4, s5);
+	return program(s1, s2, s3, s4, s5, save_bin);
 }
 inline
-program& make_program(program& prog, const shader& s1, const shader& s2, const shader& s3, const shader& s4, const shader& s5)
+program& make_program(program& prog, const shader& s1, const shader& s2, const shader& s3, const shader& s4, const shader& s5, bool save_bin = false)
 {
-	prog.initialize(s1, s2, s3, s4, s5);
+	prog.initialize(s1, s2, s3, s4, s5, save_bin);
 	return prog;
+}
+
+// バイナリファイルから作成
+inline
+program make_program(const char* path, GLenum format, bool file_front_format_written = true)
+{
+	return program(path, format, file_front_format_written);
+}
+inline
+program make_program(const std::string& path, GLenum format, bool file_front_format_written = true)
+{
+	return program(path, format, file_front_format_written);
+}
+inline
+program make_program(const char* path, bool file_front_format_written = true)
+{
+	return program(path, file_front_format_written);
+}
+inline
+program make_program(const std::string& path, bool file_front_format_written = true)
+{
+	return program(path, file_front_format_written);
 }
 
 template <typename CharT, typename CharTraits> inline

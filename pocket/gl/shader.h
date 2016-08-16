@@ -53,7 +53,7 @@ private:
 	*------------------------------------------------------------------------------------------*/
 
 	shader_type _type;
-	GLuint _handle;
+	GLuint _id;
 	int _error_bitfield;
 
 public:
@@ -69,35 +69,33 @@ public:
 
 	shader() :
 		_type(unknown),
-		_handle(0),
+		_id(0),
 		_error_bitfield(0)
-	{
-
-	}
-	shader(shader_type type, const char* str, compile_type comp = file)
+	{}
+	explicit shader(shader_type type, const char* str, compile_type comp = file) :
+		_error_bitfield(0)
 	{
 		initialize(type, str, comp);
 	}
 	template <int N>
-	shader(shader_type type, const char*(&str)[N], compile_type comp = file)
+	explicit shader(shader_type type, const char*(&str)[N], compile_type comp = file) :
+		_error_bitfield(0)
 	{
 		initialize(type, str, comp);
 	}
 	shader(const shader& s) :
 		_type(s._type),
-		_handle(s._handle),
+		_id(s._id),
 		_error_bitfield(s._error_bitfield)
-	{
-
-	}
+	{}
 #ifdef _USE_CXX11
 	shader(shader&& s) :
 		_type(std::move(s._type)),
-		_handle(std::move(s._handle)),
+		_id(std::move(s._id)),
 		_error_bitfield(std::move(s._error_bitfield))
 	{
 		s._type = unknown;
-		s._handle = 0;
+		s._id = 0;
 		s._error_bitfield = 0;
 	}
 #endif // _USE_CXX11
@@ -137,10 +135,10 @@ public:
 	// 終了処理
 	void finalize()
 	{
-		if (_handle != 0)
+		if (_id != 0)
 		{
-			glDeleteShader(_handle);
-			_handle = 0;
+			glDeleteShader(_id);
+			_id = 0;
 		}
 		_type = unknown;
 		_error_bitfield = 0;
@@ -149,15 +147,15 @@ public:
 	// プログラムへアタッチ
 	void attach(GLuint prog) const
 	{
-		_DEB_ASSERT(_handle != 0 && prog != 0);
-		glAttachShader(prog, _handle);
+		_DEB_ASSERT(_id != 0 && prog != 0);
+		glAttachShader(prog, _id);
 	}
 
 	// アタッチの解除
 	void detach(GLuint prog) const
 	{
-		_DEB_ASSERT(_handle != 0 && prog != 0);
-		glDetachShader(prog, _handle);
+		_DEB_ASSERT(_id != 0 && prog != 0);
+		glDetachShader(prog, _id);
 	}
 
 	// コード取得
@@ -165,7 +163,7 @@ public:
 	{
 		_DEB_ASSERT(valid());
 		std::string source(length, '\0');
-		glGetShaderSource(_handle, length, NULL, &source[0]);
+		glGetShaderSource(_id, length, NULL, &source[0]);
 		return _CXX11_MOVE(source);
 	}
 
@@ -173,7 +171,7 @@ public:
 	std::string error() const
 	{
 		// シェーダーハンドルの作成に失敗している
-		if (error_status(error_create_shader))
+		if (error_status(error_creating))
 		{
 			return "failed. glCreateShader().";
 		}
@@ -186,14 +184,14 @@ public:
 		if (error_status(error_compiling))
 		{
 			// GL側エラー文の取得
-			if (_handle != 0)
+			if (_id != 0)
 			{
 				GLint length = 0;
-				glGetShaderiv(_handle, GL_INFO_LOG_LENGTH, &length);
+				glGetShaderiv(_id, GL_INFO_LOG_LENGTH, &length);
 				if (length > 0)
 				{
 					std::string log(length, '\0');
-					glGetShaderInfoLog(_handle, length, NULL, &log[0]);
+					glGetShaderInfoLog(_id, length, NULL, &log[0]);
 					return "failed. compile shader. # " + log;
 				}
 				else
@@ -209,7 +207,7 @@ public:
 		// 作成されていない
 		// またはすでに破棄済み
 		if (_type == unknown ||
-			_handle == 0)
+			_id == 0)
 		{
 			return "not created. or already destroyed.";
 		}
@@ -226,12 +224,12 @@ public:
 	// 有効な状態か
 	bool valid() const
 	{
-		if (_handle == 0 ||
+		if (_id == 0 ||
 			_error_bitfield != 0)
 		{
 			return false;
 		}
-		return glIsShader(_handle) == GL_TRUE;
+		return glIsShader(_id) == GL_TRUE;
 	}
 
 	// シェーダー種類
@@ -249,18 +247,16 @@ public:
 	// ハンドルの取得
 	GLuint& get()
 	{
-		return _handle;
+		return _id;
 	}
 	const GLuint& get() const
 	{
-		return _handle;
+		return _id;
 	}
 
 private:
 	bool create_from_file(shader_type type, const char* path)
 	{
-		_DEB_ASSERT(path != NULL);
-
 		std::ifstream fs(path, std::ios_base::in | std::ios_base::ate);
 		// ファイルが存在していない
 		if (!fs.is_open())
@@ -317,26 +313,26 @@ private:
 		_type = type;
 
 		// シェーダーハンドル作成
-		_handle = glCreateShader(to_gl_shader_type());
+		_id = glCreateShader(to_gl_shader_type());
 		// 作成失敗
-		if (_handle == 0)
+		if (_id == 0)
 		{
-			_error_bitfield |= error_create_shader;
+			_error_bitfield |= error_creating;
 			return false;
 		}
 		// ソースファイルのコンパイル
-		glShaderSource(_handle, count, str, NULL);
-		glCompileShader(_handle);
+		glShaderSource(_id, count, str, NULL);
+		glCompileShader(_id);
 
 		GLint compiled;
-		glGetShaderiv(_handle, GL_COMPILE_STATUS, &compiled);
+		glGetShaderiv(_id, GL_COMPILE_STATUS, &compiled);
 		// コンパイルが成功していない
 		if (compiled == GL_FALSE)
 		{
 			_error_bitfield |= error_compiling;
 			return false;
 		}
-		return glIsShader(_handle) == GL_TRUE;
+		return glIsShader(_id) == GL_TRUE;
 	}
 	GLuint to_gl_shader_type() const
 	{
@@ -368,7 +364,7 @@ private:
 public:
 	_CXX11_EXPLICIT operator GLuint () const
 	{
-		return _handle;
+		return _id;
 	}
 
 	_CXX11_EXPLICIT operator bool () const
@@ -382,7 +378,7 @@ public:
 
 	bool operator == (const shader& s) const
 	{
-		return _handle == s._handle && _type == s._type;
+		return _id == s._id && _type == s._type;
 	}
 	bool operator != (const shader& s) const
 	{
@@ -392,7 +388,7 @@ public:
 	shader& operator = (const shader& s)
 	{
 		_type = s._type;
-		_handle = s._handle;
+		_id = s._id;
 		_error_bitfield = s._error_bitfield;
 		return *this;
 	}
@@ -400,10 +396,10 @@ public:
 	shader& operator = (shader&& s)
 	{
 		_type = std::move(s._type);
-		_handle = std::move(s._handle);
+		_id = std::move(s._id);
 		_error_bitfield = std::move(s._error_bitfield);
 		s._type = unknown;
-		s._handle = 0;
+		s._id = 0;
 		s._error_bitfield = 0;
 		return *this;
 	}

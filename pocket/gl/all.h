@@ -11,5 +11,6 @@
 #include "gl.h"
 #include "shader.h"
 #include "program.h"
+#include "buffer.h"
 
 #endif // __POCKET_GL_ALL_H__
