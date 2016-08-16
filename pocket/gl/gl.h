@@ -45,6 +45,11 @@ public:
 		return address;
 	}
 
+	const T& operator * () const
+	{
+		return *address;
+	}
+
 	operator const T& () const
 	{
 		return *address;
@@ -75,6 +80,11 @@ public:
 	const T* operator -> () const
 	{
 		return address;
+	}
+
+	const T& operator * () const
+	{
+		return *address;
 	}
 
 	operator const T& () const

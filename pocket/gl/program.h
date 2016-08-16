@@ -22,6 +22,7 @@ namespace gl
 // forward
 class program;
 
+// Uniform変数に代入するための型
 struct program_uniform_assign
 {
 	const GLuint& prog;
@@ -676,11 +677,11 @@ private:
 		return true;
 	}
 
+public:
 	/*------------------------------------------------------------------------------------------
 	* Operators
 	*------------------------------------------------------------------------------------------*/
 
-public:
 	_CXX11_EXPLICIT operator GLuint () const
 	{
 		return _id;
@@ -728,7 +729,7 @@ public:
 #endif // _USE_CXX11
 
 	template <typename T
-		/*, typename type_traits::enable_if<!type_traits::is_same<typename detail::uniform_return_type<T>::type, void>::value>::type */
+		//, typename type_traits::enable_if<(!type_traits::is_same<typename detail::uniform_return_type<T>::type, void>::value), T>::type
 	>
 	typename detail::uniform_return_type<T>::type operator [] (const T& v) const
 	{

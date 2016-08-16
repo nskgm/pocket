@@ -239,7 +239,7 @@ struct is_math_floating_type<long double> : true_type
 * bool Cが真の時のみ型を定義、コンパイル時エラーチェック
 *---------------------------------------------------------------------*/
 #ifndef _USE_CXX11
-template <bool C, typename T = void>
+template <bool C, typename T>
 struct enable_if
 {};
 template <typename T>
@@ -343,10 +343,10 @@ using std::is_arithmetic;
 * 型が同じか
 *---------------------------------------------------------------------*/
 #ifndef _USE_CXX11
-template<class T, class U>
+template<typename T, typename U>
 struct is_same : false_type
 {};
-template<class T>
+template<typename T>
 struct is_same<T, T> : true_type
 {};
 
@@ -387,6 +387,20 @@ struct conditional_size<false, N1, N2>
 {
 	_STATICAL_CONSTANT size_t value = N2;
 };
+
+/*---------------------------------------------------------------------
+* 配列の数を取得
+*---------------------------------------------------------------------*/
+template <typename T>
+struct extent_count_base : integral_constant<int, 0>
+{};
+template <typename T, int N>
+struct extent_count_base<T[N]> : integral_constant<int, N>
+{};
+
+template <typename T>
+struct extent_count : extent_count_base<typename remove_cv_reference<T>::type>
+{};
 
 } // namespace type_traits
 } // namespace pocket

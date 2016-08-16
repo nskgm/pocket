@@ -9,6 +9,7 @@
 #include "fwd.h"
 #include "config.h"
 #include "gl.h"
+#include "commands.h"
 #include "shader.h"
 #include "program.h"
 #include "buffer.h"
