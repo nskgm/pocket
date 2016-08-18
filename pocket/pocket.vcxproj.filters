@@ -19,23 +19,11 @@
     <Filter Include="ヘッダー ファイル\container">
       <UniqueIdentifier>{46fab857-de8d-4e9b-937c-546d6d542c1c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ヘッダー ファイル\gl">
+      <UniqueIdentifier>{39e1d027-dfed-4868-9d83-e6be2a443469}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="behavior.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="config.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="io.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="debug.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="fwd.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="math\all.h">
       <Filter>ヘッダー ファイル\math</Filter>
     </ClInclude>
@@ -90,18 +78,63 @@
     <ClInclude Include="container\array.h">
       <Filter>ヘッダー ファイル\container</Filter>
     </ClInclude>
+    <ClInclude Include="behavior.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="char_traits.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="config.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="debug.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
     <ClInclude Include="fixed_array.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="type_traits.h">
+    <ClInclude Include="fwd.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="io.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="nullobj.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="type_traits.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="gl\all.h">
+      <Filter>ヘッダー ファイル\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="gl\buffer.h">
+      <Filter>ヘッダー ファイル\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="gl\commands.h">
+      <Filter>ヘッダー ファイル\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="gl\config.h">
+      <Filter>ヘッダー ファイル\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="gl\fwd.h">
+      <Filter>ヘッダー ファイル\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="gl\gl.h">
+      <Filter>ヘッダー ファイル\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="gl\program.h">
+      <Filter>ヘッダー ファイル\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="gl\shader.h">
+      <Filter>ヘッダー ファイル\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="gl\template.h">
+      <Filter>ヘッダー ファイル\gl</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="..\main.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>

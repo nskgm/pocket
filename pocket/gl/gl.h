@@ -1,4 +1,4 @@
-#ifndef __POCKET_GL_GL_H__
+﻿#ifndef __POCKET_GL_GL_H__
 #define __POCKET_GL_GL_H__
 
 #include "../config.h"
@@ -20,6 +20,14 @@
 #include <vector>
 #include <cstring>
 
+#ifndef _GL_UNINITIALIZED_VALUE
+#	ifdef GL_DONT_CARE
+#		define _GL_UNINITIALIZED_VALUE GL_DONT_CARE
+#	else
+#		define _GL_UNINITIALIZED_VALUE GL_INVALID_VALUE
+#	endif // GL_DONT_CARE
+#endif // _GL_UNINITIALIZED_VALUE
+
 namespace pocket
 {
 namespace gl
@@ -38,6 +46,11 @@ public:
 	~binder()
 	{
 		address->unbind();
+	}
+
+	bool binding() const
+	{
+		return true;
 	}
 
 	const T* operator -> () const
@@ -67,8 +80,7 @@ class binder1
 {
 public:
 	explicit binder1(const T& a, const U& b) :
-		address(&a),
-		value(b)
+		address(&a), value(b)
 	{
 		a.bind(b);
 	}
@@ -98,25 +110,25 @@ public:
 
 private:
 	const T* address;
-	const U& value;
+	const U value;
 };
 
 // バインダーを作成
-template <typename T> inline
-binder<T> make_binder(const T& a)
-{
-	return binder<T>(a);
-}
-template <typename T, typename U> inline
-binder1<T, U> make_binder(const T& a, const U& b)
-{
-	return binder1<T, U>(a, b);
-}
-template <GLenum V, typename T> inline
-binder1<T, GLenum> make_binder(const T& a)
-{
-	return binder1<T, GLenum>(a, V);
-}
+//template <typename T> inline
+//binder<T> make_binder(const T& a)
+//{
+//	return binder<T>(a);
+//}
+//template <typename T, typename U> inline
+//binder1<T, U> make_binder(const T& a, const U& b)
+//{
+//	return binder1<T, U>(a, b);
+//}
+//template <GLenum V, typename T> inline
+//binder1<T, GLenum> make_binder(const T& a)
+//{
+//	return binder1<T, GLenum>(a, V);
+//}
 
 // エラー内容
 enum error_bitfield

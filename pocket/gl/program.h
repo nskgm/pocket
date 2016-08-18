@@ -1,4 +1,4 @@
-#ifndef __POCKET_GL_PROGRAM_H__
+﻿#ifndef __POCKET_GL_PROGRAM_H__
 #define __POCKET_GL_PROGRAM_H__
 
 #include "../config.h"
@@ -380,6 +380,12 @@ public:
 		_error_bitfield = 0;
 	}
 
+	// エラーの状態をクリア
+	void clear()
+	{
+		_error_bitfield = 0;
+	}
+
 	// バインド
 	void bind() const
 	{
@@ -390,6 +396,19 @@ public:
 	void unbind() const
 	{
 		glUseProgram(0);
+	}
+
+	bool binding() const
+	{
+		GLuint i = 0;
+		glGetIntegerv(GL_CURRENT_PROGRAM, reinterpret_cast<GLint*>(&i));
+		return i == _id;
+	}
+
+	// バインド状態を管理するオブジェクト作成
+	binder_type make_binder() const
+	{
+		return binder_type(*this);
 	}
 
 	// シェーダーの解除
@@ -504,15 +523,8 @@ public:
 					glGetProgramInfoLog(_id, length, NULL, &log[0]);
 					return "failed. link program. #" + log;
 				}
-				else
-				{
-					return "failed. link program.";
-				}
 			}
-			else
-			{
-				return "failed. link program.";
-			}
+			return "failed. link program.";
 		}
 
 		// バイナリ保存中に起きたエラー群

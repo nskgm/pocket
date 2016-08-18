@@ -1,4 +1,4 @@
-#include "pocket/math/all.h"
+﻿#include "pocket/math/all.h"
 #include "pocket/gl/all.h"
 #include <GLFW/glfw3.h>
 #include <iomanip>
@@ -114,6 +114,7 @@ int main()
 		if (!prog.save_binary("test.shbin", true))
 		{
 			std::cout << prog << std::endl;
+			prog.clear();
 		}
 	}
 	else
@@ -127,7 +128,7 @@ int main()
 		std::cout << prog << std::endl;
 	}
 
-	int ary[] = { 0, 1, 2, 3, 4 };
+	float ary[] = { 0.0f, 10.0f, 20.025f, 3.125f, 400.01f, 10.0f };
 	// データからバッファを作成
 	// -- make_buffer
 	// -- make_[type]_buffer
@@ -152,17 +153,45 @@ int main()
 		// コンストラクタでバインドをしてデストラクタでバインドを解除するクラスを作成
 		// pocket::gl::binder -> 引数なし
 		// pocket::gl::binder1 -> 引数１
-		gl::binder1<gl::buffer, GLenum> bind = gl::make_binder<GL_ARRAY_BUFFER>(buf);
-		// operator -> で第一テンプレート型の関数を使用できる
-		std::cout << bind->size_binding() << std::endl <<
-			bind->usage_binding() << std::endl;
+		gl::buffer::binder_type bind = buf.make_binder();
 
-		//std::cout << *bind << std::endl;
+		// binder_typeで受け取っている時のsizeやcountは自動でバインドされているものが使用される
+		std::cout << bind.size() << std::endl;
+		std::cout << bind.usage() << std::endl;
+
+		// CPU上に展開してGPU上の情報を得る
+		// 自動で展開の解除
+		//bind->map_binding<int>(gl::buffer_base::read, [&bind](int* a) {
+		//	for (int i = 0; i < bind->count_binding<int>(); ++i)
+		//	{
+		//		std::cout << a[i] << " ";
+		//	}
+		//	std::cout << std::endl;
+		//});
+
+		gl::buffer::rebinder_map<float>::type map = bind->make_binder_map<float, gl::buffer::read>(bind);
+		if (map)
+		{
+			int n = bind.count<float>();
+			for (int i = 0; i < n; ++i, ++map)
+			{
+				//std::cout << map[i] << " ";
+				std::cout << *map << " ";
+			}
+			std::cout << std::endl;
+		}
 	}
 
-	std::cout << pocket::type_traits::extent_count<char>::value << std::endl <<
-		pocket::type_traits::extent_count<int[6]>::value << std::endl <<
-		pocket::type_traits::extent_count<const float[3]>::value << std::endl;
+	{
+		gl::program::binder_type bind = prog.make_binder();
+		std::cout << bind->binding() << std::endl;
+	}
+	std::cout << prog.binding() << std::endl;
+
+	// バインドされていない状態でのサイズ取得
+	// 必ずバインドしないといけないので内部で行っている
+	// サイズが取得できたらバインドも解除されてしまう
+	// std::cout << buf.size() << std::endl;
 
 	// Uniformロケーション取得
 	int location = prog["a1"];
@@ -185,3 +214,32 @@ int main()
 	vert.finalize();
 	frag.finalize();
 }
+
+#ifdef _MSC_VER
+#pragma comment (lib, "OpenGL32.lib")
+#ifdef _DEBUG
+#ifdef _MT
+#ifdef _DLL
+#pragma comment (lib, "glfw3_mdd.lib")
+#pragma comment (lib, "glew32s_mdd.lib")
+#else
+#pragma comment (lib, "glfw3_mtd.lib")
+#pragma comment (lib, "glew32s_mtd.lib")
+#endif
+#else
+#error No MultiThread.
+#endif
+#else
+#ifdef _MT
+#ifdef _DLL
+#pragma comment (lib, "glfw3_md.lib")
+#pragma comment (lib, "glew32s_md.lib")
+#else
+#pragma comment (lib, "glfw3_mt.lib")
+#pragma comment (lib, "glew32s_mt.lib")
+#endif
+#else
+#error No MultiThread.
+#endif
+#endif /* _MT */
+#endif // _MSC_VER

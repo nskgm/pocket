@@ -1,4 +1,4 @@
-#ifndef __POCKET_GL_BUFFER_H__
+﻿#ifndef __POCKET_GL_BUFFER_H__
 #define __POCKET_GL_BUFFER_H__
 
 #include "../config.h"
@@ -16,8 +16,10 @@ namespace gl
 {
 
 // forward
+class buffer_base;
 class buffer;
 template <int> class buffers;
+template <typename, typename> class binder_map;
 
 class buffer_base
 {
@@ -71,6 +73,13 @@ public:
 		immutable = immutable_draw,
 		dynamic = dynamic_draw,
 	};
+	// マップ方法
+	enum map_usage_type
+	{
+		read,
+		write,
+		read_write
+	};
 
 protected:
 	/*------------------------------------------------------------------------------------------
@@ -86,8 +95,10 @@ public:
 	*------------------------------------------------------------------------------------------*/
 
 	// 変換テーブル
-	static const GLenum gl_buffer_type_table[15];
+	static const GLenum gl_buffer_type_table[14];
 	static const GLenum gl_usage_type_table[9];
+	static const GLenum gl_map_usage_type_table[3];
+	static const GLenum gl_binding_buffer_type_table[14];
 
 	/*------------------------------------------------------------------------------------------
 	* Constructors
@@ -122,10 +133,18 @@ public:
 	virtual ~buffer_base()
 	{}
 
-protected:
+public:
 	/*------------------------------------------------------------------------------------------
 	* Functions
 	*------------------------------------------------------------------------------------------*/
+
+	// エラー状態をクリア
+	void clear()
+	{
+		_error_bitfield = 0;
+	}
+
+protected:
 
 	GLenum to_gl_type(buffer_type type) const
 	{
@@ -163,7 +182,7 @@ protected:
 
 			case unknown:
 			default:
-				return GL_INVALID_VALUE;
+				return _GL_UNINITIALIZED_VALUE;
 		}
 #endif
 		return buffer_base::gl_buffer_type_table[type];
@@ -195,10 +214,106 @@ protected:
 				return GL_DYNAMIC_COPY;
 
 			default:
-				return GL_INVALID_VALUE;
+				return _GL_UNINITIALIZED_VALUE;
 		}
 #endif
 		return buffer_base::gl_usage_type_table[type];
+	}
+	GLenum to_gl_map_usage(map_usage_type type) const
+	{
+#if 0
+		switch (type)
+		{
+			case read:
+				return GL_READ_ONLY;
+			case write:
+				return GL_READ_ONLY;
+			case read_write:
+				return GL_READ_WRITE;
+
+			default:
+				return _GL_UNINITIALIZED_VALUE;
+		}
+#endif
+		return buffer_base::gl_map_usage_type_table[type];
+	}
+	GLenum to_gl_binding_type(buffer_type type) const
+	{
+#if 0
+		switch (type)
+		{
+			case array:
+				return GL_ARRAY_BUFFER_BINDING;
+			case atomic_counter:
+				return GL_ATOMIC_COUNTER_BUFFER_BINDING;
+			case copy_read:
+				return GL_COPY_READ_BUFFER_BINDING;
+			case copy_write:
+				return GL_COPY_WRITE_BUFFER_BINDING;
+			case dispatch_indirect:
+				return GL_DISPATCH_INDIRECT_BUFFER_BINDING;
+			case draw_indirect:
+				return GL_DRAW_INDIRECT_BUFFER_BINDING;
+			case element:
+				return GL_ELEMENT_ARRAY_BUFFER_BINDING;
+			case pixel_pack:
+				return GL_PIXEL_PACK_BUFFER_BINDING;
+			case pixel_unpack:
+				return GL_PIXEL_UNPACK_BUFFER_BINDING;
+			case query:
+				return GL_QUERY_BUFFER_BINDING;
+			case shader_storage:
+				return GL_SHADER_STORAGE_BUFFER_BINDING;
+			case texture:
+				return GL_TEXTURE_BUFFER_BINDING;
+			case transform_feedback:
+				return GL_TRANSFORM_FEEDBACK_BUFFER_BINDING;
+			case uniform:
+				return GL_UNIFORM_BUFFER_BINDING;
+
+			case unknown:
+			default:
+				return _GL_UNINITIALIZED_VALUE;
+		}
+#endif
+		return buffer_base::gl_binding_buffer_type_table[type];
+	}
+	GLenum to_gl_binding_type() const
+	{
+		switch (_type)
+		{
+			case GL_ARRAY_BUFFER:
+				return GL_ARRAY_BUFFER_BINDING;
+			case GL_ATOMIC_COUNTER_BUFFER:
+				return GL_ATOMIC_COUNTER_BUFFER_BINDING;
+			case GL_COPY_READ_BUFFER:
+				return GL_COPY_READ_BUFFER_BINDING;
+			case GL_COPY_WRITE_BUFFER:
+				return GL_COPY_WRITE_BUFFER_BINDING;
+			case GL_DISPATCH_INDIRECT_BUFFER:
+				return GL_DISPATCH_INDIRECT_BUFFER_BINDING;
+			case GL_DRAW_INDIRECT_BUFFER:
+				return GL_DRAW_INDIRECT_BUFFER_BINDING;
+			case GL_ELEMENT_ARRAY_BUFFER:
+				return GL_ELEMENT_ARRAY_BUFFER_BINDING;
+			case GL_PIXEL_PACK_BUFFER:
+				return GL_PIXEL_PACK_BUFFER_BINDING;
+			case GL_PIXEL_UNPACK_BUFFER:
+				return GL_PIXEL_UNPACK_BUFFER_BINDING;
+			case GL_QUERY_BUFFER:
+				return GL_QUERY_BUFFER_BINDING;
+			case GL_SHADER_STORAGE_BUFFER:
+				return GL_SHADER_STORAGE_BUFFER_BINDING;
+			case GL_TEXTURE_BUFFER:
+				return GL_TEXTURE_BUFFER_BINDING;
+			case GL_TRANSFORM_FEEDBACK_BUFFER:
+				return GL_TRANSFORM_FEEDBACK_BUFFER_BINDING;
+			case GL_UNIFORM_BUFFER:
+				return GL_UNIFORM_BUFFER_BINDING;
+
+			default:
+				return _GL_UNINITIALIZED_VALUE;
+		}
 	}
 
 	buffer_type to_buffer_type() const
@@ -246,7 +361,7 @@ protected:
 	// none
 };
 
-const GLenum buffer_base::gl_buffer_type_table[15] = {
+const GLenum buffer_base::gl_buffer_type_table[14] = {
 	GL_ARRAY_BUFFER,
 	GL_ATOMIC_COUNTER_BUFFER,
 	GL_COPY_READ_BUFFER,
@@ -260,12 +375,7 @@ const GLenum buffer_base::gl_buffer_type_table[15] = {
 	GL_SHADER_STORAGE_BUFFER,
 	GL_TEXTURE_BUFFER,
 	GL_TRANSFORM_FEEDBACK_BUFFER,
-	GL_UNIFORM_BUFFER,
-#ifdef GL_DONT_CARE
-	GL_DONT_CARE
-#else
-	GL_INVALID_VALUE
-#endif // GL_DONT_CARE
+	GL_UNIFORM_BUFFER
 };
 const GLenum buffer_base::gl_usage_type_table[9] = {
 	GL_STREAM_DRAW,
@@ -278,6 +388,70 @@ const GLenum buffer_base::gl_usage_type_table[9] = {
 	GL_DYNAMIC_READ,
 	GL_DYNAMIC_COPY
 };
+const GLenum buffer_base::gl_map_usage_type_table[3] = {
+	GL_READ_ONLY,
+	GL_WRITE_ONLY,
+	GL_READ_WRITE
+};
+const GLenum buffer_base::gl_binding_buffer_type_table[14] = {
+	GL_ARRAY_BUFFER_BINDING,
+	GL_ATOMIC_COUNTER_BUFFER_BINDING,
+	GL_COPY_READ_BUFFER_BINDING,
+	GL_COPY_WRITE_BUFFER_BINDING,
+	GL_DISPATCH_INDIRECT_BUFFER_BINDING,
+	GL_DRAW_INDIRECT_BUFFER_BINDING,
+	GL_ELEMENT_ARRAY_BUFFER_BINDING,
+	GL_PIXEL_PACK_BUFFER_BINDING,
+	GL_PIXEL_UNPACK_BUFFER_BINDING,
+	GL_QUERY_BUFFER_BINDING,
+	GL_SHADER_STORAGE_BUFFER_BINDING,
+	GL_TEXTURE_BUFFER_BINDING,
+	GL_TRANSFORM_FEEDBACK_BUFFER_BINDING,
+	GL_UNIFORM_BUFFER_BINDING
+};
+
+template <>
+class binder<buffer>
+{
+public:
+	explicit binder(const buffer& a);
+	~binder();
+	int size() const;
+	int count(int type_size) const;
+	template <typename T> int count() const;
+	GLenum usage() const;
+	void* map(buffer_base::map_usage_type) const;
+	template <typename T> T* map(buffer_base::map_usage_type) const;
+	template <typename F> void map(buffer_base::map_usage_type, F) const;
+	template <typename T, typename F> void map(buffer_base::map_usage_type, F) const;
+	void unmap() const;
+
+	bool binding() const
+	{
+		return true;
+	}
+
+	const buffer* operator -> () const
+	{
+		return address;
+	}
+	const buffer& operator * () const
+	{
+		return *address;
+	}
+
+	operator const buffer& () const
+	{
+		return *address;
+	}
+	operator const buffer* () const
+	{
+		return address;
+	}
+
+private:
+	const buffer* address;
+};
 
 class buffer : public buffer_base
 {
@@ -287,6 +461,19 @@ public:
 	*------------------------------------------------------------------------------------------*/
 
 	typedef binder<buffer> binder_type;
+	typedef binder_map<buffer, void> binder_map_type;
+
+	template <typename U>
+	struct rebinder1
+	{
+		typedef binder1<buffer, U> type;
+	};
+	template <typename U>
+	struct rebinder_map
+	{
+		typedef binder_map<buffer, U> type;
+	};
+
 	typedef buffer_base base;
 
 private:
@@ -447,18 +634,149 @@ public:
 		unbind(to_gl_type(type));
 	}
 
+	// 現在のバッファーがバインドされているか
+	bool binding() const
+	{
+		GLenum type = to_gl_binding_type();
+		GLuint i = 0;
+		glGetIntegerv(type, reinterpret_cast<GLint*>(&i));
+		return i == _id;
+	}
+
+	// バインド状態を管理するオブジェクト作成
+	binder_type make_binder() const
+	{
+		return binder_type(*this);
+	}
+	template <GLenum V>
+	rebinder1<GLenum>::type make_binder() const
+	{
+		return rebinder1<GLenum>::type(*this, V);
+	}
+	rebinder1<GLenum>::type make_binder(GLenum type) const
+	{
+		return rebinder1<GLenum>::type(*this, type);
+	}
+	template <buffer_type T>
+	rebinder1<buffer_type>::type make_binder() const
+	{
+		return rebinder1<buffer_type>::type(*this, T);
+	}
+	rebinder1<buffer_type>::type make_binder(buffer_type type) const
+	{
+		return rebinder1<buffer_type>::type(*this, type);
+	}
+
+	// バッファを展開して先頭アドレスを取得
+	void* map(map_usage_type type) const
+	{
+		bind();
+		return map_binding(type);
+	}
+	void* map_binding(map_usage_type type) const
+	{
+		return glMapBuffer(_type, to_gl_map_usage(type));
+	}
+
+	// 展開してアドレスを取得できていたら渡された関数を実行
+	template <typename F>
+	bool map(map_usage_type type, F func) const
+	{
+		binder_type lock(*this);
+		return map_binding(type, func);
+	}
+	template <typename T, typename F>
+	bool map(map_usage_type type, F func) const
+	{
+		binder_type lock(*this);
+		return map_binding<T>(type, func);
+	}
+	template <typename F>
+	bool map_binding(map_usage_type type, F func) const
+	{
+		void* address = map_binding(type);
+		if (address == NULL)
+		{
+			return false;
+		}
+		func(address);
+		unmap_binding();
+		return true;
+	}
+	template <typename T, typename F>
+	bool map_binding(map_usage_type type, F func) const
+	{
+		void* address = map_binding(type);
+		if (address == NULL)
+		{
+			return false;
+		}
+		func(static_cast<T*>(address));
+		unmap_binding();
+		return true;
+	}
+
+	// バッファの展開を解除
+	void unmap() const
+	{
+		unmap_binding();
+		unmap();
+	}
+	void unmap_binding() const
+	{
+		glUnmapBuffer(_type);
+	}
+
+	// 展開されている状態か
+	bool mapping() const
+	{
+		GLint mapped;
+		glGetBufferParameteriv(_type, GL_BUFFER_MAPPED, &mapped);
+		return mapped == GL_TRUE;
+	}
+
+	// マップしたものを管理するオブジェクトを作成
+	binder_map_type make_binder_map(map_usage_type) const;
+	template <map_usage_type U> binder_map_type make_binder_map() const;
+	template <typename T> typename rebinder_map<T>::type make_binder_map(map_usage_type) const;
+	template <typename T, map_usage_type U> typename rebinder_map<T>::type make_binder_map() const;
+
+	binder_map_type make_binder_map(const binder_type&, map_usage_type) const;
+	template <map_usage_type U> binder_map_type make_binder_map(const binder_type&) const;
+	template <typename T> typename rebinder_map<T>::type make_binder_map(const binder_type&, map_usage_type) const;
+	template <typename T, map_usage_type U> typename rebinder_map<T>::type make_binder_map(const binder_type&) const;
+
 	// バッファサイズ
 	int size() const
 	{
 		binder_type lock(*this);
 		return size_binding();
 	}
-	// バインドされていることを想定
 	int size_binding() const
 	{
 		GLint i = 0;
 		glGetBufferParameteriv(_type, GL_BUFFER_SIZE, &i);
 		return static_cast<int>(i);
+	}
+
+	// 型の数
+	int count(int type_size) const
+	{
+		return size() / type_size;
+	}
+	template <typename T>
+	int count() const
+	{
+		return size() / sizeof(T);
+	}
+	int count_binding(int type_size) const
+	{
+		return size_binding() / type_size;
+	}
+	template <typename T>
+	int count_binding() const
+	{
+		return size_binding() / sizeof(T);
 	}
 
 	// 設定した時の扱い法
@@ -467,7 +785,6 @@ public:
 		binder_type lock(*this);
 		return usage_binding();
 	}
-	// バインドされていることを想定
 	GLenum usage_binding() const
 	{
 		GLint u = 0;
@@ -606,8 +923,8 @@ public:
 	class holder
 	{
 	private:
-		template <int>
-		friend class buffers;
+		template <int> friend class buffers;
+
 		GLuint _id;
 
 	public:
@@ -626,6 +943,8 @@ public:
 		}
 	};
 
+	typedef buffer_base base;
+
 private:
 	/*------------------------------------------------------------------------------------------
 	* Members
@@ -633,7 +952,6 @@ private:
 
 	// 数分保持
 	holder _ids[N];
-	int _error_bitfield;
 
 public:
 	/*------------------------------------------------------------------------------------------
@@ -647,10 +965,10 @@ public:
 	*------------------------------------------------------------------------------------------*/
 
 	buffers() :
-		_error_bitfield(0)
+		base()
 	{}
 	buffers(const buffers& b) :
-		_error_bitfield(b._error_bitfield)
+		base()
 	{
 		for (int i = 0; i < N; ++i)
 		{
@@ -659,14 +977,13 @@ public:
 	}
 #ifdef _USE_CXX11
 	buffers(buffers&& b) :
-		_ids(std::move(b._ids)),
-		_error_bitfield(std::move(b._error_bitfield))
+		base(std::forward<buffer_base>(b)),
+		_ids(std::move(b._ids))
 	{
 		for (int i = 0; i < N; ++i)
 		{
 			b._ids[i]._id = 0;
 		}
-		b._error_bitfield = 0;
 	}
 #endif // _USE_CXX11
 
@@ -682,6 +999,308 @@ public:
 
 	// none
 };
+
+template <typename T, typename M>
+class binder_map
+{
+public:
+	/*------------------------------------------------------------------------------------------
+	* Types
+	*------------------------------------------------------------------------------------------*/
+
+	enum state_type
+	{
+		binding_bit = 1 << 0,
+	};
+
+private:
+	/*------------------------------------------------------------------------------------------
+	* Members
+	*------------------------------------------------------------------------------------------*/
+
+	const T* _address;
+	M* _data;
+	int _state_bitfield;
+
+public:
+	/*------------------------------------------------------------------------------------------
+	* Constants
+	*------------------------------------------------------------------------------------------*/
+
+	// none
+
+	/*------------------------------------------------------------------------------------------
+	* Constructors
+	*------------------------------------------------------------------------------------------*/
+
+	explicit binder_map(const T& a, buffer_base::map_usage_type type) :
+		_address(&a), _data(NULL), _state_bitfield(0)
+	{
+		// バインドされている時はデストラクタ時に解除しない
+		if (a.binding())
+		{
+			_state_bitfield |= binding_bit;
+		}
+		else
+		{
+			a.bind();
+		}
+		_data = static_cast<M*>(a.map_binding(type));
+	}
+	explicit binder_map(const binder<T>& a, buffer_base::map_usage_type type) :
+		_address(a),
+		_data(static_cast<M*>(a->map_binding(type))),
+		_state_bitfield(binding_bit)
+	{}
+	~binder_map()
+	{
+		_address->unmap_binding();
+		if ((_state_bitfield & binding_bit) == 0)
+		{
+			_address->unbind();
+		}
+	}
+
+	/*------------------------------------------------------------------------------------------
+	* Functions
+	*------------------------------------------------------------------------------------------*/
+
+	M* get() const
+	{
+		return _data;
+	}
+
+	/*------------------------------------------------------------------------------------------
+	* Operators
+	*------------------------------------------------------------------------------------------*/
+
+	_CXX11_EXPLICIT operator bool () const
+	{
+		return _data != NULL;
+	}
+	bool operator ! () const
+	{
+		return _data == NULL;
+	}
+
+	_CXX11_EXPLICIT operator M* () const
+	{
+		return _data;
+	}
+
+	binder_map& operator ++ ()
+	{
+		++_data;
+		return *this;
+	}
+	binder_map& operator -- ()
+	{
+		--_data;
+		return *this;
+	}
+
+	M& operator * () const
+	{
+		return *_data;
+	}
+
+	M* operator -> () const
+	{
+		return _data;
+	}
+
+	M& operator [] (int n) const
+	{
+		return _data[n];
+	}
+};
+
+template <typename T>
+class binder_map<T, void>
+{
+public:
+	/*------------------------------------------------------------------------------------------
+	* Types
+	*------------------------------------------------------------------------------------------*/
+
+	enum state_type
+	{
+		binding_bit = 1 << 0,
+	};
+
+private:
+	/*------------------------------------------------------------------------------------------
+	* Members
+	*------------------------------------------------------------------------------------------*/
+
+	const T* _address;
+	void* _data;
+	int _state_bitfield;
+
+public:
+	/*------------------------------------------------------------------------------------------
+	* Constants
+	*------------------------------------------------------------------------------------------*/
+
+	// none
+
+	/*------------------------------------------------------------------------------------------
+	* Constructors
+	*------------------------------------------------------------------------------------------*/
+
+	explicit binder_map(const T& a, buffer_base::map_usage_type type) :
+		_address(&a), _data(NULL), _state_bitfield(0)
+	{
+		// バインドされている時はデストラクタ時に解除しない
+		if (a.binding())
+		{
+			_state_bitfield |= binding_bit;
+		}
+		else
+		{
+			a.bind();
+		}
+		_data = a.map_binding(type);
+	}
+	explicit binder_map(const binder<T>& a, buffer_base::map_usage_type type) :
+		_address(a),
+		_data(a->map_binding(type)),
+		_state_bitfield(binding_bit)
+	{}
+	~binder_map()
+	{
+		_address->unmap_binding();
+		if ((_state_bitfield & binding_bit) == 0)
+		{
+			_address->unbind();
+		}
+	}
+
+	/*------------------------------------------------------------------------------------------
+	* Functions
+	*------------------------------------------------------------------------------------------*/
+
+	void* get() const
+	{
+		return _data;
+	}
+	template <typename U>
+	U* get() const
+	{
+		return static_cast<U*>(_data);
+	}
+
+	/*------------------------------------------------------------------------------------------
+	* Operators
+	*------------------------------------------------------------------------------------------*/
+
+	_CXX11_EXPLICIT operator bool () const
+	{
+		return _data != NULL;
+	}
+	bool operator ! () const
+	{
+		return _data == NULL;
+	}
+};
+
+inline
+binder<buffer>::binder(const buffer& a) :
+	address(&a)
+{
+	a.bind();
+}
+inline
+binder<buffer>::~binder()
+{
+	address->unbind();
+}
+inline
+int binder<buffer>::size() const
+{
+	return address->size_binding();
+}
+inline
+int binder<buffer>::count(int type_size) const
+{
+	return address->count_binding(type_size);
+}
+template <typename T> inline
+int binder<buffer>::count() const
+{
+	return address->count_binding<T>();
+}
+inline
+GLenum binder<buffer>::usage() const
+{
+	return address->usage_binding();
+}
+inline
+void* binder<buffer>::map(buffer_base::map_usage_type usg) const
+{
+	return address->map_binding(usg);
+}
+template <typename T> inline
+T* binder<buffer>::map(buffer_base::map_usage_type usg) const
+{
+	return address->map_binding<T>(usg);
+}
+template <typename F> inline
+void binder<buffer>::map(buffer_base::map_usage_type usg, F func) const
+{
+	address->map_binding(usg, func);
+}
+template <typename T, typename F> inline
+void binder<buffer>::map(buffer_base::map_usage_type usg, F func) const
+{
+	address->map_binding<T>(usg, func);
+}
+inline
+void binder<buffer>::unmap() const
+{
+	address->unmap_binding();
+}
+
+inline
+buffer::binder_map_type buffer::make_binder_map(map_usage_type usg) const
+{
+	return binder_map_type(*this, usg);
+}
+template <buffer_base::map_usage_type U> inline
+buffer::binder_map_type buffer::make_binder_map() const
+{
+	return binder_map_type(*this, U);
+}
+template <typename T> inline
+typename buffer::template rebinder_map<T>::type buffer::make_binder_map(map_usage_type usg) const
+{
+	return typename rebinder_map<T>::type(*this, usg);
+}
+template <typename T, buffer_base::map_usage_type U> inline
+typename buffer::template rebinder_map<T>::type buffer::make_binder_map() const
+{
+	return typename rebinder_map<T>::type(*this, U);
+}
+inline
+buffer::binder_map_type buffer::make_binder_map(const binder_type& a, map_usage_type usg) const
+{
+	return binder_map_type(a, usg);
+}
+template <buffer_base::map_usage_type U> inline
+buffer::binder_map_type buffer::make_binder_map(const binder_type& a) const
+{
+	return binder_map_type(a, U);
+}
+template <typename T> inline
+typename buffer::template rebinder_map<T>::type buffer::make_binder_map(const binder_type& a, map_usage_type usg) const
+{
+	return typename rebinder_map<T>::type(a, usg);
+}
+template <typename T, buffer_base::map_usage_type U> inline
+typename buffer::template rebinder_map<T>::type buffer::make_binder_map(const binder_type& a) const
+{
+	return typename rebinder_map<T>::type(a, U);
+}
 
 /*------------------------------
 * make_buffer

@@ -1,4 +1,4 @@
-#ifndef __POCKET_GL_COMMANDS_H__
+﻿#ifndef __POCKET_GL_COMMANDS_H__
 #define __POCKET_GL_COMMANDS_H__
 
 #include "../config.h"

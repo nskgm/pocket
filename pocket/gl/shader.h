@@ -1,4 +1,4 @@
-#ifndef __POCKET_GL_SHADER_H__
+﻿#ifndef __POCKET_GL_SHADER_H__
 #define __POCKET_GL_SHADER_H__
 
 #include "../config.h"
@@ -144,24 +144,27 @@ public:
 		_error_bitfield = 0;
 	}
 
+	// エラーの状態をクリア
+	void clear()
+	{
+		_error_bitfield = 0;
+	}
+
 	// プログラムへアタッチ
 	void attach(GLuint prog) const
 	{
-		_DEB_ASSERT(_id != 0 && prog != 0);
 		glAttachShader(prog, _id);
 	}
 
 	// アタッチの解除
 	void detach(GLuint prog) const
 	{
-		_DEB_ASSERT(_id != 0 && prog != 0);
 		glDetachShader(prog, _id);
 	}
 
 	// コード取得
 	std::string code(GLsizei length = 1024) const
 	{
-		_DEB_ASSERT(valid());
 		std::string source(length, '\0');
 		glGetShaderSource(_id, length, NULL, &source[0]);
 		return _CXX11_MOVE(source);
@@ -194,15 +197,8 @@ public:
 					glGetShaderInfoLog(_id, length, NULL, &log[0]);
 					return "failed. compile shader. # " + log;
 				}
-				else
-				{
-					return "failed. compile shader.";
-				}
 			}
-			else
-			{
-				return "failed. compile shader.";
-			}
+			return "failed. compile shader.";
 		}
 		// 作成されていない
 		// またはすでに破棄済み
@@ -269,7 +265,7 @@ private:
 		std::ifstream::pos_type size = fs.tellg();
 		fs.seekg(0, std::ios_base::beg);
 		// ファイル全内容
-		std::string source(size, '\0');
+		std::string source(static_cast<size_t>(size), '\0');
 		fs.read(&source[0], size);
 		fs.close();
 
@@ -308,7 +304,7 @@ private:
 	}
 	bool create_from_memory(shader_type type, GLsizei count, const char** str)
 	{
-		_DEB_ASSERT(s != NULL);
+		_DEB_ASSERT(str != NULL);
 
 		_type = type;
 

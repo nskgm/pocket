@@ -13,6 +13,7 @@
 #include "../io.h"
 #include <cmath>
 #include <cfloat>
+#include <climits>
 
 namespace pocket
 {
