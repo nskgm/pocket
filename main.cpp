@@ -128,7 +128,8 @@ int main()
 		std::cout << prog << std::endl;
 	}
 
-	float ary[] = { 0.0f, 10.0f, 20.025f, 3.125f, 400.01f, 10.0f };
+	//float ary[] = { 0.0f, 10.0f, 20.025f, 3.125f, 400.01f, 10.0f };
+	gl::commands::draw_arrays cmd(3, 1, 0);
 	// データからバッファを作成
 	// -- make_buffer
 	// -- make_[type]_buffer
@@ -137,7 +138,8 @@ int main()
 	// make_[type]_bufferの時はusageを指定
 	// -- type -> pocket::gl::buffer_base::buffer_type
 	// -- usage -> pocket::gl::buffer_base::usage_type
-	gl::buffer buf = gl::make_array_buffer_immutable(ary);
+	//gl::buffer buf = gl::make_array_buffer_immutable(ary);
+	gl::buffer buf = gl::make_draw_indirect_buffer_immutable(cmd);
 	if (!buf)
 	{
 		//	buffer: {
@@ -149,6 +151,7 @@ int main()
 		//	}
 		std::cout << buf << std::endl;
 	}
+
 	{
 		// コンストラクタでバインドをしてデストラクタでバインドを解除するクラスを作成
 		// pocket::gl::binder -> 引数なし
@@ -169,16 +172,17 @@ int main()
 		//	std::cout << std::endl;
 		//});
 
-		gl::buffer::rebinder_map<float>::type map = bind->make_binder_map<float, gl::buffer::read>(bind);
+		gl::buffer::rebinder_map<gl::commands::draw_arrays>::type map = bind.make_binder_map<gl::commands::draw_arrays>(gl::buffer::read);
 		if (map)
 		{
-			int n = bind.count<float>();
-			for (int i = 0; i < n; ++i, ++map)
-			{
-				//std::cout << map[i] << " ";
-				std::cout << *map << " ";
-			}
-			std::cout << std::endl;
+			//int n = bind.count<float>();
+			//for (int i = 0; i < n; ++i, ++map)
+			//{
+			//	//std::cout << map[i] << " ";
+			//	std::cout << *map << " ";
+			//}
+			//std::cout << std::endl;
+			std::cout << map->arrays << " " << map->instance << " " << map->index << std::endl;
 		}
 	}
 

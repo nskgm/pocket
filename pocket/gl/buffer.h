@@ -426,6 +426,11 @@ public:
 	template <typename T, typename F> void map(buffer_base::map_usage_type, F) const;
 	void unmap() const;
 
+	binder_map<buffer, void> make_binder_map(buffer_base::map_usage_type) const;
+	template <buffer_base::map_usage_type U> binder_map<buffer, void> make_binder_map() const;
+	template <typename T> binder_map<buffer, T> make_binder_map(buffer_base::map_usage_type) const;
+	template <typename T, buffer_base::map_usage_type U> binder_map<buffer, T> make_binder_map() const;
+
 	bool binding() const
 	{
 		return true;
@@ -433,24 +438,24 @@ public:
 
 	const buffer* operator -> () const
 	{
-		return address;
+		return _address;
 	}
 	const buffer& operator * () const
 	{
-		return *address;
+		return *_address;
 	}
 
 	operator const buffer& () const
 	{
-		return *address;
+		return *_address;
 	}
 	operator const buffer* () const
 	{
-		return address;
+		return _address;
 	}
 
 private:
-	const buffer* address;
+	const buffer* _address;
 };
 
 class buffer : public buffer_base
@@ -1069,6 +1074,11 @@ public:
 	{
 		return _data;
 	}
+	template <typename U>
+	U* get() const
+	{
+		return reinterpret_cast<U*>(_data);
+	}
 
 	/*------------------------------------------------------------------------------------------
 	* Operators
@@ -1206,59 +1216,79 @@ public:
 
 inline
 binder<buffer>::binder(const buffer& a) :
-	address(&a)
+	_address(&a)
 {
 	a.bind();
 }
 inline
 binder<buffer>::~binder()
 {
-	address->unbind();
+	_address->unbind();
 }
 inline
 int binder<buffer>::size() const
 {
-	return address->size_binding();
+	return _address->size_binding();
 }
 inline
 int binder<buffer>::count(int type_size) const
 {
-	return address->count_binding(type_size);
+	return _address->count_binding(type_size);
 }
 template <typename T> inline
 int binder<buffer>::count() const
 {
-	return address->count_binding<T>();
+	return _address->count_binding<T>();
 }
 inline
 GLenum binder<buffer>::usage() const
 {
-	return address->usage_binding();
+	return _address->usage_binding();
 }
 inline
 void* binder<buffer>::map(buffer_base::map_usage_type usg) const
 {
-	return address->map_binding(usg);
+	return _address->map_binding(usg);
 }
 template <typename T> inline
 T* binder<buffer>::map(buffer_base::map_usage_type usg) const
 {
-	return address->map_binding<T>(usg);
+	return _address->map_binding<T>(usg);
 }
 template <typename F> inline
 void binder<buffer>::map(buffer_base::map_usage_type usg, F func) const
 {
-	address->map_binding(usg, func);
+	_address->map_binding(usg, func);
 }
 template <typename T, typename F> inline
 void binder<buffer>::map(buffer_base::map_usage_type usg, F func) const
 {
-	address->map_binding<T>(usg, func);
+	_address->map_binding<T>(usg, func);
 }
 inline
 void binder<buffer>::unmap() const
 {
-	address->unmap_binding();
+	_address->unmap_binding();
+}
+inline
+binder_map<buffer, void> binder<buffer>::make_binder_map(buffer_base::map_usage_type type) const
+{
+	return binder_map<buffer, void>(*this, type);
+}
+template <buffer_base::map_usage_type U> inline
+binder_map<buffer, void> binder<buffer>::make_binder_map() const
+{
+	return binder_map<buffer, void>(*this, U);
+}
+template <typename T> inline
+binder_map<buffer, T> binder<buffer>::make_binder_map(buffer_base::map_usage_type type) const
+{
+	return binder_map<buffer, T>(*this, type);
+}
+template <typename T, buffer_base::map_usage_type U> inline
+binder_map<buffer, T> binder<buffer>::make_binder_map() const
+{
+	return binder_map<buffer, T>(*this, U);
 }
 
 inline
