@@ -33,6 +33,27 @@ namespace pocket
 namespace gl
 {
 
+// エラー内容
+enum error_bitfield
+{
+	error_file_not_exist = 1 << 0,		// ファイルが存在していない
+	error_file_not_write = 1 << 1,		// ファイルが書き込めない
+	error_unsupported = 1 << 2,			// サポートされていない
+	error_insufficient_count = 1 << 3,	// 数が不十分
+
+	error_compiling = 1 << 4,			// コンパイルエラー
+	error_creating = 1 << 5,			// ID作成失敗
+	//error_validate = 1 << 6,			// プログラムの検証にエラー(glValidateProgram)
+	error_link = 1 << 6,				// プログラムのリンク中にエラー
+	error_binding = 1 << 7,				// バインド中にエラー
+
+	error_invalid_data = 1 << 8,		// 無効なデータ
+	error_invalid_index = 1 << 9,		// 無効なインデックス
+
+	// 共通エラーエラー
+	error_bitfield_last_bit = error_binding
+};
+
 // 生成された時にバインドをして、破棄時にバウンドを解除
 template <typename T>
 class binder
@@ -129,24 +150,6 @@ private:
 //{
 //	return binder1<T, GLenum>(a, V);
 //}
-
-// エラー内容
-enum error_bitfield
-{
-	error_file_not_exist = 1 << 0,		// ファイルが存在していない
-	error_file_not_write = 1 << 1,		// ファイルが書き込めない
-	error_unsupported = 1 << 2,			// サポートされていない
-	error_insufficient_count = 1 << 3,	// 数が不十分
-
-	error_compiling = 1 << 4,			// コンパイルエラー
-	error_creating = 1 << 5,			// ID作成失敗
-	//error_validate = 1 << 6,			// プログラムの検証にエラー(glValidateProgram)
-	error_link = 1 << 6,				// プログラムのリンク中にエラー
-	error_binding = 1 << 7,				// バインド中にエラー
-
-	// 共通エラーエラー
-	error_bitfield_last_bit = error_binding
-};
 
 // バージョン（メジャー）取得
 inline

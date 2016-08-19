@@ -128,8 +128,8 @@ int main()
 		std::cout << prog << std::endl;
 	}
 
-	//float ary[] = { 0.0f, 10.0f, 20.025f, 3.125f, 400.01f, 10.0f };
-	gl::commands::draw_arrays cmd(3, 1, 0);
+	float ary[] = { 0.0f, 10.0f, 20.025f, 3.125f, 400.01f, 10.0f };
+	//gl::commands::draw_arrays cmd(3, 1, 0);
 	// データからバッファを作成
 	// -- make_buffer
 	// -- make_[type]_buffer
@@ -138,8 +138,8 @@ int main()
 	// make_[type]_bufferの時はusageを指定
 	// -- type -> pocket::gl::buffer_base::buffer_type
 	// -- usage -> pocket::gl::buffer_base::usage_type
-	//gl::buffer buf = gl::make_array_buffer_immutable(ary);
-	gl::buffer buf = gl::make_draw_indirect_buffer_immutable(cmd);
+	gl::buffer buf = gl::make_array_buffer_immutable(ary);
+	//gl::buffer buf = gl::make_draw_indirect_buffer_immutable(cmd);
 	if (!buf)
 	{
 		//	buffer: {
@@ -172,9 +172,18 @@ int main()
 		//	std::cout << std::endl;
 		//});
 
-		gl::buffer::rebinder_map<gl::commands::draw_arrays>::type map = bind.make_binder_map<gl::commands::draw_arrays>(gl::buffer::read);
+		typedef gl::buffer::rebinder_map<float>::type binder_map_t;
+		binder_map_t map = bind.make_binder_map<float>(gl::buffer::read);
+		//gl::buffer::rebinder_map<gl::commands::draw_arrays>::type map = bind.make_binder_map<gl::commands::draw_arrays>(gl::buffer::read);
 		if (map)
 		{
+			typedef binder_map_t::iterator iterator;
+			for (iterator i = map.begin(), end = map.end(); i != end; ++i)
+			{
+				std::cout << *i << " ";
+			}
+			std::cout << std::endl;
+
 			//int n = bind.count<float>();
 			//for (int i = 0; i < n; ++i, ++map)
 			//{
@@ -182,7 +191,7 @@ int main()
 			//	std::cout << *map << " ";
 			//}
 			//std::cout << std::endl;
-			std::cout << map->arrays << " " << map->instance << " " << map->index << std::endl;
+			//std::cout << map->arrays << " " << map->instance << " " << map->index << std::endl;
 		}
 	}
 
@@ -221,29 +230,25 @@ int main()
 
 #ifdef _MSC_VER
 #pragma comment (lib, "OpenGL32.lib")
-#ifdef _DEBUG
-#ifdef _MT
-#ifdef _DLL
+#	ifdef _DEBUG
+#		ifdef _MT
+#			ifdef _DLL
 #pragma comment (lib, "glfw3_mdd.lib")
 #pragma comment (lib, "glew32s_mdd.lib")
-#else
+#			else
 #pragma comment (lib, "glfw3_mtd.lib")
 #pragma comment (lib, "glew32s_mtd.lib")
-#endif
-#else
-#error No MultiThread.
-#endif
-#else
-#ifdef _MT
-#ifdef _DLL
+#			endif
+#		endif
+#	else
+#		ifdef _MT
+#			ifdef _DLL
 #pragma comment (lib, "glfw3_md.lib")
 #pragma comment (lib, "glew32s_md.lib")
-#else
+#			else
 #pragma comment (lib, "glfw3_mt.lib")
 #pragma comment (lib, "glew32s_mt.lib")
-#endif
-#else
-#error No MultiThread.
-#endif
-#endif /* _MT */
+#			endif
+#		endif
+#	endif /* _MT */
 #endif // _MSC_VER

@@ -148,12 +148,6 @@ public:
 
 	typedef binder<program> binder_type;
 
-	enum program_error_bitfield
-	{
-		error_insufficient_format_count = error_bitfield_last_bit << 1,
-		error_insufficient_binary_length = error_bitfield_last_bit << 2
-	};
-
 private:
 	/*------------------------------------------------------------------------------------------
 	* Members
@@ -402,6 +396,10 @@ public:
 	{
 		GLuint i = 0;
 		glGetIntegerv(GL_CURRENT_PROGRAM, reinterpret_cast<GLint*>(&i));
+		if (i == 0)
+		{
+			return false;
+		}
 		return i == _id;
 	}
 
@@ -420,6 +418,7 @@ public:
 	// シェーダーから作成されたアセンブラバイナリを保存する
 	bool save_binary(const char* path, GLenum& format, bool file_front_format_write = true)
 	{
+#if 0
 #ifdef _INTERNAL_USE_GLEW
 		// サポートされていない
 		if (!GLEW_ARB_get_program_binary)
@@ -431,6 +430,7 @@ public:
 			_error_bitfield |= error_unsupported;
 			return false;
 		}
+#endif
 
 		// 使用できるバイナリフォーマット数
 		GLint format_count = 0;
@@ -438,7 +438,7 @@ public:
 		if (format_count == 0)
 		{
 			// 一つ以上ないと対応していない
-			_error_bitfield |= error_insufficient_format_count;
+			_error_bitfield |= error_unsupported;
 			return false;
 		}
 
@@ -447,7 +447,7 @@ public:
 		glGetProgramiv(_id, GL_PROGRAM_BINARY_LENGTH, &binary_length);
 		if (binary_length == 0)
 		{
-			_error_bitfield |= error_insufficient_binary_length;
+			_error_bitfield |= error_unsupported;
 			return false;
 		}
 
@@ -527,18 +527,10 @@ public:
 			return "failed. link program.";
 		}
 
-		// バイナリ保存中に起きたエラー群
-
-		// 保存用フォーマット数が不足
-		if (error_status(static_cast<error_bitfield>(error_insufficient_format_count)))
+		// サポートされていない
+		if (error_status(error_unsupported))
 		{
-			return "failed. insfficient format count.";
-		}
-
-		// バイナリが保存できていない
-		if (error_status(static_cast<error_bitfield>(error_insufficient_binary_length)))
-		{
-			return "failed. binary is not stored.";
+			return "failed. unsupported.";
 		}
 
 		// ファイルが書き込みできない

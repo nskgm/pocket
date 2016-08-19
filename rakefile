@@ -221,7 +221,16 @@ task :rebuild_and_run => [:rebuild, :run]
 directory OBJ_DIR
 directory DEP_DIR
 directory ASM_DIR
-task :make_directory => [OBJ_DIR, DEP_DIR, ASM_DIR] # 全管理
+
+dir_task_list = [OBJ_DIR, DEP_DIR, ASM_DIR]
+
+EXEC_DIR = File.dirname EXECUTE_FILE
+if EXEC_DIR != "." && EXEC_DIR != "./" && EXEC_DIR != "../"
+	directory EXEC_DIR
+	dir_task_list << EXEC_DIR
+end
+
+task :make_directory => dir_task_list # 全管理
 
 # 拡張子を変更
 def replace_ext(path, ext)

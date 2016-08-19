@@ -133,6 +133,11 @@ public:
 	virtual ~buffer_base()
 	{}
 
+protected:
+	buffer_base(GLenum type, int err) :
+		_type(type), _error_bitfield(err)
+	{}
+
 public:
 	/*------------------------------------------------------------------------------------------
 	* Functions
@@ -146,6 +151,7 @@ public:
 
 protected:
 
+	// enumからOpenGLのバッファのタイプに変換
 	GLenum to_gl_type(buffer_type type) const
 	{
 #if 0
@@ -187,6 +193,8 @@ protected:
 #endif
 		return buffer_base::gl_buffer_type_table[type];
 	}
+
+	// enumからOpenGLの扱い方のタイプに変換
 	GLenum to_gl_usage(usage_type type) const
 	{
 #if 0
@@ -219,6 +227,8 @@ protected:
 #endif
 		return buffer_base::gl_usage_type_table[type];
 	}
+
+	// enumからOpenGLのバッファの展開のタイプに変換
 	GLenum to_gl_map_usage(map_usage_type type) const
 	{
 #if 0
@@ -237,6 +247,8 @@ protected:
 #endif
 		return buffer_base::gl_map_usage_type_table[type];
 	}
+
+	// enumからOpenGLのバッファバインド中のIDのタイプを取得するタイプに変換
 	GLenum to_gl_binding_type(buffer_type type) const
 	{
 #if 0
@@ -278,6 +290,8 @@ protected:
 #endif
 		return buffer_base::gl_binding_buffer_type_table[type];
 	}
+
+	// 現在の型からバインド中のIDを取得するタイプに変換
 	GLenum to_gl_binding_type() const
 	{
 		switch (_type)
@@ -316,6 +330,7 @@ protected:
 		}
 	}
 
+	// 現在の型からenumへ変換
 	buffer_type to_buffer_type() const
 	{
 		switch (_type)
@@ -361,6 +376,7 @@ protected:
 	// none
 };
 
+// 変換用テーブル宣言
 const GLenum buffer_base::gl_buffer_type_table[14] = {
 	GL_ARRAY_BUFFER,
 	GL_ATOMIC_COUNTER_BUFFER,
@@ -532,6 +548,13 @@ public:
 		finalize();
 	}
 
+private:
+	buffer(GLenum type, int err, GLuint id) :
+		base(type, err),
+		_id(id)
+	{}
+
+public:
 	/*------------------------------------------------------------------------------------------
 	* Functions
 	*------------------------------------------------------------------------------------------*/
@@ -550,30 +573,35 @@ public:
 			return false;
 		}
 
+		// 値の設定のためにバインド
 		glBindBuffer(_type, _id);
+
+		// バインドの状態を確認
+		if (glIsBuffer(_id) == GL_FALSE)
+		{
+			// バインド出来る状態ではない
+			_error_bitfield |= error_binding;
+			return false;
+		}
 
 		// 扱い方
 		GLenum gl_usage = to_gl_usage(usg);
 		// 動的バッファの場合は容量を確保してからデータを設定する
-		if ((usg == dynamic_draw || usg == dynamic_read || usg == dynamic_copy) &&
-			data != NULL)
+		if (usg == dynamic_draw || usg == dynamic_read || usg == dynamic_copy)
 		{
 			glBufferData(_type, static_cast<GLsizeiptr>(size), NULL, gl_usage);
-			glBufferSubData(_type, 0, static_cast<GLsizeiptr>(size), data);
+			if (data != NULL)
+			{
+				glBufferSubData(_type, 0, static_cast<GLsizeiptr>(size), data);
+			}
 		}
 		else
 		{
 			glBufferData(_type, static_cast<GLsizeiptr>(size), data, gl_usage);
 		}
 
-		bool vld = glIsBuffer(_id) == GL_TRUE;
-		if (!vld)
-		{
-			_error_bitfield |= error_binding;
-		}
-
 		glBindBuffer(_type, 0);
-		return vld;
+		return true;
 	}
 
 	// 終了処理
@@ -645,6 +673,10 @@ public:
 		GLenum type = to_gl_binding_type();
 		GLuint i = 0;
 		glGetIntegerv(type, reinterpret_cast<GLint*>(&i));
+		if (i == 0)
+		{
+			return false;
+		}
 		return i == _id;
 	}
 
@@ -807,12 +839,10 @@ public:
 		}
 		if (error_status(error_binding))
 		{
-			return "failed. binding.";
+			return "failed. can not bind.";
 		}
-		// 作成されていない
-		// またはすでに破棄済み
-		buffer_type t = to_buffer_type();
-		if (t == unknown ||
+		// 作成されていない またはすでに破棄済み
+		if (to_buffer_type() == unknown ||
 			_id == 0)
 		{
 			return "not created. or already destroyed.";
@@ -835,7 +865,12 @@ public:
 		{
 			return false;
 		}
-		return glIsBuffer(_id) == GL_TRUE;
+		// バインド中はidの確認を行なう
+		if (binding())
+		{
+			return glIsBuffer(_id) == GL_TRUE;
+		}
+		return true;
 	}
 
 	// バッファ種類
@@ -858,6 +893,91 @@ public:
 	const GLuint& get() const
 	{
 		return _id;
+	}
+
+	// 同じ設定のバッファをクローン
+	buffer clone() const
+	{
+		// 構成する同じ設定のもの
+		GLuint id = 0;
+
+		glGenBuffers(1, &id);
+		if (id == 0)
+		{
+			return buffer(_type, error_creating, 0);
+		}
+
+		// サイズの取得
+		bind();
+		int sz = size_binding();
+		GLenum usg = usage_binding();
+		unbind();
+
+		// 空の値の設定
+		glBindBuffer(_type, id);
+
+		// バインド出来ない
+		if (glIsBuffer(id) == GL_FALSE)
+		{
+			glBindBuffer(_type, 0);
+			// 作成されたIDは削除
+			glDeleteBuffers(1, &id);
+			return buffer(_type, error_binding, 0);
+		}
+
+		glBufferData(_type, sz, NULL, usg);
+		glBindBuffer(_type, 0);
+
+		// コピー元とコピー先を設定
+		glBindBuffer(GL_COPY_READ_BUFFER, _id); // 読み取られるバッファ
+		glBindBuffer(GL_COPY_WRITE_BUFFER, id); // 書き込まれるバッファ
+		// 読み取りバッファから書き込みバッファへ値のコピー
+		glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, sz);
+
+		glBindBuffer(GL_COPY_READ_BUFFER, 0);
+		glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
+
+		return buffer(_type, 0, id);
+	}
+	bool clone(buffer& c) const
+	{
+		c.finalize();
+		c._type = _type;
+
+		glGenBuffers(1, &c._id);
+		if (c._id == 0)
+		{
+			c._error_bitfield |= error_creating;
+			return false;
+		}
+
+		// サイズの取得
+		bind();
+		int sz = size_binding();
+		GLenum usg = usage_binding();
+		unbind();
+
+		c.bind();
+		if (glIsBuffer(c._id) == GL_FALSE)
+		{
+			c.unbind();
+			// 作成されたIDは削除
+			glDeleteBuffers(1, &c._id);
+			c._id = 0;
+			c._error_bitfield |= error_binding;
+			return false;
+		}
+		glBufferData(_type, sz, NULL, usg);
+		c.unbind();
+
+		glBindBuffer(GL_COPY_READ_BUFFER, _id);
+		glBindBuffer(GL_COPY_WRITE_BUFFER, c._id);
+		glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, sz);
+
+		glBindBuffer(GL_COPY_READ_BUFFER, 0);
+		glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
+
+		return true;
 	}
 
 public:
@@ -1005,6 +1125,99 @@ public:
 	// none
 };
 
+namespace detail
+{
+
+template <typename T>
+class binder_map_iterator
+{
+public:
+	/*------------------------------------------------------------------------------------------
+	* Types
+	*------------------------------------------------------------------------------------------*/
+
+	// none
+
+private:
+	/*------------------------------------------------------------------------------------------
+	* Members
+	*------------------------------------------------------------------------------------------*/
+
+	T* _data;
+
+public:
+	/*------------------------------------------------------------------------------------------
+	* Constants
+	*------------------------------------------------------------------------------------------*/
+
+	// none
+
+	/*------------------------------------------------------------------------------------------
+	* Constructors
+	*------------------------------------------------------------------------------------------*/
+
+	explicit binder_map_iterator(T* data) :
+		_data(data)
+	{
+
+	}
+	~binder_map_iterator()
+	{}
+
+	/*------------------------------------------------------------------------------------------
+	* Functions
+	*------------------------------------------------------------------------------------------*/
+
+	// none
+
+	/*------------------------------------------------------------------------------------------
+	* Operators
+	*------------------------------------------------------------------------------------------*/
+
+	bool operator == (const binder_map_iterator& i) const
+	{
+		return _data == i._data;
+	}
+	bool operator != (const binder_map_iterator& i) const
+	{
+		return !(*this == i);
+	}
+
+	binder_map_iterator& operator ++ ()
+	{
+		++_data;
+		return *this;
+	}
+	binder_map_iterator operator ++ (int)
+	{
+		T* a = _data;
+		++_data;
+		return binder_map_iterator(a);
+	}
+	binder_map_iterator& operator -- ()
+	{
+		--_data;
+		return *this;
+	}
+	binder_map_iterator operator -- (int)
+	{
+		T* a = _data;
+		--_data;
+		return binder_map_iterator(a);
+	}
+
+	T& operator * () const
+	{
+		return *_data;
+	}
+	T* operator -> () const
+	{
+		return _data;
+	}
+};
+
+}
+
 template <typename T, typename M>
 class binder_map
 {
@@ -1013,6 +1226,10 @@ public:
 	* Types
 	*------------------------------------------------------------------------------------------*/
 
+	typedef detail::binder_map_iterator<M> iterator;
+	typedef detail::binder_map_iterator<const M> const_iterator;
+
+	// 状態を表す
 	enum state_type
 	{
 		binding_bit = 1 << 0,
@@ -1079,6 +1296,33 @@ public:
 	{
 		return reinterpret_cast<U*>(_data);
 	}
+
+	iterator begin()
+	{
+		return iterator(_data);
+	}
+	const_iterator begin() const
+	{
+		return const_iterator(_data);
+	}
+	const_iterator cbegin() const
+	{
+		return const_iterator(_data);
+	}
+
+	iterator end()
+	{
+		return iterator(_data + _address->template count_binding<M>());
+	}
+	const_iterator end() const
+	{
+		return const_iterator(_data + _address->template count_binding<M>());
+	}
+	const_iterator cend() const
+	{
+		return const_iterator(_data + _address->template count_binding<M>());
+	}
+
 
 	/*------------------------------------------------------------------------------------------
 	* Operators
