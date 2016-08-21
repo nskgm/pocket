@@ -51,7 +51,7 @@ enum error_bitfield
 	error_invalid_index = 1 << 9,		// 無効なインデックス
 
 	// 共通エラーエラー
-	//error_bitfield_last_bit = error_binding
+	error_bitfield_last_bit = error_binding
 };
 
 // 生成された時にバインドをして、破棄時にバウンドを解除

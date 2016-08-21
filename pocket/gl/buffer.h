@@ -127,29 +127,9 @@ public:
 		base(type),
 		_id(id)
 	{}
-	explicit buffer(buffer_type type, usage_type usg, int size, const void* data)
+	explicit buffer(buffer_type type, usage_type usage, int size, const void* data)
 	{
-		initialize(type, usg, size, data);
-	}
-	template <typename T>
-	explicit buffer(buffer_type type, usage_type usg, int size, const T& a)
-	{
-		initialize(type, usg, size, a);
-	}
-	template <typename T, int N>
-	explicit buffer(buffer_type type, usage_type usg, int size, const T(&a)[N])
-	{
-		initialize(type, usg, size, a);
-	}
-	template <typename T, size_t N, template <typename, size_t> class ARRAY>
-	explicit buffer(buffer_type type, usage_type usg, int size, const ARRAY<T, N>& a)
-	{
-		initialize(type, usg, size, a);
-	}
-	template <typename T, typename ALLOC, template <typename, typename> class VECTOR>
-	explicit buffer(buffer_type type, usage_type usg, int size, const VECTOR<T, ALLOC>& a)
-	{
-		initialize(type, usg, size, a);
+		initialize(type, usage, size, data);
 	}
 	buffer(const buffer& b) :
 		base(b),
@@ -222,26 +202,6 @@ public:
 
 		glBindBuffer(_type, 0);
 		return true;
-	}
-	template <typename T>
-	bool initialize(buffer_type type, usage_type usg, const T& a)
-	{
-		return initialize(type, usg, sizeof(T), static_cast<const void*>(&a));
-	}
-	template <typename T, int N>
-	bool initialize(buffer_type type, usage_type usg, const T(&a)[N])
-	{
-		return initialize(type, usg, sizeof(T)*N, static_cast<const void*>(&a[0]));
-	}
-	template <typename T, size_t N, template <typename, size_t> class ARRAY>
-	bool initialize(buffer_type type, usage_type usg, const ARRAY<T, N>& a)
-	{
-		return initialize(type, usg, sizeof(T)*N, static_cast<const void*>(&a[0]));
-	}
-	template <typename T, typename ALLOC, template <typename, typename> class VECTOR>
-	bool initialize(buffer_type type, usage_type usg, const VECTOR<T, ALLOC>& a)
-	{
-		return initialize(type, usg, sizeof(T)*a.size(), static_cast<const void*>(&a[0]));
 	}
 
 	// 終了処理
@@ -860,17 +820,6 @@ public:
 		T* a = _data;
 		--_data;
 		return binder_map_iterator(a);
-	}
-
-	binder_map_iterator& operator += (ptrdiff_t diff)
-	{
-		_data += diff;
-		return *this;
-	}
-	binder_map_iterator& operator -= (ptrdiff_t diff)
-	{
-		_data -= diff;
-		return *this;
 	}
 
 	T& operator * () const
