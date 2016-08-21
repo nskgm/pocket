@@ -194,8 +194,12 @@ int main()
 	prog[location] = 0;
 
 	// まとめてロケーションを取得
-	// const char* names[N] = {...};
-	// gl::program::indices_t<N>::type indices = prog.indices_uniform(names);
+	const char* names[] = {"a1", "b1"};
+	gl::program::indices_t<2>::type indices = prog.indices_uniform(names);
+	for (int i = 0; i < 2; ++i)
+	{
+		std::cout << prog[names[i]] << " " << indices[i] << std::endl;
+	}
 
 	do
 	{
@@ -208,6 +212,7 @@ int main()
 		glfwSwapBuffers(window);
 	} while ((glfwGetKey(window, GLFW_KEY_ESCAPE) | glfwWindowShouldClose(window)) == GL_FALSE);
 
+	uniform.finalize();
 	buf.finalize();
 	prog.finalize();
 	vert.finalize();
