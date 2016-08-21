@@ -10,7 +10,9 @@
 #include "../debug.h"
 #include "../io.h"
 #include "../type_traits.h"
+#include "../container/array.h"
 #include "shader.h"
+#include "buffer_base.h"
 #include <string>
 #include <fstream>
 
@@ -21,6 +23,7 @@ namespace gl
 
 // forward
 class program;
+class uniform_buffer;
 
 // Uniform変数に代入するための型
 struct program_uniform_assign
@@ -55,6 +58,14 @@ template <>
 struct call_uniform<char*>
 {
 	static GLint call(GLuint prog, const char* name)
+	{
+		return glGetUniformLocation(prog, name);
+	}
+};
+template <>
+struct call_uniform<char const*>
+{
+	static GLint call(GLuint prog, const char* const name)
 	{
 		return glGetUniformLocation(prog, name);
 	}
@@ -100,6 +111,9 @@ struct is_uniform_get_location_type : type_traits::false_type
 {};
 template <>
 struct is_uniform_get_location_type<char*> : type_traits::true_type
+{};
+template <>
+struct is_uniform_get_location_type<char const*> : type_traits::true_type
 {};
 template <std::size_t N>
 struct is_uniform_get_location_type<char[N]> : type_traits::true_type
@@ -147,6 +161,12 @@ public:
 	*------------------------------------------------------------------------------------------*/
 
 	typedef binder<program> binder_type;
+
+	template <int N>
+	struct indices_t
+	{
+		typedef pocket::container::array<GLuint, N> type;
+	};
 
 private:
 	/*------------------------------------------------------------------------------------------
@@ -396,11 +416,7 @@ public:
 	{
 		GLuint i = 0;
 		glGetIntegerv(GL_CURRENT_PROGRAM, reinterpret_cast<GLint*>(&i));
-		if (i == 0)
-		{
-			return false;
-		}
-		return i == _id;
+		return i != 0 && i == _id;
 	}
 
 	// バインド状態を管理するオブジェクト作成
@@ -494,6 +510,153 @@ public:
 		GLenum format;
 		return save_binary(path, format, file_front_format_write);
 	}
+
+	// 現在描画が可能か検証
+	bool drawable() const
+	{
+		// 初期化時には行わない様にする
+		glValidateProgram(_id);
+		GLint validated;
+		glGetProgramiv(_id, GL_VALIDATE_STATUS, &validated);
+		return validated == GL_TRUE;
+	}
+
+	// ユニフォーム変数のローケーション取得
+	GLint location_uniform(const char* name) const
+	{
+		return glGetUniformLocation(_id, name);
+	}
+	GLint location_uniform(const std::string& name) const
+	{
+		return glGetUniformLocation(_id, name.c_str());
+	}
+	bool location_uniform(const char* name, GLint& loc) const
+	{
+		loc = location_uniform(name);
+		return loc >= 0;
+	}
+	bool location_uniform(const std::string& name, GLint& loc) const
+	{
+		loc = location_uniform(name);
+		return loc >= 0;
+	}
+
+	template <int N>
+	void indices_uniform(const char*(&s)[N], GLuint(&i)[N]) const
+	{
+		glGetUniformIndices(_id, N, &s[0], &i[0]);
+	}
+	template <int N>
+	void indices_uniform(const std::string(&s)[N], GLuint(&i)[N]) const
+	{
+		const char* c_str[N];
+		for (int i = 0; i < N; ++i)
+		{
+			c_str[i] = s[i].c_str();
+		}
+		glGetUniformIndices(_id, N, &c_str[0], &i[0]);
+	}
+	template <int N>
+	typename indices_t<N>::type indices_uniform(const char*(&s)[N])
+	{
+		typename indices_t<N>::type a;
+		glGetUniformIndices(_id, N, &s[0], &a[0]);
+		return _CXX11_MOVE(a);
+	}
+	template <int N>
+	typename indices_t<N>::type indices_uniform(const std::string(&s)[N])
+	{
+		typename indices_t<N>::type a;
+		const char* c_str[N];
+		for (int i = 0; i < N; ++i)
+		{
+			c_str[i] = s[i].c_str();
+		}
+		glGetUniformIndices(_id, N, &c_str[0], &a[0]);
+		return _CXX11_MOVE(a);
+	}
+
+	// uniform block数
+	int count_uniform_block(GLuint index) const
+	{
+		GLint count = 0;
+		glGetActiveUniformBlockiv(_id, index, GL_UNIFORM_BLOCK_ACTIVE_UNIFORMS, &count);
+		return static_cast<int>(count);
+	}
+	int count_uniform_block(const char* name) const
+	{
+		return count_uniform_block(index_uniform_block(name));
+	}
+	int count_uniform_block(const std::string& name) const
+	{
+		return count_uniform_block(index_uniform_block(name));
+	}
+
+	// uniform block合計サイズ
+	int size_uniform_block(GLuint index) const
+	{
+		GLint size = 0;
+		glGetActiveUniformBlockiv(_id, index, GL_UNIFORM_BLOCK_DATA_SIZE, &size);
+		return static_cast<int>(size);
+	}
+	int size_uniform_block(const char* name) const
+	{
+		return size_uniform_block(index_uniform_block(name));
+	}
+	int size_uniform_block(const std::string& name) const
+	{
+		return size_uniform_block(index_uniform_block(name));
+	}
+
+	// 名前に対するuniform blockのインデックス
+	GLuint index_uniform_block(const char* name) const
+	{
+		return glGetUniformBlockIndex(_id, name);
+	}
+	bool index_uniform_block(const char* name, GLuint& index) const
+	{
+		index = glGetUniformBlockIndex(_id, name);
+		// インデックスが無効ではないか
+		return index != GL_INVALID_INDEX;
+	}
+	GLuint index_uniform_block(const std::string& name) const
+	{
+		return index_uniform_block(name.c_str());
+	}
+	bool index_uniform_block(const std::string& name, GLuint& index) const
+	{
+		return index_uniform_block(name.c_str(), index);
+	}
+
+	// インデックスから名前を取得
+	std::string name_uniform_block(GLuint index, GLsizei length = 64) const
+	{
+		std::string name(static_cast<size_t>(length), '\0');
+		glGetActiveUniformName(_id, index, length, &length, &name[0]);
+#ifdef _USE_CXX11
+		name.shrink_to_fit();
+#else
+		name.resize(static_cast<size_t>(length));
+#endif // _USE_CXX11
+		return _CXX11_MOVE(name);
+	}
+	std::string name_uniform_in_block(GLuint loc, GLsizei length = 64) const
+	{
+		std::string name(static_cast<size_t>(length), '\0');
+		glGetActiveUniformBlockName(_id, loc, length, &length, &name[0]);
+#ifdef _USE_CXX11
+		name.shrink_to_fit();
+#else
+		name.resize(static_cast<size_t>(length));
+#endif // _USE_CXX11
+		return _CXX11_MOVE(name);
+	}
+
+	// UBO作成
+	uniform_buffer make_uniform_buffer(const char*, GLuint, const void*, buffer_base::usage_type = buffer_base::dynamic_draw) const;
+	uniform_buffer make_uniform_buffer(const std::string&, GLuint, const void*, buffer_base::usage_type = buffer_base::dynamic_draw) const;
+	uniform_buffer& make_uniform_buffer(uniform_buffer&, const char*, GLuint, const void*, buffer_base::usage_type = buffer_base::dynamic_draw) const;
+	uniform_buffer& make_uniform_buffer(uniform_buffer&, const std::string&, GLuint, const void*, buffer_base::usage_type = buffer_base::dynamic_draw) const;
 
 	// エラー文
 	std::string error() const
@@ -732,10 +895,13 @@ public:
 	}
 #endif // _USE_CXX11
 
-	template <typename T
-		//, typename type_traits::enable_if<(!type_traits::is_same<typename detail::uniform_return_type<T>::type, void>::value), T>::type
-	>
-	typename detail::uniform_return_type<T>::type operator [] (const T& v) const
+	// 戻り値で型チェック
+	template <typename T>
+	typename type_traits::enable_if<
+	 	!type_traits::is_same<typename detail::uniform_return_type<T>::type, void>::value,
+	 	typename detail::uniform_return_type<T>::type
+	 >::type
+		operator [] (const T& v) const
 	{
 		typedef typename type_traits::remove_cv_reference<T>::type _type;
 		return detail::call_uniform<_type>::call(_id, v);

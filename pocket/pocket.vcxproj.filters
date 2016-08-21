@@ -132,10 +132,27 @@
     <ClInclude Include="gl\template.h">
       <Filter>ヘッダー ファイル\gl</Filter>
     </ClInclude>
+    <ClInclude Include="gl\buffer_base.h">
+      <Filter>ヘッダー ファイル\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="gl\buffer_view.h">
+      <Filter>ヘッダー ファイル\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="gl\uniform_buffer.h">
+      <Filter>ヘッダー ファイル\gl</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\main.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\test.frag">
+      <Filter>リソース ファイル</Filter>
+    </None>
+    <None Include="..\test.vert">
+      <Filter>リソース ファイル</Filter>
+    </None>
   </ItemGroup>
 </Project>

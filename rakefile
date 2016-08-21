@@ -176,18 +176,18 @@ end
 # デフォルトタスク
 #--------------------------------------------------------------------------------
 desc "default: build_and_run"
-task :default => [:build_and_run]
+task :default => [:build, :run]
 
 #--------------------------------------------------------------------------------
 # 実行ファイルを作成
 #--------------------------------------------------------------------------------
-desc "build #{EXECUTABLE_FILE_NAME}"
+desc "build project."
 task :build => [:make_directory, :pre_build, EXECUTABLE_FILE_NAME, :post_build]
 
 #--------------------------------------------------------------------------------
 # 実行ファイルを作成し直す
 #--------------------------------------------------------------------------------
-desc "rebuild #{EXECUTABLE_FILE_NAME}"
+desc "rebuild project."
 task :rebuild => [:clean, :build]
 
 #--------------------------------------------------------------------------------
@@ -195,7 +195,7 @@ task :rebuild => [:clean, :build]
 #--------------------------------------------------------------------------------
 desc "execute #{EXECUTABLE_FILE_NAME}"
 task :run do |t|
-	command = "#{EXECUTABLE_FILE_NAME}"
+	command = (windows? ? "#{EXECUTABLE_FILE_NAME}" : "./#{EXECUTABLE_FILE_NAME}")
 
 	# 実行ファイルの引数の連結
 	args = array_to_join_string EXECUTE_ARGS do |e| e.to_s end
@@ -206,14 +206,14 @@ end
 #--------------------------------------------------------------------------------
 # 実行ファイルを作成して実行
 #--------------------------------------------------------------------------------
-desc "build and run: #{EXECUTABLE_FILE_NAME}"
-task :build_and_run => [:build, :run]
+desc "build project and run: #{EXECUTABLE_FILE_NAME}"
+task :build_run => [:build, :run]
 
 #--------------------------------------------------------------------------------
 # 実行ファイルを作成し直して実行
 #--------------------------------------------------------------------------------
-desc "rebuild and run: #{EXECUTABLE_FILE_NAME}"
-task :rebuild_and_run => [:rebuild, :run]
+desc "rebuild project and run: #{EXECUTABLE_FILE_NAME}"
+task :rebuild_run => [:rebuild, :run]
 
 #--------------------------------------------------------------------------------
 # ビルド用ディレクトリ作成
@@ -223,13 +223,13 @@ directory DEP_DIR
 directory ASM_DIR
 
 dir_task_list = [OBJ_DIR, DEP_DIR, ASM_DIR]
-
+# 実行ファイルのディレクトリ
 EXEC_DIR = File.dirname EXECUTE_FILE
 if EXEC_DIR != "." && EXEC_DIR != "./" && EXEC_DIR != "../"
 	directory EXEC_DIR
 	dir_task_list << EXEC_DIR
 end
-
+desc "create directories #{dir_task_list}"
 task :make_directory => dir_task_list # 全管理
 
 # 拡張子を変更
@@ -275,12 +275,12 @@ def adjust_cxx_version(v, version)
 	# リストの中にあればそのまま
 	return v if version.any? do |a| a == v end
 
-	def rng(v, a, b)
+	def rng?(v, a, b)
 		v > a and v < b
 	end
-	return "0x" if rng v, 3, 11
-	return "1y" if rng v, 11, 14
-	return "1z" if rng v, 14, 17
+	return "0x" if rng? v, 3, 11
+	return "1y" if rng? v, 11, 14
+	return "1z" if rng? v, 14, 17
 	nil
 end
 
@@ -357,7 +357,7 @@ end
 #--------------------------------------------------------------------------------
 
 # 調整後C++バージョン
-CXX_VERSION = adjust_cxx_version(CXX_VER, [98, 03, "03", "0x", 11, "1y", 14, "1z", 17]).freeze
+CXX_VERSION = adjust_cxx_version(CXX_VER, [98, "03", "0x", 11, "1y", 14, "1z", 17]).freeze
 
 # 対象コンパイラ
 COMPILER = (mac? ? "g++-6" : "g++").freeze

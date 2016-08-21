@@ -161,6 +161,8 @@
     <ClInclude Include="fwd.h" />
     <ClInclude Include="gl\all.h" />
     <ClInclude Include="gl\buffer.h" />
+    <ClInclude Include="gl\buffer_base.h" />
+    <ClInclude Include="gl\buffer_view.h" />
     <ClInclude Include="gl\commands.h" />
     <ClInclude Include="gl\config.h" />
     <ClInclude Include="gl\fwd.h" />
@@ -168,6 +170,7 @@
     <ClInclude Include="gl\program.h" />
     <ClInclude Include="gl\shader.h" />
     <ClInclude Include="gl\template.h" />
+    <ClInclude Include="gl\uniform_buffer.h" />
     <ClInclude Include="io.h" />
     <ClInclude Include="math\all.h" />
     <ClInclude Include="math\color.h" />
@@ -191,6 +194,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\test.frag" />
+    <None Include="..\test.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

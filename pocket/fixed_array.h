@@ -835,17 +835,20 @@ fixed_array<T, 3>& fixed_array<T, 3>::operator = (const fixed_array<T, 4>& a)
 	return *this;
 }
 
-inline fixed_array<bool, 2>::fixed_array(const fixed_array<bool, 3>& a) :
+inline
+fixed_array<bool, 2>::fixed_array(const fixed_array<bool, 3>& a) :
 	data(a.data & 0x03)
 {
 
 }
-inline fixed_array<bool, 2>::fixed_array(const fixed_array<bool, 4>& a) :
+inline
+fixed_array<bool, 2>::fixed_array(const fixed_array<bool, 4>& a) :
 	data(a.data & 0x03)
 {
 
 }
-inline fixed_array<bool, 3>::fixed_array(const fixed_array<bool, 4>& a) :
+inline
+fixed_array<bool, 3>::fixed_array(const fixed_array<bool, 4>& a) :
 	data(a.data & 0x07)
 {
 

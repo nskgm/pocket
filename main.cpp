@@ -2,6 +2,8 @@
 #include "pocket/gl/all.h"
 #include <GLFW/glfw3.h>
 #include <iomanip>
+#include <vector>
+#include <typeinfo>
 
 namespace gl = pocket::gl;
 
@@ -31,6 +33,8 @@ static void glfw_error_log(int, const char* msg)
 {
 	std::cout << msg << std::endl;
 }
+
+#define _ARRAY_SIZE(ARY) (sizeof(ARY) / sizeof(ARY[0]))
 
 int main()
 {
@@ -164,52 +168,34 @@ int main()
 
 		// CPU上に展開してGPU上の情報を得る
 		// 自動で展開の解除
-		//bind->map_binding<int>(gl::buffer_base::read, [&bind](int* a) {
-		//	for (int i = 0; i < bind->count_binding<int>(); ++i)
-		//	{
-		//		std::cout << a[i] << " ";
-		//	}
-		//	std::cout << std::endl;
-		//});
-
 		typedef gl::buffer::rebinder_map<float>::type binder_map_t;
 		binder_map_t map = bind.make_binder_map<float>(gl::buffer::read);
 		//gl::buffer::rebinder_map<gl::commands::draw_arrays>::type map = bind.make_binder_map<gl::commands::draw_arrays>(gl::buffer::read);
 		if (map)
 		{
-			typedef binder_map_t::iterator iterator;
-			for (iterator i = map.begin(), end = map.end(); i != end; ++i)
+			std::cout << map.count() << std::endl;
+			for (binder_map_t::const_iterator i = map.cbegin(), end = map.cend(); i != end; ++i)
 			{
 				std::cout << *i << " ";
 			}
 			std::cout << std::endl;
-
-			//int n = bind.count<float>();
-			//for (int i = 0; i < n; ++i, ++map)
-			//{
-			//	//std::cout << map[i] << " ";
-			//	std::cout << *map << " ";
-			//}
-			//std::cout << std::endl;
-			//std::cout << map->arrays << " " << map->instance << " " << map->index << std::endl;
 		}
 	}
 
+	gl::uniform_buffer uniform = prog.make_uniform_buffer("vert_uniforms", 1, NULL);
+	if (!uniform)
 	{
-		gl::program::binder_type bind = prog.make_binder();
-		std::cout << bind->binding() << std::endl;
+		std::cout << uniform << std::endl;
 	}
-	std::cout << prog.binding() << std::endl;
-
-	// バインドされていない状態でのサイズ取得
-	// 必ずバインドしないといけないので内部で行っている
-	// サイズが取得できたらバインドも解除されてしまう
-	// std::cout << buf.size() << std::endl;
 
 	// Uniformロケーション取得
 	int location = prog["a1"];
 	// TODO: 取得したロケーションに対して代入
 	prog[location] = 0;
+
+	// まとめてロケーションを取得
+	// const char* names[N] = {...};
+	// gl::program::indices_t<N>::type indices = prog.indices_uniform(names);
 
 	do
 	{

@@ -10,6 +10,11 @@
 #include "../debug.h"
 #include "../io.h"
 
+namespace pocket
+{
+namespace gl
+{
+
 // forward
 class __class;
 
@@ -75,5 +80,8 @@ std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, 
 {
 	return is;
 }
+
+} // namespace gl
+} // namespace pocket
 
 #endif // __POCKET_GL_TEMPLATE_H__
