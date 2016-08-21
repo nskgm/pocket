@@ -7,10 +7,13 @@
 
 namespace gl = pocket::gl;
 
+// ウィンドウを見せてメインループを回すか
+#define _SHOW_WINDOW 0
+
 class main_lock
 {
 public:
-	main_lock(GLFWwindow* win) :
+	explicit main_lock(GLFWwindow* win) :
 		win(win)
 	{
 
@@ -50,6 +53,9 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#if !_SHOW_WINDOW
+	glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
+#endif
 
 	glfwSetErrorCallback(&glfw_error_log);
 
@@ -60,9 +66,12 @@ int main()
 	{
 		return 1;
 	}
+#if _SHOW_WINDOW
 	glfwSetWindowPos(window, 4, 28);
-	glfwMakeContextCurrent(window);
 	glfwSwapInterval(1);
+#endif
+
+	glfwMakeContextCurrent(window);
 
 	glewExperimental = GL_TRUE;
 	err = glewInit();
@@ -132,6 +141,14 @@ int main()
 		std::cout << prog << std::endl;
 	}
 
+	{
+		char log[256];
+		if (!prog.drawable(log))
+		{
+			std::cout << log << std::endl;
+		}
+	}
+
 	float ary[] = { 0.0f, 10.0f, 20.025f, 3.125f, 400.01f, 10.0f };
 	//gl::commands::draw_arrays cmd(3, 1, 0);
 	// データからバッファを作成
@@ -182,25 +199,58 @@ int main()
 		}
 	}
 
-	gl::uniform_buffer uniform = prog.make_uniform_buffer("vert_uniforms", 1, NULL);
+	struct UniformStructure
+	{
+		pocket::matrix4x4f mat;
+		pocket::colorf col;
+	} data = {
+		pocket::matrix4x4f::identity,
+		pocket::colorf::white
+	};
+
+	gl::uniform_buffer uniform = prog.make_uniform_buffer("vert_uniforms", 0, data);
 	if (!uniform)
 	{
 		std::cout << uniform << std::endl;
 	}
-
-	// Uniformロケーション取得
-	int location = prog["a1"];
-	// TODO: 取得したロケーションに対して代入
-	prog[location] = 0;
-
-	// まとめてロケーションを取得
-	const char* names[] = {"a1", "b1"};
-	gl::program::indices_t<2>::type indices = prog.indices_uniform(names);
-	for (int i = 0; i < 2; ++i)
+	else
 	{
-		std::cout << prog[names[i]] << " " << indices[i] << std::endl;
+		// 初期値の確認
+		{
+			gl::uniform_buffer::rebinder_map<UniformStructure>::type map = uniform.make_binder_map<UniformStructure>(gl::buffer_base::read);
+			if (map)
+			{
+				std::cout << map->mat << std::endl << map->col << std::endl;
+			}
+		}
+		// 全体の更新
+		data.mat.load_rotate_z(45.0f);
+		data.col.a = 4.0f;
+		uniform.uniform(data);
+		// 更新後の確認
+		{
+			gl::uniform_buffer::rebinder_map<UniformStructure>::type map = uniform.make_binder_map<UniformStructure>(gl::buffer_base::read);
+			if (map)
+			{
+				std::cout << map->mat << std::endl << map->col << std::endl;
+			}
+		}
+
+		// 一部の値のみ更新
+		// オフセットを指定した場合は指定渡されたサイズの更新のみ行なう
+		uniform.uniform(sizeof(pocket::matrix4x4f), pocket::colorf::red);
+		// 更新後の確認
+		{
+			gl::uniform_buffer::rebinder_map<UniformStructure>::type map = uniform.make_binder_map<UniformStructure>(gl::buffer_base::read);
+			if (map)
+			{
+				std::cout << map->mat << std::endl << map->col << std::endl;
+			}
+		}
 	}
 
+#if _SHOW_WINDOW
+	// メインループ
 	do
 	{
 		glfwPollEvents();
@@ -211,6 +261,7 @@ int main()
 
 		glfwSwapBuffers(window);
 	} while ((glfwGetKey(window, GLFW_KEY_ESCAPE) | glfwWindowShouldClose(window)) == GL_FALSE);
+#endif
 
 	uniform.finalize();
 	buf.finalize();

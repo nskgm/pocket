@@ -520,6 +520,37 @@ public:
 		glGetProgramiv(_id, GL_VALIDATE_STATUS, &validated);
 		return validated == GL_TRUE;
 	}
+	bool drawable(std::string& log) const
+	{
+		if (!drawable())
+		{
+			GLint length = 0;
+			glGetProgramiv(_id, GL_INFO_LOG_LENGTH, &length);
+			if (length > 0)
+			{
+				log.resize(static_cast<size_t>(length));
+				glGetProgramInfoLog(_id, length, NULL, &log[0]);
+			}
+			return false;
+		}
+		return true;
+	}
+	template <int N>
+	bool drawable(char(&log)[N]) const
+	{
+		if (!drawable())
+		{
+			GLint length = 0;
+			glGetProgramiv(_id, GL_INFO_LOG_LENGTH, &length);
+			if (length > 0)
+			{
+				length = (std::min)(length, N);
+				glGetProgramInfoLog(_id, length, NULL, &log[0]);
+			}
+			return false;
+		}
+		return true;
+	}
 
 	// ユニフォーム変数のローケーション取得
 	GLint location_uniform(const char* name) const
@@ -629,34 +660,53 @@ public:
 	}
 
 	// インデックスから名前を取得
-	std::string name_uniform_block(GLuint index, GLsizei length = 64) const
+	std::string name_uniform_in_block(GLuint location, GLsizei length = 32) const
 	{
 		std::string name(static_cast<size_t>(length), '\0');
-		glGetActiveUniformName(_id, index, length, &length, &name[0]);
-#ifdef _USE_CXX11
-		name.shrink_to_fit();
-#else
+		glGetActiveUniformName(_id, location, length, &length, &name[0]);
 		name.resize(static_cast<size_t>(length));
-#endif // _USE_CXX11
 		return _CXX11_MOVE(name);
 	}
-	std::string name_uniform_in_block(GLuint loc, GLsizei length = 64) const
+	std::string name_uniform_block(GLuint index, GLsizei length = 32) const
 	{
 		std::string name(static_cast<size_t>(length), '\0');
-		glGetActiveUniformBlockName(_id, loc, length, &length, &name[0]);
-#ifdef _USE_CXX11
-		name.shrink_to_fit();
-#else
+		glGetActiveUniformBlockName(_id, index, length, &length, &name[0]);
 		name.resize(static_cast<size_t>(length));
-#endif // _USE_CXX11
 		return _CXX11_MOVE(name);
 	}
 
 	// UBO作成
 	uniform_buffer make_uniform_buffer(const char*, GLuint, const void*, buffer_base::usage_type = buffer_base::dynamic_draw) const;
+	template <typename T> uniform_buffer make_uniform_buffer(const char*, GLuint, const T&, buffer_base::usage_type = buffer_base::dynamic_draw) const;
+	template <typename T, int N> uniform_buffer make_uniform_buffer(const char*, GLuint, const T(&)[N], buffer_base::usage_type = buffer_base::dynamic_draw) const;
+	template <typename T, size_t N, template <typename, size_t> class ARRAY>
+	uniform_buffer make_uniform_buffer(const char*, GLuint, const ARRAY<T, N>&, buffer_base::usage_type = buffer_base::dynamic_draw) const;
+	template <typename T, typename ALLOC, template <typename, typename> class VECTOR>
+	uniform_buffer make_uniform_buffer(const char*, GLuint, const VECTOR<T, ALLOC>&, buffer_base::usage_type = buffer_base::dynamic_draw) const;
+
 	uniform_buffer make_uniform_buffer(const std::string&, GLuint, const void*, buffer_base::usage_type = buffer_base::dynamic_draw) const;
+	template <typename T> uniform_buffer make_uniform_buffer(const std::string&, GLuint, const T&, buffer_base::usage_type = buffer_base::dynamic_draw) const;
+	template <typename T, int N> uniform_buffer make_uniform_buffer(const std::string&, GLuint, const T(&)[N], buffer_base::usage_type = buffer_base::dynamic_draw) const;
+	template <typename T, size_t N, template <typename, size_t> class ARRAY>
+	uniform_buffer make_uniform_buffer(const std::string&, GLuint, const ARRAY<T, N>&, buffer_base::usage_type = buffer_base::dynamic_draw) const;
+	template <typename T, typename ALLOC, template <typename, typename> class VECTOR>
+	uniform_buffer make_uniform_buffer(const std::string&, GLuint, const VECTOR<T, ALLOC>&, buffer_base::usage_type = buffer_base::dynamic_draw) const;
+
 	uniform_buffer& make_uniform_buffer(uniform_buffer&, const char*, GLuint, const void*, buffer_base::usage_type = buffer_base::dynamic_draw) const;
+	template <typename T> uniform_buffer& make_uniform_buffer(uniform_buffer&, const char*, GLuint, const T&, buffer_base::usage_type = buffer_base::dynamic_draw) const;
+	template <typename T, int N> uniform_buffer& make_uniform_buffer(uniform_buffer&, const char*, GLuint, const T(&)[N], buffer_base::usage_type = buffer_base::dynamic_draw) const;
+	template <typename T, size_t N, template <typename, size_t> class ARRAY>
+	uniform_buffer& make_uniform_buffer(uniform_buffer&, const char*, GLuint, const ARRAY<T, N>&, buffer_base::usage_type = buffer_base::dynamic_draw) const;
+	template <typename T, typename ALLOC, template <typename, typename> class VECTOR>
+	uniform_buffer& make_uniform_buffer(uniform_buffer&, const char*, GLuint, const VECTOR<T, ALLOC>&, buffer_base::usage_type = buffer_base::dynamic_draw) const;
+
 	uniform_buffer& make_uniform_buffer(uniform_buffer&, const std::string&, GLuint, const void*, buffer_base::usage_type = buffer_base::dynamic_draw) const;
+	template <typename T> uniform_buffer& make_uniform_buffer(uniform_buffer&, const std::string&, GLuint, const T&, buffer_base::usage_type = buffer_base::dynamic_draw) const;
+	template <typename T, int N> uniform_buffer& make_uniform_buffer(uniform_buffer&, const std::string&, GLuint, const T(&)[N], buffer_base::usage_type = buffer_base::dynamic_draw) const;
+	template <typename T, size_t N, template <typename, size_t> class ARRAY>
+	uniform_buffer& make_uniform_buffer(uniform_buffer&, const std::string&, GLuint, const ARRAY<T, N>&, buffer_base::usage_type = buffer_base::dynamic_draw) const;
+	template <typename T, typename ALLOC, template <typename, typename> class VECTOR>
+	uniform_buffer& make_uniform_buffer(uniform_buffer&, const std::string&, GLuint, const VECTOR<T, ALLOC>&, buffer_base::usage_type = buffer_base::dynamic_draw) const;
 
 	// エラー文
 	std::string error() const
@@ -761,18 +811,6 @@ private:
 	{
 		// プログラムのリンク
 		glLinkProgram(_id);
-
-		// プログラムの検証
-		// 現在描画できるにあるか検証してくれる
-		// 初期化時には行わない様にする
-		/*glValidateProgram(_id);
-		GLint validated;
-		glGetProgramiv(_id, GL_VALIDATE_STATUS, &validated);
-		if (validated == GL_FALSE)
-		{
-			_error_bitfield |= error_validate;
-			return false;
-		}*/
 		return is_linked();
 	}
 	bool is_linked()
@@ -787,22 +825,6 @@ private:
 		}
 		return true;
 	}
-	// シェーダーリンク
-	/*bool link(const shader& first, ...)
-	{
-		const shader* list = &first;
-
-		va_list ap;
-		va_start(ap, s);
-		// 可変長引数の全引数をアタッチ
-		while (list != NULL)
-		{
-			list->attach(_id);
-			// 次の可変長引数へ
-			list = &va_arg(ap, const shader&);
-		}
-		va_end(ap);
-	}*/
 
 	bool read(const char* path, std::string& bin, GLenum& format, GLsizei& length, bool file_front_format_written)
 	{

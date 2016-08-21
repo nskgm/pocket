@@ -370,7 +370,7 @@ OBJ_LIST = SOURCE_LIST.map do |e| obj_filepath e end
 # リリースを有効にするか
 RELEASE = !DEBUG
 # アセンブラを出力するか
-ASSEMBLY = true
+ASSEMBLY = false
 
 # 経過時間の計測
 start_time = nil
@@ -386,7 +386,7 @@ lib_name = array_to_join_string LIB_NAMES do |e| "-l\"#{e}\"" end
 # その他オプション
 options = array_to_join_string OPTIONS do |e| "-#{e}" end
 # frameworkオプション
-frameworks = array_to_join_string FRAMEWORKS do |e| "-framework #{e}" end
+frameworks = array_to_join_string FRAMEWORKS do |e| "-framework\"#{e}\"" end
 # 自動インクルートするファイル
 auto_include = array_to_join_string AUTO_INCLUDE_HEADERS do |e| "-include\"#{e}\"" end
 
@@ -575,6 +575,7 @@ task :post_build do
 		print "build time: #{Time.now - start_time}s\n"
 		print line
 	end
+	STDOUT.flush
 
 	start_time = nil
 end
