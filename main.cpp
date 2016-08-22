@@ -216,8 +216,9 @@ int main()
 	else
 	{
 		// 初期値の確認
+		typedef gl::uniform_buffer::rebinder_map<UniformStructure>::type binder_map_t;
 		{
-			gl::uniform_buffer::rebinder_map<UniformStructure>::type map = uniform.make_binder_map<UniformStructure>(gl::buffer_base::read);
+			binder_map_t map = uniform.make_binder_map<UniformStructure>(gl::buffer_base::read);
 			if (map)
 			{
 				std::cout << map->mat << std::endl << map->col << std::endl;
@@ -225,11 +226,11 @@ int main()
 		}
 		// 全体の更新
 		data.mat.load_rotate_z(45.0f);
-		data.col.a = 4.0f;
+		data.col.a = 3.0f;
 		uniform.uniform(data);
 		// 更新後の確認
 		{
-			gl::uniform_buffer::rebinder_map<UniformStructure>::type map = uniform.make_binder_map<UniformStructure>(gl::buffer_base::read);
+			binder_map_t map = uniform.make_binder_map<UniformStructure>(gl::buffer_base::read);
 			if (map)
 			{
 				std::cout << map->mat << std::endl << map->col << std::endl;
@@ -241,7 +242,7 @@ int main()
 		uniform.uniform(sizeof(pocket::matrix4x4f), pocket::colorf::red);
 		// 更新後の確認
 		{
-			gl::uniform_buffer::rebinder_map<UniformStructure>::type map = uniform.make_binder_map<UniformStructure>(gl::buffer_base::read);
+			binder_map_t map = uniform.make_binder_map<UniformStructure>(gl::buffer_base::read);
 			if (map)
 			{
 				std::cout << map->mat << std::endl << map->col << std::endl;

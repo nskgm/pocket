@@ -132,24 +132,24 @@ public:
 		initialize(type, usg, size, data);
 	}
 	template <typename T>
-	explicit buffer(buffer_type type, usage_type usg, int size, const T& a)
+	explicit buffer(buffer_type type, usage_type usg, const T& a)
 	{
-		initialize(type, usg, size, a);
+		initialize(type, usg, a);
 	}
 	template <typename T, int N>
-	explicit buffer(buffer_type type, usage_type usg, int size, const T(&a)[N])
+	explicit buffer(buffer_type type, usage_type usg, const T(&a)[N])
 	{
-		initialize(type, usg, size, a);
+		initialize(type, usg, a);
 	}
 	template <typename T, size_t N, template <typename, size_t> class ARRAY>
-	explicit buffer(buffer_type type, usage_type usg, int size, const ARRAY<T, N>& a)
+	explicit buffer(buffer_type type, usage_type usg, const ARRAY<T, N>& a)
 	{
-		initialize(type, usg, size, a);
+		initialize(type, usg, a);
 	}
 	template <typename T, typename ALLOC, template <typename, typename> class VECTOR>
-	explicit buffer(buffer_type type, usage_type usg, int size, const VECTOR<T, ALLOC>& a)
+	explicit buffer(buffer_type type, usage_type usg, const VECTOR<T, ALLOC>& a)
 	{
-		initialize(type, usg, size, a);
+		initialize(type, usg, a);
 	}
 	buffer(const buffer& b) :
 		base(b),
@@ -1267,45 +1267,45 @@ typename buffer::template rebinder_map<T>::type buffer::make_binder_map(const bi
 	template <typename T> inline \
 	buffer make_##TYPE##_buffer_##USAGE(const T& a) \
 	{ \
-		return buffer(buffer_base::TYPE, buffer_base::USAGE, sizeof(T), &a); \
+		return buffer(buffer_base::TYPE, buffer_base::USAGE, a); \
 	} \
 	template <typename T> inline \
 	buffer& make_##TYPE##_buffer_##USAGE(buffer& b, const T& a) \
 	{ \
-		b.initialize(buffer_base::TYPE, buffer_base::USAGE, sizeof(T), &a); \
+		b.initialize(buffer_base::TYPE, buffer_base::USAGE, a); \
 		return b; \
 	} \
 	template <typename T, int N> inline \
 	buffer make_##TYPE##_buffer_##USAGE(const T(&a)[N]) \
 	{ \
-		return buffer(buffer_base::TYPE, buffer_base::USAGE, sizeof(T)*N, &a[0]); \
+		return buffer(buffer_base::TYPE, buffer_base::USAGE, a); \
 	} \
 	template <typename T, int N> inline \
 	buffer& make_##TYPE##_buffer_##USAGE(buffer& b, const T(&a)[N]) \
 	{ \
-		b.initialize(buffer_base::TYPE, buffer_base::USAGE, sizeof(T)*N, &a[0]); \
+		b.initialize(buffer_base::TYPE, buffer_base::USAGE, a); \
 		return b; \
 	} \
 	template <typename T, typename ALLOC, template <typename, typename> class VECTOR> inline \
 	buffer make_##TYPE##_buffer_##USAGE(const VECTOR<T, ALLOC>& a) \
 	{ \
-		return buffer(buffer_base::TYPE, buffer_base::USAGE, sizeof(T)*a.size(), a.data()); \
+		return buffer(buffer_base::TYPE, buffer_base::USAGE, a); \
 	} \
 	template <typename T, typename ALLOC, template <typename, typename> class VECTOR> inline \
 	buffer& make_##TYPE##_buffer_##USAGE(buffer& b, const VECTOR<T, ALLOC>& a) \
 	{ \
-		b.initialize(buffer_base::TYPE, buffer_base::USAGE, sizeof(T)*a.size(), a.data()); \
+		b.initialize(buffer_base::TYPE, buffer_base::USAGE, a); \
 		return b; \
 	} \
 	template <typename T, size_t N, template <typename, size_t> class ARRAY> inline \
 	buffer make_##TYPE##_buffer_##USAGE(const ARRAY<T, N>& a) \
 	{ \
-		return buffer(buffer_base::TYPE, buffer_base::USAGE, sizeof(T)*N, a.data()); \
+		return buffer(buffer_base::TYPE, buffer_base::USAGE, a); \
 	} \
 	template <typename T, size_t N, template <typename, size_t> class ARRAY> inline \
 	buffer& make_##TYPE##_buffer_##USAGE(buffer& b, const ARRAY<T, N>& a) \
 	{ \
-		b.initialize(buffer_base::TYPE, buffer_base::USAGE, sizeof(T)*N, a.data()); \
+		b.initialize(buffer_base::TYPE, buffer_base::USAGE, a); \
 		return b; \
 	}
 
@@ -1323,45 +1323,45 @@ typename buffer::template rebinder_map<T>::type buffer::make_binder_map(const bi
 	template <typename T> inline \
 	buffer make_##TYPE##_buffer(buffer_base::usage_type usage, const T& a) \
 	{ \
-		return buffer(buffer_base::TYPE, usage, sizeof(T), &a); \
+		return buffer(buffer_base::TYPE, usage, a); \
 	} \
 	template <typename T> inline \
 	buffer& make_##TYPE##_buffer(buffer& b, buffer_base::usage_type usage, const T& a) \
 	{ \
-		b.initialize(buffer_base::TYPE, usage, sizeof(T), &a); \
+		b.initialize(buffer_base::TYPE, usage, a); \
 		return b; \
 	} \
 	template <typename T, int N> inline \
 	buffer make_##TYPE##_buffer(buffer_base::usage_type usage, const T(&a)[N]) \
 	{ \
-		return buffer(buffer_base::TYPE, usage, sizeof(T)*N, &a[0]); \
+		return buffer(buffer_base::TYPE, usage, a); \
 	} \
 	template <typename T, int N> inline \
 	buffer& make_##TYPE##_buffer(buffer& b, buffer_base::usage_type usage, const T(&a)[N]) \
 	{ \
-		b.initialize(buffer_base::TYPE, usage, sizeof(T), &a); \
+		b.initialize(buffer_base::TYPE, usage, a); \
 		return b; \
 	} \
 	template <typename T, typename ALLOC, template <typename, typename> class VECTOR> inline \
 	buffer make_##TYPE##_buffer(buffer_base::usage_type usage, const VECTOR<T, ALLOC>& a) \
 	{ \
-		return buffer(buffer_base::TYPE, usage, sizeof(T)*a.size(), a.data()); \
+		return buffer(buffer_base::TYPE, usage, a); \
 	} \
 	template <typename T, typename ALLOC, template <typename, typename> class VECTOR> inline \
 	buffer& make_##TYPE##_buffer(buffer& b, buffer_base::usage_type usage, const VECTOR<T, ALLOC>& a) \
 	{ \
-		b.initialize(buffer_base::TYPE, usage, sizeof(T)*a.size(), a.data()); \
+		b.initialize(buffer_base::TYPE, usage, a); \
 		return b; \
 	} \
 	template <typename T, size_t N, template <typename, size_t> class ARRAY> inline \
 	buffer make_##TYPE##_buffer(buffer_base::usage_type usage, const ARRAY<T, N>& a) \
 	{ \
-		return buffer(buffer_base::TYPE, usage, sizeof(T)*N, a.data()); \
+		return buffer(buffer_base::TYPE, usage, a); \
 	} \
 	template <typename T, size_t N, template <typename, size_t> class ARRAY> inline \
 	buffer& make_##TYPE##_buffer(buffer& b, buffer_base::usage_type usage, const ARRAY<T, N>& a) \
 	{ \
-		b.initialize(buffer_base::TYPE, usage, sizeof(T)*N, a.data()); \
+		b.initialize(buffer_base::TYPE, usage, a); \
 		return b; \
 	} \
 	__POCKET_MAKE_BUFFER_USAGE(TYPE, immutable) \
@@ -1382,45 +1382,45 @@ buffer& make_buffer(buffer& b, buffer_base::buffer_type type, buffer_base::usage
 template <typename T> inline
 buffer make_buffer(buffer_base::buffer_type type, buffer_base::usage_type usage, const T& a)
 {
-	return buffer(type, usage, sizeof(T), &a);
+	return buffer(type, usage, a);
 }
 template <typename T> inline
 buffer& make_buffer(buffer& b, buffer_base::buffer_type type, buffer_base::usage_type usage, const T& a)
 {
-	b.initialize(type, usage, sizeof(T), &a);
+	b.initialize(type, usage, a);
 	return b;
 }
 template <typename T, int N> inline
 buffer make_buffer(buffer_base::buffer_type type, buffer_base::usage_type usage, const T(&a)[N])
 {
-	return buffer(type, usage, sizeof(T)*N, &a[0]);
+	return buffer(type, usage, a);
 }
 template <typename T, int N> inline
 buffer& make_buffer(buffer& b, buffer_base::buffer_type type, buffer_base::usage_type usage, const T(&a)[N])
 {
-	b.initialize(type, usage, sizeof(T)*N, &a[0]);
+	b.initialize(type, usage, a);
 	return b;
 }
 template <typename T, typename ALLOC, template <typename, typename> class VECTOR> inline
 buffer make_buffer(buffer_base::buffer_type type, buffer_base::usage_type usage, const VECTOR<T, ALLOC>& a)
 {
-	return buffer(type, usage, sizeof(T)*a.size(), a.data());
+	return buffer(type, usage, a);
 }
 template <typename T, typename ALLOC, template <typename, typename> class VECTOR> inline
 buffer& make_buffer(buffer& b, buffer_base::buffer_type type, buffer_base::usage_type usage, const VECTOR<T, ALLOC>& a)
 {
-	b.initialize(type, usage, sizeof(T)*a.size(), a.data());
+	b.initialize(type, usage, a);
 	return b;
 }
 template <typename T, size_t N, template <typename, size_t> class ARRAY> inline
 buffer make_buffer(buffer_base::buffer_type type, buffer_base::usage_type usage, const ARRAY<T, N>& a)
 {
-	return buffer(type, usage, sizeof(T)*N, a.data());
+	return buffer(type, usage, a);
 }
 template <typename T, size_t N, template <typename, size_t> class ARRAY> inline
 buffer& make_buffer(buffer& b, buffer_base::buffer_type type, buffer_base::usage_type usage, const ARRAY<T, N>& a)
 {
-	b.initialize(type, usage, sizeof(T)*N, a.data());
+	b.initialize(type, usage, a);
 	return b;
 }
 

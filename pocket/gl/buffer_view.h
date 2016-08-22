@@ -281,7 +281,7 @@ public:
 	void unmap() const
 	{
 		unmap_binding();
-		unmap();
+		unbind();
 	}
 	void unmap_binding() const
 	{
