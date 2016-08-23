@@ -244,14 +244,14 @@ public:
 		// バインドポイントを保存
 		_binding_point = point;
 		// プログラム中のユニフォームバッファの位置を取得
-		if (!prog.index_uniform_block(name, _index))
+		if (!prog.uniform_block_index(name, _index))
 		{
 			// バッファのエラーコードを利用
 			_buffer._error_bitfield |= error_invalid_index;
 			return false;
 		}
 		// サイズの取得
-		_size = prog.size_uniform_block(_index);
+		_size = prog.uniform_block_size(_index);
 		// バッファの作成
 		return _buffer.initialize(buffer_base::uniform, usg, _size, data);
 	}

@@ -553,32 +553,32 @@ public:
 	}
 
 	// ユニフォーム変数のローケーション取得
-	GLint location_uniform(const char* name) const
+	GLint uniform_location(const char* name) const
 	{
 		return glGetUniformLocation(_id, name);
 	}
-	GLint location_uniform(const std::string& name) const
+	GLint uniform_location(const std::string& name) const
 	{
 		return glGetUniformLocation(_id, name.c_str());
 	}
-	bool location_uniform(const char* name, GLint& loc) const
+	bool uniform_location(const char* name, GLint& loc) const
 	{
-		loc = location_uniform(name);
+		loc = uniform_location(name);
 		return loc >= 0;
 	}
-	bool location_uniform(const std::string& name, GLint& loc) const
+	bool uniform_location(const std::string& name, GLint& loc) const
 	{
-		loc = location_uniform(name);
+		loc = uniform_location(name);
 		return loc >= 0;
 	}
 
 	template <int N>
-	void indices_uniform(const char*(&s)[N], GLuint(&i)[N]) const
+	void uniform_indices(const char*(&s)[N], GLuint(&i)[N]) const
 	{
 		glGetUniformIndices(_id, N, &s[0], &i[0]);
 	}
 	template <int N>
-	void indices_uniform(const std::string(&s)[N], GLuint(&i)[N]) const
+	void uniform_indices(const std::string(&s)[N], GLuint(&i)[N]) const
 	{
 		const char* c_str[N];
 		for (int i = 0; i < N; ++i)
@@ -588,14 +588,14 @@ public:
 		glGetUniformIndices(_id, N, &c_str[0], &i[0]);
 	}
 	template <int N>
-	typename indices_t<N>::type indices_uniform(const char*(&s)[N])
+	typename indices_t<N>::type uniform_indices(const char*(&s)[N])
 	{
 		typename indices_t<N>::type a;
 		glGetUniformIndices(_id, N, &s[0], &a[0]);
 		return _CXX11_MOVE(a);
 	}
 	template <int N>
-	typename indices_t<N>::type indices_uniform(const std::string(&s)[N])
+	typename indices_t<N>::type uniform_indices(const std::string(&s)[N])
 	{
 		typename indices_t<N>::type a;
 		const char* c_str[N];
@@ -608,66 +608,66 @@ public:
 	}
 
 	// uniform block数
-	int count_uniform_block(GLuint index) const
+	int uniform_block_count(GLuint index) const
 	{
 		GLint count = 0;
 		glGetActiveUniformBlockiv(_id, index, GL_UNIFORM_BLOCK_ACTIVE_UNIFORMS, &count);
 		return static_cast<int>(count);
 	}
-	int count_uniform_block(const char* name) const
+	int uniform_block_count(const char* name) const
 	{
-		return count_uniform_block(index_uniform_block(name));
+		return uniform_block_count(uniform_block_index(name));
 	}
-	int count_uniform_block(const std::string& name) const
+	int uniform_block_count(const std::string& name) const
 	{
-		return count_uniform_block(index_uniform_block(name));
+		return uniform_block_count(uniform_block_index(name));
 	}
 
 	// uniform block合計サイズ
-	int size_uniform_block(GLuint index) const
+	int uniform_block_size(GLuint index) const
 	{
 		GLint size = 0;
 		glGetActiveUniformBlockiv(_id, index, GL_UNIFORM_BLOCK_DATA_SIZE, &size);
 		return static_cast<int>(size);
 	}
-	int size_uniform_block(const char* name) const
+	int uniform_block_size(const char* name) const
 	{
-		return size_uniform_block(index_uniform_block(name));
+		return uniform_block_size(uniform_block_index(name));
 	}
-	int size_uniform_block(const std::string& name) const
+	int uniform_block_size(const std::string& name) const
 	{
-		return size_uniform_block(index_uniform_block(name));
+		return uniform_block_size(uniform_block_index(name));
 	}
 
 	// 名前に対するuniform blockのインデックス
-	GLuint index_uniform_block(const char* name) const
+	GLuint uniform_block_index(const char* name) const
 	{
 		return glGetUniformBlockIndex(_id, name);
 	}
-	bool index_uniform_block(const char* name, GLuint& index) const
+	bool uniform_block_index(const char* name, GLuint& index) const
 	{
 		index = glGetUniformBlockIndex(_id, name);
 		// インデックスが無効ではないか
 		return index != GL_INVALID_INDEX;
 	}
-	GLuint index_uniform_block(const std::string& name) const
+	GLuint uniform_block_index(const std::string& name) const
 	{
-		return index_uniform_block(name.c_str());
+		return uniform_block_index(name.c_str());
 	}
-	bool index_uniform_block(const std::string& name, GLuint& index) const
+	bool uniform_block_index(const std::string& name, GLuint& index) const
 	{
-		return index_uniform_block(name.c_str(), index);
+		return uniform_block_index(name.c_str(), index);
 	}
 
 	// インデックスから名前を取得
-	std::string name_uniform_in_block(GLuint location, GLsizei length = 32) const
+	std::string uniform_block_name_from_location(GLuint location, GLsizei length = 32) const
 	{
 		std::string name(static_cast<size_t>(length), '\0');
 		glGetActiveUniformName(_id, location, length, &length, &name[0]);
 		name.resize(static_cast<size_t>(length));
 		return _CXX11_MOVE(name);
 	}
-	std::string name_uniform_block(GLuint index, GLsizei length = 32) const
+	std::string uniform_block_name(GLuint index, GLsizei length = 32) const
 	{
 		std::string name(static_cast<size_t>(length), '\0');
 		glGetActiveUniformBlockName(_id, index, length, &length, &name[0]);
