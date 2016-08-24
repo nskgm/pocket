@@ -201,10 +201,10 @@ int main()
 
 	struct UniformStructure
 	{
-		pocket::matrix4x4f mat;
+		pocket::vector2f tex;
 		pocket::colorf col;
 	} data = {
-		pocket::matrix4x4f::identity,
+		pocket::vector2f::unit_x,
 		pocket::colorf::white
 	};
 
@@ -215,17 +215,18 @@ int main()
 	}
 	else
 	{
+		std::cout << sizeof(data) << " : " << uniform.size() << std::endl;
 		// 初期値の確認
 		typedef gl::uniform_buffer::rebinder_map<UniformStructure>::type binder_map_t;
 		{
 			binder_map_t map = uniform.make_binder_map<UniformStructure>(gl::buffer_base::read);
 			if (map)
 			{
-				std::cout << map->mat << std::endl << map->col << std::endl;
+				std::cout << map->tex << std::endl << map->col << std::endl;
 			}
 		}
 		// 全体の更新
-		data.mat.load_rotate_z(45.0f);
+		data.tex.y = 5.0f;
 		data.col.a = 3.0f;
 		uniform.uniform(data);
 		// 更新後の確認
@@ -233,19 +234,7 @@ int main()
 			binder_map_t map = uniform.make_binder_map<UniformStructure>(gl::buffer_base::read);
 			if (map)
 			{
-				std::cout << map->mat << std::endl << map->col << std::endl;
-			}
-		}
-
-		// 一部の値のみ更新
-		// オフセットを指定した場合は指定渡されたサイズの更新のみ行なう
-		uniform.uniform(sizeof(pocket::matrix4x4f), pocket::colorf::red);
-		// 更新後の確認
-		{
-			binder_map_t map = uniform.make_binder_map<UniformStructure>(gl::buffer_base::read);
-			if (map)
-			{
-				std::cout << map->mat << std::endl << map->col << std::endl;
+				std::cout << map->tex << std::endl << map->col << std::endl;
 			}
 		}
 	}

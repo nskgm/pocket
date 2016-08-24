@@ -6,9 +6,10 @@ uniform vec2 a1;
 uniform vec3 b1;
 uniform vec3 c1;
 
+layout(std140)
 uniform vert_uniforms
 {
-	mat4 pvw;
+	vec2 tex;
 	vec4 col;
 };
 
@@ -19,5 +20,5 @@ vec4 test()
 
 void main()
 {
-	gl_Position = vec4(a1+col.xx+c1.zz, b1.xz)*pvw;
+	gl_Position = vec4(a1+col.xx+c1.zz, b1.xz)*tex.xxxx;
 }
