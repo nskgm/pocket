@@ -22,7 +22,6 @@ template <typename> class binder;
 template <typename, typename> class binder1;
 template <typename, typename> class binder_map;
 
-class buffer_base;
 class buffer;
 class buffer_view;
 template <int> class buffers;

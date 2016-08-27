@@ -32,17 +32,17 @@ public:
 	int size() const;
 	int count(int type_size) const;
 	template <typename T> int count() const;
-	GLenum usage() const;
-	void* map(buffer_base::map_usage_type) const;
-	template <typename T> T* map(buffer_base::map_usage_type) const;
-	template <typename F> bool map(buffer_base::map_usage_type, F) const;
-	template <typename T, typename F> bool map(buffer_base::map_usage_type, F) const;
+	buffer_usage_t usage() const;
+	void* map(buffer_map_t) const;
+	template <typename T> T* map(buffer_map_t) const;
+	template <typename F> bool map(buffer_map_t, F) const;
+	template <typename T, typename F> bool map(buffer_map_t, F) const;
 	void unmap() const;
 
-	binder_map<buffer, void> make_binder_map(buffer_base::map_usage_type) const;
-	template <buffer_base::map_usage_type U> binder_map<buffer, void> make_binder_map() const;
-	template <typename T> binder_map<buffer, T> make_binder_map(buffer_base::map_usage_type) const;
-	template <typename T, buffer_base::map_usage_type U> binder_map<buffer, T> make_binder_map() const;
+	binder_map<buffer, void> make_binder_map(buffer_map_t) const;
+	template <buffer_map_t U> binder_map<buffer, void> make_binder_map() const;
+	template <typename T> binder_map<buffer, T> make_binder_map(buffer_map_t) const;
+	template <typename T, buffer_map_t U> binder_map<buffer, T> make_binder_map() const;
 
 	bool binding() const
 	{
@@ -71,7 +71,7 @@ private:
 	const buffer* _address;
 };
 
-class buffer : public buffer_base
+class buffer
 {
 public:
 	/*------------------------------------------------------------------------------------------
@@ -95,14 +95,14 @@ public:
 		typedef binder_map<buffer, U> type;
 	};
 
-	typedef buffer_base base;
-
 private:
 	/*------------------------------------------------------------------------------------------
 	* Members
 	*------------------------------------------------------------------------------------------*/
 
 	GLuint _id;
+	buffer_type_t _type;
+	int _error_bitfield;
 
 public:
 	/*------------------------------------------------------------------------------------------
@@ -116,51 +116,58 @@ public:
 	*------------------------------------------------------------------------------------------*/
 
 	buffer() :
-		base(),
+		_id(0),
+		_type(buffer_type::unknown),
+		_error_bitfield(0)
+	{}
+	explicit buffer(GLuint id, buffer_type_t type) :
+		_id(id),
+		_type(type),
+		_error_bitfield(0)
+	{}
+	explicit buffer(buffer_type_t type, buffer_usage_t usg, int size, const void* data) :
 		_id(0)
-	{}
-	explicit buffer(GLenum id, buffer_type type) :
-		base(type),
-		_id(id)
-	{}
-	explicit buffer(GLenum id, GLenum type) :
-		base(type),
-		_id(id)
-	{}
-	explicit buffer(buffer_type type, usage_type usg, int size, const void* data)
 	{
 		initialize(type, usg, size, data);
 	}
 	template <typename T>
-	explicit buffer(buffer_type type, usage_type usg, const T& a)
+	explicit buffer(buffer_type_t type, buffer_usage_t usg, const T& a) :
+		_id(0)
 	{
 		initialize(type, usg, a);
 	}
 	template <typename T, int N>
-	explicit buffer(buffer_type type, usage_type usg, const T(&a)[N])
+	explicit buffer(buffer_type_t type, buffer_usage_t usg, const T(&a)[N]) :
+		_id(0)
 	{
 		initialize(type, usg, a);
 	}
 	template <typename T, size_t N, template <typename, size_t> class ARRAY>
-	explicit buffer(buffer_type type, usage_type usg, const ARRAY<T, N>& a)
+	explicit buffer(buffer_type_t type, buffer_usage_t usg, const ARRAY<T, N>& a) :
+		_id(0)
 	{
 		initialize(type, usg, a);
 	}
 	template <typename T, typename ALLOC, template <typename, typename> class VECTOR>
-	explicit buffer(buffer_type type, usage_type usg, const VECTOR<T, ALLOC>& a)
+	explicit buffer(buffer_type_t type, buffer_usage_t usg, const VECTOR<T, ALLOC>& a) :
+		_id(0)
 	{
 		initialize(type, usg, a);
 	}
 	buffer(const buffer& b) :
-		base(b),
-		_id(b._id)
+		_id(b._id),
+		_type(b._type),
+		_error_bitfield(b._error_bitfield)
 	{}
 #ifdef _USE_CXX11
 	buffer(buffer&& b) :
-		base(std::forward<buffer_base>(b)),
-		_id(std::move(b._id))
+		_id(std::move(b._id)),
+		_type(std::move(b._type)),
+		_error_bitfield(std::move(b._error_bitfield))
 	{
 		b._id = 0;
+		b._type = buffer_type::unknown;
+		b._error_bitfield = 0;
 	}
 #endif // _USE_CXX11
 	~buffer()
@@ -169,9 +176,10 @@ public:
 	}
 
 private:
-	buffer(GLenum type, int err, GLuint id) :
-		base(type, err),
-		_id(id)
+	buffer(buffer_type_t type, int err, GLuint id) :
+		_id(id),
+		_type(type),
+		_error_bitfield(err)
 	{}
 
 public:
@@ -179,12 +187,11 @@ public:
 	* Functions
 	*------------------------------------------------------------------------------------------*/
 
-	bool initialize(buffer_type type, usage_type usg, int size, const void* data)
+	bool initialize(buffer_type_t type, buffer_usage_t usg, int size, const void* data)
 	{
 		finalize();
 
-		// OpenGL側での種類
-		_type = buffer_base::to_gl_type(type);
+		_type = type;
 
 		glGenBuffers(1, &_id);
 		if (_id == 0)
@@ -204,12 +211,12 @@ public:
 			return false;
 		}
 
-		// 扱い方
-		GLenum gl_usage = buffer_base::to_gl_usage(usg);
 		// 動的バッファの場合は容量を確保してからデータを設定する
-		if (usg == dynamic_draw || usg == dynamic_read || usg == dynamic_copy)
+		if (usg == buffer_usage::dynamic_draw ||
+			usg == buffer_usage::dynamic_read ||
+			usg == buffer_usage::dynamic_copy)
 		{
-			glBufferData(_type, static_cast<GLsizeiptr>(size), NULL, gl_usage);
+			glBufferData(_type, static_cast<GLsizeiptr>(size), NULL, usg);
 			if (data != NULL)
 			{
 				glBufferSubData(_type, 0, static_cast<GLsizeiptr>(size), data);
@@ -217,29 +224,29 @@ public:
 		}
 		else
 		{
-			glBufferData(_type, static_cast<GLsizeiptr>(size), data, gl_usage);
+			glBufferData(_type, static_cast<GLsizeiptr>(size), data, usg);
 		}
 
 		glBindBuffer(_type, 0);
 		return true;
 	}
 	template <typename T>
-	bool initialize(buffer_type type, usage_type usg, const T& a)
+	bool initialize(buffer_type_t type, buffer_usage_t usg, const T& a)
 	{
 		return initialize(type, usg, sizeof(T), static_cast<const void*>(&a));
 	}
 	template <typename T, int N>
-	bool initialize(buffer_type type, usage_type usg, const T(&a)[N])
+	bool initialize(buffer_type_t type, buffer_usage_t usg, const T(&a)[N])
 	{
 		return initialize(type, usg, sizeof(T)*N, static_cast<const void*>(&a[0]));
 	}
 	template <typename T, size_t N, template <typename, size_t> class ARRAY>
-	bool initialize(buffer_type type, usage_type usg, const ARRAY<T, N>& a)
+	bool initialize(buffer_type_t type, buffer_usage_t usg, const ARRAY<T, N>& a)
 	{
 		return initialize(type, usg, sizeof(T)*N, static_cast<const void*>(&a[0]));
 	}
 	template <typename T, typename ALLOC, template <typename, typename> class VECTOR>
-	bool initialize(buffer_type type, usage_type usg, const VECTOR<T, ALLOC>& a)
+	bool initialize(buffer_type_t type, buffer_usage_t usg, const VECTOR<T, ALLOC>& a)
 	{
 		return initialize(type, usg, sizeof(T)*a.size(), static_cast<const void*>(&a[0]));
 	}
@@ -253,7 +260,13 @@ public:
 			_id = 0;
 		}
 		_error_bitfield = 0;
-		_type = 0;
+		_type = buffer_type::unknown;
+	}
+
+	// エラー状態クリア
+	void clear()
+	{
+		_error_bitfield = 0;
 	}
 
 	// バインド
@@ -261,25 +274,21 @@ public:
 	{
 		glBindBuffer(_type, _id);
 	}
-	void bind(GLenum type) const
+	void bind(buffer_type_t type) const
 	{
 		glBindBuffer(type, _id);
-	}
-	void bind(buffer_type type) const
-	{
-		bind(buffer_base::to_gl_type(type));
 	}
 	void bind_base(GLuint point) const
 	{
 		glBindBufferBase(_type, point, _id);
 	}
-	void bind_base(buffer_type type) const
+	void bind_base(buffer_type_t type) const
 	{
-		glBindBufferBase(buffer_base::to_gl_type(type), 0, _id);
+		glBindBufferBase(type, 0, _id);
 	}
-	void bind_base(buffer_type type, GLuint point) const
+	void bind_base(buffer_type_t type, GLuint point) const
 	{
-		glBindBufferBase(buffer_base::to_gl_type(type), point, _id);
+		glBindBufferBase(type, point, _id);
 	}
 	void bind_vertex(GLuint index, GLintptr offset, GLsizei stride) const
 	{
@@ -296,31 +305,27 @@ public:
 	{
 		glBindBuffer(_type, 0);
 	}
-	void unbind(GLenum type) const
+	void unbind(buffer_type_t type) const
 	{
 		glBindBuffer(type, 0);
-	}
-	void unbind(buffer_type type) const
-	{
-		unbind(buffer_base::to_gl_type(type));
 	}
 	void unbind_base(GLuint point) const
 	{
 		glBindBufferBase(_type, point, 0);
 	}
-	void unbind_base(buffer_type type) const
+	void unbind_base(buffer_type_t type) const
 	{
-		glBindBufferBase(buffer_base::to_gl_type(type), 0, 0);
+		glBindBufferBase(type, 0, 0);
 	}
-	void unbind_base(buffer_type type, GLuint point) const
+	void unbind_base(buffer_type_t type, GLuint point) const
 	{
-		glBindBufferBase(buffer_base::to_gl_type(type), point, 0);
+		glBindBufferBase(type, point, 0);
 	}
 
 	// 現在のバッファーがバインドされているか
 	bool binding() const
 	{
-		GLenum type = to_gl_binding_type();
+		buffer_binding_type_t type = buffer_type::to_binding_type(_type);
 		GLuint i = 0;
 		glGetIntegerv(type, reinterpret_cast<GLint*>(&i));
 		return i != 0 && i == _id;
@@ -331,61 +336,52 @@ public:
 	{
 		return binder_type(*this);
 	}
-	template <GLenum V>
-	rebinder1<GLenum>::type make_binder() const
+	template <buffer_type_t T>
+	rebinder1<buffer_type_t>::type make_binder() const
 	{
-		return rebinder1<GLenum>::type(*this, V);
+		return rebinder1<buffer_type_t>::type(*this, T);
 	}
-	rebinder1<GLenum>::type make_binder(GLenum type) const
+	rebinder1<buffer_type_t>::type make_binder(buffer_type_t type) const
 	{
-		return rebinder1<GLenum>::type(*this, type);
-	}
-	template <buffer_type T>
-	rebinder1<buffer_type>::type make_binder() const
-	{
-		return rebinder1<buffer_type>::type(*this, T);
-	}
-	rebinder1<buffer_type>::type make_binder(buffer_type type) const
-	{
-		return rebinder1<buffer_type>::type(*this, type);
+		return rebinder1<buffer_type_t>::type(*this, type);
 	}
 
 	// バッファを展開して先頭アドレスを取得
-	void* map(map_usage_type type) const
+	void* map(buffer_map_t type) const
 	{
 		bind();
 		return map_binding(type);
 	}
 	template <typename T>
-	T* map(map_usage_type type) const
+	T* map(buffer_map_t type) const
 	{
 		return static_cast<T*>(map(type));
 	}
-	void* map_binding(map_usage_type type) const
+	void* map_binding(buffer_map_t type) const
 	{
-		return glMapBuffer(_type, buffer_base::to_gl_map_usage(type));
+		return glMapBuffer(_type, type);
 	}
 	template <typename T>
-	T* map_binding(map_usage_type type) const
+	T* map_binding(buffer_map_t type) const
 	{
 		return static_cast<T*>(map_binding(type));
 	}
 
 	// 展開してアドレスを取得できていたら渡された関数を実行
 	template <typename F>
-	bool map(map_usage_type type, F func) const
+	bool map(buffer_map_t type, F func) const
 	{
 		binder_type lock(*this);
 		return map_binding(type, func);
 	}
 	template <typename T, typename F>
-	bool map(map_usage_type type, F func) const
+	bool map(buffer_map_t type, F func) const
 	{
 		binder_type lock(*this);
 		return map_binding<T>(type, func);
 	}
 	template <typename F>
-	bool map_binding(map_usage_type type, F func) const
+	bool map_binding(buffer_map_t type, F func) const
 	{
 		void* address = map_binding(type);
 		if (address == NULL)
@@ -397,7 +393,7 @@ public:
 		return true;
 	}
 	template <typename T, typename F>
-	bool map_binding(map_usage_type type, F func) const
+	bool map_binding(buffer_map_t type, F func) const
 	{
 		void* address = map_binding(type);
 		if (address == NULL)
@@ -429,15 +425,15 @@ public:
 	}
 
 	// マップしたものを管理するオブジェクトを作成
-	binder_map_type make_binder_map(map_usage_type) const;
-	template <map_usage_type U> binder_map_type make_binder_map() const;
-	template <typename T> typename rebinder_map<T>::type make_binder_map(map_usage_type) const;
-	template <typename T, map_usage_type U> typename rebinder_map<T>::type make_binder_map() const;
+	binder_map_type make_binder_map(buffer_map_t) const;
+	template <buffer_map_t U> binder_map_type make_binder_map() const;
+	template <typename T> typename rebinder_map<T>::type make_binder_map(buffer_map_t) const;
+	template <typename T, buffer_map_t U> typename rebinder_map<T>::type make_binder_map() const;
 
-	binder_map_type make_binder_map(const binder_type&, map_usage_type) const;
-	template <map_usage_type U> binder_map_type make_binder_map(const binder_type&) const;
-	template <typename T> typename rebinder_map<T>::type make_binder_map(const binder_type&, map_usage_type) const;
-	template <typename T, map_usage_type U> typename rebinder_map<T>::type make_binder_map(const binder_type&) const;
+	binder_map_type make_binder_map(const binder_type&, buffer_map_t) const;
+	template <buffer_map_t U> binder_map_type make_binder_map(const binder_type&) const;
+	template <typename T> typename rebinder_map<T>::type make_binder_map(const binder_type&, buffer_map_t) const;
+	template <typename T, buffer_map_t U> typename rebinder_map<T>::type make_binder_map(const binder_type&) const;
 
 	// バッファサイズ
 	int size() const
@@ -473,16 +469,16 @@ public:
 	}
 
 	// 設定した時の扱い法
-	GLenum usage() const
+	buffer_usage_t usage() const
 	{
 		binder_type lock(*this);
 		return usage_binding();
 	}
-	GLenum usage_binding() const
+	buffer_usage_t usage_binding() const
 	{
 		GLint u = 0;
 		glGetBufferParameteriv(_type, GL_BUFFER_USAGE, &u);
-		return static_cast<GLenum>(u);
+		return static_cast<buffer_usage_t>(u);
 	}
 
 	// エラー文
@@ -498,7 +494,7 @@ public:
 			return "failed. can not bind.";
 		}
 		// 作成されていない またはすでに破棄済み
-		if (to_buffer_type() == unknown ||
+		if (_type == buffer_type::unknown ||
 			_id == 0)
 		{
 			return "not created. or already destroyed.";
@@ -530,15 +526,15 @@ public:
 	}
 
 	// バッファ種類
-	buffer_type kind() const
+	buffer_type_t kind() const
 	{
-		return to_buffer_type();
+		return _type;
 	}
 
 	// バッファ種類の比較
-	bool kind_of(buffer_type type) const
+	bool kind_of(buffer_type_t type) const
 	{
-		return kind() == type;
+		return _type == type;
 	}
 
 	// ハンドルの取得
@@ -566,7 +562,7 @@ public:
 		// サイズの取得
 		bind();
 		int sz = size_binding();
-		GLenum usg = usage_binding();
+		buffer_usage_t usg = usage_binding();
 		unbind();
 
 		// 空の値の設定
@@ -610,7 +606,7 @@ public:
 		// サイズの取得
 		bind();
 		int sz = size_binding();
-		GLenum usg = usage_binding();
+		buffer_usage_t usg = usage_binding();
 		unbind();
 
 		c.bind();
@@ -677,7 +673,7 @@ public:
 		_type = std::move(b._type);
 		_id = std::move(b._id);
 		_error_bitfield = std::move(b._error_bitfield);
-		b._type = 0;
+		b._type = buffer_type::unknown;
 		b._id = 0;
 		b._error_bitfield = 0;
 		return *this;
@@ -692,7 +688,7 @@ public:
 };
 
 template <int N>
-class buffers : public buffer_base
+class buffers
 {
 public:
 	/*------------------------------------------------------------------------------------------
@@ -724,8 +720,6 @@ public:
 		}
 	};
 
-	typedef buffer_base base;
-
 private:
 	/*------------------------------------------------------------------------------------------
 	* Members
@@ -745,11 +739,9 @@ public:
 	* Constructors
 	*------------------------------------------------------------------------------------------*/
 
-	buffers() :
-		base()
+	buffers()
 	{}
-	buffers(const buffers& b) :
-		base()
+	buffers(const buffers& b)
 	{
 		for (int i = 0; i < N; ++i)
 		{
@@ -758,7 +750,6 @@ public:
 	}
 #ifdef _USE_CXX11
 	buffers(buffers&& b) :
-		base(std::forward<buffer_base>(b)),
 		_ids(std::move(b._ids))
 	{
 		for (int i = 0; i < N; ++i)
@@ -922,7 +913,7 @@ public:
 	* Constructors
 	*------------------------------------------------------------------------------------------*/
 
-	explicit binder_map(const T& a, buffer_base::map_usage_type type) :
+	explicit binder_map(const T& a, buffer_map_t type) :
 		_address(&a), _data(NULL), _state_bitfield(0)
 	{
 		// バインドされている時はデストラクタ時に解除しない
@@ -936,7 +927,7 @@ public:
 		}
 		_data = static_cast<M*>(a.map_binding(type));
 	}
-	explicit binder_map(const binder<T>& a, buffer_base::map_usage_type type) :
+	explicit binder_map(const binder<T>& a, buffer_map_t type) :
 		_address(a),
 		_data(static_cast<M*>(a->map_binding(type))),
 		_state_bitfield(binding_bit)
@@ -1073,7 +1064,7 @@ public:
 	* Constructors
 	*------------------------------------------------------------------------------------------*/
 
-	explicit binder_map(const T& a, buffer_base::map_usage_type type) :
+	explicit binder_map(const T& a, buffer_map_t type) :
 		_address(&a), _data(NULL), _state_bitfield(0)
 	{
 		// バインドされている時はデストラクタ時に解除しない
@@ -1087,7 +1078,7 @@ public:
 		}
 		_data = a.map_binding(type);
 	}
-	explicit binder_map(const binder<T>& a, buffer_base::map_usage_type type) :
+	explicit binder_map(const binder<T>& a, buffer_map_t type) :
 		_address(a),
 		_data(a->map_binding(type)),
 		_state_bitfield(binding_bit)
@@ -1156,27 +1147,27 @@ int binder<buffer>::count() const
 	return _address->count_binding<T>();
 }
 inline
-GLenum binder<buffer>::usage() const
+buffer_usage_t binder<buffer>::usage() const
 {
 	return _address->usage_binding();
 }
 inline
-void* binder<buffer>::map(buffer_base::map_usage_type usg) const
+void* binder<buffer>::map(buffer_map_t usg) const
 {
 	return _address->map_binding(usg);
 }
 template <typename T> inline
-T* binder<buffer>::map(buffer_base::map_usage_type usg) const
+T* binder<buffer>::map(buffer_map_t usg) const
 {
 	return _address->map_binding<T>(usg);
 }
 template <typename F> inline
-bool binder<buffer>::map(buffer_base::map_usage_type usg, F func) const
+bool binder<buffer>::map(buffer_map_t usg, F func) const
 {
 	return _address->map_binding(usg, func);
 }
 template <typename T, typename F> inline
-bool binder<buffer>::map(buffer_base::map_usage_type usg, F func) const
+bool binder<buffer>::map(buffer_map_t usg, F func) const
 {
 	return _address->map_binding<T>(usg, func);
 }
@@ -1186,62 +1177,62 @@ void binder<buffer>::unmap() const
 	_address->unmap_binding();
 }
 inline
-binder_map<buffer, void> binder<buffer>::make_binder_map(buffer_base::map_usage_type type) const
+binder_map<buffer, void> binder<buffer>::make_binder_map(buffer_map_t type) const
 {
 	return binder_map<buffer, void>(*this, type);
 }
-template <buffer_base::map_usage_type U> inline
+template <buffer_map_t U> inline
 binder_map<buffer, void> binder<buffer>::make_binder_map() const
 {
 	return binder_map<buffer, void>(*this, U);
 }
 template <typename T> inline
-binder_map<buffer, T> binder<buffer>::make_binder_map(buffer_base::map_usage_type type) const
+binder_map<buffer, T> binder<buffer>::make_binder_map(buffer_map_t type) const
 {
 	return binder_map<buffer, T>(*this, type);
 }
-template <typename T, buffer_base::map_usage_type U> inline
+template <typename T, buffer_map_t U> inline
 binder_map<buffer, T> binder<buffer>::make_binder_map() const
 {
 	return binder_map<buffer, T>(*this, U);
 }
 
 inline
-buffer::binder_map_type buffer::make_binder_map(map_usage_type usg) const
+buffer::binder_map_type buffer::make_binder_map(buffer_map_t usg) const
 {
 	return binder_map_type(*this, usg);
 }
-template <buffer_base::map_usage_type U> inline
+template <buffer_map_t U> inline
 buffer::binder_map_type buffer::make_binder_map() const
 {
 	return binder_map_type(*this, U);
 }
 template <typename T> inline
-typename buffer::template rebinder_map<T>::type buffer::make_binder_map(map_usage_type usg) const
+typename buffer::template rebinder_map<T>::type buffer::make_binder_map(buffer_map_t usg) const
 {
 	return typename rebinder_map<T>::type(*this, usg);
 }
-template <typename T, buffer_base::map_usage_type U> inline
+template <typename T, buffer_map_t U> inline
 typename buffer::template rebinder_map<T>::type buffer::make_binder_map() const
 {
 	return typename rebinder_map<T>::type(*this, U);
 }
 inline
-buffer::binder_map_type buffer::make_binder_map(const binder_type& a, map_usage_type usg) const
+buffer::binder_map_type buffer::make_binder_map(const binder_type& a, buffer_map_t usg) const
 {
 	return binder_map_type(a, usg);
 }
-template <buffer_base::map_usage_type U> inline
+template <buffer_map_t U> inline
 buffer::binder_map_type buffer::make_binder_map(const binder_type& a) const
 {
 	return binder_map_type(a, U);
 }
 template <typename T> inline
-typename buffer::template rebinder_map<T>::type buffer::make_binder_map(const binder_type& a, map_usage_type usg) const
+typename buffer::template rebinder_map<T>::type buffer::make_binder_map(const binder_type& a, buffer_map_t usg) const
 {
 	return typename rebinder_map<T>::type(a, usg);
 }
-template <typename T, buffer_base::map_usage_type U> inline
+template <typename T, buffer_map_t U> inline
 typename buffer::template rebinder_map<T>::type buffer::make_binder_map(const binder_type& a) const
 {
 	return typename rebinder_map<T>::type(a, U);
@@ -1256,112 +1247,112 @@ typename buffer::template rebinder_map<T>::type buffer::make_binder_map(const bi
 #define __POCKET_MAKE_BUFFER_USAGE(TYPE, USAGE) inline \
 	buffer make_##TYPE##_buffer_##USAGE(int size, const void* data) \
 	{ \
-		return buffer(buffer_base::TYPE, buffer_base::USAGE, size, data); \
+		return buffer(buffer_type::TYPE, buffer_usage::USAGE, size, data); \
 	} \
 	inline \
 	buffer& make_##TYPE##_buffer_##USAGE(buffer& b, int size, const void* data) \
 	{ \
-		b.initialize(buffer_base::TYPE, buffer_base::USAGE, size, data); \
+		b.initialize(buffer_type::TYPE, buffer_usage::USAGE, size, data); \
 		return b; \
 	} \
 	template <typename T> inline \
 	buffer make_##TYPE##_buffer_##USAGE(const T& a) \
 	{ \
-		return buffer(buffer_base::TYPE, buffer_base::USAGE, a); \
+		return buffer(buffer_type::TYPE, buffer_usage::USAGE, a); \
 	} \
 	template <typename T> inline \
 	buffer& make_##TYPE##_buffer_##USAGE(buffer& b, const T& a) \
 	{ \
-		b.initialize(buffer_base::TYPE, buffer_base::USAGE, a); \
+		b.initialize(buffer_type::TYPE, buffer_usage::USAGE, a); \
 		return b; \
 	} \
 	template <typename T, int N> inline \
 	buffer make_##TYPE##_buffer_##USAGE(const T(&a)[N]) \
 	{ \
-		return buffer(buffer_base::TYPE, buffer_base::USAGE, a); \
+		return buffer(buffer_type::TYPE, buffer_usage::USAGE, a); \
 	} \
 	template <typename T, int N> inline \
 	buffer& make_##TYPE##_buffer_##USAGE(buffer& b, const T(&a)[N]) \
 	{ \
-		b.initialize(buffer_base::TYPE, buffer_base::USAGE, a); \
+		b.initialize(buffer_type::TYPE, buffer_usage::USAGE, a); \
 		return b; \
 	} \
 	template <typename T, typename ALLOC, template <typename, typename> class VECTOR> inline \
 	buffer make_##TYPE##_buffer_##USAGE(const VECTOR<T, ALLOC>& a) \
 	{ \
-		return buffer(buffer_base::TYPE, buffer_base::USAGE, a); \
+		return buffer(buffer_type::TYPE, buffer_usage::USAGE, a); \
 	} \
 	template <typename T, typename ALLOC, template <typename, typename> class VECTOR> inline \
 	buffer& make_##TYPE##_buffer_##USAGE(buffer& b, const VECTOR<T, ALLOC>& a) \
 	{ \
-		b.initialize(buffer_base::TYPE, buffer_base::USAGE, a); \
+		b.initialize(buffer_type::TYPE, buffer_usage::USAGE, a); \
 		return b; \
 	} \
 	template <typename T, size_t N, template <typename, size_t> class ARRAY> inline \
 	buffer make_##TYPE##_buffer_##USAGE(const ARRAY<T, N>& a) \
 	{ \
-		return buffer(buffer_base::TYPE, buffer_base::USAGE, a); \
+		return buffer(buffer_type::TYPE, buffer_usage::USAGE, a); \
 	} \
 	template <typename T, size_t N, template <typename, size_t> class ARRAY> inline \
 	buffer& make_##TYPE##_buffer_##USAGE(buffer& b, const ARRAY<T, N>& a) \
 	{ \
-		b.initialize(buffer_base::TYPE, buffer_base::USAGE, a); \
+		b.initialize(buffer_type::TYPE, buffer_usage::USAGE, a); \
 		return b; \
 	}
 
 #define __POCKET_MAKE_BUFFER_TYPE(TYPE) inline \
-	buffer make_##TYPE##_buffer(buffer_base::usage_type usage, int size, const void* data) \
+	buffer make_##TYPE##_buffer(buffer_usage_t usage, int size, const void* data) \
 	{ \
-		return buffer(buffer_base::TYPE, usage, size, data); \
+		return buffer(buffer_type::TYPE, usage, size, data); \
 	} \
 	inline \
-	buffer& make_##TYPE##_buffer(buffer& b, buffer_base::usage_type usage, int size, const void* data) \
+	buffer& make_##TYPE##_buffer(buffer& b, buffer_usage_t usage, int size, const void* data) \
 	{ \
-		b.initialize(buffer_base::TYPE, usage, size, data); \
+		b.initialize(buffer_type::TYPE, usage, size, data); \
 		return b; \
 	} \
 	template <typename T> inline \
-	buffer make_##TYPE##_buffer(buffer_base::usage_type usage, const T& a) \
+	buffer make_##TYPE##_buffer(buffer_usage_t usage, const T& a) \
 	{ \
-		return buffer(buffer_base::TYPE, usage, a); \
+		return buffer(buffer_type::TYPE, usage, a); \
 	} \
 	template <typename T> inline \
-	buffer& make_##TYPE##_buffer(buffer& b, buffer_base::usage_type usage, const T& a) \
+	buffer& make_##TYPE##_buffer(buffer& b, buffer_usage_t usage, const T& a) \
 	{ \
-		b.initialize(buffer_base::TYPE, usage, a); \
+		b.initialize(buffer_type::TYPE, usage, a); \
 		return b; \
 	} \
 	template <typename T, int N> inline \
-	buffer make_##TYPE##_buffer(buffer_base::usage_type usage, const T(&a)[N]) \
+	buffer make_##TYPE##_buffer(buffer_usage_t usage, const T(&a)[N]) \
 	{ \
-		return buffer(buffer_base::TYPE, usage, a); \
+		return buffer(buffer_type::TYPE, usage, a); \
 	} \
 	template <typename T, int N> inline \
-	buffer& make_##TYPE##_buffer(buffer& b, buffer_base::usage_type usage, const T(&a)[N]) \
+	buffer& make_##TYPE##_buffer(buffer& b, buffer_usage_t usage, const T(&a)[N]) \
 	{ \
-		b.initialize(buffer_base::TYPE, usage, a); \
+		b.initialize(buffer_type::TYPE, usage, a); \
 		return b; \
 	} \
 	template <typename T, typename ALLOC, template <typename, typename> class VECTOR> inline \
-	buffer make_##TYPE##_buffer(buffer_base::usage_type usage, const VECTOR<T, ALLOC>& a) \
+	buffer make_##TYPE##_buffer(buffer_usage_t usage, const VECTOR<T, ALLOC>& a) \
 	{ \
-		return buffer(buffer_base::TYPE, usage, a); \
+		return buffer(buffer_type::TYPE, usage, a); \
 	} \
 	template <typename T, typename ALLOC, template <typename, typename> class VECTOR> inline \
-	buffer& make_##TYPE##_buffer(buffer& b, buffer_base::usage_type usage, const VECTOR<T, ALLOC>& a) \
+	buffer& make_##TYPE##_buffer(buffer& b, buffer_usage_t usage, const VECTOR<T, ALLOC>& a) \
 	{ \
-		b.initialize(buffer_base::TYPE, usage, a); \
+		b.initialize(buffer_type::TYPE, usage, a); \
 		return b; \
 	} \
 	template <typename T, size_t N, template <typename, size_t> class ARRAY> inline \
-	buffer make_##TYPE##_buffer(buffer_base::usage_type usage, const ARRAY<T, N>& a) \
+	buffer make_##TYPE##_buffer(buffer_usage_t usage, const ARRAY<T, N>& a) \
 	{ \
-		return buffer(buffer_base::TYPE, usage, a); \
+		return buffer(buffer_type::TYPE, usage, a); \
 	} \
 	template <typename T, size_t N, template <typename, size_t> class ARRAY> inline \
-	buffer& make_##TYPE##_buffer(buffer& b, buffer_base::usage_type usage, const ARRAY<T, N>& a) \
+	buffer& make_##TYPE##_buffer(buffer& b, buffer_usage_t usage, const ARRAY<T, N>& a) \
 	{ \
-		b.initialize(buffer_base::TYPE, usage, a); \
+		b.initialize(buffer_type::TYPE, usage, a); \
 		return b; \
 	} \
 	__POCKET_MAKE_BUFFER_USAGE(TYPE, immutable) \
@@ -1369,56 +1360,56 @@ typename buffer::template rebinder_map<T>::type buffer::make_binder_map(const bi
 	__POCKET_MAKE_BUFFER_USAGE(TYPE, stream)
 
 inline
-buffer make_buffer(buffer_base::buffer_type type, buffer_base::usage_type usage, int size, const void* data)
+buffer make_buffer(buffer_type_t type, buffer_usage_t usage, int size, const void* data)
 {
 	return buffer(type, usage, size, data);
 }
 inline
-buffer& make_buffer(buffer& b, buffer_base::buffer_type type, buffer_base::usage_type usage, int size, const void* data)
+buffer& make_buffer(buffer& b, buffer_type_t type, buffer_usage_t usage, int size, const void* data)
 {
 	b.initialize(type, usage, size, data);
 	return b;
 }
 template <typename T> inline
-buffer make_buffer(buffer_base::buffer_type type, buffer_base::usage_type usage, const T& a)
+buffer make_buffer(buffer_type_t type, buffer_usage_t usage, const T& a)
 {
 	return buffer(type, usage, a);
 }
 template <typename T> inline
-buffer& make_buffer(buffer& b, buffer_base::buffer_type type, buffer_base::usage_type usage, const T& a)
+buffer& make_buffer(buffer& b, buffer_type_t type, buffer_usage_t usage, const T& a)
 {
 	b.initialize(type, usage, a);
 	return b;
 }
 template <typename T, int N> inline
-buffer make_buffer(buffer_base::buffer_type type, buffer_base::usage_type usage, const T(&a)[N])
+buffer make_buffer(buffer_type_t type, buffer_usage_t usage, const T(&a)[N])
 {
 	return buffer(type, usage, a);
 }
 template <typename T, int N> inline
-buffer& make_buffer(buffer& b, buffer_base::buffer_type type, buffer_base::usage_type usage, const T(&a)[N])
+buffer& make_buffer(buffer& b, buffer_type_t type, buffer_usage_t usage, const T(&a)[N])
 {
 	b.initialize(type, usage, a);
 	return b;
 }
 template <typename T, typename ALLOC, template <typename, typename> class VECTOR> inline
-buffer make_buffer(buffer_base::buffer_type type, buffer_base::usage_type usage, const VECTOR<T, ALLOC>& a)
+buffer make_buffer(buffer_type_t type, buffer_usage_t usage, const VECTOR<T, ALLOC>& a)
 {
 	return buffer(type, usage, a);
 }
 template <typename T, typename ALLOC, template <typename, typename> class VECTOR> inline
-buffer& make_buffer(buffer& b, buffer_base::buffer_type type, buffer_base::usage_type usage, const VECTOR<T, ALLOC>& a)
+buffer& make_buffer(buffer& b, buffer_type_t type, buffer_usage_t usage, const VECTOR<T, ALLOC>& a)
 {
 	b.initialize(type, usage, a);
 	return b;
 }
 template <typename T, size_t N, template <typename, size_t> class ARRAY> inline
-buffer make_buffer(buffer_base::buffer_type type, buffer_base::usage_type usage, const ARRAY<T, N>& a)
+buffer make_buffer(buffer_type_t type, buffer_usage_t usage, const ARRAY<T, N>& a)
 {
 	return buffer(type, usage, a);
 }
 template <typename T, size_t N, template <typename, size_t> class ARRAY> inline
-buffer& make_buffer(buffer& b, buffer_base::buffer_type type, buffer_base::usage_type usage, const ARRAY<T, N>& a)
+buffer& make_buffer(buffer& b, buffer_type_t type, buffer_usage_t usage, const ARRAY<T, N>& a)
 {
 	b.initialize(type, usage, a);
 	return b;
@@ -1430,7 +1421,7 @@ __POCKET_MAKE_BUFFER_TYPE(copy_read);
 __POCKET_MAKE_BUFFER_TYPE(copy_write);
 __POCKET_MAKE_BUFFER_TYPE(dispatch_indirect);
 __POCKET_MAKE_BUFFER_TYPE(draw_indirect);
-__POCKET_MAKE_BUFFER_TYPE(element);
+__POCKET_MAKE_BUFFER_TYPE(element_array);
 __POCKET_MAKE_BUFFER_TYPE(pixel_pack);
 __POCKET_MAKE_BUFFER_TYPE(pixel_unpack);
 __POCKET_MAKE_BUFFER_TYPE(query);
@@ -1448,71 +1439,64 @@ std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, Ch
 	const char* type;
 	switch (v.kind())
 	{
-		case buffer_base::array:
+		case buffer_type::array:
 			type = "array";
 			break;
-		case buffer_base::atomic_counter:
+		case buffer_type::atomic_counter:
 			type = "atomic_counter";
 			break;
-		case buffer_base::copy_read:
+		case buffer_type::copy_read:
 			type = "copy_read";
 			break;
-		case buffer_base::copy_write:
+		case buffer_type::copy_write:
 			type = "copy_write";
 			break;
-		case buffer_base::dispatch_indirect:
+		case buffer_type::dispatch_indirect:
 			type = "dispatch_indirect";
 			break;
-		case buffer_base::draw_indirect:
+		case buffer_type::draw_indirect:
 			type = "draw_indirect";
 			break;
-		case buffer_base::element:
-			type = "element";
+		case buffer_type::element_array:
+			type = "element_array";
 			break;
-		case buffer_base::pixel_pack:
+		case buffer_type::pixel_pack:
 			type = "pixel_pack";
 			break;
-		case buffer_base::pixel_unpack:
+		case buffer_type::pixel_unpack:
 			type = "pixel_unpack";
 			break;
-		case buffer_base::query:
+		case buffer_type::query:
 			type = "query";
 			break;
-		case buffer_base::shader_storage:
+		case buffer_type::shader_storage:
 			type = "shader_storage";
 			break;
-		case buffer_base::texture:
+		case buffer_type::texture:
 			type = "texture";
 			break;
-		case buffer_base::transform_feedback:
+		case buffer_type::transform_feedback:
 			type = "transform_feedback";
 			break;
-		case buffer_base::uniform:
+		case buffer_type::uniform:
 			type = "uniform";
 			break;
 
-		case buffer_base::unknown:
+		case buffer_type::unknown:
 		default:
 			type = "unknown";
 			break;
 	}
 
-	const bool valid = v.valid();
-	const char* valid_str = valid ? "true" : "false";
 	os << io::widen("buffer: ") << io::braces_left << std::endl <<
-		io::tab << io::widen("type: ") << io::widen(type) << std::endl <<
-		io::tab << io::widen("valid: ") << io::widen(valid_str) << std::endl;
-	if (!valid)
+		io::tab << io::widen("id: ") << v.get() << std::endl <<
+		io::tab << io::widen("type: ") << io::widen(type) << std::endl;
+	if (!v.valid())
 	{
 		std::string error = v.error();
 		os << io::tab << io::widen("error: ") << io::widen(error.c_str()) << std::endl;
 	}
 	os << io::braces_right;
-	return os;
-}
-template <typename CharT, typename CharTraits> inline
-std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, CharTraits>& os, const buffer& v)
-{
 	return os;
 }
 

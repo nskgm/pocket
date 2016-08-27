@@ -193,47 +193,47 @@ public:
 		_error_bitfield(0)
 	{}
 	explicit program(const shader& s, bool save_bin = false) :
-		_error_bitfield(0)
+		_id(0)
 	{
 		initialize(s, save_bin);
 	}
 	explicit program(const shader& s1, const shader& s2, bool save_bin = false) :
-		_error_bitfield(0)
+		_id(0)
 	{
 		initialize(s1, s2, save_bin);
 	}
 	explicit program(const shader& s1, const shader& s2, const shader& s3, bool save_bin = false) :
-		_error_bitfield(0)
+		_id(0)
 	{
 		initialize(s1, s2, s3, save_bin);
 	}
 	explicit program(const shader& s1, const shader& s2, const shader& s3, const shader& s4, bool save_bin = false) :
-		_error_bitfield(0)
+		_id(0)
 	{
 		initialize(s1, s2, s3, s4, save_bin);
 	}
 	explicit program(const shader& s1, const shader& s2, const shader& s3, const shader& s4, const shader& s5, bool save_bin = false) :
-		_error_bitfield(0)
+		_id(0)
 	{
 		initialize(s1, s2, s3, s4, s5, save_bin);
 	}
 	explicit program(const char* path, GLenum format, bool file_front_format_written = true) :
-		_error_bitfield(0)
+		_id(0)
 	{
 		initialize(path, format, file_front_format_written);
 	}
 	explicit program(const std::string& path, GLenum format, bool file_front_format_written = true) :
-		_error_bitfield(0)
+		_id(0)
 	{
 		initialize(path, format, file_front_format_written);
 	}
 	explicit program(const char* path, bool file_front_format_written = true) :
-		_error_bitfield(0)
+		_id(0)
 	{
 		initialize(path, file_front_format_written);
 	}
 	explicit program(const std::string& path, bool file_front_format_written = true) :
-		_error_bitfield(0)
+		_id(0)
 	{
 		initialize(path, file_front_format_written);
 	}
@@ -268,11 +268,7 @@ public:
 		}
 		// シェーダーのアタッチ
 		s.attach(_id);
-		if (!link())
-		{
-			return false;
-		}
-		return true;
+		return link();
 	}
 	bool initialize(const shader& s1, const shader& s2, bool save_bin = false)
 	{
@@ -283,11 +279,7 @@ public:
 		// シェーダーのアタッチ
 		s1.attach(_id);
 		s2.attach(_id);
-		if (!link())
-		{
-			return false;
-		}
-		return true;
+		return link();
 	}
 	bool initialize(const shader& s1, const shader& s2, const shader& s3, bool save_bin = false)
 	{
@@ -299,11 +291,7 @@ public:
 		s1.attach(_id);
 		s2.attach(_id);
 		s3.attach(_id);
-		if (!link())
-		{
-			return false;
-		}
-		return true;
+		return link();
 	}
 	bool initialize(const shader& s1, const shader& s2, const shader& s3, const shader& s4, bool save_bin = false)
 	{
@@ -316,11 +304,7 @@ public:
 		s2.attach(_id);
 		s3.attach(_id);
 		s4.attach(_id);
-		if (!link())
-		{
-			return false;
-		}
-		return true;
+		return link();
 	}
 	bool initialize(const shader& s1, const shader& s2, const shader& s3, const shader& s4, const shader& s5, bool save_bin = false)
 	{
@@ -334,11 +318,7 @@ public:
 		s3.attach(_id);
 		s4.attach(_id);
 		s5.attach(_id);
-		if (!link())
-		{
-			return false;
-		}
-		return true;
+		return link();
 	}
 	// バイナリファイルから作成
 	bool initialize(const char* path, GLenum format, bool file_front_format_written = true)
@@ -660,6 +640,13 @@ public:
 		return uniform_block_index(name.c_str(), index);
 	}
 
+	// uniform bufferのバインド位置を更新
+	void uniform_block_bind(GLuint index, GLuint point) const
+	{
+		glUniformBlockBinding(_id, index, point);
+	}
+	void uniform_block_bind(const uniform_buffer&) const;
+
 	// インデックスから名前を取得
 	std::string uniform_block_name_from_location(GLuint location, GLsizei length = 32) const
 	{
@@ -677,45 +664,45 @@ public:
 	}
 
 	// UBO作成
-	uniform_buffer make_uniform_buffer(const char*, GLuint, const void*, buffer_base::usage_type = buffer_base::dynamic_draw) const;
+	uniform_buffer make_uniform_buffer(const char*, GLuint, const void*, buffer_usage_t = buffer_usage::dynamic_draw) const;
 	template <typename T>
-	uniform_buffer make_uniform_buffer(const char*, GLuint, const T&, buffer_base::usage_type = buffer_base::dynamic_draw) const;
+	uniform_buffer make_uniform_buffer(const char*, GLuint, const T&, buffer_usage_t = buffer_usage::dynamic_draw) const;
 	template <typename T, int N>
-	uniform_buffer make_uniform_buffer(const char*, GLuint, const T(&)[N], buffer_base::usage_type = buffer_base::dynamic_draw) const;
+	uniform_buffer make_uniform_buffer(const char*, GLuint, const T(&)[N], buffer_usage_t = buffer_usage::dynamic_draw) const;
 	template <typename T, size_t N, template <typename, size_t> class ARRAY>
-	uniform_buffer make_uniform_buffer(const char*, GLuint, const ARRAY<T, N>&, buffer_base::usage_type = buffer_base::dynamic_draw) const;
+	uniform_buffer make_uniform_buffer(const char*, GLuint, const ARRAY<T, N>&, buffer_usage_t = buffer_usage::dynamic_draw) const;
 	template <typename T, typename ALLOC, template <typename, typename> class VECTOR>
-	uniform_buffer make_uniform_buffer(const char*, GLuint, const VECTOR<T, ALLOC>&, buffer_base::usage_type = buffer_base::dynamic_draw) const;
+	uniform_buffer make_uniform_buffer(const char*, GLuint, const VECTOR<T, ALLOC>&, buffer_usage_t = buffer_usage::dynamic_draw) const;
 
-	uniform_buffer make_uniform_buffer(const std::string&, GLuint, const void*, buffer_base::usage_type = buffer_base::dynamic_draw) const;
+	uniform_buffer make_uniform_buffer(const std::string&, GLuint, const void*, buffer_usage_t = buffer_usage::dynamic_draw) const;
 	template <typename T>
-	uniform_buffer make_uniform_buffer(const std::string&, GLuint, const T&, buffer_base::usage_type = buffer_base::dynamic_draw) const;
+	uniform_buffer make_uniform_buffer(const std::string&, GLuint, const T&, buffer_usage_t = buffer_usage::dynamic_draw) const;
 	template <typename T, int N>
-	uniform_buffer make_uniform_buffer(const std::string&, GLuint, const T(&)[N], buffer_base::usage_type = buffer_base::dynamic_draw) const;
+	uniform_buffer make_uniform_buffer(const std::string&, GLuint, const T(&)[N], buffer_usage_t = buffer_usage::dynamic_draw) const;
 	template <typename T, size_t N, template <typename, size_t> class ARRAY>
-	uniform_buffer make_uniform_buffer(const std::string&, GLuint, const ARRAY<T, N>&, buffer_base::usage_type = buffer_base::dynamic_draw) const;
+	uniform_buffer make_uniform_buffer(const std::string&, GLuint, const ARRAY<T, N>&, buffer_usage_t = buffer_usage::dynamic_draw) const;
 	template <typename T, typename ALLOC, template <typename, typename> class VECTOR>
-	uniform_buffer make_uniform_buffer(const std::string&, GLuint, const VECTOR<T, ALLOC>&, buffer_base::usage_type = buffer_base::dynamic_draw) const;
+	uniform_buffer make_uniform_buffer(const std::string&, GLuint, const VECTOR<T, ALLOC>&, buffer_usage_t = buffer_usage::dynamic_draw) const;
 
-	uniform_buffer& make_uniform_buffer(uniform_buffer&, const char*, GLuint, const void*, buffer_base::usage_type = buffer_base::dynamic_draw) const;
+	uniform_buffer& make_uniform_buffer(uniform_buffer&, const char*, GLuint, const void*, buffer_usage_t = buffer_usage::dynamic_draw) const;
 	template <typename T>
-	uniform_buffer& make_uniform_buffer(uniform_buffer&, const char*, GLuint, const T&, buffer_base::usage_type = buffer_base::dynamic_draw) const;
+	uniform_buffer& make_uniform_buffer(uniform_buffer&, const char*, GLuint, const T&, buffer_usage_t = buffer_usage::dynamic_draw) const;
 	template <typename T, int N>
-	uniform_buffer& make_uniform_buffer(uniform_buffer&, const char*, GLuint, const T(&)[N], buffer_base::usage_type = buffer_base::dynamic_draw) const;
+	uniform_buffer& make_uniform_buffer(uniform_buffer&, const char*, GLuint, const T(&)[N], buffer_usage_t = buffer_usage::dynamic_draw) const;
 	template <typename T, size_t N, template <typename, size_t> class ARRAY>
-	uniform_buffer& make_uniform_buffer(uniform_buffer&, const char*, GLuint, const ARRAY<T, N>&, buffer_base::usage_type = buffer_base::dynamic_draw) const;
+	uniform_buffer& make_uniform_buffer(uniform_buffer&, const char*, GLuint, const ARRAY<T, N>&, buffer_usage_t = buffer_usage::dynamic_draw) const;
 	template <typename T, typename ALLOC, template <typename, typename> class VECTOR>
-	uniform_buffer& make_uniform_buffer(uniform_buffer&, const char*, GLuint, const VECTOR<T, ALLOC>&, buffer_base::usage_type = buffer_base::dynamic_draw) const;
+	uniform_buffer& make_uniform_buffer(uniform_buffer&, const char*, GLuint, const VECTOR<T, ALLOC>&, buffer_usage_t = buffer_usage::dynamic_draw) const;
 
-	uniform_buffer& make_uniform_buffer(uniform_buffer&, const std::string&, GLuint, const void*, buffer_base::usage_type = buffer_base::dynamic_draw) const;
+	uniform_buffer& make_uniform_buffer(uniform_buffer&, const std::string&, GLuint, const void*, buffer_usage_t = buffer_usage::dynamic_draw) const;
 	template <typename T>
-	uniform_buffer& make_uniform_buffer(uniform_buffer&, const std::string&, GLuint, const T&, buffer_base::usage_type = buffer_base::dynamic_draw) const;
+	uniform_buffer& make_uniform_buffer(uniform_buffer&, const std::string&, GLuint, const T&, buffer_usage_t = buffer_usage::dynamic_draw) const;
 	template <typename T, int N>
-	uniform_buffer& make_uniform_buffer(uniform_buffer&, const std::string&, GLuint, const T(&)[N], buffer_base::usage_type = buffer_base::dynamic_draw) const;
+	uniform_buffer& make_uniform_buffer(uniform_buffer&, const std::string&, GLuint, const T(&)[N], buffer_usage_t = buffer_usage::dynamic_draw) const;
 	template <typename T, size_t N, template <typename, size_t> class ARRAY>
-	uniform_buffer& make_uniform_buffer(uniform_buffer&, const std::string&, GLuint, const ARRAY<T, N>&, buffer_base::usage_type = buffer_base::dynamic_draw) const;
+	uniform_buffer& make_uniform_buffer(uniform_buffer&, const std::string&, GLuint, const ARRAY<T, N>&, buffer_usage_t = buffer_usage::dynamic_draw) const;
 	template <typename T, typename ALLOC, template <typename, typename> class VECTOR>
-	uniform_buffer& make_uniform_buffer(uniform_buffer&, const std::string&, GLuint, const VECTOR<T, ALLOC>&, buffer_base::usage_type = buffer_base::dynamic_draw) const;
+	uniform_buffer& make_uniform_buffer(uniform_buffer&, const std::string&, GLuint, const VECTOR<T, ALLOC>&, buffer_usage_t = buffer_usage::dynamic_draw) const;
 
 	// エラー文
 	std::string error() const
@@ -1021,22 +1008,14 @@ program make_program(const std::string& path, bool file_front_format_written = t
 template <typename CharT, typename CharTraits> inline
 std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const program& v)
 {
-	const bool valid = v.valid();
-	const char* valid_str = valid ? "true" : "false";
 	os << io::widen("program: ") << io::braces_left << std::endl <<
-		io::tab << io::widen("valid: ") << io::widen(valid_str) << std::endl;
-	if (!valid)
+		io::tab << io::widen("id: ") << v.get() << std::endl;
+	if (!v.valid())
 	{
 		std::string error = v.error();
 		os << io::tab << io::widen("error: ") << io::widen(error.c_str()) << std::endl;
 	}
 	os << io::braces_right;
-	return os;
-}
-template <typename CharT, typename CharTraits> inline
-std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, CharTraits>& os, const program& v)
-{
-	os << v;
 	return os;
 }
 

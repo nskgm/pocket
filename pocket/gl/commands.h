@@ -12,7 +12,8 @@ namespace pocket
 {
 namespace gl
 {
-// buffer_base::draw_indirect用構造体
+// buffer_type::draw_indirect
+// buffer_type::dispatch_compute
 namespace commands
 {
 

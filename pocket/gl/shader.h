@@ -29,14 +29,12 @@ public:
 	// シェーダー種類
 	enum shader_type
 	{
-		vertex,
-		fragment,
-		geometry,
-		tess_control,
-		tess_evaluate,
-		compute,
-
-		unknown
+		vertex = GL_VERTEX_SHADER,
+		fragment = GL_FRAGMENT_SHADER,
+		geometry = GL_GEOMETRY_SHADER,
+		tess_control = GL_TESS_CONTROL_SHADER,
+		tess_evaluate = GL_TESS_EVALUATION_SHADER,
+		compute = GL_COMPUTE_SHADER,
 	};
 	// コンパイル種類
 	enum compile_type
@@ -68,18 +66,18 @@ public:
 	*------------------------------------------------------------------------------------------*/
 
 	shader() :
-		_type(unknown),
+		_type(static_cast<shader_type>(0)),
 		_id(0),
 		_error_bitfield(0)
 	{}
 	explicit shader(shader_type type, const char* str, compile_type comp = file) :
-		_error_bitfield(0)
+		_id(0)
 	{
 		initialize(type, str, comp);
 	}
 	template <int N>
 	explicit shader(shader_type type, const char*(&str)[N], compile_type comp = file) :
-		_error_bitfield(0)
+		_id(0)
 	{
 		initialize(type, str, comp);
 	}
@@ -94,7 +92,7 @@ public:
 		_id(std::move(s._id)),
 		_error_bitfield(std::move(s._error_bitfield))
 	{
-		s._type = unknown;
+		s._type = static_cast<shader_type>(0);
 		s._id = 0;
 		s._error_bitfield = 0;
 	}
@@ -140,7 +138,7 @@ public:
 			glDeleteShader(_id);
 			_id = 0;
 		}
-		_type = unknown;
+		_type = static_cast<shader_type>(0);
 		_error_bitfield = 0;
 	}
 
@@ -202,7 +200,7 @@ public:
 		}
 		// 作成されていない
 		// またはすでに破棄済み
-		if (_type == unknown ||
+		if (_type == static_cast<shader_type>(0) ||
 			_id == 0)
 		{
 			return "not created. or already destroyed.";
@@ -262,16 +260,17 @@ private:
 		}
 
 		// ファイルサイズ取得
-		std::ifstream::pos_type size = fs.tellg();
+		std::size_t size = static_cast<size_t>(fs.tellg());
 		fs.seekg(0, std::ios_base::beg);
 		// ファイル全内容
-		std::string source(static_cast<size_t>(size), '\0');
+		std::string source(size, '\0');
 		fs.read(&source[0], size);
 		fs.close();
 
 		// ファイル内容からコンパイル
 		const char* c_str = source.c_str();
-		return create_from_memory(type, 1, &c_str);
+		const GLint length = static_cast<GLint>(size);
+		return create_from_memory(type, 1, &c_str, &length);
 	}
 	template <int N>
 	bool create_from_files(shader_type type, const char*(&path)[N])
@@ -279,6 +278,7 @@ private:
 		// ファイルごとの文字列
 		std::string sources[N];
 		const char* c_sources[N];
+		GLint lengths[N];
 
 		for (int i = 0; i < N; ++i)
 		{
@@ -289,7 +289,7 @@ private:
 				_error_bitfield |= error_file_not_exist;
 				return false;
 			}
-			std::ifstream::pos_type size = fs.tellg();
+			std::size_t size = static_cast<std::size_t>(fs.tellg());
 			fs.seekg(0, std::ios_base::beg);
 			sources[i].resize(size, '\0');
 			fs.read(&sources[i][0], size);
@@ -297,19 +297,18 @@ private:
 
 			// ポインタを渡す
 			c_sources[i] = sources[i].c_str();
+			lengths[i] = static_cast<GLint>(size);
 		}
 
 		// ファイル内容からコンパイル
-		return create_from_memory(type, N, &c_sources[0]);
+		return create_from_memory(type, N, &c_sources[0], &lengths[0]);
 	}
-	bool create_from_memory(shader_type type, GLsizei count, const char** str)
+	bool create_from_memory(shader_type type, GLsizei count, const char* const* str, const GLint* len = NULL)
 	{
-		_DEB_ASSERT(str != NULL);
-
 		_type = type;
 
 		// シェーダーハンドル作成
-		_id = glCreateShader(to_gl_shader_type());
+		_id = glCreateShader(type);
 		// 作成失敗
 		if (_id == 0)
 		{
@@ -317,7 +316,7 @@ private:
 			return false;
 		}
 		// ソースファイルのコンパイル
-		glShaderSource(_id, count, str, NULL);
+		glShaderSource(_id, count, str, len);
 		glCompileShader(_id);
 
 		GLint compiled;
@@ -330,34 +329,12 @@ private:
 		}
 		return glIsShader(_id) == GL_TRUE;
 	}
-	GLuint to_gl_shader_type() const
-	{
-		switch (_type)
-		{
-			case vertex:
-				return GL_VERTEX_SHADER;
-			case fragment:
-				return GL_FRAGMENT_SHADER;
-			case geometry:
-				return GL_GEOMETRY_SHADER;
-			case tess_control:
-				return GL_TESS_CONTROL_SHADER;
-			case tess_evaluate:
-				return GL_TESS_EVALUATION_SHADER;
-			case compute:
-				return GL_COMPUTE_SHADER;
 
-			case unknown:
-			default:
-				return GL_INVALID_VALUE;
-		}
-	}
-
+public:
 	/*------------------------------------------------------------------------------------------
 	* Operators
 	*------------------------------------------------------------------------------------------*/
 
-public:
 	_CXX11_EXPLICIT operator GLuint () const
 	{
 		return _id;
@@ -394,7 +371,7 @@ public:
 		_type = std::move(s._type);
 		_id = std::move(s._id);
 		_error_bitfield = std::move(s._error_bitfield);
-		s._type = unknown;
+		s._type = static_cast<shader_type>(0);
 		s._id = 0;
 		s._error_bitfield = 0;
 		return *this;
@@ -444,29 +421,8 @@ shader& make_shader(shader& sdr, const char* s, shader::compile_type compile = s
 		return sdr; \
 	}
 
-// 頂点シェーダー作成（サンプルでマクロを使用しない）
-inline
-shader make_vertex_shader(const char* s, shader::compile_type compile = shader::file)
-{
-	return shader(shader::vertex, s, compile);
-}
-template <int N> inline
-shader make_vertex_shader(const char*(&s)[N], shader::compile_type compile = shader::file)
-{
-	return shader(shader::vertex, s, compile);
-}
-inline
-shader& make_vertex_shader(shader& sdr, const char* s, shader::compile_type compile = shader::file)
-{
-	sdr.initialize(shader::vertex, s, compile);
-	return sdr;
-}
-template <int N> inline
-shader& make_vertex_shader(shader& sdr, const char*(&s)[N], shader::compile_type compile = shader::file)
-{
-	sdr.initialize(shader::vertex, s, compile);
-	return sdr;
-}
+// 頂点シェーダー作成
+__POCKET_MAKE_SHADER_TYPE(vertex);
 // ピクセルシェーダー作成
 __POCKET_MAKE_SHADER_TYPE(fragment);
 // ジオメトリシェーダー作成
@@ -504,29 +460,20 @@ std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, Ch
 		case shader::compute:
 			type = "compute";
 			break;
-		case shader::unknown:
 		default:
 			type = "unknown";
 			break;
 	}
 
-	const bool valid = v.valid();
-	const char* valid_str = valid ? "true" : "false";
 	os << io::widen("shader: ") << io::braces_left << std::endl <<
-		io::tab << io::widen("type: ") << io::widen(type) << std::endl <<
-		io::tab << io::widen("valid: ") << io::widen(valid_str) << std::endl;
-	if (!valid)
+		io::tab << io::widen("id: ") << v.get() << std::endl <<
+		io::tab << io::widen("type: ") << io::widen(type) << std::endl;
+	if (!v.valid())
 	{
 		std::string error = v.error();
 		os << io::tab << io::widen("error: ") << io::widen(error.c_str()) << std::endl;
 	}
 	os << io::braces_right;
-	return os;
-}
-template <typename CharT, typename CharTraits> inline
-std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, CharTraits>& os, const shader& v)
-{
-	os << v;
 	return os;
 }
 

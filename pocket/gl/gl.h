@@ -7,6 +7,8 @@
 #endif // _USE_PRAGMA_ONCE
 
 #include "config.h"
+#include "../io.h"
+
 #ifdef _INTERNAL_USE_GLEW
 #include <GL/glew.h>
 #else
@@ -100,7 +102,7 @@ template <typename T, typename U>
 class binder1
 {
 public:
-	explicit binder1(const T& a, const U& b) :
+	explicit binder1(const T& a, const U b) :
 		address(&a), value(b)
 	{
 		a.bind(b);
@@ -134,22 +136,66 @@ private:
 	const U value;
 };
 
-// バインダーを作成
-//template <typename T> inline
-//binder<T> make_binder(const T& a)
-//{
-//	return binder<T>(a);
-//}
-//template <typename T, typename U> inline
-//binder1<T, U> make_binder(const T& a, const U& b)
-//{
-//	return binder1<T, U>(a, b);
-//}
-//template <GLenum V, typename T> inline
-//binder1<T, GLenum> make_binder(const T& a)
-//{
-//	return binder1<T, GLenum>(a, V);
-//}
+// エラーの文字列
+inline
+const char* get_error_string(GLenum err)
+{
+#define __POCKET_CASE_TO_STRING(e, s) case e: return s
+
+	switch (err)
+	{
+		__POCKET_CASE_TO_STRING(GL_INVALID_OPERATION, "invalid operate.");
+		__POCKET_CASE_TO_STRING(GL_INVALID_ENUM, "invalid enum.");
+		__POCKET_CASE_TO_STRING(GL_INVALID_VALUE, "invalid value.");
+		__POCKET_CASE_TO_STRING(GL_STACK_OVERFLOW, "stack overflow.");
+		__POCKET_CASE_TO_STRING(GL_STACK_UNDERFLOW, "stack underflow.");
+		__POCKET_CASE_TO_STRING(GL_OUT_OF_MEMORY, "out of memory.");
+		__POCKET_CASE_TO_STRING(GL_INVALID_FRAMEBUFFER_OPERATION, "invalid framebuffer operate.");
+	}
+	return "no error.";
+
+#undef __POCKET_CASE_TO_STRING
+}
+
+// エラーの出力
+template <typename CharT, typename CharTraits> inline
+bool output_error(std::basic_ostream<CharT, CharTraits>& os, const char* func, int line, const char* msg)
+{
+	GLenum _err = glGetError();
+	if (_err == GL_NO_ERROR)
+	{
+		return false;
+	}
+	if (msg != NULL)
+	{
+		os << io::widen("## ") << io::widen(msg) << io::widen(" ##") << std::endl;
+	}
+	do
+	{
+		const char* _string = get_error_string(_err);
+		if (msg != NULL)
+		{
+			os << io::tab;
+		}
+		os << io::widen(_string) << io::widen(" #") << io::widen(func) << io::widen(" : ") << line << std::endl;
+		_err = glGetError();
+	} while (_err != GL_NO_ERROR);
+	return true;
+}
+
+#ifndef POCKET_GL_ERROR_MSG
+#define POCKET_GL_ERROR_MSG(msg) pocket::gl::output_error(std::cout, __FUNCTION__, __LINE__, msg)
+#endif // POCKET_GL_ERROR_MSG
+#ifndef POCKET_GL_ERROR
+#define POCKET_GL_ERROR() POCKET_GL_ERROR_MSG(NULL)
+#endif // POCKET_GL_ERROR
+
+#ifndef POCKET_GL_ERROR_MSG_W
+#define POCKET_GL_ERROR_MSG_W(msg) pocket::gl::output_error(std::wcout, __FUNCTION__, __LINE__, msg)
+#endif // POCKET_GL_ERROR_MSG
+#ifndef POCKET_GL_ERROR_W
+#define POCKET_GL_ERROR_W() POCKET_GL_ERROR_MSG_W(NULL)
+#endif // POCKET_GL_ERROR_W
 
 // バージョン（メジャー）取得
 inline

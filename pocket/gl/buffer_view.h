@@ -18,10 +18,10 @@ namespace gl
 class buffer_view;
 
 // 現在のバインドされているバッファを取得
-GLuint get_binding_buffer(buffer_base::buffer_type);
-bool get_binding_buffer(buffer_base::buffer_type, GLuint&, GLenum&);
-buffer_view get_binding_buffer_view(buffer_base::buffer_type);
-bool get_binding_buffer_view(buffer_base::buffer_type, buffer_view&);
+GLuint get_binding_buffer(buffer_type_t);
+bool get_binding_buffer(buffer_type_t, GLuint&, GLenum&);
+buffer_view get_binding_buffer_view(buffer_type_t);
+bool get_binding_buffer_view(buffer_type_t, buffer_view&);
 
 template <>
 class binder<buffer_view>
@@ -32,17 +32,17 @@ public:
 	int size() const;
 	int count(int type_size) const;
 	template <typename T> int count() const;
-	GLenum usage() const;
-	void* map(buffer_base::map_usage_type) const;
-	template <typename T> T* map(buffer_base::map_usage_type) const;
-	template <typename F> bool map(buffer_base::map_usage_type, F) const;
-	template <typename T, typename F> bool map(buffer_base::map_usage_type, F) const;
+	buffer_usage_t usage() const;
+	void* map(buffer_map_t) const;
+	template <typename T> T* map(buffer_map_t) const;
+	template <typename F> bool map(buffer_map_t, F) const;
+	template <typename T, typename F> bool map(buffer_map_t, F) const;
 	void unmap() const;
 
-	binder_map<buffer_view, void> make_binder_map(buffer_base::map_usage_type) const;
-	template <buffer_base::map_usage_type U> binder_map<buffer_view, void> make_binder_map() const;
-	template <typename T> binder_map<buffer_view, T> make_binder_map(buffer_base::map_usage_type) const;
-	template <typename T, buffer_base::map_usage_type U> binder_map<buffer_view, T> make_binder_map() const;
+	binder_map<buffer_view, void> make_binder_map(buffer_map_t) const;
+	template <buffer_map_t U> binder_map<buffer_view, void> make_binder_map() const;
+	template <typename T> binder_map<buffer_view, T> make_binder_map(buffer_map_t) const;
+	template <typename T, buffer_map_t U> binder_map<buffer_view, T> make_binder_map() const;
 
 	bool binding() const
 	{
@@ -78,11 +78,7 @@ public:
 	* Types
 	*------------------------------------------------------------------------------------------*/
 
-	friend bool get_binding_buffer_view(buffer_base::buffer_type, buffer_view&);
-
-	typedef buffer_base::buffer_type buffer_type;
-	typedef buffer_base::usage_type usage_type;
-	typedef buffer_base::map_usage_type map_usage_type;
+	friend bool get_binding_buffer_view(buffer_type_t, buffer_view&);
 
 	typedef binder<buffer_view> binder_type;
 	typedef binder_map<buffer_view, void> binder_map_type;
@@ -103,7 +99,7 @@ private:
 	* Members
 	*------------------------------------------------------------------------------------------*/
 
-	GLenum _type;
+	buffer_type_t _type;
 	GLuint _id;
 
 public:
@@ -117,10 +113,7 @@ public:
 	* Constructors
 	*------------------------------------------------------------------------------------------*/
 
-	explicit buffer_view(buffer_type type, GLuint id) :
-		_type(buffer_base::to_gl_type(type)), _id(id)
-	{}
-	explicit buffer_view(GLenum type, GLuint id) :
+	explicit buffer_view(buffer_type_t type, GLuint id) :
 		_type(type), _id(id)
 	{}
 	explicit buffer_view(const buffer& b) :
@@ -135,7 +128,7 @@ public:
 		_id(std::move(b._id))
 	{
 		b._id = 0;
-		b._type = 0;
+		b._type = buffer_type::unknown;
 	}
 #endif // _USE_CXX11
 	~buffer_view()
@@ -149,27 +142,21 @@ public:
 	{
 		glBindBuffer(_type, _id);
 	}
-	void bind(GLenum type) const
+	void bind(buffer_type_t type) const
 	{
 		glBindBuffer(type, _id);
-	}
-	void bind(buffer_type type) const
-	{
-		bind(buffer_base::to_gl_type(type));
 	}
 	void bind_base(GLuint point) const
 	{
 		glBindBufferBase(_type, point, _id);
 	}
-	void bind_base(buffer_type type) const
+	void bind_base(buffer_type_t type) const
 	{
-		GLenum t = buffer_base::to_gl_type(type);
-		glBindBufferBase(t, 0, _id);
+		glBindBufferBase(type, 0, _id);
 	}
-	void bind_base(buffer_type type, GLuint point) const
+	void bind_base(buffer_type_t type, GLuint point) const
 	{
-		GLenum t = buffer_base::to_gl_type(type);
-		glBindBufferBase(t, point, _id);
+		glBindBufferBase(type, point, _id);
 	}
 	void bind_vertex(GLuint index, GLintptr offset, GLsizei stride) const
 	{
@@ -186,19 +173,15 @@ public:
 	{
 		glBindBuffer(_type, 0);
 	}
-	void unbind(GLenum type) const
+	void unbind(buffer_type_t type) const
 	{
 		glBindBuffer(type, 0);
-	}
-	void unbind(buffer_type type) const
-	{
-		unbind(buffer_base::to_gl_type(type));
 	}
 
 	// 現在のバッファーがバインドされているか
 	bool binding() const
 	{
-		GLenum type = buffer_base::to_gl_binding_type(_type);
+		buffer_binding_type_t type = buffer_type::to_binding_type(_type);
 		GLuint i = 0;
 		glGetIntegerv(type, reinterpret_cast<GLint*>(&i));
 		return i != 0 && i == _id;
@@ -209,51 +192,42 @@ public:
 	{
 		return binder_type(*this);
 	}
-	template <GLenum V>
-	rebinder1<GLenum>::type make_binder() const
+	template <buffer_type_t T>
+	rebinder1<buffer_type_t>::type make_binder() const
 	{
-		return rebinder1<GLenum>::type(*this, V);
+		return rebinder1<buffer_type_t>::type(*this, T);
 	}
-	rebinder1<GLenum>::type make_binder(GLenum type) const
+	rebinder1<buffer_type_t>::type make_binder(buffer_type_t type) const
 	{
-		return rebinder1<GLenum>::type(*this, type);
-	}
-	template <buffer_type T>
-	rebinder1<buffer_type>::type make_binder() const
-	{
-		return rebinder1<buffer_type>::type(*this, T);
-	}
-	rebinder1<buffer_type>::type make_binder(buffer_type type) const
-	{
-		return rebinder1<buffer_type>::type(*this, type);
+		return rebinder1<buffer_type_t>::type(*this, type);
 	}
 
 	// バッファを展開して先頭アドレスを取得
-	void* map(map_usage_type type) const
+	void* map(buffer_map_t type) const
 	{
 		bind();
 		return map_binding(type);
 	}
-	void* map_binding(map_usage_type type) const
+	void* map_binding(buffer_map_t type) const
 	{
-		return glMapBuffer(_type, buffer_base::to_gl_map_usage(type));
+		return glMapBuffer(_type, type);
 	}
 
 	// 展開してアドレスを取得できていたら渡された関数を実行
 	template <typename F>
-	bool map(map_usage_type type, F func) const
+	bool map(buffer_map_t type, F func) const
 	{
 		binder_type lock(*this);
 		return map_binding(type, func);
 	}
 	template <typename T, typename F>
-	bool map(map_usage_type type, F func) const
+	bool map(buffer_map_t type, F func) const
 	{
 		binder_type lock(*this);
 		return map_binding<T>(type, func);
 	}
 	template <typename F>
-	bool map_binding(map_usage_type type, F func) const
+	bool map_binding(buffer_map_t type, F func) const
 	{
 		void* address = map_binding(type);
 		if (address == NULL)
@@ -265,7 +239,7 @@ public:
 		return true;
 	}
 	template <typename T, typename F>
-	bool map_binding(map_usage_type type, F func) const
+	bool map_binding(buffer_map_t type, F func) const
 	{
 		void* address = map_binding(type);
 		if (address == NULL)
@@ -297,41 +271,41 @@ public:
 	}
 
 	// マップしたものを管理するオブジェクトを作成
-	binder_map_type make_binder_map(map_usage_type usg) const
+	binder_map_type make_binder_map(buffer_map_t usg) const
 	{
 		return binder_map_type(*this, usg);
 	}
-	template <map_usage_type U>
+	template <buffer_map_t U>
 	binder_map_type make_binder_map() const
 	{
 		return binder_map_type(*this, U);
 	}
 	template <typename T>
-	typename rebinder_map<T>::type make_binder_map(map_usage_type usg) const
+	typename rebinder_map<T>::type make_binder_map(buffer_map_t usg) const
 	{
 		return typename rebinder_map<T>::type(*this, usg);
 	}
-	template <typename T, map_usage_type U>
+	template <typename T, buffer_map_t U>
 	typename rebinder_map<T>::type make_binder_map() const
 	{
 		return typename rebinder_map<T>::type(*this, U);
 	}
 
-	binder_map_type make_binder_map(const binder_type& a, map_usage_type usg) const
+	binder_map_type make_binder_map(const binder_type& a, buffer_map_t usg) const
 	{
 		return binder_map_type(a, usg);
 	}
-	template <map_usage_type U>
+	template <buffer_map_t U>
 	binder_map_type make_binder_map(const binder_type& a) const
 	{
 		return binder_map_type(a, U);
 	}
 	template <typename T>
-	typename rebinder_map<T>::type make_binder_map(const binder_type& a, map_usage_type usg) const
+	typename rebinder_map<T>::type make_binder_map(const binder_type& a, buffer_map_t usg) const
 	{
 		return typename rebinder_map<T>::type(a, usg);
 	}
-	template <typename T, map_usage_type U>
+	template <typename T, buffer_map_t U>
 	typename rebinder_map<T>::type make_binder_map(const binder_type& a) const
 	{
 		return typename rebinder_map<T>::type(a, U);
@@ -371,32 +345,46 @@ public:
 	}
 
 	// 設定した時の扱い法
-	GLenum usage() const
+	buffer_usage_t usage() const
 	{
 		binder_type lock(*this);
 		return usage_binding();
 	}
-	GLenum usage_binding() const
+	buffer_usage_t usage_binding() const
 	{
 		GLint u = 0;
 		glGetBufferParameteriv(_type, GL_BUFFER_USAGE, &u);
-		return static_cast<GLenum>(u);
+		return static_cast<buffer_usage_t>(u);
+	}
+
+	// エラーの状態
+	std::string error() const
+	{
+		if (_type == buffer_type::unknown)
+		{
+			return "failed. buffer type unknown.";
+		}
+		if (_id == 0)
+		{
+			return "failed. buffer not binding.";
+		}
+		return "";
 	}
 
 	// 有効な状態か
 	bool valid() const
 	{
-		return _id > 0;
+		return _id != 0 && _type != buffer_type::unknown;
 	}
 
 	// バッファ種類
-	buffer_type kind() const
+	buffer_type_t kind() const
 	{
-		return buffer_base::to_buffer_type(_type);
+		return _type;
 	}
 
 	// バッファ種類の比較
-	bool kind_of(buffer_type type) const
+	bool kind_of(buffer_type_t type) const
 	{
 		return kind() == type;
 	}
@@ -461,14 +449,14 @@ public:
 	{
 		_type = std::move(b._type);
 		_id = std::move(b._id);
-		b._type = 0;
+		b._type = buffer_type::unknown;
 		b._id = 0;
 		return *this;
 	}
 
 	buffer_view& operator = (std::nullptr_t)
 	{
-		_type = 0;
+		_type = buffer_type::unknown;
 		_id = 0;
 		return *this;
 	}
@@ -502,27 +490,27 @@ int binder<buffer_view>::count() const
 	return _address->count_binding<T>();
 }
 inline
-GLenum binder<buffer_view>::usage() const
+buffer_usage_t binder<buffer_view>::usage() const
 {
 	return _address->usage_binding();
 }
 inline
-void* binder<buffer_view>::map(buffer_base::map_usage_type usg) const
+void* binder<buffer_view>::map(buffer_map_t usg) const
 {
 	return _address->map_binding(usg);
 }
 template <typename T> inline
-T* binder<buffer_view>::map(buffer_base::map_usage_type usg) const
+T* binder<buffer_view>::map(buffer_map_t usg) const
 {
 	return _address->map_binding<T>(usg);
 }
 template <typename F> inline
-bool binder<buffer_view>::map(buffer_base::map_usage_type usg, F func) const
+bool binder<buffer_view>::map(buffer_map_t usg, F func) const
 {
 	return _address->map_binding(usg, func);
 }
 template <typename T, typename F> inline
-bool binder<buffer_view>::map(buffer_base::map_usage_type usg, F func) const
+bool binder<buffer_view>::map(buffer_map_t usg, F func) const
 {
 	return _address->map_binding<T>(usg, func);
 }
@@ -532,21 +520,21 @@ void binder<buffer_view>::unmap() const
 	_address->unmap_binding();
 }
 inline
-binder_map<buffer_view, void> binder<buffer_view>::make_binder_map(buffer_base::map_usage_type type) const
+binder_map<buffer_view, void> binder<buffer_view>::make_binder_map(buffer_map_t type) const
 {
 	return binder_map<buffer_view, void>(*this, type);
 }
-template <buffer_base::map_usage_type U> inline
+template <buffer_map_t U> inline
 binder_map<buffer_view, void> binder<buffer_view>::make_binder_map() const
 {
 	return binder_map<buffer_view, void>(*this, U);
 }
 template <typename T> inline
-binder_map<buffer_view, T> binder<buffer_view>::make_binder_map(buffer_base::map_usage_type type) const
+binder_map<buffer_view, T> binder<buffer_view>::make_binder_map(buffer_map_t type) const
 {
 	return binder_map<buffer_view, T>(*this, type);
 }
-template <typename T, buffer_base::map_usage_type U> inline
+template <typename T, buffer_map_t U> inline
 binder_map<buffer_view, T> binder<buffer_view>::make_binder_map() const
 {
 	return binder_map<buffer_view, T>(*this, U);
@@ -554,38 +542,105 @@ binder_map<buffer_view, T> binder<buffer_view>::make_binder_map() const
 
 // 現在バインドされているバッファを取得
 inline
-GLuint get_binding_buffer(buffer_base::buffer_type type)
+GLuint get_binding_buffer(buffer_type_t type)
 {
-	GLenum binding_type = buffer_base::to_gl_binding_type(type);
+	buffer_binding_type_t binding_type = buffer_type::to_binding_type(type);
 	GLint i = 0;
 	glGetIntegerv(binding_type, &i);
 	return static_cast<GLuint>(i);
 }
 inline
-bool get_binding_buffer(buffer_base::buffer_type type, GLuint& id, GLenum& bind_type)
+bool get_binding_buffer(buffer_type_t type, GLuint& id, GLenum& bind_type)
 {
-	GLenum binding_type = buffer_base::to_gl_binding_type(type);
-	bind_type = buffer_base::to_gl_type(type);
+	buffer_binding_type_t binding_type = buffer_type::to_binding_type(type);
+	bind_type = type;
 	id = 0;
 	glGetIntegerv(binding_type, reinterpret_cast<GLint*>(&id));
 	return id != 0;
 }
 inline
-buffer_view get_binding_buffer_view(buffer_base::buffer_type type)
+buffer_view get_binding_buffer_view(buffer_type_t type)
 {
-	GLenum binding_type = buffer_base::to_gl_binding_type(type);
+	buffer_binding_type_t binding_type = buffer_type::to_binding_type(type);
 	GLint i = 0;
 	glGetIntegerv(binding_type, &i);
 	return buffer_view(type, static_cast<GLuint>(i));
 }
 inline
-bool get_binding_buffer_view(buffer_base::buffer_type type, buffer_view& view)
+bool get_binding_buffer_view(buffer_type_t type, buffer_view& view)
 {
-	GLenum binding_type = buffer_base::to_gl_binding_type(type);
-	view._type = buffer_base::to_gl_type(type);
+	buffer_binding_type_t binding_type = buffer_type::to_binding_type(type);
+	view._type = type;
 	view._id = 0;
 	glGetIntegerv(binding_type, reinterpret_cast<GLint*>(&view._id));
 	return view._id != 0;
+}
+
+template <typename CharT, typename CharTraits> inline
+std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const buffer_view& v)
+{
+	const char* type;
+	switch (v.kind())
+	{
+		case buffer_type::array:
+			type = "array";
+			break;
+		case buffer_type::atomic_counter:
+			type = "atomic_counter";
+			break;
+		case buffer_type::copy_read:
+			type = "copy_read";
+			break;
+		case buffer_type::copy_write:
+			type = "copy_write";
+			break;
+		case buffer_type::dispatch_indirect:
+			type = "dispatch_indirect";
+			break;
+		case buffer_type::draw_indirect:
+			type = "draw_indirect";
+			break;
+		case buffer_type::element_array:
+			type = "element_array";
+			break;
+		case buffer_type::pixel_pack:
+			type = "pixel_pack";
+			break;
+		case buffer_type::pixel_unpack:
+			type = "pixel_unpack";
+			break;
+		case buffer_type::query:
+			type = "query";
+			break;
+		case buffer_type::shader_storage:
+			type = "shader_storage";
+			break;
+		case buffer_type::texture:
+			type = "texture";
+			break;
+		case buffer_type::transform_feedback:
+			type = "transform_feedback";
+			break;
+		case buffer_type::uniform:
+			type = "uniform";
+			break;
+
+		case buffer_type::unknown:
+		default:
+			type = "unknown";
+			break;
+	}
+
+	os << io::widen("buffer_view: ") << io::braces_left << std::endl <<
+		io::tab << io::widen("id: ") << v.get() << std::endl <<
+		io::tab << io::widen("type: ") << io::widen(type) << std::endl;
+	if (!v.valid())
+	{
+		std::string error = v.error();
+		os << io::tab << io::widen("error: ") << io::widen(error.c_str()) << std::endl;
+	}
+	os << io::braces_right;
+	return os;
 }
 
 } // namespace gl
