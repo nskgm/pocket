@@ -130,6 +130,11 @@ public:
 		typedef binder_map<uniform_buffer, T> type;
 	};
 
+	enum identifier_t
+	{
+		identifier = GL_BUFFER
+	};
+
 private:
 	/*------------------------------------------------------------------------------------------
 	* Members
@@ -254,6 +259,7 @@ public:
 		{
 			// バッファのエラーコードを利用
 			_buffer._error_bitfield |= error_invalid_index;
+			POCKET_GL_ERROR();
 			return false;
 		}
 		// バインド位置の初期設定
@@ -350,7 +356,8 @@ public:
 			unbind();
 			_binding_point = point;
 		}
-		bind(prog);
+		bind();
+		prog.uniform_block_bind(_index, _binding_point);
 	}
 
 	// バインドの解除
@@ -381,7 +388,7 @@ public:
 	template <typename T>
 	void uniform(int offset, const T* a) const
 	{
-		uniform(offset, _size - sizeof(T), static_cast<const void*>(a));
+		uniform(offset, _size - offset, static_cast<const void*>(a));
 	}
 	template <typename T>
 	void uniform(const T& a) const
@@ -495,11 +502,6 @@ public:
 	* Operators
 	*------------------------------------------------------------------------------------------*/
 
-	_CXX11_EXPLICIT operator GLuint () const
-	{
-		return _buffer.get();
-	}
-
 	_CXX11_EXPLICIT operator bool () const
 	{
 		return valid();
@@ -585,6 +587,11 @@ template <typename M> inline
 binder_map<uniform_buffer, M>::~binder_map()
 {
 	_address->unmap();
+}
+template <typename M> inline
+int binder_map<uniform_buffer, M>::size() const
+{
+	return _address->size();
 }
 
 // programからuniform_bufferの作成

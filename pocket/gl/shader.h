@@ -19,6 +19,7 @@ namespace gl
 
 // forward
 class shader;
+class program;
 
 class shader
 {
@@ -35,6 +36,8 @@ public:
 		tess_control = GL_TESS_CONTROL_SHADER,
 		tess_evaluate = GL_TESS_EVALUATION_SHADER,
 		compute = GL_COMPUTE_SHADER,
+
+		unknown = 0,
 	};
 	// コンパイル種類
 	enum compile_type
@@ -43,6 +46,11 @@ public:
 		string,
 
 		memory = string
+	};
+
+	enum identifier_t
+	{
+		identifier = GL_SHADER
 	};
 
 private:
@@ -66,7 +74,7 @@ public:
 	*------------------------------------------------------------------------------------------*/
 
 	shader() :
-		_type(static_cast<shader_type>(0)),
+		_type(unknown),
 		_id(0),
 		_error_bitfield(0)
 	{}
@@ -92,7 +100,7 @@ public:
 		_id(std::move(s._id)),
 		_error_bitfield(std::move(s._error_bitfield))
 	{
-		s._type = static_cast<shader_type>(0);
+		s._type = unknown;
 		s._id = 0;
 		s._error_bitfield = 0;
 	}
@@ -138,7 +146,7 @@ public:
 			glDeleteShader(_id);
 			_id = 0;
 		}
-		_type = static_cast<shader_type>(0);
+		_type = unknown;
 		_error_bitfield = 0;
 	}
 
@@ -164,9 +172,25 @@ public:
 	std::string code(GLsizei length = 1024) const
 	{
 		std::string source(length, '\0');
-		glGetShaderSource(_id, length, NULL, &source[0]);
+		glGetShaderSource(_id, length, &length, &source[0]);
+		source.resize(static_cast<size_t>(length));
 		return _CXX11_MOVE(source);
 	}
+
+	// サブルーチン
+	void subroutine(GLuint index) const
+	{
+		glUniformSubroutinesuiv(_type, 1, &index);
+	}
+	template <int N>
+	void subroutine(const GLuint(&indices)[N]) const
+	{
+		glUniformSubroutinesuiv(_type, N, &indices[0]);
+	}
+	bool subroutine(const char*, const program&) const;
+	bool subroutine(const std::string&, const program&) const;
+	template <int N> bool subroutine(const char*(&)[N], const program&) const;
+	template <int N> bool subroutine(const std::string(&)[N], const program&) const;
 
 	// エラー文
 	std::string error() const
@@ -200,7 +224,7 @@ public:
 		}
 		// 作成されていない
 		// またはすでに破棄済み
-		if (_type == static_cast<shader_type>(0) ||
+		if (_type == unknown ||
 			_id == 0)
 		{
 			return "not created. or already destroyed.";
@@ -335,11 +359,6 @@ public:
 	* Operators
 	*------------------------------------------------------------------------------------------*/
 
-	_CXX11_EXPLICIT operator GLuint () const
-	{
-		return _id;
-	}
-
 	_CXX11_EXPLICIT operator bool () const
 	{
 		return valid();
@@ -371,7 +390,7 @@ public:
 		_type = std::move(s._type);
 		_id = std::move(s._id);
 		_error_bitfield = std::move(s._error_bitfield);
-		s._type = static_cast<shader_type>(0);
+		s._type = unknown;
 		s._id = 0;
 		s._error_bitfield = 0;
 		return *this;

@@ -95,6 +95,11 @@ public:
 		typedef binder_map<buffer, U> type;
 	};
 
+	enum identifier_t
+	{
+		identifier = GL_BUFFER
+	};
+
 private:
 	/*------------------------------------------------------------------------------------------
 	* Members
@@ -517,12 +522,7 @@ public:
 		{
 			return false;
 		}
-		// バインド中はidの確認を行なう
-		if (binding())
-		{
-			return glIsBuffer(_id) == GL_TRUE;
-		}
-		return true;
+		return glIsBuffer(_id) == GL_TRUE;
 	}
 
 	// バッファ種類
@@ -636,11 +636,6 @@ public:
 	/*------------------------------------------------------------------------------------------
 	* Operators
 	*------------------------------------------------------------------------------------------*/
-
-	_CXX11_EXPLICIT operator GLuint () const
-	{
-		return _id;
-	}
 
 	_CXX11_EXPLICIT operator bool () const
 	{
@@ -805,9 +800,7 @@ public:
 
 	explicit binder_map_iterator(T* data) :
 		_data(data)
-	{
-
-	}
+	{}
 	~binder_map_iterator()
 	{}
 

@@ -20,7 +20,8 @@
 #endif
 
 #include <vector>
-#include <cstring>
+#include <cstring> // for std::strstr, std::strcmp, std::strlen
+#include <string>
 
 #ifndef _GL_UNINITIALIZED_VALUE
 #	ifdef GL_DONT_CARE
@@ -152,7 +153,7 @@ const char* get_error_string(GLenum err)
 		__POCKET_CASE_TO_STRING(GL_OUT_OF_MEMORY, "out of memory.");
 		__POCKET_CASE_TO_STRING(GL_INVALID_FRAMEBUFFER_OPERATION, "invalid framebuffer operate.");
 	}
-	return "no error.";
+	return NULL;
 
 #undef __POCKET_CASE_TO_STRING
 }
@@ -173,6 +174,25 @@ bool output_error(std::basic_ostream<CharT, CharTraits>& os, const char* func, i
 	do
 	{
 		const char* _string = get_error_string(_err);
+		if (_string == NULL)
+		{
+			// 文字列がNULLじゃないモノまで検索
+			do
+			{
+				os << _err << std::endl;
+				_err = glGetError();
+				if (_err == GL_NO_ERROR)
+				{
+					break;
+				}
+				_string = get_error_string(_err);
+			} while (_string != NULL);
+			// 出力できる文字列がない
+			if (_err == GL_NO_ERROR)
+			{
+				break;
+			}
+		}
 		if (msg != NULL)
 		{
 			os << io::tab;
@@ -180,9 +200,11 @@ bool output_error(std::basic_ostream<CharT, CharTraits>& os, const char* func, i
 		os << io::widen(_string) << io::widen(" #") << io::widen(func) << io::widen(" : ") << line << std::endl;
 		_err = glGetError();
 	} while (_err != GL_NO_ERROR);
+
 	return true;
 }
 
+// coutへのエラー出力
 #ifndef POCKET_GL_ERROR_MSG
 #define POCKET_GL_ERROR_MSG(msg) pocket::gl::output_error(std::cout, __FUNCTION__, __LINE__, msg)
 #endif // POCKET_GL_ERROR_MSG
@@ -190,6 +212,7 @@ bool output_error(std::basic_ostream<CharT, CharTraits>& os, const char* func, i
 #define POCKET_GL_ERROR() POCKET_GL_ERROR_MSG(NULL)
 #endif // POCKET_GL_ERROR
 
+// wcoutへのエラー出力
 #ifndef POCKET_GL_ERROR_MSG_W
 #define POCKET_GL_ERROR_MSG_W(msg) pocket::gl::output_error(std::wcout, __FUNCTION__, __LINE__, msg)
 #endif // POCKET_GL_ERROR_MSG
@@ -214,6 +237,18 @@ int get_version_minor()
 	return static_cast<int>(minor);
 }
 
+namespace detail
+{
+inline
+int calc_version(int major, int minor)
+{
+	// XXYY
+	// XX: major
+	// YY: minor
+	return major*100 + minor;
+}
+}
+
 // バージョン取得
 inline
 void get_version(int& major, int& minor)
@@ -232,6 +267,23 @@ void get_version(int* major, int* minor)
 	{
 		glGetIntegerv(GL_MINOR_VERSION, minor);
 	}
+}
+
+inline
+int get_version()
+{
+	int major, minor;
+	get_version(major, minor);
+	return detail::calc_version(major, minor);
+}
+inline
+bool has_version(int major, int minor)
+{
+	if (major < 1 || minor < 0)
+	{
+		return false;
+	}
+	return get_version() >= detail::calc_version(major, minor);
 }
 
 // バージョンの文字列を取得
@@ -347,7 +399,7 @@ bool is_extension_support(const char* name)
 }
 
 inline
-GLsizei get_type_size(GLenum type)
+int get_type_size(GLenum type)
 {
 #define __POCKET_TYPE_CASE_SIZE(TYPE, SIZE) case TYPE: return SIZE
 
@@ -386,6 +438,34 @@ GLsizei get_type_size(GLenum type)
 	}
 	return 0;
 #undef __POCKET_TYPE_CASE_SIZE
+}
+
+// デバッグ用名前設定
+// >= 4.3
+template <typename T> inline
+void set_object_name(const T& obj, const char* name)
+{
+	size_t length = std::strlen(name);
+	glObjectLabel(T::identifier, obj.get(), static_cast<GLsizei>(length), name);
+}
+template <typename T> inline
+void set_object_name(const T& obj, const std::string& name)
+{
+	glObjectLabel(T::identifier, obj.get(), static_cast<GLsizei>(name.length()), &name[0]);
+}
+template <typename T, int N> inline
+void get_object_name(const T& obj, char(&name)[N])
+{
+	glGetObjectLabel(T::identifier, obj.get(), N, NULL, &name[0]);
+}
+template <typename T> inline
+std::string get_object_name(const T& obj)
+{
+	GLsizei length = 0;
+	glGetObjectLabel(T::identifier, obj.get(), 0, &length, NULL);
+	std::string name(static_cast<size_t>(length+1), '\0');
+	glGetObjectLabel(T::identifier, obj.get(), length+1, NULL, &name[0]);
+	return _CXX11_MOVE(name);
 }
 
 } // namespace gl

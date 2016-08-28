@@ -152,6 +152,10 @@ struct uniform_return_type
 	>::type type;
 };
 
+// VScodeシンタックスハイライト解除回避
+// defineのスコープもおかしくなっているのでdetailの中に宣言
+#define __POCKET_STD_STRING_ARRAY_REF(NAME, N) const std::string(&NAME)[N]
+
 }
 
 class program
@@ -166,7 +170,12 @@ public:
 	template <int N>
 	struct indices_t
 	{
-		typedef pocket::container::array<GLuint, N> type;
+		typedef container::array<GLuint, N> type;
+	};
+
+	enum identifier_t
+	{
+		identifier = GL_PROGRAM
 	};
 
 private:
@@ -415,20 +424,6 @@ public:
 	// シェーダーから作成されたアセンブラバイナリを保存する
 	bool save_binary(const char* path, GLenum& format, bool file_front_format_write = true)
 	{
-#if 0
-#ifdef _INTERNAL_USE_GLEW
-		// サポートされていない
-		if (!GLEW_ARB_get_program_binary)
-#else
-		// あまり効率は良くないが拡張が使用できるかを判断
-		if (!gl::is_extension_support("GL_ARB_get_program_binary"))
-#endif // _INTERNAL_USE_GLEW
-		{
-			_error_bitfield |= error_unsupported;
-			return false;
-		}
-#endif
-
 		// 使用できるバイナリフォーマット数
 		GLint format_count = 0;
 		glGetIntegerv(GL_NUM_PROGRAM_BINARY_FORMATS, &format_count);
@@ -559,14 +554,29 @@ public:
 		glGetUniformIndices(_id, N, &s[0], &i[0]);
 	}
 	template <int N>
-	void uniform_indices(const std::string(&s)[N], GLuint(&i)[N]) const
+	void uniform_indices(__POCKET_STD_STRING_ARRAY_REF(s, N), GLuint(&a)[N]) const
 	{
 		const char* c_str[N];
 		for (int i = 0; i < N; ++i)
 		{
 			c_str[i] = s[i].c_str();
 		}
-		glGetUniformIndices(_id, N, &c_str[0], &i[0]);
+		glGetUniformIndices(_id, N, &c_str[0], &a[0]);
+	}
+	template <size_t N, template <typename, size_t> class ARRAY>
+	void uniform_indices(const char*(&s)[N], ARRAY<GLuint, N>& i)
+	{
+		glGetUniformIndices(_id, N, &s[0], &i[0]);
+	}
+	template <size_t N, template <typename, size_t> class ARRAY>
+	void uniform_indices(__POCKET_STD_STRING_ARRAY_REF(s, N), ARRAY<GLuint, N>& a) const
+	{
+		const char* c_str[N];
+		for (int i = 0; i < N; ++i)
+		{
+			c_str[i] = s[i].c_str();
+		}
+		glGetUniformIndices(_id, static_cast<GLsizei>(N), &c_str[0], &a[0]);
 	}
 	template <int N>
 	typename indices_t<N>::type uniform_indices(const char*(&s)[N])
@@ -576,7 +586,7 @@ public:
 		return _CXX11_MOVE(a);
 	}
 	template <int N>
-	typename indices_t<N>::type uniform_indices(const std::string(&s)[N])
+	typename indices_t<N>::type uniform_indices(__POCKET_STD_STRING_ARRAY_REF(s, N))
 	{
 		typename indices_t<N>::type a;
 		const char* c_str[N];
@@ -703,6 +713,167 @@ public:
 	uniform_buffer& make_uniform_buffer(uniform_buffer&, const std::string&, GLuint, const ARRAY<T, N>&, buffer_usage_t = buffer_usage::dynamic_draw) const;
 	template <typename T, typename ALLOC, template <typename, typename> class VECTOR>
 	uniform_buffer& make_uniform_buffer(uniform_buffer&, const std::string&, GLuint, const VECTOR<T, ALLOC>&, buffer_usage_t = buffer_usage::dynamic_draw) const;
+
+	// サブルーチンインデックス取得
+	GLuint subroutine_index(const char* name, shader::shader_type type) const
+	{
+		return glGetSubroutineIndex(_id, type, name);
+	}
+	GLuint subroutine_index(const std::string& name, shader::shader_type type) const
+	{
+		return glGetSubroutineIndex(_id, type, name.c_str());
+	}
+	GLuint subroutine_index(const char* name, const shader& s) const
+	{
+		return glGetSubroutineIndex(_id, s.kind(), name);
+	}
+	GLuint subroutine_index(const std::string& name, const shader& s) const
+	{
+		return glGetSubroutineIndex(_id, s.kind(), name.c_str());
+	}
+	template <shader::shader_type T>
+	GLuint subroutine_index(const char* name) const
+	{
+		return glGetSubroutineIndex(_id, T, name);
+	}
+	template <shader::shader_type T>
+	GLuint subroutine_index(const std::string& name) const
+	{
+		return glGetSubroutineIndex(_id, T, name.c_str());
+	}
+	bool subroutine_index(const char* name, shader::shader_type type, GLuint& index) const
+	{
+		index = subroutine_index(name, type);
+		return index != GL_INVALID_INDEX;
+	}
+	bool subroutine_index(const std::string& name, shader::shader_type type, GLuint& index) const
+	{
+		index = subroutine_index(name, type);
+		return index != GL_INVALID_INDEX;
+	}
+	bool subroutine_index(const char* name, const shader& s, GLuint& index) const
+	{
+		return subroutine_index(name, s.kind(), index);
+	}
+	bool subroutine_index(const std::string& name, const shader& s, GLuint& index) const
+	{
+		return subroutine_index(name, s.kind(), index);
+	}
+	template <shader::shader_type T>
+	bool subroutine_index(const char* name, GLuint& index) const
+	{
+		index = subroutine_index(name, T);
+		return index != GL_INVALID_INDEX;
+	}
+	template <shader::shader_type T>
+	bool subroutine_index(const std::string& name, GLuint& index) const
+	{
+		index = subroutine_index(name, T);
+		return index != GL_INVALID_INDEX;
+	}
+
+	// サブルーチン設定
+	void subroutine(GLuint index, shader::shader_type type) const
+	{
+		glUniformSubroutinesuiv(type, 1, &index);
+	}
+	template <int N>
+	void subroutine(const GLuint(&index)[N], shader::shader_type type) const
+	{
+		glUniformSubroutinesuiv(type, N, &index[0]);
+	}
+	void subroutine(GLuint index, const shader& s) const
+	{
+		glUniformSubroutinesuiv(s.kind(), 1, &index);
+	}
+	template <int N>
+	void subroutine(const GLuint(&index)[N], const shader& s) const
+	{
+		glUniformSubroutinesuiv(s.kind(), N, &index[0]);
+	}
+
+	bool subroutine(const char* name, shader::shader_type type) const
+	{
+		GLuint index;
+		if (!subroutine_index(name, type, index))
+		{
+			return false;
+		}
+		glUniformSubroutinesuiv(type, 1, &index);
+		return true;
+	}
+	bool subroutine(const std::string& name, shader::shader_type type) const
+	{
+		return subroutine(name.c_str(), type);
+	}
+	bool subroutine(const char* name, const shader& s) const
+	{
+		return subroutine(name, s.kind());
+	}
+	bool subroutine(const std::string& name, const shader& s) const
+	{
+		return subroutine(name.c_str(), s.kind());
+	}
+	template <shader::shader_type T>
+	bool subroutine(const char* name) const
+	{
+		return subroutine(name, T);
+	}
+	template <shader::shader_type T>
+	bool subroutine(const std::string& name) const
+	{
+		return subroutine(name, T);
+	}
+
+	template <int N>
+	bool subroutine(const char*(&name)[N], shader::shader_type type) const
+	{
+		GLuint indices[N];
+		for (int i = 0; i < N; ++i)
+		{
+			if (!subroutine_index(name[i], type, indices[i]))
+			{
+				return false;
+			}
+		}
+		glUniformSubroutinesuiv(type, N, &indices[0]);
+		return true;
+	}
+
+	template <int N>
+	bool subroutine(__POCKET_STD_STRING_ARRAY_REF(name, N), shader::shader_type type) const
+	{
+		GLuint indices[N];
+		for (int i = 0; i < N; ++i)
+		{
+			if (!subroutine_index(name[i].c_str(), type, indices[i]))
+			{
+				return false;
+			}
+		}
+		glUniformSubroutinesuiv(type, N, &indices[0]);
+		return true;
+	}
+	template <int N>
+	bool subroutine(const char*(&name)[N], const shader& s) const
+	{
+		return subroutine(name, s.kind());
+	}
+	template <int N>
+	bool subroutine(__POCKET_STD_STRING_ARRAY_REF(name, N), const shader& s) const
+	{
+		return subroutine(name, s.kind());
+	}
+	template <shader::shader_type T, int N>
+	bool subroutine(const char*(&name)[N]) const
+	{
+		return subroutine(name, T);
+	}
+	template <shader::shader_type T, int N>
+	bool subroutine(__POCKET_STD_STRING_ARRAY_REF(name, N)) const
+	{
+		return subroutine(name, T);
+	}
 
 	// エラー文
 	std::string error() const
@@ -867,11 +1038,6 @@ public:
 	* Operators
 	*------------------------------------------------------------------------------------------*/
 
-	_CXX11_EXPLICIT operator GLuint () const
-	{
-		return _id;
-	}
-
 	_CXX11_EXPLICIT operator bool () const
 	{
 		return valid();
@@ -925,6 +1091,30 @@ public:
 		return detail::call_uniform<_type>::call(_id, v);
 	}
 };
+
+
+inline
+bool shader::subroutine(const char* name, const program& prog) const
+{
+	return prog.subroutine(name, _type);
+}
+inline
+bool shader::subroutine(const std::string& name, const program& prog) const
+{
+	return prog.subroutine(name, _type);
+}
+template <int N> inline
+bool shader::subroutine(const char*(&name)[N], const program& prog) const
+{
+	return prog.subroutine(name, _type);
+}
+template <int N> inline
+bool shader::subroutine(const std::string(&name)[N], const program& prog) const
+{
+	return prog.subroutine(name, _type);
+}
+
+#undef __POCKET_STD_STRING_ARRAY_REF
 
 // プログラム作成
 inline

@@ -15,5 +15,7 @@
 #include "buffer.h"
 #include "buffer_view.h"
 #include "uniform_buffer.h"
+#include "vertex_array.h"
+#include "sync.h"
 
 #endif // __POCKET_GL_ALL_H__

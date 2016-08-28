@@ -39,6 +39,12 @@ static void glfw_error_log(int, const char* msg)
 
 #define _ARRAY_SIZE(ARY) (sizeof(ARY) / sizeof(ARY[0]))
 
+struct UniformStructure
+{
+	pocket::vector2f tex;
+	pocket::colorf col;
+};
+
 int main()
 {
 	std::cout << std::boolalpha << std::fixed;
@@ -56,11 +62,9 @@ int main()
 #if !_SHOW_WINDOW
 	glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
 #endif
-
 	glfwSetErrorCallback(&glfw_error_log);
 
 	GLFWwindow* window = glfwCreateWindow(640, 480, "test", NULL, NULL);
-
 	main_lock lock(window);
 	if (window == NULL)
 	{
@@ -70,7 +74,6 @@ int main()
 	glfwSetWindowPos(window, 4, 28);
 	glfwSwapInterval(1);
 #endif
-
 	glfwMakeContextCurrent(window);
 
 	glewExperimental = GL_TRUE;
@@ -82,18 +85,23 @@ int main()
 	}
 	POCKET_GL_ERROR_MSG("glew skip error.");
 
+	// 頂点シェーダ―作成
 	gl::shader vert = gl::make_vertex_shader("test.vert");
 	if (!vert)
 	{
 		std::cout << vert << std::endl;
 	}
+	POCKET_GL_ERROR();
 
+	// フラグメントシェーダー作成
 	gl::shader frag = gl::make_fragment_shader("test.frag");
 	if (!frag)
 	{
 		std::cout << frag << std::endl;
 	}
+	POCKET_GL_ERROR();
 
+	// パイプライン管理プログラム作成
 	gl::program prog = gl::make_program(vert, frag, true);
 	//gl::program prog = gl::make_program("test.shbin", true);
 	if (!prog)
@@ -107,13 +115,16 @@ int main()
 			std::cout << prog.error() << std::endl;
 			prog.clear();
 		}
+		gl::program::binder_type bind = prog.make_binder();
+		std::cout << "r1: " << vert.subroutine("r1", prog) << std::endl;
 	}
+	POCKET_GL_ERROR();
 
-	//float ary[] = { 0.0f, 1.0f, 5.0f, 10.0f, 2.0f };
-	//gl::buffer buffer = gl::make_array_buffer_immutable(ary);
-	gl::commands::draw_arrays command(12);
-	gl::buffer buffer = gl::make_draw_indirect_buffer_immutable(command);
-
+	// バッファ作成
+	float ary[] = { 0.0f, 1.0f, 5.0f, 10.0f, 2.0f };
+	gl::buffer buffer = gl::make_array_buffer_immutable(ary);
+	//gl::commands::draw_arrays command(12);
+	//gl::buffer buffer = gl::make_draw_indirect_buffer_immutable(command);
 	if (!buffer)
 	{
 		std::cout << buffer.error() << std::endl;
@@ -121,31 +132,29 @@ int main()
 	else
 	{
 		gl::buffer::binder_type bind = buffer.make_binder();
-		std::cout << "size: " << bind.size() << ", count: " << bind.count<gl::commands::draw_arrays>() << std::endl;
 
-		typedef gl::buffer::rebinder_map<gl::commands::draw_arrays>::type binder_map_t;
+		typedef gl::buffer::rebinder_map<float>::type binder_map_t;
 		{
-			binder_map_t mapper = bind.make_binder_map<gl::commands::draw_arrays>(gl::buffer_map::read);
+			binder_map_t mapper = bind.make_binder_map<float>(gl::buffer_map::read);
 			if (mapper)
 			{
 				for (binder_map_t::const_iterator i = mapper.cbegin(), end = mapper.cend(); i != end; ++i)
 				{
-					std::cout << i->arrays << pocket::io::comma_space << i->instance << pocket::io::comma_space;
+					//std::cout << i->arrays << pocket::io::comma_space << i->instance << pocket::io::comma_space;
+					std::cout << *i << pocket::io::comma_space;
 				}
 				std::cout << std::endl;
 			}
 		}
 	}
+	POCKET_GL_ERROR();
 
-	struct UniformStructure
-	{
-		pocket::vector2f tex;
-		pocket::colorf col;
-	} data = {
+	UniformStructure data = {
 		pocket::vector2f::unit_x,
 		pocket::colorf::white
 	};
 
+	// uniform buffer object作成
 	gl::uniform_buffer uniform = prog.make_uniform_buffer("vert_uniforms", 0, data);
 	if (!uniform)
 	{
@@ -162,8 +171,8 @@ int main()
 			}
 		}
 		data.tex.y = 5.0f;
-		data.col.a = 3.0f;
-		uniform << data;
+		data.col = pocket::colorf::blue;
+		uniform.uniform(data);
 		{
 			binder_map_t map = uniform.make_binder_map<UniformStructure>(gl::buffer_map::read);
 			if (map)
@@ -172,6 +181,7 @@ int main()
 			}
 		}
 	}
+	POCKET_GL_ERROR();
 
 #if _SHOW_WINDOW
 	// メインループ

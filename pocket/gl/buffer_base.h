@@ -78,6 +78,7 @@ struct buffer_type
 			__POCKET_CASE_TO_BINDING(shader_storage);
 			__POCKET_CASE_TO_BINDING(texture);
 			__POCKET_CASE_TO_BINDING(transform_feedback);
+			__POCKET_CASE_TO_BINDING(uniform);
 
 			case unknown:
 			default:
@@ -88,6 +89,37 @@ struct buffer_type
 	}
 };
 typedef buffer_type::type buffer_type_t;
+
+// buffer binding typeからbuffer typeへ変換
+inline
+buffer_type_t to_buffer_type(buffer_binding_type_t a)
+{
+#define __POCKET_CASE_TO_BINDING(c) case buffer_binding_type:: c: return buffer_type:: c
+
+	switch (a)
+	{
+		__POCKET_CASE_TO_BINDING(array);
+		__POCKET_CASE_TO_BINDING(atomic_counter);
+		__POCKET_CASE_TO_BINDING(copy_read);
+		__POCKET_CASE_TO_BINDING(copy_write);
+		__POCKET_CASE_TO_BINDING(dispatch_indirect);
+		__POCKET_CASE_TO_BINDING(draw_indirect);
+		__POCKET_CASE_TO_BINDING(element_array);
+		__POCKET_CASE_TO_BINDING(pixel_pack);
+		__POCKET_CASE_TO_BINDING(pixel_unpack);
+		__POCKET_CASE_TO_BINDING(query);
+		__POCKET_CASE_TO_BINDING(shader_storage);
+		__POCKET_CASE_TO_BINDING(texture);
+		__POCKET_CASE_TO_BINDING(transform_feedback);
+		__POCKET_CASE_TO_BINDING(uniform);
+
+		case buffer_binding_type::unknown:
+		default:
+			return buffer_type::unknown;
+	}
+
+#undef __POCKET_CASE_TO_BINDING
+}
 
 struct buffer_usage
 {
