@@ -197,7 +197,7 @@ bool output_error(std::basic_ostream<CharT, CharTraits>& os, const char* func, i
 		{
 			os << io::tab;
 		}
-		os << io::widen(_string) << io::widen(" #") << io::widen(func) << io::widen(" : ") << line << std::endl;
+		os << io::widen("### ") << io::widen(_string) << io::widen(" #") << io::widen(func) << io::widen(": ") << line << std::endl;
 		_err = glGetError();
 	} while (_err != GL_NO_ERROR);
 

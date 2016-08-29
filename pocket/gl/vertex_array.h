@@ -58,6 +58,11 @@ public:
 		typedef container::array<vertex_layout_index, N> type;
 	};
 
+	enum identifier_t
+	{
+		identifier = GL_VERTEX_ARRAY
+	};
+
 private:
 	/*------------------------------------------------------------------------------------------
 	* Members

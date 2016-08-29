@@ -366,6 +366,12 @@ public:
 		_buffer.unbind_base(_binding_point);
 	}
 
+	// バインドされているか
+	bool binding() const
+	{
+		return _buffer.binding();
+	}
+
 	// 値の更新
 	void uniform(int offset, int size, const void* data) const
 	{

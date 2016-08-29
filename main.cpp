@@ -183,6 +183,26 @@ int main()
 	}
 	POCKET_GL_ERROR();
 
+	gl::vertex_array vao;
+	gl::vertex_layout layouts[] = {
+		{3, GL_FLOAT, GL_FALSE, 0},
+		{4, GL_FLOAT, GL_FALSE, sizeof(float[3])}
+	};
+	if (!vao.initialize(buffer, sizeof(float[3])+sizeof(float[4]), layouts))
+	{
+		std::cout << vao.error() << std::endl;
+	}
+	else
+	{
+		gl::vertex_array::binder_type bind = vao.make_binder();
+		for (int i = 0; i < 4; ++i)
+		{
+			std::cout << "#index" << i << ": " << bind->enabled(i) << pocket::io::comma_space;
+		}
+		std::cout << std::endl << "binding: " << vao.binding() << std::endl;
+	}
+	POCKET_GL_ERROR();
+
 #if _SHOW_WINDOW
 	// メインループ
 	do
@@ -197,6 +217,7 @@ int main()
 	} while ((glfwGetKey(window, GLFW_KEY_ESCAPE) | glfwWindowShouldClose(window)) == GL_FALSE);
 #endif
 
+	vao.finalize();
 	uniform.finalize();
 	buffer.finalize();
 	prog.finalize();
