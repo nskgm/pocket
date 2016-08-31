@@ -65,7 +65,7 @@ int main()
 	glfwSetErrorCallback(&glfw_error_log);
 
 	GLFWwindow* window = glfwCreateWindow(640, 480, "test", NULL, NULL);
-	main_lock lock(window);
+	const main_lock lock(window);
 	if (window == NULL)
 	{
 		return 1;
@@ -194,14 +194,15 @@ int main()
 	}
 	else
 	{
-		gl::vertex_array::binder_type bind = vao.make_binder();
-		for (int i = 0; i < 4; ++i)
-		{
-			std::cout << "#index" << i << ": " << bind->enabled(i) << pocket::io::comma_space;
-		}
-		std::cout << std::endl << "binding: " << vao.binding() << std::endl;
+		//gl::vertex_array::binder_type bind = vao.make_binder();
+		//std::cout << *bind << std::endl;
+		vao.bind();
+		std::cout << vao << std::endl;
+		vao.unbind();
 	}
 	POCKET_GL_ERROR();
+
+	std::cout << "GL_ARB_debug_output: " << gl::is_extension_support("GL_ARB_debug_output") << std::endl;
 
 #if _SHOW_WINDOW
 	// メインループ

@@ -951,13 +951,6 @@ typedef math_traits<long double>::sin_cos_t math_traits_sin_cos_tld;
 		os << io::parentheses_left << CharT('S') << io::colon << io::space << s.sin \
 			<< io::comma_space << CharT('C') << io::colon << io::space << s.cos << io::parentheses_right;\
 		return os;\
-	}\
-	template <typename CharT, typename CharTraits> inline\
-	std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, CharTraits>& os, const TYPE& s)\
-	{\
-		os << io::parentheses_left << CharT('S') << io::colon << io::space << s.sin \
-			<< io::comma_space << CharT('C') << io::colon << io::space << s.cos << io::parentheses_right;\
-		return os;\
 	}
 #endif // _MATH_SIN_COS_OUTPUT_OPERATOR
 

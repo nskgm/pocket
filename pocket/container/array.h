@@ -38,22 +38,6 @@ std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, Ch
 	os << pocket::io::box_brackets_right;
 	return os;
 }
-template <typename CharT, typename CharTraits, typename T, size_t N> inline
-std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, CharTraits>& os, const std::array<T, N>& ary)
-{
-	typedef typename std::array<T, N>::const_iterator const_iterator;
-	os << pocket::io::box_brackets_left;
-	for (const_iterator i = ary.begin(), end = ary.end(), last = end - 1; i != end; ++i)
-	{
-		os << *i;
-		if (i != last)
-		{
-			os << pocket::io::space;
-		}
-	}
-	os << pocket::io::box_brackets_right;
-	return os;
-}
 
 #else
 // 使えない場合は簡単なクラスを定義
@@ -230,22 +214,6 @@ public:
 
 template <typename CharT, typename CharTraits, typename T, size_t N> inline
 std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const pocket::container::array<T, N>& ary)
-{
-	typedef typename pocket::container::array<T, N>::const_iterator const_iterator;
-	os << pocket::io::box_brackets_left;
-	for (const_iterator i = ary.begin(), end = ary.end(), line = end - 1; i != end; ++i)
-	{
-		os << *i;
-		if (i != line)
-		{
-			os << pocket::io::space;
-		}
-	}
-	os << pocket::io::box_brackets_right;
-	return os;
-}
-template <typename CharT, typename CharTraits, typename T, size_t N> inline
-std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, CharTraits>& os, const pocket::container::array<T, N>& ary)
 {
 	typedef typename pocket::container::array<T, N>::const_iterator const_iterator;
 	os << pocket::io::box_brackets_left;

@@ -218,23 +218,6 @@ std::basic_istream<CharT, CharTraits>& operator >> (std::basic_istream<CharT, Ch
 	is.ignore();
 	return is;
 }
-template <typename CharT, typename CharTraits, typename T> inline
-std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, CharTraits>& os, const range<T>& r)
-{
-	os << io::parentheses_left << r.minimum << io::comma_space
-		<< r.maximum << io::parentheses_right;
-	return os;
-}
-template <typename CharT, typename CharTraits, typename T> inline
-std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, CharTraits>& is, range<T>& r)
-{
-	is.ignore();
-	is >> r.minimum;
-	is.ignore();
-	is >> r.maximum;
-	is.ignore();
-	return is;
-}
 
 
 template <typename T>
@@ -485,23 +468,6 @@ std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, Ch
 }
 template <typename CharT, typename CharTraits, typename T> inline
 std::basic_istream<CharT, CharTraits>& operator >> (std::basic_istream<CharT, CharTraits>& is, rectangle<T>& r)
-{
-	is.ignore();
-	is >> r.x;
-	is.ignore();
-	is >> r.y;
-	is.ignore();
-	return is;
-}
-template <typename CharT, typename CharTraits, typename T> inline
-std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, CharTraits>& os, const rectangle<T>& r)
-{
-	os << io::parentheses_left << r.x << io::comma_space
-		<< r.y << io::parentheses_right;
-	return os;
-}
-template <typename CharT, typename CharTraits, typename T> inline
-std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, CharTraits>& is, rectangle<T>& r)
 {
 	is.ignore();
 	is >> r.x;

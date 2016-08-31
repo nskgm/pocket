@@ -266,22 +266,6 @@ std::basic_istream<CharT, CharTraits>& operator >> (std::basic_istream<CharT, Ch
 	is.ignore();
 	return is;
 }
-template <typename CharT, typename CharTraits, typename T, template <typename> class VectorN> inline
-std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, CharTraits>& os, const line<T, VectorN>& v)
-{
-	os << io::parentheses_left << v.begin << io::comma_space << v.end << io::parentheses_right;
-	return os;
-}
-template <typename CharT, typename CharTraits, typename T, template <typename> class VectorN> inline
-std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, CharTraits>& is, line<T, VectorN>& v)
-{
-	is.ignore();
-	is >> v.begin;
-	is.ignore();
-	is >> v.end;
-	is.ignore();
-	return is;
-}
 
 } // namespace pocket
 

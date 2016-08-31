@@ -144,11 +144,7 @@ struct char_traits
 			++a;
 			--n;
 		}
-#ifdef _USE_CXX11
-		return nullptr;
-#else
 		return NULL;
-#endif // _USE_CXX11
 	}
 
 	// move

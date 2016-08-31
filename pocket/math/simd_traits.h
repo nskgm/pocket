@@ -792,15 +792,6 @@ std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, Ch
 		<< v.mm[3] << pocket::io::box_brackets_right;
 	return os;
 }
-template <typename CharT, typename CharTraits, typename T, size_t N> inline
-std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, CharTraits>& os, const pocket::detail::_mvector<T, N>& v)
-{
-	os << pocket::io::box_brackets_left << v.mm[0] << pocket::io::comma_space
-		<< v.mm[1] << pocket::io::comma_space
-		<< v.mm[2] << pocket::io::comma_space
-		<< v.mm[3] << pocket::io::box_brackets_right;
-	return os;
-}
 
 #undef _SIMD_BINOMIAL_OPERATOR_2
 #undef _SIMD_BINOMIAL_OPERATOR_3
@@ -1485,18 +1476,6 @@ std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, Ch
 	_mm_store_ps(&mm[0], v);
 
 	// [X, Y, Z, W]
-	os << pocket::io::box_brackets_left << mm[0] << pocket::io::comma_space
-		<< mm[1] << pocket::io::comma_space
-		<< mm[2] << pocket::io::comma_space
-		<< mm[3] << pocket::io::box_brackets_right;
-	return os;
-}
-template <typename CharT, typename CharTraits> inline
-std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, CharTraits>& os, const __m128& v)
-{
-	_ALIGNED(16) float mm[4];
-	_mm_store_ps(&mm[0], v);
-
 	os << pocket::io::box_brackets_left << mm[0] << pocket::io::comma_space
 		<< mm[1] << pocket::io::comma_space
 		<< mm[2] << pocket::io::comma_space

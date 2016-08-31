@@ -1233,28 +1233,6 @@ std::basic_istream<CharT, CharTraits>& operator >> (std::basic_istream<CharT, Ch
 	is.ignore();
 	return is;
 }
-template <typename CharT, typename CharTraits, typename T> inline
-std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, CharTraits>& os, const matrix3x3<T>& v)
-{
-	os << io::braces_left << io::line;
-	for (typename matrix3x3<T>::const_iterator i = v.M.begin(), end = v.M.end(); i != end; ++i)
-	{
-		os << io::tab << *i << io::line;
-	}
-	os << io::braces_right;
-	return os;
-}
-template <typename CharT, typename CharTraits, typename T> inline
-std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, CharTraits>& is, matrix3x3<T>& v)
-{
-	is.ignore();
-	for (typename matrix3x3<T>::iterator i = v.M.begin(), end = v.M.end(); i != end; ++i)
-	{
-		is >> *i;
-	}
-	is.ignore();
-	return is;
-}
 
 } // namespace pocket
 

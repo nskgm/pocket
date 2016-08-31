@@ -862,31 +862,10 @@ std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, Ch
 	os << ary.data;
 	return os;
 }
-template <typename CharT, typename CharTraits, typename T, size_t N> inline
-std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, CharTraits>& os, const pocket::fixed_array<T, N>& ary)
-{
-	os << ary.data;
-	return os;
-}
 
 #ifndef _POCKET_OUTPUT_BOOL_FIXED_ARRAY
 #define _POCKET_OUTPUT_BOOL_FIXED_ARRAY(N) template <typename CharT, typename CharTraits> inline\
 	std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const pocket::fixed_array<bool, N>& ary)\
-	{\
-		os << pocket::io::box_brackets_left;\
-		for (int i = 0; i < N; ++i)\
-		{\
-			os << ary[i];\
-			if (i < N-1)\
-			{\
-				os << pocket::io::space;\
-			}\
-		}\
-		os << pocket::io::box_brackets_right;\
-		return os;\
-	}\
-	template <typename CharT, typename CharTraits> inline\
-	std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, CharTraits>& os, const pocket::fixed_array<bool, N>& ary)\
 	{\
 		os << pocket::io::box_brackets_left;\
 		for (int i = 0; i < N; ++i)\

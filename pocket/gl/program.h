@@ -404,9 +404,15 @@ public:
 
 	bool binding() const
 	{
-		GLuint i = 0;
+		GLuint i;
 		glGetIntegerv(GL_CURRENT_PROGRAM, reinterpret_cast<GLint*>(&i));
-		return i != 0 && i == _id;
+		// バインドされていない
+		if (i == 0)
+		{
+			return false;
+		}
+		// 現在バインドされているIDが同じか
+		return i == _id;
 	}
 
 	// バインド状態を管理するオブジェクト作成

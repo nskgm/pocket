@@ -421,32 +421,15 @@ public:
 	// バインドされているか
 	bool binding() const
 	{
-		// バインド出来る最大数
-		GLint n;
-		glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &n);
-		// 無効になっている数
-		GLint disable = 0;
-		for (int i = 0; i < n; ++i)
+		GLuint i;
+		glGetIntegerv(GL_VERTEX_ARRAY_BINDING, reinterpret_cast<GLint*>(&i));
+		// バインドされていない
+		if (i == 0)
 		{
-			// 無効になっている場合は次
-			GLint enable;
-			glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_ENABLED, &enable);
-			if (enable == GL_FALSE)
-			{
-				++disable;
-				continue;
-			}
-			// バインドされているか
-			GLint binded;
-			glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING, &binded);
-			// 有効になっている状態でバインドされていない
-			if (binded == GL_FALSE)
-			{
-				return false;
-			}
+			return false;
 		}
-		// 全てが無効になっていないか
-		return n > disable;
+		// 現在バインドされているIDが同じか
+		return i == _id;
 	}
 
 	// インデックスが有効になっているか
@@ -573,12 +556,20 @@ std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, Ch
 {
 	os << io::widen("vertex_array: ") << io::braces_left << std::endl <<
 		io::tab << io::widen("id: ") << v.get() << std::endl;
-	GLint n;
-	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &n);
-	for (int i = 0; i < n; ++i)
+	// バインド状態だったら有効状態を表示
+	if (v.binding())
 	{
-		const char* s = v.enabled(i) ? "true" : "fales";
-		os << io::tab << io::widen("index") << i << io::widen(": ") << io::widen(s) << std::endl;
+		os << io::tab << io::widen("enable: ");
+		GLint n = 0;
+		glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &n);
+		for (int i = 0; i < n; ++i)
+		{
+			if (v.enabled(i))
+			{
+				os << i << io::space;
+			}
+		}
+		os << std::endl;
 	}
 	if (!v.valid())
 	{

@@ -191,10 +191,15 @@ public:
 	// 現在のバッファーがバインドされているか
 	bool binding() const
 	{
-		buffer_binding_type_t type = buffer_type::to_binding_type(_type);
-		GLuint i = 0;
-		glGetIntegerv(type, reinterpret_cast<GLint*>(&i));
-		return i != 0 && i == _id;
+		GLuint i;
+		glGetIntegerv(buffer_type::to_binding_type(_type), reinterpret_cast<GLint*>(&i));
+		// バインドされていない
+		if (i == 0)
+		{
+			return false;
+		}
+		// 現在バインドされているIDが同じか
+		return i == _id;
 	}
 
 	// バインド状態を管理するオブジェクト作成
@@ -661,6 +666,13 @@ std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, Ch
 	os << io::widen("buffer_view: ") << io::braces_left << std::endl <<
 		io::tab << io::widen("id: ") << v.get() << std::endl <<
 		io::tab << io::widen("type: ") << io::widen(type) << std::endl;
+	if (v.binding())
+	{
+		os << io::tab << io::widen("size: ") << v.size_binding() << std::endl;
+		std::ios_base::fmtflags flag = os.flags();
+		os << std::hex << io::tab << io::widen("usage: ") << v.usage_binding() << std::endl;
+		os.flags(flag);
+	}
 	if (!v.valid())
 	{
 		std::string error = v.error();

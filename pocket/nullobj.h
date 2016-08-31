@@ -6,7 +6,7 @@
 #pragma once
 #endif // _USE_PRAGMA_ONCE
 
-#include <string.h> // for memset
+#include <cstring> // for memset
 #ifdef _USE_CXX11
 #include <utility>
 #endif // _USE_CXX11
@@ -49,7 +49,7 @@ struct nullobj_t
 	}
 	operator long () const
 	{
-		return 0;
+		return 0L;
 	}
 	operator unsigned long () const
 	{
@@ -57,7 +57,7 @@ struct nullobj_t
 	}
 	operator long long () const
 	{
-		return 0;
+		return 0LL;
 	}
 	operator unsigned long long () const
 	{
@@ -82,11 +82,7 @@ struct nullobj_t
 	template <typename T>
 	operator T* () const
 	{
-#ifdef _USE_CXX11
-		return nullptr;
-#else
 		return NULL;
-#endif // _USE_CXX11
 	}
 	template <typename T>
 	operator const T* () const
@@ -96,11 +92,7 @@ struct nullobj_t
 	template <typename R, typename C>
 	operator R C::* () const
 	{
-#ifdef _USE_CXX11
-		return nullptr;
-#else
 		return NULL;
-#endif // _USE_CXX11
 	}
 
 #ifdef _USE_CXX11
@@ -114,12 +106,8 @@ struct nullobj_t
 	operator T () const
 	{
 		T r;
-		memset(&r, 0, sizeof(T));
-#ifdef _USE_CXX11
-		return std::move(r);
-#else
-		return r;
-#endif // _USE_CXX11
+		std::memset(&r, 0, sizeof(T));
+		return _CXX11_MOVE(r);
 	}
 
 	const nullobj_t& operator + () const

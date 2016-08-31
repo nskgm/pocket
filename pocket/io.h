@@ -20,12 +20,6 @@ namespace io
 	{\
 		os.put(os.widen((CHAR)));\
 		return os;\
-	}\
-	template <typename CharT, typename CharTraits> inline \
-		std::basic_iostream<CharT, CharTraits>& NAME(std::basic_iostream<CharT, CharTraits>& os) \
-	{\
-		os.put(os.widen((CHAR)));\
-		return os;\
 	}
 #endif // _DECL_OUT_CHAR_FUNCTION
 
@@ -58,12 +52,6 @@ std::basic_ostream<CharT, CharTraits>& comma_space(std::basic_ostream<CharT, Cha
 	os << comma << space;
 	return os;
 }
-template <typename CharT, typename CharTraits> inline
-std::basic_iostream<CharT, CharTraits>& comma_space(std::basic_iostream<CharT, CharTraits>& os)
-{
-	os << comma << space;
-	return os;
-}
 
 /*---------------------------------------------------------------------
 * widen
@@ -89,12 +77,6 @@ struct widen_holder<char>
 		os.put(os.widen(c));
 		return os;
 	}
-	template <typename CharT, typename CharTraits>
-	std::basic_ostream<CharT, CharTraits>& apply(std::basic_iostream<CharT, CharTraits>& os) const
-	{
-		os.put(os.widen(c));
-		return os;
-	}
 };
 template <>
 struct widen_holder<const char*>
@@ -109,17 +91,6 @@ struct widen_holder<const char*>
 
 	template <typename CharT, typename CharTraits>
 	std::basic_ostream<CharT, CharTraits>& apply(std::basic_ostream<CharT, CharTraits>& os) const
-	{
-		const char* s = str;
-		while (*s != '\0')
-		{
-			os.put(os.widen(*s));
-			++s;
-		}
-		return os;
-	}
-	template <typename CharT, typename CharTraits>
-	std::basic_ostream<CharT, CharTraits>& apply(std::basic_iostream<CharT, CharTraits>& os) const
 	{
 		const char* s = str;
 		while (*s != '\0')
@@ -152,10 +123,22 @@ struct widen_holder<const char[N]>
 		}
 		return os;
 	}
-	template <typename CharT, typename CharTraits>
-	std::basic_ostream<CharT, CharTraits>& apply(std::basic_iostream<CharT, CharTraits>& os) const
+};
+template <>
+struct widen_holder<bool>
+{
+	bool cond;
+
+	widen_holder(bool c) :
+		cond(c)
 	{
-		const char* s = str;
+
+	}
+
+	template <typename CharT, typename CharTraits>
+	std::basic_ostream<CharT, CharTraits>& apply(std::basic_ostream<CharT, CharTraits>& os) const
+	{
+		const char* s = cond ? "true" : "false";
 		while (*s != '\0')
 		{
 			os.put(os.widen(*s));
@@ -173,11 +156,6 @@ widen_holder<T> widen(T s)
 
 template <typename CharT, typename CharTraits, typename T> inline
 std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const widen_holder<T>& holder)
-{
-	return holder.apply(os);
-}
-template <typename CharT, typename CharTraits, typename T> inline
-std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, CharTraits>& os, const widen_holder<T>& holder)
 {
 	return holder.apply(os);
 }
@@ -213,11 +191,6 @@ struct ignore_count
 // 指定の文字までスキップ
 //template <typename CharT, typename CharTraits> inline
 //std::basic_istream<CharT, CharTraits>& ignore(std::basic_istream<CharT, CharTraits>& is, CharT delim)
-//{
-//	return is.ignore(std::numeric_limits<std::streamsize>::max(), delim);
-//}
-//template <typename CharT, typename CharTraits> inline
-//std::basic_iostream<CharT, CharTraits>& ignore(std::basic_iostream<CharT, CharTraits>& is, CharT delim)
 //{
 //	return is.ignore(std::numeric_limits<std::streamsize>::max(), delim);
 //}
@@ -273,17 +246,7 @@ std::basic_istream<CharT, CharTraits>& operator >> (std::basic_istream<CharT, Ch
 	return is.ignore(std::numeric_limits<std::streamsize>::max(), ig.delimiter);
 }
 template <typename CharT, typename CharTraits> inline
-std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, CharTraits>& is, const ignore_delimiter<CharT>& ig)
-{
-	return is.ignore(std::numeric_limits<std::streamsize>::max(), ig.delimiter);
-}
-template <typename CharT, typename CharTraits> inline
 std::basic_istream<CharT, CharTraits>& operator >> (std::basic_istream<CharT, CharTraits>& is, const ignore_count& ig)
-{
-	return is.ignore(ig.count, CharTraits::eof());
-}
-template <typename CharT, typename CharTraits> inline
-std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, CharTraits>& is, const ignore_count& ig)
 {
 	return is.ignore(ig.count, CharTraits::eof());
 }

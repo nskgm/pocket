@@ -160,12 +160,11 @@ const char* get_error_string(GLenum err)
 
 // エラーの出力
 template <typename CharT, typename CharTraits> inline
-bool output_error(std::basic_ostream<CharT, CharTraits>& os, const char* func, int line, const char* msg)
+void output_error(std::basic_ostream<CharT, CharTraits>& os, GLenum err, const char* func, int line, const char* msg)
 {
-	GLenum _err = glGetError();
-	if (_err == GL_NO_ERROR)
+	if (err == GL_NO_ERROR)
 	{
-		return false;
+		return;
 	}
 	if (msg != NULL)
 	{
@@ -173,40 +172,38 @@ bool output_error(std::basic_ostream<CharT, CharTraits>& os, const char* func, i
 	}
 	do
 	{
-		const char* _string = get_error_string(_err);
+		const char* _string = get_error_string(err);
 		if (_string == NULL)
 		{
 			// 文字列がNULLじゃないモノまで検索
 			do
 			{
-				os << _err << std::endl;
-				_err = glGetError();
-				if (_err == GL_NO_ERROR)
+				// とりあえずエラーコードを出力
+				os << err << std::endl;
+				err = glGetError();
+				if (err == GL_NO_ERROR)
 				{
-					break;
+					return;
 				}
-				_string = get_error_string(_err);
+				_string = get_error_string(err);
 			} while (_string != NULL);
-			// 出力できる文字列がない
-			if (_err == GL_NO_ERROR)
-			{
-				break;
-			}
 		}
 		if (msg != NULL)
 		{
 			os << io::tab;
 		}
-		os << io::widen("### ") << io::widen(_string) << io::widen(" #") << io::widen(func) << io::widen(": ") << line << std::endl;
-		_err = glGetError();
-	} while (_err != GL_NO_ERROR);
-
-	return true;
+		os << io::widen("--- ") << io::widen(_string) << io::widen(" # ") << io::widen(func) << io::widen(": ") << line << std::endl;
+		err = glGetError();
+	} while (err != GL_NO_ERROR);
 }
 
 // coutへのエラー出力
 #ifndef POCKET_GL_ERROR_MSG
-#define POCKET_GL_ERROR_MSG(msg) pocket::gl::output_error(std::cout, __FUNCTION__, __LINE__, msg)
+#define POCKET_GL_ERROR_MSG(MSG) {\
+	GLenum opengl_error = glGetError();\
+	if (opengl_error != GL_NO_ERROR)\
+		pocket::gl::output_error(std::cerr, opengl_error, __FUNCTION__, __LINE__, MSG);\
+}
 #endif // POCKET_GL_ERROR_MSG
 #ifndef POCKET_GL_ERROR
 #define POCKET_GL_ERROR() POCKET_GL_ERROR_MSG(NULL)
@@ -214,11 +211,24 @@ bool output_error(std::basic_ostream<CharT, CharTraits>& os, const char* func, i
 
 // wcoutへのエラー出力
 #ifndef POCKET_GL_ERROR_MSG_W
-#define POCKET_GL_ERROR_MSG_W(msg) pocket::gl::output_error(std::wcout, __FUNCTION__, __LINE__, msg)
+#define POCKET_GL_ERROR_MSG_W(MSG) {\
+	GLenum opengl_error = glGetError();\
+	if (opengl_error != GL_NO_ERROR)\
+		pocket::gl::output_error(std::wcerr, opengl_error, __FUNCTION__, __LINE__, MSG);\
+}
 #endif // POCKET_GL_ERROR_MSG
 #ifndef POCKET_GL_ERROR_W
 #define POCKET_GL_ERROR_W() POCKET_GL_ERROR_MSG_W(NULL)
 #endif // POCKET_GL_ERROR_W
+
+// エラーチェック付きOpenGL関数呼び出し
+#ifndef POCKET_GL_FUNC
+#define POCKET_GL_FUNC(FUNC, ...) (FUNC)(__VA_ARGS__); POCKET_GL_ERROR()
+#endif // POCKET_GL_FUNC
+
+#ifndef POCKET_GL_FUNC_W
+#define POCKET_GL_FUNC_W(FUNC, ...) (FUNC)(__VA_ARGS__); POCKET_GL_ERROR_W()
+#endif // POCKET_GL_FUNC_W
 
 // バージョン（メジャー）取得
 inline
@@ -237,8 +247,6 @@ int get_version_minor()
 	return static_cast<int>(minor);
 }
 
-namespace detail
-{
 inline
 int calc_version(int major, int minor)
 {
@@ -246,7 +254,6 @@ int calc_version(int major, int minor)
 	// XX: major
 	// YY: minor
 	return major*100 + minor;
-}
 }
 
 // バージョン取得
@@ -274,7 +281,7 @@ int get_version()
 {
 	int major, minor;
 	get_version(major, minor);
-	return detail::calc_version(major, minor);
+	return calc_version(major, minor);
 }
 inline
 bool has_version(int major, int minor)
@@ -283,7 +290,7 @@ bool has_version(int major, int minor)
 	{
 		return false;
 	}
-	return get_version() >= detail::calc_version(major, minor);
+	return get_version() >= calc_version(major, minor);
 }
 
 // バージョンの文字列を取得

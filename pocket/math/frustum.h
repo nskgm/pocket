@@ -493,28 +493,6 @@ std::basic_istream<CharT, CharTraits>& operator >> (std::basic_istream<CharT, Ch
 	is.ignore();
 	return is;
 }
-template <typename CharT, typename CharTraits, typename T> inline
-std::basic_iostream<CharT, CharTraits>& operator << (std::basic_iostream<CharT, CharTraits>& os, const frustum<T>& v)
-{
-	os << io::braces_left << io::line;
-	for (typename frustum<T>::const_iterator i = v.planes.begin(), end = v.planes.end(); i != end; ++i)
-	{
-		os << io::tab << *i << io::line;
-	}
-	os << io::braces_right;
-	return os;
-}
-template <typename CharT, typename CharTraits, typename T> inline
-std::basic_iostream<CharT, CharTraits>& operator >> (std::basic_iostream<CharT, CharTraits>& is, frustum<T>& v)
-{
-	is.ignore();
-	for (typename frustum<T>::iterator i = v.planes.begin(), end = v.planes.end(); i != end; ++i)
-	{
-		is >> *i;
-	}
-	is.ignore();
-	return is;
-}
 
 } // namespace pocket
 
