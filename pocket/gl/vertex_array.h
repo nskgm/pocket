@@ -136,8 +136,8 @@ public:
 				stride, __POCKET_BUFFER_OFFSET(layout.offset));
 		}
 
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 		return true;
 	}
@@ -211,8 +211,8 @@ public:
 				stride, __POCKET_BUFFER_OFFSET(layout.offset));
 		}
 
-		vbo.unbind();
 		glBindVertexArray(0);
+		vbo.unbind();
 
 		return true;
 	}
@@ -277,8 +277,8 @@ public:
 			glVertexAttribPointer(layout.index, layout.count, layout.type, static_cast<GLboolean>(layout.normalized),
 				stride, __POCKET_BUFFER_OFFSET(layout.offset));
 		}
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		return true;
 	}
 	template <int N>
@@ -348,8 +348,8 @@ public:
 				stride, __POCKET_BUFFER_OFFSET(layout.offset));
 		}
 
-		vbo.unbind();
 		glBindVertexArray(0);
+		vbo.unbind();
 
 		return true;
 	}
@@ -432,6 +432,12 @@ public:
 		return i == _id;
 	}
 
+	// バインド状態を管理するオブジェクト作成
+	binder_type make_binder() const
+	{
+		return binder_type(*this);
+	}
+
 	// インデックスが有効になっているか
 	bool enabled(int i) const
 	{
@@ -444,12 +450,6 @@ public:
 	bool disabled(int i) const
 	{
 		return !enabled(i);
-	}
-
-	// バインド状態を管理するオブジェクト作成
-	binder_type make_binder() const
-	{
-		return binder_type(*this);
 	}
 
 	// エラー文
