@@ -37,6 +37,11 @@ struct vertex_layout_index
 };
 
 #define __POCKET_BUFFER_OFFSET(OFFSET) (static_cast<const void*>(reinterpret_cast<const char*>(0)+(OFFSET)))
+// VSCodeシンタックスハイライト解除回避用
+#define __POCKET_VERTEX_ARRAY_LAYOUTS_CR(TYPE, NAME, N) const TYPE(&NAME)[N]
+
+// __POCKET_VERTEX_ARRAY_LAYOUTS_CR漏れ回避{}
+namespace detail {}
 
 class vertex_array
 {
@@ -90,6 +95,108 @@ public:
 		_id(id),
 		_error_bitfield(0)
 	{}
+	explicit vertex_array(GLuint vbo, GLuint stride, const vertex_layout* layouts, int count) :
+		_id(0)
+	{
+		initialize(vbo, stride, layouts, count);
+	}
+	explicit vertex_array(GLuint vbo, GLuint stride, const vertex_layout_index* layouts, int count) :
+		_id(0)
+	{
+		initialize(vbo, stride, layouts, count);
+	}
+	template <int N>
+	explicit vertex_array(GLuint vbo, GLuint stride, __POCKET_VERTEX_ARRAY_LAYOUTS_CR(vertex_layout, layouts, N)) :
+		_id(0)
+	{
+		initialize(vbo, stride, layouts);
+	}
+	template <int N>
+	explicit vertex_array(GLuint vbo, GLuint stride, __POCKET_VERTEX_ARRAY_LAYOUTS_CR(vertex_layout_index, layouts, N)) :
+		_id(0)
+	{
+		initialize(vbo, stride, layouts);
+	}
+	template <size_t N, template <typename, size_t> class ARRAY>
+	explicit vertex_array(GLuint vbo, GLuint stride, const ARRAY<vertex_layout, N>& layouts) :
+		_id(0)
+	{
+		initialize(vbo, stride, layouts);
+	}
+	template <size_t N, template <typename, size_t> class ARRAY>
+	explicit vertex_array(GLuint vbo, GLuint stride, const ARRAY<vertex_layout_index, N>& layouts) :
+		_id(0)
+	{
+		initialize(vbo, stride, layouts);
+	}
+	template <typename ALLOC, template <typename, typename> class VECTOR>
+	explicit vertex_array(GLuint vbo, GLuint stride, const VECTOR<vertex_layout, ALLOC>& layouts) :
+		_id(0)
+	{
+		initialize(vbo, stride, layouts);
+	}
+	template <typename ALLOC, template <typename, typename> class VECTOR>
+	explicit vertex_array(GLuint vbo, GLuint stride, const VECTOR<vertex_layout_index, ALLOC>& layouts) :
+		_id(0)
+	{
+		initialize(vbo, stride, layouts);
+	}
+
+	explicit vertex_array(const buffer& vbo, GLuint stride, const vertex_layout* layouts, int count) :
+		_id(0)
+	{
+		initialize(vbo, stride, layouts, count);
+	}
+	explicit vertex_array(const buffer& vbo, GLuint stride, const vertex_layout_index* layouts, int count) :
+		_id(0)
+	{
+		initialize(vbo, stride, layouts, count);
+	}
+	template <int N>
+	explicit vertex_array(const buffer& vbo, GLuint stride, __POCKET_VERTEX_ARRAY_LAYOUTS_CR(vertex_layout, layouts, N)) :
+		_id(0)
+	{
+		initialize(vbo, stride, layouts);
+	}
+	template <int N>
+	explicit vertex_array(const buffer& vbo, GLuint stride, __POCKET_VERTEX_ARRAY_LAYOUTS_CR(vertex_layout_index, layouts, N)) :
+		_id(0)
+	{
+		initialize(vbo, stride, layouts);
+	}
+	template <size_t N, template <typename, size_t> class ARRAY>
+	explicit vertex_array(const buffer& vbo, GLuint stride, const ARRAY<vertex_layout, N>& layouts) :
+		_id(0)
+	{
+		initialize(vbo, stride, layouts);
+	}
+	template <size_t N, template <typename, size_t> class ARRAY>
+	explicit vertex_array(const buffer& vbo, GLuint stride, const ARRAY<vertex_layout_index, N>& layouts) :
+		_id(0)
+	{
+		initialize(vbo, stride, layouts);
+	}
+	template <typename ALLOC, template <typename, typename> class VECTOR>
+	explicit vertex_array(const buffer& vbo, GLuint stride, const VECTOR<vertex_layout, ALLOC>& layouts) :
+		_id(0)
+	{
+		initialize(vbo, stride, layouts);
+	}
+	template <typename ALLOC, template <typename, typename> class VECTOR>
+	explicit vertex_array(const buffer& vbo, GLuint stride, const VECTOR<vertex_layout_index, ALLOC>& layouts) :
+		_id(0)
+	{
+		initialize(vbo, stride, layouts);
+	}
+#ifdef _USE_CXX11
+	vertex_array(vertex_array&& v) :
+		_id(std::move(v._id)),
+		_error_bitfield(std::move(v._error_bitfield))
+	{
+		v._id = 0;
+		v._error_bitfield = 0;
+	}
+#endif // _USE_CXX11
 	~vertex_array()
 	{
 		finalize();
@@ -142,7 +249,7 @@ public:
 		return true;
 	}
 	template <int N>
-	bool initialize(GLuint vbo, GLuint stride, const vertex_layout(&layouts)[N])
+	bool initialize(GLuint vbo, GLuint stride, __POCKET_VERTEX_ARRAY_LAYOUTS_CR(vertex_layout, layouts, N))
 	{
 		return initialize(vbo, stride, &layouts[0], N);
 	}
@@ -162,7 +269,7 @@ public:
 		return initialize(vbo, sizeof(VERTEX), layouts, count);
 	}
 	template <typename VERTEX, int N>
-	bool initialize(GLuint vbo, const vertex_layout(&layouts)[N])
+	bool initialize(GLuint vbo, __POCKET_VERTEX_ARRAY_LAYOUTS_CR(vertex_layout, layouts, N))
 	{
 		return initialize(vbo, sizeof(VERTEX), &layouts[0], N);
 	}
@@ -217,7 +324,7 @@ public:
 		return true;
 	}
 	template <int N>
-	bool initialize(const buffer& vbo, GLuint stride, const vertex_layout(&layouts)[N])
+	bool initialize(const buffer& vbo, GLuint stride, __POCKET_VERTEX_ARRAY_LAYOUTS_CR(vertex_layout, layouts, N))
 	{
 		return initialize(vbo, stride, &layouts[0], N);
 	}
@@ -237,7 +344,7 @@ public:
 		return initialize(vbo, sizeof(VERTEX), layouts, count);
 	}
 	template <typename VERTEX, int N>
-	bool initialize(const buffer& vbo, const vertex_layout(&layouts)[N])
+	bool initialize(const buffer& vbo, __POCKET_VERTEX_ARRAY_LAYOUTS_CR(vertex_layout, layouts, N))
 	{
 		return initialize(vbo, sizeof(VERTEX), &layouts[0], N);
 	}
@@ -282,7 +389,7 @@ public:
 		return true;
 	}
 	template <int N>
-	bool initialize(GLuint vbo, GLuint stride, const vertex_layout_index(&layouts)[N])
+	bool initialize(GLuint vbo, GLuint stride, __POCKET_VERTEX_ARRAY_LAYOUTS_CR(vertex_layout_index, layouts, N))
 	{
 		return initialize(vbo, stride, &layouts[0], N);
 	}
@@ -302,7 +409,7 @@ public:
 		return initialize(vbo, sizeof(VERTEX), layouts, count);
 	}
 	template <typename VERTEX, int N>
-	bool initialize(GLuint vbo, const vertex_layout_index(&layouts)[N])
+	bool initialize(GLuint vbo, __POCKET_VERTEX_ARRAY_LAYOUTS_CR(vertex_layout_index, layouts, N))
 	{
 		return initialize(vbo, sizeof(VERTEX), &layouts[0], N);
 	}
@@ -354,7 +461,7 @@ public:
 		return true;
 	}
 	template <int N>
-	bool initialize(const buffer& vbo, GLuint stride, const vertex_layout_index(&layouts)[N])
+	bool initialize(const buffer& vbo, GLuint stride, __POCKET_VERTEX_ARRAY_LAYOUTS_CR(vertex_layout_index, layouts, N))
 	{
 		return initialize(vbo, stride, &layouts[0], N);
 	}
@@ -374,7 +481,7 @@ public:
 		return initialize(vbo, sizeof(VERTEX), layouts, count);
 	}
 	template <typename VERTEX, int N>
-	bool initialize(const buffer& vbo, const vertex_layout_index(&layouts)[N])
+	bool initialize(const buffer& vbo, __POCKET_VERTEX_ARRAY_LAYOUTS_CR(vertex_layout_index, layouts, N))
 	{
 		return initialize(vbo, sizeof(VERTEX), &layouts[0], N);
 	}
@@ -550,6 +657,9 @@ public:
 	}
 #endif // _USE_CXX11
 };
+
+#undef __POCKET_BUFFER_OFFSET
+#undef __POCKET_VERTEX_ARRAY_LAYOUTS_CR
 
 template <typename CharT, typename CharTraits> inline
 std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const vertex_array& v)
