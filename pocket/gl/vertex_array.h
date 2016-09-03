@@ -11,6 +11,7 @@
 #include "../io.h"
 #include "../container/array.h"
 #include "buffer.h"
+#include "vertex_buffer.h"
 
 namespace pocket
 {
@@ -359,6 +360,55 @@ public:
 		return initialize(vbo, sizeof(VERTEX), &layouts[0], layouts.size());
 	}
 
+	template <typename T>
+	bool initialize(const vertex_buffer<T>& vbo, const vertex_layout* layouts, int count)
+	{
+		finalize();
+
+		glGenVertexArrays(1, &_id);
+		if (_id == 0)
+		{
+			_error_bitfield |= error_creating;
+			return false;
+		}
+
+		glBindVertexArray(_id);
+		if (glIsVertexArray(_id) == GL_FALSE)
+		{
+			_error_bitfield |= error_binding;
+			return false;
+		}
+		vbo.bind();
+
+		for (int i = 0; i < count; ++i)
+		{
+			const vertex_layout& layout = layouts[i];
+			glEnableVertexAttribArray(i);
+			glVertexAttribPointer(i, layout.count, layout.type, static_cast<GLboolean>(layout.normalized),
+				sizeof(T), __POCKET_BUFFER_OFFSET(layout.offset));
+		}
+
+		glBindVertexArray(0);
+		vbo.unbind();
+
+		return true;
+	}
+	template <typename T, int N>
+	bool initialize(const vertex_buffer<T>& vbo, __POCKET_VERTEX_ARRAY_LAYOUTS_CR(vertex_layout, layouts, N))
+	{
+		return initialize(vbo, &layouts[0], N);
+	}
+	template <typename T, size_t N, template <typename, size_t> class ARRAY>
+	bool initialize(const vertex_buffer<T>& vbo, const ARRAY<vertex_layout, N>& layouts)
+	{
+		return initialize(vbo, &layouts[0], N);
+	}
+	template <typename T, typename ALLOC, template <typename, typename> class VECTOR>
+	bool initialize(const vertex_buffer<T>& vbo, const VECTOR<vertex_layout, ALLOC>& layouts)
+	{
+		return initialize(vbo, &layouts[0], layouts.size());
+	}
+
 	// インデックス指定の初期化
 	bool initialize(GLuint vbo, GLuint stride, const vertex_layout_index* layouts, int count)
 	{
@@ -494,6 +544,54 @@ public:
 	bool initialize(const buffer& vbo, const VECTOR<vertex_layout_index, ALLOC>& layouts)
 	{
 		return initialize(vbo, sizeof(VERTEX), &layouts[0], layouts.size());
+	}
+	template <typename T>
+	bool initialize(const vertex_buffer<T>& vbo, const vertex_layout_index* layouts, int count)
+	{
+		finalize();
+
+		glGenVertexArrays(1, &_id);
+		if (_id == 0)
+		{
+			_error_bitfield |= error_creating;
+			return false;
+		}
+
+		glBindVertexArray(_id);
+		if (glIsVertexArray(_id) == GL_FALSE)
+		{
+			_error_bitfield |= error_binding;
+			return false;
+		}
+		vbo.bind();
+
+		for (int i = 0; i < count; ++i)
+		{
+			const vertex_layout_index& layout = layouts[i];
+			glEnableVertexAttribArray(layout.index);
+			glVertexAttribPointer(layout.index, layout.count, layout.type, static_cast<GLboolean>(layout.normalized),
+				sizeof(T), __POCKET_BUFFER_OFFSET(layout.offset));
+		}
+
+		glBindVertexArray(0);
+		vbo.unbind();
+
+		return true;
+	}
+	template <typename T, int N>
+	bool initialize(const vertex_buffer<T>& vbo, __POCKET_VERTEX_ARRAY_LAYOUTS_CR(vertex_layout_index, layouts, N))
+	{
+		return initialize(vbo, &layouts[0], N);
+	}
+	template <typename T, size_t N, template <typename, size_t> class ARRAY>
+	bool initialize(const vertex_buffer<T>& vbo, const ARRAY<vertex_layout_index, N>& layouts)
+	{
+		return initialize(vbo, &layouts[0], N);
+	}
+	template <typename T, typename ALLOC, template <typename, typename> class VECTOR>
+	bool initialize(const vertex_buffer<T>& vbo, const VECTOR<vertex_layout_index, ALLOC>& layouts)
+	{
+		return initialize(vbo, &layouts[0], layouts.size());
 	}
 
 	// 終了処理
@@ -657,6 +755,187 @@ public:
 	}
 #endif // _USE_CXX11
 };
+
+inline
+vertex_array make_vertex_array(GLuint vbo, GLuint stride, const vertex_layout* layouts, int count)
+{
+	return vertex_array(vbo, stride, layouts, count);
+}
+inline
+vertex_array make_vertex_array(GLuint vbo, GLuint stride, const vertex_layout_index* layouts, int count)
+{
+	return vertex_array(vbo, stride, layouts, count);
+}
+template <int N> inline
+vertex_array make_vertex_array(GLuint vbo, GLuint stride, __POCKET_VERTEX_ARRAY_LAYOUTS_CR(vertex_layout, layouts, N))
+{
+	return vertex_array(vbo, stride, layouts);
+}
+template <int N> inline
+vertex_array make_vertex_array(GLuint vbo, GLuint stride, __POCKET_VERTEX_ARRAY_LAYOUTS_CR(vertex_layout_index, layouts, N))
+{
+	return vertex_array(vbo, stride, layouts);
+}
+template <size_t N, template <typename, size_t> class ARRAY> inline
+vertex_array make_vertex_array(GLuint vbo, GLuint stride, const ARRAY<vertex_layout, N>& layouts)
+{
+	return vertex_array(vbo, stride, layouts);
+}
+template <size_t N, template <typename, size_t> class ARRAY> inline
+vertex_array make_vertex_array(GLuint vbo, GLuint stride, const ARRAY<vertex_layout_index, N>& layouts)
+{
+	return vertex_array(vbo, stride, layouts);
+}
+template <typename ALLOC, template <typename, typename> class VECTOR> inline
+vertex_array make_vertex_array(GLuint vbo, GLuint stride, const VECTOR<vertex_layout, ALLOC>& layouts)
+{
+	return vertex_array(vbo, stride, layouts);
+}
+template <typename ALLOC, template <typename, typename> class VECTOR> inline
+vertex_array make_vertex_array(GLuint vbo, GLuint stride, const VECTOR<vertex_layout_index, ALLOC>& layouts)
+{
+	return vertex_array(vbo, stride, layouts);
+}
+
+inline
+vertex_array make_vertex_array(const buffer& vbo, GLuint stride, const vertex_layout* layouts, int count)
+{
+	return vertex_array(vbo, stride, layouts, count);
+}
+inline
+vertex_array make_vertex_array(const buffer& vbo, GLuint stride, const vertex_layout_index* layouts, int count)
+{
+	return vertex_array(vbo, stride, layouts, count);
+}
+template <int N> inline
+vertex_array make_vertex_array(const buffer& vbo, GLuint stride, __POCKET_VERTEX_ARRAY_LAYOUTS_CR(vertex_layout, layouts, N))
+{
+	return vertex_array(vbo, stride, layouts);
+}
+template <int N> inline
+vertex_array make_vertex_array(const buffer& vbo, GLuint stride, __POCKET_VERTEX_ARRAY_LAYOUTS_CR(vertex_layout_index, layouts, N))
+{
+	return vertex_array(vbo, stride, layouts);
+}
+template <size_t N, template <typename, size_t> class ARRAY> inline
+vertex_array make_vertex_array(const buffer& vbo, GLuint stride, const ARRAY<vertex_layout, N>& layouts)
+{
+	return vertex_array(vbo, stride, layouts);
+}
+template <size_t N, template <typename, size_t> class ARRAY> inline
+vertex_array make_vertex_array(const buffer& vbo, GLuint stride, const ARRAY<vertex_layout_index, N>& layouts)
+{
+	return vertex_array(vbo, stride, layouts);
+}
+template <typename ALLOC, template <typename, typename> class VECTOR> inline
+vertex_array make_vertex_array(const buffer& vbo, GLuint stride, const VECTOR<vertex_layout, ALLOC>& layouts)
+{
+	return vertex_array(vbo, stride, layouts);
+}
+template <typename ALLOC, template <typename, typename> class VECTOR> inline
+vertex_array make_vertex_array(const buffer& vbo, GLuint stride, const VECTOR<vertex_layout_index, ALLOC>& layouts)
+{
+	return vertex_array(vbo, stride, layouts);
+}
+
+// ------------------------------------
+inline
+vertex_array& make_vertex_array(vertex_array& a, GLuint vbo, GLuint stride, const vertex_layout* layouts, int count)
+{
+	a.initialize(vbo, stride, layouts, count);
+	return a;
+}
+inline
+vertex_array& make_vertex_array(vertex_array& a, GLuint vbo, GLuint stride, const vertex_layout_index* layouts, int count)
+{
+	a.initialize(vbo, stride, layouts, count);
+	return a;
+}
+template <int N> inline
+vertex_array& make_vertex_array(vertex_array& a, GLuint vbo, GLuint stride, __POCKET_VERTEX_ARRAY_LAYOUTS_CR(vertex_layout, layouts, N))
+{
+	a.initialize(vbo, stride, layouts);
+	return a;
+}
+template <int N> inline
+vertex_array& make_vertex_array(vertex_array& a, GLuint vbo, GLuint stride, __POCKET_VERTEX_ARRAY_LAYOUTS_CR(vertex_layout_index, layouts, N))
+{
+	a.initialize(vbo, stride, layouts);
+	return a;
+}
+template <size_t N, template <typename, size_t> class ARRAY> inline
+vertex_array& make_vertex_array(vertex_array& a, GLuint vbo, GLuint stride, const ARRAY<vertex_layout, N>& layouts)
+{
+	a.initialize(vbo, stride, layouts);
+	return a;
+}
+template <size_t N, template <typename, size_t> class ARRAY> inline
+vertex_array& make_vertex_array(vertex_array& a, GLuint vbo, GLuint stride, const ARRAY<vertex_layout_index, N>& layouts)
+{
+	a.initialize(vbo, stride, layouts);
+	return a;
+}
+template <typename ALLOC, template <typename, typename> class VECTOR> inline
+vertex_array& make_vertex_array(vertex_array& a, GLuint vbo, GLuint stride, const VECTOR<vertex_layout, ALLOC>& layouts)
+{
+	a.initialize(vbo, stride, layouts);
+	return a;
+}
+template <typename ALLOC, template <typename, typename> class VECTOR> inline
+vertex_array& make_vertex_array(vertex_array& a, GLuint vbo, GLuint stride, const VECTOR<vertex_layout_index, ALLOC>& layouts)
+{
+	a.initialize(vbo, stride, layouts);
+	return a;
+}
+
+inline
+vertex_array& make_vertex_array(vertex_array& a, const buffer& vbo, GLuint stride, const vertex_layout* layouts, int count)
+{
+	a.initialize(vbo, stride, layouts, count);
+	return a;
+}
+inline
+vertex_array& make_vertex_array(vertex_array& a, const buffer& vbo, GLuint stride, const vertex_layout_index* layouts, int count)
+{
+	a.initialize(vbo, stride, layouts, count);
+	return a;
+}
+template <int N> inline
+vertex_array& make_vertex_array(vertex_array& a, const buffer& vbo, GLuint stride, __POCKET_VERTEX_ARRAY_LAYOUTS_CR(vertex_layout, layouts, N))
+{
+	a.initialize(vbo, stride, layouts);
+	return a;
+}
+template <int N> inline
+vertex_array& make_vertex_array(vertex_array& a, const buffer& vbo, GLuint stride, __POCKET_VERTEX_ARRAY_LAYOUTS_CR(vertex_layout_index, layouts, N))
+{
+	a.initialize(vbo, stride, layouts);
+	return a;
+}
+template <size_t N, template <typename, size_t> class ARRAY> inline
+vertex_array& make_vertex_array(vertex_array& a, const buffer& vbo, GLuint stride, const ARRAY<vertex_layout, N>& layouts)
+{
+	a.initialize(vbo, stride, layouts);
+	return a;
+}
+template <size_t N, template <typename, size_t> class ARRAY> inline
+vertex_array& make_vertex_array(vertex_array& a, const buffer& vbo, GLuint stride, const ARRAY<vertex_layout_index, N>& layouts)
+{
+	a.initialize(vbo, stride, layouts);
+	return a;
+}
+template <typename ALLOC, template <typename, typename> class VECTOR> inline
+vertex_array& make_vertex_array(vertex_array& a, const buffer& vbo, GLuint stride, const VECTOR<vertex_layout, ALLOC>& layouts)
+{
+	a.initialize(vbo, stride, layouts);
+	return a;
+}
+template <typename ALLOC, template <typename, typename> class VECTOR> inline
+vertex_array& make_vertex_array(vertex_array& a, const buffer& vbo, GLuint stride, const VECTOR<vertex_layout_index, ALLOC>& layouts)
+{
+	a.initialize(vbo, stride, layouts);
+	return a;
+}
 
 #undef __POCKET_BUFFER_OFFSET
 #undef __POCKET_VERTEX_ARRAY_LAYOUTS_CR

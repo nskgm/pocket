@@ -9,8 +9,14 @@ uniform vec3 c1;
 layout(std140)
 uniform vert_uniforms
 {
-	vec2 tex;
+	vec2 tex[4];
 	vec4 col;
+	row_major mat4 mm;
+};
+uniform vert_uniforms2
+{
+	float fa[4];
+	vec4 coord;
 };
 
 subroutine vec3 uniform_routine();
@@ -34,5 +40,6 @@ vec4 test()
 
 void main()
 {
-	gl_Position = vec4(a1+col.xx+c1.zz, b1.xz)*tex.xxxx+vec4(routine(), 0.0);
+	vec4 a = vec4(fa[0], fa[1], fa[2], fa[3])+coord;
+	gl_Position = vec4(a1+col.xx+c1.zz, b1.xz)*tex[0].xxxx+vec4(routine(), 0.0)*mm+a;
 }

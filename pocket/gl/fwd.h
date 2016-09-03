@@ -22,12 +22,21 @@ template <typename> class binder;
 template <typename, typename> class binder1;
 template <typename, typename> class binder_map;
 
+struct buffer_type;
+struct buffer_usage;
+struct buffer_map;
+struct buffer_binding_type;
+
 class buffer;
 class buffer_view;
 template <int> class buffers;
 class shader;
 class program;
 class uniform_buffer;
+class vertex_array;
+template <typename> class vertex_buffer;
+template <typename> class layered_vertex_buffer;
+class sync;
 
 } // namespace gl
 } // namespace pocket

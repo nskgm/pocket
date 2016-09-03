@@ -141,6 +141,18 @@
     <ClInclude Include="gl\uniform_buffer.h">
       <Filter>ヘッダー ファイル\gl</Filter>
     </ClInclude>
+    <ClInclude Include="gl\layered_vertex_buffer.h">
+      <Filter>ヘッダー ファイル\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="gl\sync.h">
+      <Filter>ヘッダー ファイル\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="gl\vertex_array.h">
+      <Filter>ヘッダー ファイル\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="gl\vertex_buffer.h">
+      <Filter>ヘッダー ファイル\gl</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\main.cpp">

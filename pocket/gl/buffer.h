@@ -26,9 +26,13 @@ class uniform_buffer;
 template <>
 class binder<buffer>
 {
+private:
+	const buffer* _address;
+
 public:
 	explicit binder(const buffer& a);
 	~binder();
+
 	int size() const;
 	int count(int type_size) const;
 	template <typename T> int count() const;
@@ -38,12 +42,10 @@ public:
 	template <typename F> bool map(buffer_map_t, F) const;
 	template <typename T, typename F> bool map(buffer_map_t, F) const;
 	void unmap() const;
-
 	binder_map<buffer, void> make_binder_map(buffer_map_t) const;
 	template <buffer_map_t U> binder_map<buffer, void> make_binder_map() const;
 	template <typename T> binder_map<buffer, T> make_binder_map(buffer_map_t) const;
 	template <typename T, buffer_map_t U> binder_map<buffer, T> make_binder_map() const;
-
 	bool binding() const
 	{
 		return true;
@@ -66,9 +68,6 @@ public:
 	{
 		return _address;
 	}
-
-private:
-	const buffer* _address;
 };
 
 class buffer
@@ -637,7 +636,6 @@ public:
 		return true;
 	}
 
-public:
 	/*------------------------------------------------------------------------------------------
 	* Operators
 	*------------------------------------------------------------------------------------------*/
@@ -888,7 +886,8 @@ public:
 	// 状態を表す
 	enum state_type
 	{
-		binding_bit = 1 << 0,
+		none_state = 0,
+		binding_state = 1,
 	};
 
 private:
@@ -898,7 +897,7 @@ private:
 
 	const T* _address;
 	M* _data;
-	int _state_bitfield;
+	state_type _state;
 
 public:
 	/*------------------------------------------------------------------------------------------
@@ -912,28 +911,29 @@ public:
 	*------------------------------------------------------------------------------------------*/
 
 	explicit binder_map(const T& a, buffer_map_t type) :
-		_address(&a), _data(NULL), _state_bitfield(0)
+		_address(&a), _data(NULL)
 	{
 		// バインドされている時はデストラクタ時に解除しない
 		if (a.binding())
 		{
-			_state_bitfield |= binding_bit;
+			_state = binding_state;
 		}
 		else
 		{
 			a.bind();
+			_state = none_state;
 		}
 		_data = static_cast<M*>(a.map_binding(type));
 	}
 	explicit binder_map(const binder<T>& a, buffer_map_t type) :
 		_address(a),
 		_data(static_cast<M*>(a->map_binding(type))),
-		_state_bitfield(binding_bit)
+		_state(binding_state)
 	{}
 	~binder_map()
 	{
 		_address->unmap_binding();
-		if ((_state_bitfield & binding_bit) == 0)
+		if (_state != binding_state)
 		{
 			_address->unbind();
 		}

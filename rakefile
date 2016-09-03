@@ -422,9 +422,7 @@ task :pre_build do |t|
 
 		# ディレクトリ作成
 		dir = File.dirname PCH_FILE_NAME
-		if dir != "." then
-			directory(dir).invoke
-		end
+		directory(dir).invoke if dir != "."
 
 		# プリコンパイルヘッダが設定されていたら専用ファイルを作成
 		file PCH_FILE_NAME => pch do |t|

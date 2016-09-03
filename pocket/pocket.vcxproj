@@ -167,10 +167,14 @@
     <ClInclude Include="gl\config.h" />
     <ClInclude Include="gl\fwd.h" />
     <ClInclude Include="gl\gl.h" />
+    <ClInclude Include="gl\layered_vertex_buffer.h" />
     <ClInclude Include="gl\program.h" />
     <ClInclude Include="gl\shader.h" />
+    <ClInclude Include="gl\sync.h" />
     <ClInclude Include="gl\template.h" />
     <ClInclude Include="gl\uniform_buffer.h" />
+    <ClInclude Include="gl\vertex_array.h" />
+    <ClInclude Include="gl\vertex_buffer.h" />
     <ClInclude Include="io.h" />
     <ClInclude Include="math\all.h" />
     <ClInclude Include="math\color.h" />

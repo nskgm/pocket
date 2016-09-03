@@ -427,13 +427,20 @@ public:
 		s.detach(_id);
 	}
 
-	// シェーダーから作成されたアセンブラバイナリを保存する
-	bool save_binary(const char* path, GLenum& format, bool file_front_format_write = true)
+	// プログラムが保存可能か
+	bool savable() const
 	{
 		// 使用できるバイナリフォーマット数
 		GLint format_count = 0;
 		glGetIntegerv(GL_NUM_PROGRAM_BINARY_FORMATS, &format_count);
-		if (format_count == 0)
+		return format_count != 0;
+	}
+
+	// シェーダーから作成されたアセンブラバイナリを保存する
+	bool save_binary(const char* path, GLenum& format, bool file_front_format_write = true)
+	{
+		// 使用できるバイナリフォーマット数
+		if (!savable())
 		{
 			// 一つ以上ないと対応していない
 			_error_bitfield |= error_unsupported;
@@ -448,10 +455,6 @@ public:
 			_error_bitfield |= error_unsupported;
 			return false;
 		}
-
-		// フォーマット一覧を取得
-		//std::vector<GLint> formats(format_count);
-		//glGetIntegerv(GL_PROGRAM_BINARY_FORMATS, &formats[0]);
 
 		// バイナリ情報を取得
 		std::string binary(binary_length, '\0');
@@ -605,6 +608,13 @@ public:
 	}
 
 	// uniform block数
+	int uniform_block_count() const
+	{
+		GLint count;
+		glGetProgramiv(_id, GL_ACTIVE_UNIFORM_BLOCKS, &count);
+		return static_cast<int>(count);
+	}
+	// uniform block 内ブロック数
 	int uniform_block_count(GLuint index) const
 	{
 		GLint count = 0;
@@ -664,6 +674,11 @@ public:
 	void uniform_block_bind(const uniform_buffer&) const;
 
 	// インデックスから名前を取得
+	template <int N>
+	void uniform_block_name_from_location(GLuint location, char(&name)[N]) const
+	{
+		glGetActiveUniformName(_id, location, N, NULL, &name[0]);
+	}
 	std::string uniform_block_name_from_location(GLuint location, GLsizei length = 32) const
 	{
 		std::string name(static_cast<size_t>(length), '\0');
@@ -671,12 +686,118 @@ public:
 		name.resize(static_cast<size_t>(length));
 		return _CXX11_MOVE(name);
 	}
+	template <int N>
+	void uniform_block_name(GLuint index, char(&name)[N]) const
+	{
+		glGetActiveUniformBlockName(_id, index, N, NULL, &name[0]);
+	}
 	std::string uniform_block_name(GLuint index, GLsizei length = 32) const
 	{
 		std::string name(static_cast<size_t>(length), '\0');
 		glGetActiveUniformBlockName(_id, index, length, &length, &name[0]);
 		name.resize(static_cast<size_t>(length));
 		return _CXX11_MOVE(name);
+	}
+
+	// uniform block情報の出力
+	template <typename CharT, typename CharTraits>
+	void refrect_uniform_block(std::basic_ostream<CharT, CharTraits>& os, std::basic_ostream<CharT, CharTraits>&(*func)(std::basic_ostream<CharT, CharTraits>&) = NULL) const
+	{
+		// uniform block数
+		int count = uniform_block_count();
+		for (int i = 0; i < count; ++i)
+		{
+			char name[256];
+			uniform_block_name(i, name);
+			if (func != NULL)
+			{
+				func(os);
+			}
+			os << io::widen(static_cast<const char*>(&name[0])) << io::widen(": {") << std::endl;
+
+			if (func != NULL)
+			{
+				func(os);
+			}
+			int size = uniform_block_size(i);
+			os << io::tab << io::widen("size: ") << size << std::endl;
+
+			int ubcount = uniform_block_count(i);
+			if (func != NULL)
+			{
+				func(os);
+			}
+			os << io::tab << io::widen("uniform count: ") << ubcount << std::endl;
+
+			// インデックス取得
+			std::vector<GLint> indices(ubcount);
+			glGetActiveUniformBlockiv(_id, i, GL_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES, &indices[0]);
+
+			// uniform block内 uniform変数情報
+			for (int j = 0; j < ubcount; ++j)
+			{
+				GLuint idx = indices[j];
+				char varname[256];
+				uniform_block_name_from_location(idx, varname);
+				if (func != NULL)
+				{
+					func(os);
+				}
+				os << io::tab << io::widen(static_cast<const char*>(&varname[0])) << io::widen(": {") << std::endl;
+
+				GLint varsize, varoffset, array_stride, matrix_stride, row_major, type;
+				glGetActiveUniformsiv(_id, 1, &idx, GL_UNIFORM_SIZE, &varsize);
+				glGetActiveUniformsiv(_id, 1, &idx, GL_UNIFORM_OFFSET, &varoffset);
+				glGetActiveUniformsiv(_id, 1, &idx, GL_UNIFORM_ARRAY_STRIDE, &array_stride);
+				glGetActiveUniformsiv(_id, 1, &idx, GL_UNIFORM_MATRIX_STRIDE, &matrix_stride);
+				glGetActiveUniformsiv(_id, 1, &idx, GL_UNIFORM_IS_ROW_MAJOR, &row_major);
+				glGetActiveUniformsiv(_id, 1, &idx, GL_UNIFORM_TYPE, &type);
+
+				if (func != NULL)
+				{
+					func(os);
+				}
+				os << io::tab << io::tab << io::widen("index: ") << idx << std::endl;
+				if (func != NULL)
+				{
+					func(os);
+				}
+				varsize *= gl::get_type_size(type);
+				os << io::tab << io::tab << io::widen("size: ") << varsize << std::endl;
+				if (func != NULL)
+				{
+					func(os);
+				}
+				os << io::tab << io::tab << io::widen("offset: ") << varoffset << std::endl;
+				if (func != NULL)
+				{
+					func(os);
+				}
+				os << io::tab << io::tab << io::widen("array stride: ") << array_stride << std::endl;
+				if (func != NULL)
+				{
+					func(os);
+				}
+				os << io::tab << io::tab << io::widen("matrix stride: ") << matrix_stride << std::endl;
+				if (func != NULL)
+				{
+					func(os);
+				}
+				os << io::tab << io::tab << io::widen("row major: ") << io::widen(row_major == GL_TRUE) << std::endl;
+
+				if (func != NULL)
+				{
+					func(os);
+				}
+				os << io::tab << io::widen("}") << std::endl;
+			}
+
+			if (func != NULL)
+			{
+				func(os);
+			}
+			os << io::widen("}") << std::endl;
+		}
 	}
 
 	// UBO作成

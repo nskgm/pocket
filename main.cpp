@@ -5,6 +5,7 @@
 #include <vector>
 #include <typeinfo>
 
+namespace io = pocket::io;
 namespace gl = pocket::gl;
 
 // ウィンドウを見せてメインループを回すか
@@ -47,7 +48,8 @@ struct UniformStructure
 
 int main()
 {
-	std::cout << std::boolalpha << std::fixed;
+	std::cout << std::boolalpha << std::fixed << std::flush;
+	std::ios_base::sync_with_stdio(false);
 
 	GLuint err = glfwInit();
 	if (err != GL_TRUE)
@@ -85,9 +87,16 @@ int main()
 	}
 	POCKET_GL_ERROR_MSG("glew skip error.");
 
+	// デバッグ機能が使えるか
+	std::cout << "GL_ARB_debug_output: " << gl::is_extension_support("GL_ARB_debug_output") << std::endl;
+
 	// 頂点シェーダ―作成
 	gl::shader vert = gl::make_vertex_shader("test.vert");
 	if (!vert)
+	{
+		std::cout << vert.error() << std::endl;
+	}
+	else
 	{
 		std::cout << vert << std::endl;
 	}
@@ -96,6 +105,10 @@ int main()
 	// フラグメントシェーダー作成
 	gl::shader frag = gl::make_fragment_shader("test.frag");
 	if (!frag)
+	{
+		std::cout << frag.error() << std::endl;
+	}
+	else
 	{
 		std::cout << frag << std::endl;
 	}
@@ -116,7 +129,8 @@ int main()
 			prog.clear();
 		}
 		gl::program::binder_type bind = prog.make_binder();
-		std::cout << "r1: " << vert.subroutine("r1", prog) << std::endl;
+		std::cout << *bind << std::endl;
+		prog.refrect_uniform_block(std::cout, io::tab);
 	}
 	POCKET_GL_ERROR();
 
@@ -132,77 +146,39 @@ int main()
 	else
 	{
 		gl::buffer::binder_type bind = buffer.make_binder();
-
-		typedef gl::buffer::rebinder_map<float>::type binder_map_t;
-		{
-			binder_map_t mapper = bind.make_binder_map<float>(gl::buffer_map::read);
-			if (mapper)
-			{
-				for (binder_map_t::const_iterator i = mapper.cbegin(), end = mapper.cend(); i != end; ++i)
-				{
-					//std::cout << i->arrays << pocket::io::comma_space << i->instance << pocket::io::comma_space;
-					std::cout << *i << pocket::io::comma_space;
-				}
-				std::cout << std::endl;
-			}
-		}
+		std::cout << *bind << std::endl;
 	}
 	POCKET_GL_ERROR();
 
-	UniformStructure data = {
-		pocket::vector2f::unit_x,
-		pocket::colorf::white
-	};
-
 	// uniform buffer object作成
-	gl::uniform_buffer uniform = prog.make_uniform_buffer("vert_uniforms", 0, data);
+	gl::uniform_buffer uniform = prog.make_uniform_buffer("vert_uniforms", 0, NULL, gl::buffer_usage::dynamic_draw);
 	if (!uniform)
 	{
 		std::cout << uniform.error() << std::endl;
 	}
 	else
 	{
-		typedef gl::uniform_buffer::rebinder_map<UniformStructure>::type binder_map_t;
-		{
-			binder_map_t map = uniform.make_binder_map<UniformStructure>(gl::buffer_map::read);
-			if (map)
-			{
-				std::cout << map->tex << pocket::io::comma_space << map->col << std::endl;
-			}
-		}
-		data.tex.y = 5.0f;
-		data.col = pocket::colorf::blue;
-		uniform.uniform(data);
-		{
-			binder_map_t map = uniform.make_binder_map<UniformStructure>(gl::buffer_map::read);
-			if (map)
-			{
-				std::cout << map->tex << pocket::io::comma_space << map->col << std::endl;
-			}
-		}
+		//gl::uniform_buffer::binder_type bind = uniform.make_binder();
+		//std::cout << *bind << std::endl;
+		std::cout << uniform << std::endl;
 	}
 	POCKET_GL_ERROR();
 
-	gl::vertex_array vao;
-	gl::vertex_layout layouts[] = {
-		{3, GL_FLOAT, GL_FALSE, 0},
-		{4, GL_FLOAT, GL_FALSE, sizeof(float[3])}
+	gl::vertex_layout_index layouts[] = {
+		{0, 3, GL_FLOAT, GL_FALSE, 0},
+		{2, 4, GL_FLOAT, GL_FALSE, sizeof(float[3])}
 	};
-	if (!vao.initialize(buffer, sizeof(float[3])+sizeof(float[4]), layouts))
+	gl::vertex_array vao = gl::make_vertex_array(buffer, sizeof(float[3])+sizeof(float[4]), layouts);
+	if (!vao)
 	{
 		std::cout << vao.error() << std::endl;
 	}
 	else
 	{
-		//gl::vertex_array::binder_type bind = vao.make_binder();
-		//std::cout << *bind << std::endl;
-		vao.bind();
-		std::cout << vao << std::endl;
-		vao.unbind();
+		gl::vertex_array::binder_type bind = vao.make_binder();
+		std::cout << *bind << std::endl;
 	}
 	POCKET_GL_ERROR();
-
-	std::cout << "GL_ARB_debug_output: " << gl::is_extension_support("GL_ARB_debug_output") << std::endl;
 
 #if _SHOW_WINDOW
 	// メインループ

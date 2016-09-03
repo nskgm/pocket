@@ -192,9 +192,10 @@ void output_error(std::basic_ostream<CharT, CharTraits>& os, GLenum err, const c
 		{
 			os << io::tab;
 		}
-		os << io::widen("--- ") << io::widen(_string) << io::widen(" # ") << io::widen(func) << io::widen(": ") << line << std::endl;
+		os << io::widen("-- ") << io::widen(_string) << io::widen(" # ") << io::widen(func) << io::widen(": ") << line << std::endl;
 		err = glGetError();
 	} while (err != GL_NO_ERROR);
+	os << std::endl;
 }
 
 // coutへのエラー出力
@@ -314,7 +315,7 @@ const char* get_renderer_name()
 
 // フォーマット一覧取得
 inline
-bool get_formats(GLenum*& formats, int* count)
+bool get_formats(GLenum** formats, int* count)
 {
 	GLint format_count;
 	glGetIntegerv(GL_NUM_PROGRAM_BINARY_FORMATS, &format_count);
@@ -327,12 +328,12 @@ bool get_formats(GLenum*& formats, int* count)
 		formats = NULL;
 		return false;
 	}
-	formats = new GLenum[format_count];
-	if (formats == NULL)
+	*formats = new GLenum[format_count];
+	if (*formats == NULL)
 	{
 		return false;
 	}
-	glGetIntegerv(GL_PROGRAM_BINARY_FORMATS, reinterpret_cast<GLint*>(formats));
+	glGetIntegerv(GL_PROGRAM_BINARY_FORMATS, reinterpret_cast<GLint*>(*formats));
 	return true;
 }
 inline
