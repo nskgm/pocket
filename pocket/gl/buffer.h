@@ -433,6 +433,19 @@ public:
 		return mapped == GL_TRUE;
 	}
 
+	// 書き込み可能か
+	bool writable() const
+	{
+		binder_type lock(*this);
+		return writable_binding();
+	}
+	bool writable_binding() const
+	{
+		GLint immutable = 0;
+		glGetBufferParameteriv(_type, GL_BUFFER_IMMUTABLE_STORAGE, &immutable);
+		return immutable == GL_FALSE;
+	}
+
 	// マップしたものを管理するオブジェクトを作成
 	binder_map_type make_binder_map(buffer_map_t) const;
 	template <buffer_map_t U> binder_map_type make_binder_map() const;
@@ -1493,8 +1506,9 @@ std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, Ch
 	{
 		os << io::tab << io::widen("size: ") << v.size_binding() << std::endl;
 		std::ios_base::fmtflags flag = os.flags();
-		os << std::hex << io::tab << io::widen("usage: ") << v.usage_binding() << std::endl;
+		os << std::hex << io::tab << io::widen("usage: 0x") << v.usage_binding() << std::endl;
 		os.flags(flag);
+		os << io::tab << io::widen("writable: ") << io::widen(v.writable_binding()) << std::endl;
 	}
 	if (!v.valid())
 	{

@@ -1,5 +1,5 @@
-﻿#ifndef __POCKET_GL_VERTEX_BUFFER_H__
-#define __POCKET_GL_VERTEX_BUFFER_H__
+#ifndef __POCKET_GL_INDEX_BUFFER_H__
+#define __POCKET_GL_INDEX_BUFFER_H__
 
 #include "../config.h"
 #ifdef _USE_PRAGMA_ONCE
@@ -17,16 +17,16 @@ namespace gl
 {
 
 // forward
-template <typename> class vertex_buffer;
+template <typename> class index_buffer;
 
 template <typename T>
-class binder<vertex_buffer<T> >
+class binder<index_buffer<T> >
 {
 private:
-	const vertex_buffer<T>* _address;
+	const index_buffer<T>* _address;
 
 public:
-	explicit binder(const vertex_buffer<T>& a);
+	explicit binder(const index_buffer<T>& a);
 	~binder();
 	int size() const;
 	int count() const;
@@ -35,35 +35,35 @@ public:
 	template <typename F> bool map(buffer_map_t, F) const;
 	void unmap() const;
 
-	binder_map<vertex_buffer<T>, T> make_binder_map(buffer_map_t) const;
-	template <buffer_map_t U> binder_map<vertex_buffer<T>, T> make_binder_map() const;
+	binder_map<index_buffer<T>, T> make_binder_map(buffer_map_t) const;
+	template <buffer_map_t U> binder_map<index_buffer<T>, T> make_binder_map() const;
 
 	bool binding() const
 	{
 		return true;
 	}
 
-	const vertex_buffer<T>* operator -> () const
+	const index_buffer<T>* operator -> () const
 	{
 		return _address;
 	}
-	const vertex_buffer<T>& operator * () const
+	const index_buffer<T>& operator * () const
 	{
 		return *_address;
 	}
 
-	operator const vertex_buffer<T>& () const
+	operator const index_buffer<T>& () const
 	{
 		return *_address;
 	}
-	operator const vertex_buffer<T>* () const
+	operator const index_buffer<T>* () const
 	{
 		return _address;
 	}
 };
 
 template <typename T>
-class binder_map<vertex_buffer<T>, T>
+class binder_map<index_buffer<T>, T>
 {
 public:
 	typedef detail::binder_map_iterator<T> iterator;
@@ -75,13 +75,13 @@ public:
 	};
 
 private:
-	const vertex_buffer<T>* _address;
+	const index_buffer<T>* _address;
 	T* _data;
 	state_type _state;
 
 public:
-	explicit binder_map(const vertex_buffer<T>&, buffer_map_t);
-	explicit binder_map(const binder<vertex_buffer<T> >&, buffer_map_t);
+	explicit binder_map(const index_buffer<T>&, buffer_map_t);
+	explicit binder_map(const binder<index_buffer<T> >&, buffer_map_t);
 	~binder_map();
 
 	T* get() const
@@ -155,17 +155,17 @@ public:
 };
 
 template <typename T>
-class vertex_buffer
+class index_buffer
 {
 public:
 	/*------------------------------------------------------------------------------------------
 	* Types
 	*------------------------------------------------------------------------------------------*/
 
-	typedef T vertex_type;
+	typedef T index_type;
 
-	typedef binder<vertex_buffer<T> > binder_type;
-	typedef binder_map<buffer, vertex_type> binder_map_type;
+	typedef binder<index_buffer<T> > binder_type;
+	typedef binder_map<buffer, index_type> binder_map_type;
 
 	enum identifier_t
 	{
@@ -184,38 +184,38 @@ public:
 	* Constants
 	*------------------------------------------------------------------------------------------*/
 
-	vertex_buffer() :
+	index_buffer() :
 		_buffer()
 	{}
-	explicit vertex_buffer(const vertex_type* vertices, int count, buffer_usage_t usg = buffer_usage::immutable_draw) :
+	explicit index_buffer(const index_type* indices, int count, buffer_usage_t usg = buffer_usage::immutable_draw) :
 		_buffer()
 	{
-		initialize(vertices, count, usg);
+		initialize(indices, count, usg);
 	}
 	template <int N>
-	explicit vertex_buffer(const vertex_type(&vertices)[N], buffer_usage_t usg = buffer_usage::immutable_draw) :
+	explicit index_buffer(const index_type(&indices)[N], buffer_usage_t usg = buffer_usage::immutable_draw) :
 		_buffer()
 	{
-		initialize(vertices, usg);
+		initialize(indices, usg);
 	}
 	template <size_t N, template <typename, size_t> class ARRAY>
-	explicit vertex_buffer(const ARRAY<vertex_type, N>& vertices, buffer_usage_t usg = buffer_usage::immutable_draw) :
+	explicit index_buffer(const ARRAY<index_type, N>& indices, buffer_usage_t usg = buffer_usage::immutable_draw) :
 		_buffer()
 	{
-		initialize(vertices, usg);
+		initialize(indices, usg);
 	}
 	template <typename ALLOC, template <typename, typename> class VECTOR>
-	explicit vertex_buffer(const VECTOR<vertex_type, ALLOC>& vertices, buffer_usage_t usg = buffer_usage::immutable_draw) :
+	explicit index_buffer(const VECTOR<index_type, ALLOC>& indices, buffer_usage_t usg = buffer_usage::immutable_draw) :
 		_buffer()
 	{
-		initialize(vertices, usg);
+		initialize(indices, usg);
 	}
-	explicit vertex_buffer(int count) :
+	explicit index_buffer(int count) :
 		_buffer()
 	{
 		initialize(count);
 	}
-	~vertex_buffer()
+	~index_buffer()
 	{
 		finalize();
 	}
@@ -231,29 +231,29 @@ public:
 	*------------------------------------------------------------------------------------------*/
 
 	// 初期化
-	bool initialize(const vertex_type* vertices, int count, buffer_usage_t usg = buffer_usage::immutable_draw)
+	bool initialize(const index_type* indices, int count, buffer_usage_t usg = buffer_usage::immutable_draw)
 	{
-		return _buffer.initialize(buffer_type::array, usg, sizeof(vertex_type)*count, static_cast<const void*>(vertices));
+		return _buffer.initialize(buffer_type::element_array, usg, sizeof(index_type)*count, static_cast<const void*>(indices));
 	}
 	template <int N>
-	bool initialize(const vertex_type(&vertices)[N], buffer_usage_t usg = buffer_usage::immutable_draw)
+	bool initialize(const index_type(&indices)[N], buffer_usage_t usg = buffer_usage::immutable_draw)
 	{
-		return initialize(&vertices[0], N, usg);
+		return initialize(&indices[0], N, usg);
 	}
 	template <size_t N, template <typename, size_t> class ARRAY>
-	bool initialize(const ARRAY<vertex_type, N>& vertices, buffer_usage_t usg = buffer_usage::immutable_draw)
+	bool initialize(const ARRAY<index_type, N>& indices, buffer_usage_t usg = buffer_usage::immutable_draw)
 	{
-		return initialize(&vertices[0], N, usg);
+		return initialize(&indices[0], N, usg);
 	}
 	template <typename ALLOC, template <typename, typename> class VECTOR>
-	bool initialize(const VECTOR<vertex_type, ALLOC>& vertices, buffer_usage_t usg = buffer_usage::immutable_draw)
+	bool initialize(const VECTOR<index_type, ALLOC>& indices, buffer_usage_t usg = buffer_usage::immutable_draw)
 	{
-		return initialize(&vertices[0], vertices.size(), usg);
+		return initialize(&indices[0], indices.size(), usg);
 	}
 	bool initialize(int count)
 	{
 		// サイズのみ確保
-		return _buffer.initialize(buffer_type::array, buffer_usage::dynamic_draw, sizeof(vertex_type)*count, NULL);
+		return _buffer.initialize(buffer_type::element_array, buffer_usage::dynamic_draw, sizeof(index_type)*count, NULL);
 	}
 
 	// 終了処理
@@ -334,13 +334,13 @@ public:
 	}
 
 	// バッファを展開して先頭アドレスを取得
-	vertex_type* map(buffer_map_t type) const
+	index_type* map(buffer_map_t type) const
 	{
-		return _buffer.map<vertex_type>(type);
+		return _buffer.map<index_type>(type);
 	}
-	vertex_type* map_binding(buffer_map_t type) const
+	index_type* map_binding(buffer_map_t type) const
 	{
-		return _buffer.map_binding<vertex_type>(type);
+		return _buffer.map_binding<index_type>(type);
 	}
 
 	// 展開してアドレスを取得できていたら渡された関数を実行
@@ -353,7 +353,7 @@ public:
 	template <typename F>
 	bool map_binding(buffer_map_t type, F func) const
 	{
-		vertex_type* address = map_binding(type);
+		index_type* address = map_binding(type);
 		if (address == NULL)
 		{
 			return false;
@@ -379,7 +379,7 @@ public:
 		return _buffer.mapping();
 	}
 
-	// 書き込み可能か
+
 	bool writable() const
 	{
 		return _buffer.writable();
@@ -395,12 +395,6 @@ public:
 		return binder_map_type(*this, type);
 	}
 
-	// ストリーミング
-	void stream(GLuint point) const
-	{
-		_buffer.bind_base(buffer_type::transform_feedback, point);
-	}
-
 	// バッファサイズ
 	int size() const
 	{
@@ -414,11 +408,11 @@ public:
 	// 型の数
 	int count() const
 	{
-		return _buffer.count<vertex_type>();
+		return _buffer.count<index_type>();
 	}
 	int count_binding() const
 	{
-		return _buffer.count_binding<vertex_type>();
+		return _buffer.count_binding<index_type>();
 	}
 
 	// 設定した時の扱い法
@@ -484,28 +478,28 @@ public:
 		return !valid();
 	}
 
-	bool operator == (const vertex_buffer& b) const
+	bool operator == (const index_buffer& b) const
 	{
 		return _buffer == b._buffer;
 	}
-	bool operator != (const vertex_buffer& b) const
+	bool operator != (const index_buffer& b) const
 	{
 		return !(*this == b);
 	}
 
-	vertex_buffer& operator = (const vertex_buffer& b)
+	index_buffer& operator = (const index_buffer& b)
 	{
 		_buffer = b._buffer;
 		return *this;
 	}
 #ifdef _USE_CXX11
-	vertex_buffer& operator = (vertex_buffer&& b)
+	index_buffer& operator = (index_buffer&& b)
 	{
 		_buffer = std::move(b._buffer);
 		return *this;
 	}
 
-	vertex_buffer& operator = (std::nullptr_t)
+	index_buffer& operator = (std::nullptr_t)
 	{
 		finalize();
 		return *this;
@@ -515,61 +509,61 @@ public:
 
 
 template <typename T> inline
-binder<vertex_buffer<T> >::binder(const vertex_buffer<T>& a) :
+binder<index_buffer<T> >::binder(const index_buffer<T>& a) :
 	_address(&a)
 {
 	a.bind();
 }
 template <typename T> inline
-binder<vertex_buffer<T> >::~binder()
+binder<index_buffer<T> >::~binder()
 {
 	_address->unbind();
 }
 template <typename T> inline
-int binder<vertex_buffer<T> >::size() const
+int binder<index_buffer<T> >::size() const
 {
 	return _address->size_binding();
 }
 template <typename T> inline
-int binder<vertex_buffer<T> >::count() const
+int binder<index_buffer<T> >::count() const
 {
 	return _address->count_binding();
 }
 template <typename T> inline
-buffer_usage_t binder<vertex_buffer<T> >::usage() const
+buffer_usage_t binder<index_buffer<T> >::usage() const
 {
 	return _address->usage_binding();
 }
 template <typename T> inline
-T* binder<vertex_buffer<T> >::map(buffer_map_t type) const
+T* binder<index_buffer<T> >::map(buffer_map_t type) const
 {
 	return _address->map_binding(type);
 }
 template <typename T>
 template <typename F> inline
-bool binder<vertex_buffer<T> >::map(buffer_map_t type, F func) const
+bool binder<index_buffer<T> >::map(buffer_map_t type, F func) const
 {
 	return _address->map_binding(type, func);
 }
 template <typename T> inline
-void binder<vertex_buffer<T> >::unmap() const
+void binder<index_buffer<T> >::unmap() const
 {
 	_address->unmap_binding();
 }
 template <typename T> inline
-binder_map<vertex_buffer<T>, T> binder<vertex_buffer<T> >::make_binder_map(buffer_map_t type) const
+binder_map<index_buffer<T>, T> binder<index_buffer<T> >::make_binder_map(buffer_map_t type) const
 {
-	return binder_map<vertex_buffer<T>, T>(*this, type);
+	return binder_map<index_buffer<T>, T>(*this, type);
 }
 template <typename T>
 template <buffer_map_t U> inline
-binder_map<vertex_buffer<T>, T> binder<vertex_buffer<T> >::make_binder_map() const
+binder_map<index_buffer<T>, T> binder<index_buffer<T> >::make_binder_map() const
 {
-	return binder_map<vertex_buffer<T>, T>(*this, U);
+	return binder_map<index_buffer<T>, T>(*this, U);
 }
 
 template <typename T> inline
-binder_map<vertex_buffer<T>, T>::binder_map(const vertex_buffer<T>& a, buffer_map_t type) :
+binder_map<index_buffer<T>, T>::binder_map(const index_buffer<T>& a, buffer_map_t type) :
 	_address(&a)
 {
 	if (a.binding())
@@ -584,11 +578,11 @@ binder_map<vertex_buffer<T>, T>::binder_map(const vertex_buffer<T>& a, buffer_ma
 	}
 }
 template <typename T> inline
-binder_map<vertex_buffer<T>, T>::binder_map(const binder<vertex_buffer<T> >& a, buffer_map_t type) :
+binder_map<index_buffer<T>, T>::binder_map(const binder<index_buffer<T> >& a, buffer_map_t type) :
 	_address(a), _data(a.map(type)), _state(binding_state)
 {}
 template <typename T> inline
-binder_map<vertex_buffer<T>, T>::~binder_map()
+binder_map<index_buffer<T>, T>::~binder_map()
 {
 	_address->unmap_binding();
 	if (_state != binding_state)
@@ -597,82 +591,82 @@ binder_map<vertex_buffer<T>, T>::~binder_map()
 	}
 }
 template <typename T> inline
-typename binder_map<vertex_buffer<T>, T>::iterator binder_map<vertex_buffer<T>, T>::end()
+typename binder_map<index_buffer<T>, T>::iterator binder_map<index_buffer<T>, T>::end()
 {
 	return iterator(_data + _address->count_binding());
 }
 template <typename T> inline
-typename binder_map<vertex_buffer<T>, T>::const_iterator binder_map<vertex_buffer<T>, T>::end() const
+typename binder_map<index_buffer<T>, T>::const_iterator binder_map<index_buffer<T>, T>::end() const
 {
 	return const_iterator(_data + _address->count_binding());
 }
 template <typename T> inline
-typename binder_map<vertex_buffer<T>, T>::const_iterator binder_map<vertex_buffer<T>, T>::cend() const
+typename binder_map<index_buffer<T>, T>::const_iterator binder_map<index_buffer<T>, T>::cend() const
 {
 	return const_iterator(_data + _address->count_binding());
 }
 
 template <typename T> inline
-vertex_buffer<T> make_vertex_buffer(const T* vertices, int count, buffer_usage_t usg = buffer_usage::immutable_draw)
+index_buffer<T> make_index_buffer(const T* indices, int count, buffer_usage_t usg = buffer_usage::immutable_draw)
 {
-	return vertex_buffer<T>(vertices, count, usg);
+	return index_buffer<T>(indices, count, usg);
 }
 template <typename T, int N> inline
-vertex_buffer<T> make_vertex_buffer(const T(&vertices)[N], buffer_usage_t usg = buffer_usage::immutable_draw)
+index_buffer<T> make_index_buffer(const T(&indices)[N], buffer_usage_t usg = buffer_usage::immutable_draw)
 {
-	return vertex_buffer<T>(vertices, usg);
+	return index_buffer<T>(indices, usg);
 }
 template <typename T, size_t N, template <typename, size_t> class ARRAY> inline
-vertex_buffer<T> make_vertex_buffer(const ARRAY<T, N>& vertices, buffer_usage_t usg = buffer_usage::immutable_draw)
+index_buffer<T> make_index_buffer(const ARRAY<T, N>& indices, buffer_usage_t usg = buffer_usage::immutable_draw)
 {
-	return vertex_buffer<T>(vertices, usg);
+	return index_buffer<T>(indices, usg);
 }
 template <typename T, typename ALLOC, template <typename, typename> class VECTOR> inline
-vertex_buffer<T> make_vertex_buffer(const VECTOR<T, ALLOC>& vertices, buffer_usage_t usg = buffer_usage::immutable_draw)
+index_buffer<T> make_index_buffer(const VECTOR<T, ALLOC>& indices, buffer_usage_t usg = buffer_usage::immutable_draw)
 {
-	return vertex_buffer<T>(vertices, usg);
+	return index_buffer<T>(indices, usg);
 }
 template <typename T> inline
-vertex_buffer<T> make_vertex_buffer(int count)
+index_buffer<T> make_index_buffer(int count)
 {
-	return vertex_buffer<T>(count);
+	return index_buffer<T>(count);
 }
 
 template <typename T> inline
-vertex_buffer<T>& make_vertex_buffer(vertex_buffer<T>& b, const T* vertices, int count, buffer_usage_t usg = buffer_usage::immutable_draw)
+index_buffer<T>& make_index_buffer(index_buffer<T>& b, const T* indices, int count, buffer_usage_t usg = buffer_usage::immutable_draw)
 {
-	b.initialize(vertices, count, usg);
+	b.initialize(indices, count, usg);
 	return b;
 }
 template <typename T, int N> inline
-vertex_buffer<T>& make_vertex_buffer(vertex_buffer<T>& b, const T(&vertices)[N], buffer_usage_t usg = buffer_usage::immutable_draw)
+index_buffer<T>& make_index_buffer(index_buffer<T>& b, const T(&indices)[N], buffer_usage_t usg = buffer_usage::immutable_draw)
 {
-	b.initialize(vertices, usg);
+	b.initialize(indices, usg);
 	return b;
 }
 template <typename T, size_t N, template <typename, size_t> class ARRAY> inline
-vertex_buffer<T>& make_vertex_buffer(vertex_buffer<T>& b, const ARRAY<T, N>& vertices, buffer_usage_t usg = buffer_usage::immutable_draw)
+index_buffer<T>& make_index_buffer(index_buffer<T>& b, const ARRAY<T, N>& indices, buffer_usage_t usg = buffer_usage::immutable_draw)
 {
-	b.initialize(vertices, usg);
+	b.initialize(indices, usg);
 	return b;
 }
 template <typename T, typename ALLOC, template <typename, typename> class VECTOR> inline
-vertex_buffer<T>& make_vertex_buffer(vertex_buffer<T>& b, const VECTOR<T, ALLOC>& vertices, buffer_usage_t usg = buffer_usage::immutable_draw)
+index_buffer<T>& make_index_buffer(index_buffer<T>& b, const VECTOR<T, ALLOC>& indices, buffer_usage_t usg = buffer_usage::immutable_draw)
 {
-	b.initialize(vertices, usg);
+	b.initialize(indices, usg);
 	return b;
 }
 template <typename T> inline
-vertex_buffer<T>& make_vertex_buffer(vertex_buffer<T>& b, int count)
+index_buffer<T>& make_index_buffer(index_buffer<T>& b, int count)
 {
 	b.initialize(count);
 	return b;
 }
 
 template <typename CharT, typename CharTraits, typename T> inline
-std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const vertex_buffer<T>& v)
+std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const index_buffer<T>& v)
 {
-	os << io::widen("vertex_buffer: ") << io::braces_left << std::endl <<
+	os << io::widen("index_buffer: ") << io::braces_left << std::endl <<
 		io::tab << io::widen("id: ") << v.get() << std::endl;
 	if (v.binding())
 	{
@@ -694,4 +688,4 @@ std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, Ch
 } // namespace gl
 } // namespace pocket
 
-#endif // __POCKET_GL_VERTEX_BUFFER_H__
+#endif // __POCKET_GL_INDEX_BUFFER_H__

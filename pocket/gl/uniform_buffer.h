@@ -468,6 +468,29 @@ public:
 		return typename rebinder_map<T>::type(*this, U);
 	}
 
+	void bind_buffer() const
+	{
+		_buffer.bind();
+	}
+	void unbind_buffer() const
+	{
+		_buffer.unbind();
+	}
+	bool binding_buffer() const
+	{
+		return _buffer.binding();
+	}
+
+	// 書き込み可能か
+	bool writable() const
+	{
+		return _buffer.writable();
+	}
+	bool writable_binding() const
+	{
+		return _buffer.writable_binding();
+	}
+
 	std::string error() const
 	{
 		// インデックスが無効（指定された名前が見つからない）
@@ -730,6 +753,10 @@ std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, Ch
 		io::tab << io::widen("size: ") << v.size() << std::endl <<
 		io::tab << io::widen("binding point: ") << v.binding_point() << std::endl <<
 		io::tab << io::widen("index: ") << v.index() << std::endl;
+	if (v.binding_buffer())
+	{
+		os << io::tab << io::widen("writable: ") << v.writable_binding() << std::endl;
+	}
 	if (!v.valid())
 	{
 		std::string error = v.error();

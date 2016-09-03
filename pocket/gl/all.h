@@ -10,6 +10,7 @@
 #include "config.h"
 #include "gl.h"
 #include "commands.h"
+#include "type.h"
 #include "shader.h"
 #include "program.h"
 #include "buffer.h"
@@ -17,6 +18,7 @@
 #include "uniform_buffer.h"
 #include "vertex_array.h"
 #include "vertex_buffer.h"
+#include "index_buffer.h"
 #include "layered_vertex_buffer.h"
 #include "sync.h"
 

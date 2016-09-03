@@ -130,7 +130,7 @@ int main()
 		}
 		gl::program::binder_type bind = prog.make_binder();
 		std::cout << *bind << std::endl;
-		prog.refrect_uniform_block(std::cout, io::tab);
+		//prog.refrect_uniform_block(std::cout);
 	}
 	POCKET_GL_ERROR();
 
@@ -151,7 +151,7 @@ int main()
 	POCKET_GL_ERROR();
 
 	// uniform buffer object作成
-	gl::uniform_buffer uniform = prog.make_uniform_buffer("vert_uniforms", 0, NULL, gl::buffer_usage::dynamic_draw);
+	gl::uniform_buffer uniform = prog.make_uniform_buffer("ublock", 0, NULL, gl::buffer_usage::dynamic_draw);
 	if (!uniform)
 	{
 		std::cout << uniform.error() << std::endl;
@@ -164,9 +164,9 @@ int main()
 	}
 	POCKET_GL_ERROR();
 
-	gl::vertex_layout_index layouts[] = {
-		{0, 3, GL_FLOAT, GL_FALSE, 0},
-		{2, 4, GL_FLOAT, GL_FALSE, sizeof(float[3])}
+	gl::vertex_layout layouts[] = {
+		gl::layout_t<3, float, false, 0>::value,
+		gl::layout_t<4, float, false, 0>::value,
 	};
 	gl::vertex_array vao = gl::make_vertex_array(buffer, sizeof(float[3])+sizeof(float[4]), layouts);
 	if (!vao)

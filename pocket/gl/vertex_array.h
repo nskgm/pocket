@@ -12,6 +12,7 @@
 #include "../container/array.h"
 #include "buffer.h"
 #include "vertex_buffer.h"
+#include "type.h"
 
 namespace pocket
 {
@@ -28,6 +29,16 @@ struct vertex_layout
 	int normalized;
 	int offset;
 };
+template <int C, typename T, bool N, int O>
+struct layout_t
+{
+	static const vertex_layout value;
+};
+template <int C, typename T, bool N, int O>
+const vertex_layout layout_t<C, T, N, O>::value = {
+	C, gl_type<T>::value, gl_bool<N>::value, O
+};
+
 struct vertex_layout_index
 {
 	int index;
@@ -35,6 +46,15 @@ struct vertex_layout_index
 	int type;
 	int normalized;
 	int offset;
+};
+template <int I, int C, typename T, bool N, int O>
+struct layout_index_t
+{
+	static const vertex_layout_index value;
+};
+template <int I, int C, typename T, bool N, int O>
+const vertex_layout_index layout_index_t<I, C, T, N, O>::value = {
+	I, C, gl_type<T>::value, gl_bool<N>::value, O
 };
 
 #define __POCKET_BUFFER_OFFSET(OFFSET) (static_cast<const void*>(reinterpret_cast<const char*>(0)+(OFFSET)))
@@ -657,6 +677,36 @@ public:
 		return !enabled(i);
 	}
 
+	// 要素数
+	int count(int i) const
+	{
+		GLint n;
+		glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_SIZE, &n);
+		return static_cast<int>(n);
+	}
+
+	// サイズ
+	int size(int i) const
+	{
+		return count(i) * gl::get_type_size(type(i));
+	}
+
+	// バインドされているか
+	bool binding(int i) const
+	{
+		GLint n = 0;
+		glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING, &n);
+		return n != 0;
+	}
+
+	// バインドされているか
+	GLenum type(int i) const
+	{
+		GLint n = 0;
+		glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_TYPE, &n);
+		return static_cast<GLenum>(n);
+	}
+
 	// エラー文
 	std::string error() const
 	{
@@ -948,17 +998,22 @@ std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, Ch
 	// バインド状態だったら有効状態を表示
 	if (v.binding())
 	{
-		os << io::tab << io::widen("enable: ");
+		os << io::tab << io::widen("enable: [") << std::endl;
 		GLint n = 0;
 		glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &n);
 		for (int i = 0; i < n; ++i)
 		{
 			if (v.enabled(i))
 			{
-				os << i << io::space;
+				os << io::tab2 << i << io::colon << io::space << io::box_brackets_left <<
+					io::widen("count: ") << v.count(i) << io::comma_space;
+				std::ios_base::fmtflags flag = os.flags();
+				os << std::hex << io::widen("type: 0x") << v.type(i) << io::comma_space;
+				os.flags(flag);
+				os << io::widen("size: ") << v.size(i) << io::box_brackets_right << std::endl;
 			}
 		}
-		os << std::endl;
+		os << io::tab << io::box_brackets_right << std::endl;
 	}
 	if (!v.valid())
 	{

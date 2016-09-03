@@ -148,6 +148,7 @@ private:
 
 	vertex_buffer<T> _vbo;
 	vertex_array _vao;
+	int _vertex_count;
 	error_object_type _error;
 
 public:
@@ -164,6 +165,7 @@ public:
 	layered_vertex_buffer() :
 		_vbo(),
 		_vao(),
+		_vertex_count(0),
 		_error(none)
 	{}
 	explicit layered_vertex_buffer(const vertex_type* vertices, int vcount, const vertex_layout* layouts, int lcount, buffer_usage_t usg = buffer_usage::immutable_draw) :
@@ -212,6 +214,7 @@ public:
 	bool initialize(const vertex_type* vertices, int vcount, const vertex_layout* layouts, int lcount, buffer_usage_t usg = buffer_usage::immutable_draw)
 	{
 		finalize();
+		_vertex_count = vcount;
 
 		// VBO作成
 		if (!_vbo.initialize(vertices, vcount, usg))
@@ -231,6 +234,7 @@ public:
 	bool initialize(const vertex_type* vertices, int vcount, const vertex_layout_index* layouts, int lcount, buffer_usage_t usg = buffer_usage::immutable_draw)
 	{
 		finalize();
+		_vertex_count = vcount;
 
 		if (!_vbo.initialize(vertices, vcount, usg))
 		{
@@ -253,6 +257,7 @@ public:
 	bool initialize(int vcount, const vertex_layout* layouts, int lcount)
 	{
 		finalize();
+		_vertex_count = vcount;
 
 		// 容量だけ確保
 		if (!_vbo.initialize(vcount))
@@ -286,6 +291,8 @@ public:
 	bool initialize(int vcount, const vertex_layout_index* layouts, int lcount)
 	{
 		finalize();
+		_vertex_count = vcount;
+
 		if (!_vbo.initialize(vcount))
 		{
 			_error = vertex_buffer_object;
@@ -319,6 +326,7 @@ public:
 	{
 		_vbo.finalize();
 		_vao.finalize();
+		_vertex_count = 0;
 		_error = none;
 	}
 
@@ -379,7 +387,7 @@ public:
 		{
 			return false;
 		}
-		func(address);
+		func(address, _vertex_count);
 		unmap_binding();
 		return true;
 	}
@@ -400,9 +408,16 @@ public:
 		return binder_map_type(_vbo, type);
 	}
 
+	// ストリーミングへのバインド
 	void stream(GLuint point) const
 	{
 		_vbo.stream(point);
+	}
+
+	// 頂点数
+	int count() const
+	{
+		return _vertex_count;
 	}
 
 	// エラー分

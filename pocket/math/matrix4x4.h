@@ -1909,10 +1909,10 @@ std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, Ch
 	//	V2
 	//	V3
 	//}
-	os << io::braces_left << io::line;
+	os << io::braces_left << io::line_feed;
 	for (typename matrix4x4<T>::const_iterator i = v.M.begin(), end = v.M.end(); i != end; ++i)
 	{
-		os << io::tab << *i << io::line;
+		os << io::tab << *i << io::line_feed;
 	}
 	os << io::braces_right;
 	return os;

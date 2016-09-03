@@ -346,6 +346,7 @@ def color_print_impl(c, d)
 	print color_element(c)
 	yield
 	print color_element(d)
+	STDOUT.flush
 end
 # 変えたい色に変更してブロックが終了したら標準に色に戻す
 def color_print(c)
@@ -573,7 +574,6 @@ task :post_build do
 		print "build time: #{Time.now - start_time}s\n"
 		print line
 	end
-	STDOUT.flush
 
 	start_time = nil
 end

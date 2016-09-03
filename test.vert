@@ -7,13 +7,13 @@ uniform vec3 b1;
 uniform vec3 c1;
 
 layout(std140)
-uniform vert_uniforms
+uniform ublock
 {
 	vec2 tex[4];
 	vec4 col;
 	row_major mat4 mm;
 };
-uniform vert_uniforms2
+uniform ublock2
 {
 	float fa[4];
 	vec4 coord;

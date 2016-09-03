@@ -23,8 +23,9 @@ namespace io
 	}
 #endif // _DECL_OUT_CHAR_FUNCTION
 
+_DECL_OUT_CHAR_FUNCTION(bel, '\7');
 _DECL_OUT_CHAR_FUNCTION(space, ' ');
-_DECL_OUT_CHAR_FUNCTION(line, '\n');
+_DECL_OUT_CHAR_FUNCTION(line_feed, '\n');
 _DECL_OUT_CHAR_FUNCTION(parentheses_left, '(');
 _DECL_OUT_CHAR_FUNCTION(parentheses_right, ')');
 _DECL_OUT_CHAR_FUNCTION(braces_left, '{');
@@ -42,6 +43,10 @@ _DECL_OUT_CHAR_FUNCTION(quation, '\?');
 _DECL_OUT_CHAR_FUNCTION(exclamation, '!');
 _DECL_OUT_CHAR_FUNCTION(colon, ':');
 _DECL_OUT_CHAR_FUNCTION(semicolon, ';');
+_DECL_OUT_CHAR_FUNCTION(sharp, '#');
+_DECL_OUT_CHAR_FUNCTION(dollars, '$');
+_DECL_OUT_CHAR_FUNCTION(percent, '%');
+_DECL_OUT_CHAR_FUNCTION(asterisk, '*');
 
 #undef _DECL_OUT_CHAR_FUNCTION
 
@@ -50,6 +55,30 @@ template <typename CharT, typename CharTraits> inline
 std::basic_ostream<CharT, CharTraits>& comma_space(std::basic_ostream<CharT, CharTraits>& os)
 {
 	os << comma << space;
+	return os;
+}
+template <typename CharT, typename CharTraits> inline
+std::basic_ostream<CharT, CharTraits>& tab2(std::basic_ostream<CharT, CharTraits>& os)
+{
+	os << tab << tab;
+	return os;
+}
+template <typename CharT, typename CharTraits> inline
+std::basic_ostream<CharT, CharTraits>& tab3(std::basic_ostream<CharT, CharTraits>& os)
+{
+	os << tab2 << tab;
+	return os;
+}
+template <typename CharT, typename CharTraits> inline
+std::basic_ostream<CharT, CharTraits>& tab4(std::basic_ostream<CharT, CharTraits>& os)
+{
+	os << tab3 << tab;
+	return os;
+}
+template <typename CharT, typename CharTraits> inline
+std::basic_ostream<CharT, CharTraits>& tab5(std::basic_ostream<CharT, CharTraits>& os)
+{
+	os << tab4 << tab;
 	return os;
 }
 

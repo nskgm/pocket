@@ -474,10 +474,10 @@ bool operator >> (const ARRAY<T, N>& v, const frustum<T>& f)
 template <typename CharT, typename CharTraits, typename T> inline
 std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const frustum<T>& v)
 {
-	os << io::braces_left << io::line;
+	os << io::braces_left << io::line_feed;
 	for (typename frustum<T>::const_iterator i = v.planes.begin(), end = v.planes.end(); i != end; ++i)
 	{
-		os << io::tab << *i << io::line;
+		os << io::tab << *i << io::line_feed;
 	}
 	os << io::braces_right;
 	return os;

@@ -727,23 +727,31 @@ public:
 			{
 				func(os);
 			}
-			os << io::tab << io::widen("uniform count: ") << ubcount << std::endl;
+			os << io::tab << io::widen("variable count: ") << ubcount << std::endl;
 
 			// インデックス取得
 			std::vector<GLint> indices(ubcount);
 			glGetActiveUniformBlockiv(_id, i, GL_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES, &indices[0]);
 
+			if (func != NULL)
+			{
+				func(os);
+			}
+			os << io::tab << io::widen("variables: [") << std::endl;
+
 			// uniform block内 uniform変数情報
 			for (int j = 0; j < ubcount; ++j)
 			{
 				GLuint idx = indices[j];
-				char varname[256];
-				uniform_block_name_from_location(idx, varname);
+
 				if (func != NULL)
 				{
 					func(os);
 				}
-				os << io::tab << io::widen(static_cast<const char*>(&varname[0])) << io::widen(": {") << std::endl;
+				// 変数名
+				char varname[256];
+				uniform_block_name_from_location(idx, varname);
+				os << io::tab2 << io::widen(static_cast<const char*>(&varname[0])) << io::widen(": {") << std::endl;
 
 				GLint varsize, varoffset, array_stride, matrix_stride, row_major, type;
 				glGetActiveUniformsiv(_id, 1, &idx, GL_UNIFORM_SIZE, &varsize);
@@ -753,50 +761,65 @@ public:
 				glGetActiveUniformsiv(_id, 1, &idx, GL_UNIFORM_IS_ROW_MAJOR, &row_major);
 				glGetActiveUniformsiv(_id, 1, &idx, GL_UNIFORM_TYPE, &type);
 
+				// ロケーション
 				if (func != NULL)
 				{
 					func(os);
 				}
-				os << io::tab << io::tab << io::widen("index: ") << idx << std::endl;
+				os << io::tab3 << io::widen("location: ") << idx << std::endl;
+				// サイズ
 				if (func != NULL)
 				{
 					func(os);
 				}
-				varsize *= gl::get_type_size(type);
-				os << io::tab << io::tab << io::widen("size: ") << varsize << std::endl;
+				varsize *= gl::get_type_size(type); // 配列のサイズが入ってくるから型のサイズを掛け合わせる
+				os << io::tab3 << io::widen("size: ") << varsize << std::endl;
+				// オフセット
 				if (func != NULL)
 				{
 					func(os);
 				}
-				os << io::tab << io::tab << io::widen("offset: ") << varoffset << std::endl;
+				os << io::tab3 << io::widen("offset: ") << varoffset << std::endl;
 				if (func != NULL)
 				{
 					func(os);
 				}
-				os << io::tab << io::tab << io::widen("array stride: ") << array_stride << std::endl;
+				os << io::tab3 << io::widen("array stride: ") << array_stride << std::endl;
 				if (func != NULL)
 				{
 					func(os);
 				}
-				os << io::tab << io::tab << io::widen("matrix stride: ") << matrix_stride << std::endl;
+				os << io::tab3 << io::widen("matrix stride: ") << matrix_stride << std::endl;
+				// 行優先か
 				if (func != NULL)
 				{
 					func(os);
 				}
-				os << io::tab << io::tab << io::widen("row major: ") << io::widen(row_major == GL_TRUE) << std::endl;
+				os << io::tab3 << io::widen("row major: ") << io::widen(row_major == GL_TRUE) << std::endl;
 
 				if (func != NULL)
 				{
 					func(os);
 				}
-				os << io::tab << io::widen("}") << std::endl;
+				os << io::tab2 << io::braces_right;
+
+				if (j + 1 < ubcount)
+				{
+					os << io::comma;
+				}
+				os << std::endl;
 			}
+			if (func != NULL)
+			{
+				func(os);
+			}
+			os << io::tab << io::box_brackets_right << std::endl;
 
 			if (func != NULL)
 			{
 				func(os);
 			}
-			os << io::widen("}") << std::endl;
+			os << io::braces_right << std::endl;
 		}
 	}
 
@@ -840,6 +863,14 @@ public:
 	uniform_buffer& make_uniform_buffer(uniform_buffer&, const std::string&, GLuint, const ARRAY<T, N>&, buffer_usage_t = buffer_usage::dynamic_draw) const;
 	template <typename T, typename ALLOC, template <typename, typename> class VECTOR>
 	uniform_buffer& make_uniform_buffer(uniform_buffer&, const std::string&, GLuint, const VECTOR<T, ALLOC>&, buffer_usage_t = buffer_usage::dynamic_draw) const;
+
+	// サブルーチン数
+	int subroutine_count(GLuint index, shader::shader_type type) const
+	{
+		GLint n = 0;
+		glGetActiveSubroutineUniformiv(_id, type, index, GL_NUM_COMPATIBLE_SUBROUTINES, &n);
+		return static_cast<int>(n);
+	}
 
 	// サブルーチンインデックス取得
 	GLuint subroutine_index(const char* name, shader::shader_type type) const
