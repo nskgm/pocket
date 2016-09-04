@@ -484,7 +484,7 @@ std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, Ch
 			break;
 	}
 
-	os << io::widen("shader: ") << io::braces_left << std::endl <<
+	os << io::widen("shader: {") << std::endl <<
 		io::tab << io::widen("id: ") << v.get() << std::endl <<
 		io::tab << io::widen("type: ") << io::widen(type) << std::endl;
 	if (!v.valid())

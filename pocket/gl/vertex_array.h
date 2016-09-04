@@ -232,6 +232,13 @@ public:
 	{
 		finalize();
 
+		// バッファか班別
+		if (glIsBuffer(vbo) != GL_TRUE)
+		{
+			_error_bitfield |= error_unsupported;
+			return false;
+		}
+
 		// 作成
 		glGenVertexArrays(1, &_id);
 		if (_id == 0)
@@ -433,6 +440,12 @@ public:
 	bool initialize(GLuint vbo, GLuint stride, const vertex_layout_index* layouts, int count)
 	{
 		finalize();
+
+		if (glIsBuffer(vbo) != GL_TRUE)
+		{
+			_error_bitfield |= error_unsupported;
+			return false;
+		}
 
 		glGenVertexArrays(1, &_id);
 		if (_id == 0)
@@ -993,7 +1006,7 @@ vertex_array& make_vertex_array(vertex_array& a, const buffer& vbo, GLuint strid
 template <typename CharT, typename CharTraits> inline
 std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const vertex_array& v)
 {
-	os << io::widen("vertex_array: ") << io::braces_left << std::endl <<
+	os << io::widen("vertex_array: {") << std::endl <<
 		io::tab << io::widen("id: ") << v.get() << std::endl;
 	// バインド状態だったら有効状態を表示
 	if (v.binding())

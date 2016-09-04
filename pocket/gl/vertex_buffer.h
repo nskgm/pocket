@@ -672,7 +672,7 @@ vertex_buffer<T>& make_vertex_buffer(vertex_buffer<T>& b, int count)
 template <typename CharT, typename CharTraits, typename T> inline
 std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const vertex_buffer<T>& v)
 {
-	os << io::widen("vertex_buffer: ") << io::braces_left << std::endl <<
+	os << io::widen("vertex_buffer: {") << std::endl <<
 		io::tab << io::widen("id: ") << v.get() << std::endl;
 	if (v.binding())
 	{

@@ -666,7 +666,7 @@ index_buffer<T>& make_index_buffer(index_buffer<T>& b, int count)
 template <typename CharT, typename CharTraits, typename T> inline
 std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const index_buffer<T>& v)
 {
-	os << io::widen("index_buffer: ") << io::braces_left << std::endl <<
+	os << io::widen("index_buffer: {") << std::endl <<
 		io::tab << io::widen("id: ") << v.get() << std::endl;
 	if (v.binding())
 	{

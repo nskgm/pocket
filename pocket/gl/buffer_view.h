@@ -663,7 +663,7 @@ std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, Ch
 			break;
 	}
 
-	os << io::widen("buffer_view: ") << io::braces_left << std::endl <<
+	os << io::widen("buffer_view: {") << std::endl <<
 		io::tab << io::widen("id: ") << v.get() << std::endl <<
 		io::tab << io::widen("type: ") << io::widen(type) << std::endl;
 	if (v.binding())

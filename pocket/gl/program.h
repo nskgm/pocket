@@ -1356,7 +1356,7 @@ program make_program(const std::string& path, bool file_front_format_written = t
 template <typename CharT, typename CharTraits> inline
 std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const program& v)
 {
-	os << io::widen("program: ") << io::braces_left << std::endl <<
+	os << io::widen("program: {") << std::endl <<
 		io::tab << io::widen("id: ") << v.get() << std::endl;
 	if (!v.valid())
 	{

@@ -259,7 +259,6 @@ public:
 		{
 			// バッファのエラーコードを利用
 			_buffer._error_bitfield |= error_invalid_index;
-			POCKET_GL_ERROR();
 			return false;
 		}
 		// バインド位置の初期設定
@@ -375,30 +374,46 @@ public:
 	// 値の更新
 	void uniform(int offset, int size, const void* data) const
 	{
-		char* write_data = _buffer.map<char>(buffer_map::write);
+		char* pointer = _buffer.map<char>(buffer_map::write);
 		size = (std::min)(size, _size);
-		std::memcpy(write_data + offset, data, size);
+		std::memcpy(pointer + offset, data, size);
 		_buffer.unmap();
 	}
 	void uniform(const void* data) const
 	{
-		void* write_data = _buffer.map(buffer_map::write);
-		std::memcpy(write_data, data, _size);
+		void* pointer = _buffer.map(buffer_map::write);
+		std::memcpy(pointer, data, _size);
+		_buffer.unmap();
+	}
+	void uniform(int size, const void* data) const
+	{
+		void* pointer = _buffer.map(buffer_map::write);
+		// 指定サイズのみ更新
+		std::memcpy(pointer, data, size);
 		_buffer.unmap();
 	}
 	template <typename T>
 	void uniform(int offset, const T& a) const
 	{
+		// 型サイズのみ
 		uniform(offset, sizeof(T), static_cast<const void*>(&a));
 	}
 	template <typename T>
 	void uniform(int offset, const T* a) const
 	{
+		// 型オフセットから最後まで
 		uniform(offset, _size - offset, static_cast<const void*>(a));
+	}
+	template <typename T>
+	void uniform(int offset, int size, const T* a) const
+	{
+		// 型オフセットから最後まで
+		uniform(offset, size, static_cast<const void*>(a));
 	}
 	template <typename T>
 	void uniform(const T& a) const
 	{
+		// 全て
 		uniform(static_cast<const void*>(&a));
 	}
 
@@ -748,7 +763,7 @@ void program::uniform_block_bind(const uniform_buffer& b) const
 template <typename CharT, typename CharTraits> inline
 std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const uniform_buffer& v)
 {
-	os << io::widen("uniform_buffer: ") << io::braces_left << std::endl <<
+	os << io::widen("uniform_buffer: {") << std::endl <<
 		io::tab << io::widen("id: ") << v.get() << std::endl <<
 		io::tab << io::widen("size: ") << v.size() << std::endl <<
 		io::tab << io::widen("binding point: ") << v.binding_point() << std::endl <<

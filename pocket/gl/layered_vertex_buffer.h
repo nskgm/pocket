@@ -613,7 +613,50 @@ layered_vertex_buffer<T>& make_layered_vertex_buffer(layered_vertex_buffer<T>& b
 template <typename CharT, typename CharTraits, typename T> inline
 std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const layered_vertex_buffer<T>& v)
 {
-	static_cast<void>(v);
+	const vertex_array& vao = v.vao();
+	const vertex_buffer<T>& vbo = v.vbo();
+
+	os << io::widen("layered_vertex_buffer: {") << std::endl <<
+		io::tab << io::widen("VAO: {") << std::endl <<
+		io::tab2 << io::widen("id: ") << vao.get() << std::endl;
+	if (vao.binding())
+	{
+		os << io::tab2 << io::widen("enable: [") << std::endl;
+		GLint n = 0;
+		glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &n);
+		for (int i = 0; i < n; ++i)
+		{
+			if (vao.enabled(i))
+			{
+				os << io::tab3 << i << io::colon << io::space << io::box_brackets_left <<
+					io::widen("count: ") << vao.count(i) << io::comma_space;
+				std::ios_base::fmtflags flag = os.flags();
+				os << std::hex << io::widen("type: 0x") << vao.type(i) << io::comma_space;
+				os.flags(flag);
+				os << io::widen("size: ") << vao.size(i) << io::box_brackets_right << std::endl;
+			}
+		}
+		os << io::tab2 << io::box_brackets_right << std::endl;
+	}
+	os << io::tab << io::braces_right << std::endl;
+
+	os << io::tab << io::widen("VBO: {") << std::endl <<
+		io::tab2 << io::widen("id: ") << vbo.get() << std::endl;
+	if (vbo.binding())
+	{
+		os << io::tab2 << io::widen("size: ") << vbo.size_binding() << std::endl;
+		std::ios_base::fmtflags flag = os.flags();
+		os << std::hex << io::tab2 << io::widen("usage: 0x") << vbo.usage_binding() << std::endl;
+		os.flags(flag);
+		os << io::tab2 << io::widen("writable: ") << io::widen(vbo.writable_binding()) << std::endl;
+	}
+	os << io::tab << io::braces_right << std::endl;
+	if (!v.valid())
+	{
+		std::string error = v.error();
+		os << io::tab << io::widen("error: ") << io::widen(error.c_str()) << std::endl;
+	}
+	os << io::braces_right;
 	return os;
 }
 
