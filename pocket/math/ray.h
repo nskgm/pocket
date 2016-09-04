@@ -17,6 +17,8 @@
 
 namespace pocket
 {
+namespace math
+{
 
 template <typename, template <typename> class> struct ray;
 template <typename, template <typename> class> struct line;
@@ -284,7 +286,7 @@ std::basic_istream<CharT, CharTraits>& operator >> (std::basic_istream<CharT, Ch
 	return is;
 }
 
+} // namespace math
 } // namespace pocket
-
 
 #endif // __POCKET_MATH_RAY_H__

@@ -10,11 +10,13 @@
 
 namespace pocket
 {
+namespace math
+{
 
 /*------------------------------------------------------------------------------------------
 * math_traits
 *------------------------------------------------------------------------------------------*/
-template <typename> struct math_traits;
+template <typename> class math_traits;
 #ifndef _UNUSING_MATH_INT_FLOAT
 typedef math_traits<int> math_traitsi;
 typedef math_traits<float> math_traitsf;
@@ -190,6 +192,7 @@ typedef ray<long double, vector3> ray3ld;
 typedef ray<long double, vector4> ray4ld;
 #endif // _USING_MATH_LONG_DOUBLE
 
+} // namespace math
 } // namespace pocket
 
 #endif // __POCKET_MATH_FORWARD_H__

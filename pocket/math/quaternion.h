@@ -16,6 +16,8 @@
 
 namespace pocket
 {
+namespace math
+{
 
 template <typename> struct quaternion;
 template <typename> struct matrix3x3;
@@ -920,6 +922,7 @@ std::basic_istream<CharT, CharTraits>& operator >> (std::basic_istream<CharT, Ch
 	return is;
 }
 
+} // namespace math
 } // namespace pocket
 
 #endif // __POCKET_MATH_QUATERNION_H__

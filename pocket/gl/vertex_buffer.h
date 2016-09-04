@@ -215,6 +215,14 @@ public:
 	{
 		initialize(count);
 	}
+	vertex_buffer(const vertex_buffer& b) :
+		_buffer(b._buffer)
+	{}
+#ifdef _USE_CXX11
+	vertex_buffer(vertex_buffer&& v) :
+		_buffer(std::move(v._buffer))
+	{}
+#endif // _USE_CXX11
 	~vertex_buffer()
 	{
 		finalize();

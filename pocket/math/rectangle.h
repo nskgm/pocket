@@ -15,6 +15,8 @@
 
 namespace pocket
 {
+namespace math
+{
 
 template <typename> struct range;
 template <typename> struct rectangle;
@@ -477,6 +479,7 @@ std::basic_istream<CharT, CharTraits>& operator >> (std::basic_istream<CharT, Ch
 	return is;
 }
 
+} // namespace math
 } // namespace pocket
 
 #endif // __POCKET_MATH_RECTANGLE_H__

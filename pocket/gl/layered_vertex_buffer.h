@@ -201,6 +201,23 @@ public:
 	{
 		initialize(vertices, layouts, usg);
 	}
+	layered_vertex_buffer(const layered_vertex_buffer& b) :
+		_vbo(b._vbo),
+		_vao(b._vao),
+		_vertex_count(b._vertex_count),
+		_error(b._error)
+	{}
+#ifdef _USE_CXX11
+	layered_vertex_buffer(layered_vertex_buffer&& v) :
+		_vbo(std::move(v._vbo)),
+		_vao(std::move(v._vao)),
+		_vertex_count(std::move(v._vertex_count)),
+		_error(std::move(v._error))
+	{
+		v._vertex_count = 0;
+		v._error = none;
+	}
+#endif // _USE_CXX11
 	~layered_vertex_buffer()
 	{
 		finalize();

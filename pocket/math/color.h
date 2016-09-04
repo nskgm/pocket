@@ -16,6 +16,8 @@
 
 namespace pocket
 {
+namespace math
+{
 
 template <typename> struct color;
 #ifndef _UNUSING_MATH_INT_FLOAT
@@ -644,6 +646,7 @@ std::basic_istream<CharT, CharTraits>& operator >> (std::basic_istream<CharT, Ch
 	return is;
 }
 
+} // namespace math
 } // namespace pocket
 
 #endif // __POCKET_MATH_COLOR_H__

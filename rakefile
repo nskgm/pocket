@@ -3,7 +3,7 @@
 #-----------------------------------------------------------
 # C++バージョン
 # 指定しない場合は0
-CXX_VER = 3
+CXX_VER = 11
 # デバッグを有効にするか
 DEBUG = true
 # 警告を有効にするか
@@ -390,6 +390,15 @@ options = array_to_join_string OPTIONS do |e| "-#{e}" end
 frameworks = array_to_join_string FRAMEWORKS do |e| "-framework\"#{e}\"" end
 # 自動インクルートするファイル
 auto_include = array_to_join_string AUTO_INCLUDE_HEADERS do |e| "-include\"#{e}\"" end
+
+# デバッグ時とリリース時のマクロ追加
+if defines != nil then
+	defines << " -D\"DEBUG\" -D\"_DEBUG\"" if DEBUG
+	defines << " -D\"NDEBUG\"" if RELEASE
+else
+	defines = "-D\"DEBUG\" -D\"_DEBUG\"" if DEBUG
+	defines = "-D\"NDEBUG\"" if RELEASE
+end
 
 #--------------------------------------------------------------------------------
 # ビルド前処理（実装）

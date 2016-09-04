@@ -30,7 +30,7 @@
 *---------------------------------------------------------------------*/
 #ifndef _DEB_RANGE_ASSERT
 #	ifdef __DEBUG
-#		define _DEB_RANGE_ASSERT(N, MIN, MAX) assert(N >= (MIN) && N <= (MAX) && "out of range")
+#		define _DEB_RANGE_ASSERT(N, MIN, MAX) assert((N) >= (MIN) && (N) <= (MAX) && "out of range")
 #	else
 #		define _DEB_RANGE_ASSERT(N, MIN, MAX)
 #	endif // __DEBUG

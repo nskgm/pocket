@@ -15,6 +15,8 @@
 
 namespace pocket
 {
+namespace math
+{
 
 template <typename> struct matrix3x3;
 template <typename> struct matrix4x4;
@@ -1234,6 +1236,7 @@ std::basic_istream<CharT, CharTraits>& operator >> (std::basic_istream<CharT, Ch
 	return is;
 }
 
+} // namespace math
 } // namespace pocket
 
 #endif // __POCKET_MATH_MATRIX3X3_H__

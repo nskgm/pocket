@@ -767,6 +767,14 @@ public:
 					func(os);
 				}
 				os << io::tab3 << io::widen("location: ") << idx << std::endl;
+				// 型
+				if (func != NULL)
+				{
+					func(os);
+				}
+				std::ios_base::fmtflags flag = os.flags();
+				os << std::hex << io::tab3 << io::widen("type: 0x") << type << std::endl;
+				os.flags(flag);
 				// サイズ
 				if (func != NULL)
 				{
@@ -795,7 +803,7 @@ public:
 				{
 					func(os);
 				}
-				os << io::tab3 << io::widen("row major: ") << io::widen(row_major == GL_TRUE) << std::endl;
+				os << io::tab3 << io::widen("is row major: ") << io::widen(row_major == GL_TRUE) << std::endl;
 
 				if (func != NULL)
 				{

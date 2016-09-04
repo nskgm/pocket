@@ -7,6 +7,7 @@
 
 namespace io = pocket::io;
 namespace gl = pocket::gl;
+namespace math = pocket::math;
 
 class main_lock
 {
@@ -39,13 +40,13 @@ static void glfw_error_log(int, const char* msg)
 
 struct simple_vertex
 {
-	pocket::vector2f position;
-	pocket::colorf color;
+	math::vector2f position;
+	math::colorf color;
 };
 struct ublock
 {
-	pocket::matrix4x4f world;
-	pocket::matrix4x4f ortho;
+	math::matrix4x4f world;
+	math::matrix4x4f ortho;
 };
 
 int main()
@@ -135,7 +136,6 @@ int main()
 
 	// uniform buffer object作成
 	ublock data;
-	//data.world.load_world(pocket::vector3f(1.0f), pocket::quaternionf::identity, pocket::vector3f(320.0f, 240.0f, 0.0f));
 	data.world.load_identity();
 	data.ortho.load_orthographics2d(0.0f, 640.0f, 0.0f, 480.0f);
 	gl::uniform_buffer ubo = prog.make_uniform_buffer("ublock", 0, data);
@@ -155,9 +155,9 @@ int main()
 		gl::layout_t<4, float, false, offsetof(simple_vertex, color)>::value,
 	};
 	simple_vertex vertices[] = {
-		{pocket::vector2f(320.0f, 0.0f), pocket::colorf::red},
-		{pocket::vector2f(0.0f, 480.0f), pocket::colorf::blue},
-		{pocket::vector2f(640.0f, 480.0f), pocket::colorf::green}
+		{math::vector2f(320.0f, 0.0f), math::colorf::red},
+		{math::vector2f(0.0f, 480.0f), math::colorf::blue},
+		{math::vector2f(640.0f, 480.0f), math::colorf::green}
 	};
 	gl::layered_vertex_buffer<simple_vertex> lvb = gl::make_layered_vertex_buffer<simple_vertex>(vertices, layouts);
 	if (!lvb)
@@ -196,8 +196,8 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// UBO更新
-		float time = pocket::math_traitsf::sin(static_cast<float>(glfwGetTime()*120.0f));
-		data.world.load_world(pocket::vector3f::one, pocket::quaternionf::identity, pocket::vector3f(time*30.0f, 0.0f, 0.0f));
+		float time = math::math_traitsf::sin(static_cast<float>(glfwGetTime()*120.0f));
+		data.world.load_world(math::vector3f::one, math::quaternionf::identity, math::vector3f(time*30.0f, 0.0f, 0.0f));
 		ubo.uniform(0, data.world); // オフセットを指定して指定した型サイズのみ更新
 		//ubo.uniform(data); // 全体の更新
 
@@ -230,6 +230,7 @@ int main()
 		glfwSwapBuffers(window);
 	} while ((glfwGetKey(window, GLFW_KEY_ESCAPE) | glfwWindowShouldClose(window)) == GL_FALSE);
 
+	indirect.finalize();
 	lvb.finalize();
 	ubo.finalize();
 	prog.finalize();

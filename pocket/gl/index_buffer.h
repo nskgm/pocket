@@ -215,6 +215,14 @@ public:
 	{
 		initialize(count);
 	}
+	index_buffer(const index_buffer& b) :
+		_buffer(b._buffer)
+	{}
+#ifdef _USE_CXX11
+	index_buffer(index_buffer&& v) :
+		_buffer(std::move(v._buffer))
+	{}
+#endif // _USE_CXX11
 	~index_buffer()
 	{
 		finalize();
@@ -288,15 +296,6 @@ public:
 	void bind_base(buffer_type_t type, GLuint point) const
 	{
 		_buffer.bind_base(type, point);
-	}
-	void bind_vertex(GLuint index, GLintptr offset, GLsizei stride) const
-	{
-		_buffer.bind_vertex(index, offset, stride);
-	}
-	template <typename U>
-	void bind_vertex(GLuint index) const
-	{
-		_buffer.bind_vertex<U>(index);
 	}
 
 	// バインド解除
@@ -446,13 +445,13 @@ public:
 	// バッファ種類
 	buffer_type_t kind() const
 	{
-		return buffer_type::array;
+		return buffer_type::element_array;
 	}
 
 	// バッファ種類の比較
 	bool kind_of(buffer_type_t type) const
 	{
-		return type == buffer_type::array;
+		return type == buffer_type::element_array;
 	}
 
 	// ハンドルの取得

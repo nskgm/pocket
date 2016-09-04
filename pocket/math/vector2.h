@@ -14,6 +14,8 @@
 
 namespace pocket
 {
+namespace math
+{
 
 template <typename> struct vector2;
 template <typename> struct vector3;
@@ -1029,6 +1031,7 @@ std::basic_istream<CharT, CharTraits>& operator >> (std::basic_istream<CharT, Ch
 	return is;
 }
 
+} // namespace math
 } // namespace pocket
 
 #endif // __POCKET_MATH_VECTOR2_H__

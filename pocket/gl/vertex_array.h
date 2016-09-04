@@ -209,6 +209,10 @@ public:
 	{
 		initialize(vbo, stride, layouts);
 	}
+	vertex_array(const vertex_array& b) :
+		_id(b._id),
+		_error_bitfield(b._error_bitfield)
+	{}
 #ifdef _USE_CXX11
 	vertex_array(vertex_array&& v) :
 		_id(std::move(v._id)),

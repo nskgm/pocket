@@ -17,6 +17,8 @@
 
 namespace pocket
 {
+namespace math
+{
 
 template <typename> struct frustum;
 
@@ -494,6 +496,7 @@ std::basic_istream<CharT, CharTraits>& operator >> (std::basic_istream<CharT, Ch
 	return is;
 }
 
+} // namespace math
 } // namespace pocket
 
 #endif // __POCKET_MATH_FRUSTUM_H__

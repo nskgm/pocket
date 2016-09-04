@@ -67,6 +67,11 @@ struct fixed_array
 	typedef typename array_type::reference reference;
 	typedef typename array_type::const_reference const_reference;
 
+	enum
+	{
+		static_size = N
+	};
+
 	array_type data;
 
 	T* address()
@@ -108,6 +113,11 @@ struct fixed_array<bool, N>
 	typedef typename array_type::value_type value_type;
 	typedef typename array_type::reference reference;
 	typedef typename array_type::const_reference const_reference;
+
+	enum
+	{
+		static_size = N
+	};
 
 	array_type data;
 
@@ -166,6 +176,11 @@ struct fixed_array<T, 2>
 	typedef typename array_type::value_type value_type;
 	typedef typename array_type::reference reference;
 	typedef typename array_type::const_reference const_reference;
+
+	enum
+	{
+		static_size = 2
+	};
 
 	union
 	{
@@ -276,6 +291,11 @@ struct fixed_array<T, 3>
 	typedef typename array_type::value_type value_type;
 	typedef typename array_type::reference reference;
 	typedef typename array_type::const_reference const_reference;
+
+	enum
+	{
+		static_size = 3
+	};
 
 	union
 	{
@@ -408,6 +428,11 @@ struct fixed_array<T, 4>
 	typedef typename array_type::value_type value_type;
 	typedef typename array_type::reference reference;
 	typedef typename array_type::const_reference const_reference;
+
+	enum
+	{
+		static_size = 4
+	};
 
 	union
 	{

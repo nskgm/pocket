@@ -200,12 +200,12 @@ public:
 
 	reference operator [] (int i)
 	{
-		_DEB_RANGE_ASSERT(i, 0, N - 1);
+		_DEB_RANGE_ASSERT(i, 0, static_cast<int>(N - 1));
 		return _Data[i];
 	}
 	const_reference operator [] (int i) const
 	{
-		_DEB_RANGE_ASSERT(i, 0, N - 1);
+		_DEB_RANGE_ASSERT(i, 0, static_cast<int>(N - 1));
 		return _Data[i];
 	}
 };

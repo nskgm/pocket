@@ -12,6 +12,8 @@
 
 namespace pocket
 {
+namespace math
+{
 
 namespace detail
 {
@@ -780,10 +782,11 @@ private:
 	}
 };
 
+} // namespace math
 } // namespace pocket
 
 template <typename CharT, typename CharTraits, typename T, size_t N> inline
-std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const pocket::detail::_mvector<T, N>& v)
+std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const pocket::math::detail::_mvector<T, N>& v)
 {
 	// [X, Y, Z, W]
 	os << pocket::io::box_brackets_left << v.mm[0] << pocket::io::comma_space
@@ -818,6 +821,8 @@ std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, Ch
 #endif // _USE_SIMD_TYPE == _SIMD_TYPE_XXX
 
 namespace pocket
+{
+namespace math
 {
 
 namespace detail
@@ -1467,6 +1472,7 @@ struct simd_traits<uint64_t>
 };
 #endif // _USE_SIMD_256
 
+} // namespace math
 } // namespace pocket
 
 template <typename CharT, typename CharTraits> inline
