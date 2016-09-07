@@ -3,11 +3,23 @@
 #-----------------------------------------------------------
 # C++バージョン
 # 指定しない場合は0
-CXX_VER = 11
+CXX_VER = 3
 # デバッグを有効にするか
 DEBUG = true
 # 警告を有効にするか
 WARNING = true
+
+# OpenGLバージョンdefine定義用
+# 0以上で定義を追加
+# MINORはバージョンごとにクランプ
+# glewを使用している時は0, 0
+# gl3やglcorearbなどを自前で使用する際に使用
+# MAJOR, MINOR
+GL_MAJOR, GL_MINOR = 0, 0
+
+# OpenCLバージョン
+# GLと同じ
+CL_MAJOR, CL_MINOR = 0, 0
 
 ## %w() で空白ごとに文字列の配列を作成
 ## %i() で空白ごとにシンボルの配列を作成
@@ -81,6 +93,11 @@ PCH_HEADERS = [
 	# 文字列配列
 	#"pocket/math/**",
 	#"pocket/gl/**"
+]
+# システム側
+PCH_HEADERS_SYSTEM = [
+	# 文字列配列
+	#"vector",
 ]
 # 必ずインクルードされるヘッダ
 # プリコンパイル対象ヘッダを一つでも指定していた場合はPCH_FILEが必ず指定される
@@ -353,6 +370,13 @@ def color_print(c)
 	color_print_impl c, :default do yield end
 end
 
+# 数値型にclamp関数を定義
+class Numeric
+	def clamp min, max
+		[[self, max].min, min].max
+	end
+end
+
 #--------------------------------------------------------------------------------
 # 内部設定
 #--------------------------------------------------------------------------------
@@ -363,7 +387,7 @@ CXX_VERSION = adjust_cxx_version(CXX_VER, [98, "03", "0x", 11, "1y", 14, "1z", 1
 # 対象コンパイラ
 COMPILER = (mac? ? "g++-6" : "g++").freeze
 # コンパイル対象拡張子
-EXT_LIST = [".c", ".cpp", ".cxx"]
+EXT_LIST = [".c", ".cpp", ".cxx"].freeze
 # 拡張子に対するファイルの列挙
 SOURCE_LIST = FileList[EXT_LIST.map do |e| "**/*#{e}" end]
 # 中間ファイル
@@ -376,8 +400,44 @@ ASSEMBLY = false
 # 経過時間の計測
 start_time = nil
 
+# デバッグ時とリリース時のマクロ追加
+defines_internal = DEFINES
+defines_internal << "DEBUG" if DEBUG
+defines_internal << "_DEBUG" if DEBUG
+defines_internal << "NDEBUG" if RELEASE
+
+def make_version(name, defs, mj, nmj, mn, mnmax)
+	if mj < nmj
+		# バージョンを超えている時はすべてを定義
+		for i in 0..mnmax
+			defs << "#{name}_VERSION_#{mj}_#{i}"
+		end
+	elsif mj == nmj
+		# 同じ場合は指定minorまで
+		minor = mn.clamp 0, mnmax
+		for i in 0..minor
+			defs << "#{name}_VERSION_#{mj}_#{i}"
+		end
+	end
+end
+
+# OpenGL define
+if GL_MAJOR > 0 then
+	major = GL_MAJOR.clamp 1, 4
+	make_version "GL", defines_internal, 1, major, GL_MINOR, 5
+	make_version "GL", defines_internal, 2, major, GL_MINOR, 1
+	make_version "GL", defines_internal, 3, major, GL_MINOR, 3
+	make_version "GL", defines_internal, 4, major, GL_MINOR, 5
+end
+
+if CL_MAJOR > 0 then
+	major = CL_MAJOR.clamp 1, 2
+	make_version "CL", defines_internal, 1, major, CL_MINOR, 2
+	make_version "CL", defines_internal, 2, major, CL_MINOR, 2
+end
+
 # 事前に定義する配列
-defines = array_to_join_string DEFINES do |e| "-D\"#{e}\"" end
+defines = array_to_join_string defines_internal do |e| "-D\"#{e}\"" end
 define_values = hash_to_join_string DEFINE_VALUES do |k, v| "-D\"#{k}=#{v}\"" end
 undefines = array_to_join_string UNDEFINES do |e| "-U\"#{e}\"" end
 # ライブラリ文字列の連結
@@ -390,15 +450,6 @@ options = array_to_join_string OPTIONS do |e| "-#{e}" end
 frameworks = array_to_join_string FRAMEWORKS do |e| "-framework\"#{e}\"" end
 # 自動インクルートするファイル
 auto_include = array_to_join_string AUTO_INCLUDE_HEADERS do |e| "-include\"#{e}\"" end
-
-# デバッグ時とリリース時のマクロ追加
-if defines != nil then
-	defines << " -D\"DEBUG\" -D\"_DEBUG\"" if DEBUG
-	defines << " -D\"NDEBUG\"" if RELEASE
-else
-	defines = "-D\"DEBUG\" -D\"_DEBUG\"" if DEBUG
-	defines = "-D\"NDEBUG\"" if RELEASE
-end
 
 #--------------------------------------------------------------------------------
 # ビルド前処理（実装）
@@ -413,13 +464,9 @@ task :pre_build do |t|
 
 	# 事前にコンパイルするヘッダ
 	if PCH_HEADERS.length > 0 then
-		# ディレクトリを指定しているか
-		def is_dir_pch(p)
-			#p.index("/**") != nil
-			/.+\/\*\*$/ =~ p
-		end
 		pch_headers = PCH_HEADERS.map do |e|
-			if is_dir_pch e then
+			# ディレクトリを指定しているか
+			if /.+\/\*\*$/ =~ e then
 				# ディレクトリを指定している場合は配列で返してあとで一次配列
 				["#{e}.h", "#{e}.hpp"]
 			else
@@ -445,8 +492,11 @@ task :pre_build do |t|
 			dir_depth = "../"*count if count > 0
 
 			# 全てのファイルをインクルード
-			files = "#ifndef __POCKET_PRE_COMPILE_HEADERS_H__\n#define __POCKET_PRE_COMPILE_HEADERS_H__\n\n"
-			files += array_to_join_string t.prerequisites, "\n" do |e|
+			#endl = windows? ? "\r\n" : "\n"
+			endl = "\n"
+			# BOM付き
+			files = "\uFEFF#ifndef __POCKET_PRE_COMPILE_HEADERS_H__#{endl}#define __POCKET_PRE_COMPILE_HEADERS_H__#{endl*2}"
+			files += array_to_join_string t.prerequisites, endl do |e|
 				# すでに存在しているパスでは先頭ディレクトリ名を省く
 				if e.match("^#{dir}/") != nil
 					"#include \"#{e.slice dir.length+1...e.length}\""
@@ -460,7 +510,11 @@ task :pre_build do |t|
 					end
 				end
 			end
-			files += "\n\n#endif // __POCKET_PRE_COMPILE_HEADERS_H__\n"
+			files += "#{endl*2}" if PCH_HEADERS_SYSTEM.length > 0
+			files += array_to_join_string PCH_HEADERS_SYSTEM, endl do |e|
+				"#include <#{e}>"
+			end if PCH_HEADERS_SYSTEM.length > 0
+			files += "#{endl*2}#endif // __POCKET_PRE_COMPILE_HEADERS_H__#{endl}"
 			File.write PCH_FILE_NAME, files
 
 			# プリコンパイル用バイナリファイル作成
@@ -540,7 +594,7 @@ task :pre_build do |t|
 		headers = load_dep_to_headers dep_file
 
 		# ソースが変更されていない場合はヘッダが依存しているヘッダーを見る
-		if !is_dep and headers.length > 0 then
+		if !is_dep && headers.length > 0 then
 			file dep_file => headers do
 				sh "#{COMPILER} -E -MM -MT #{obj_file} -MF #{dep_file} #{src_file}"
 				# 同じもの読み込み防止
