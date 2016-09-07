@@ -23,19 +23,23 @@ struct draw_arrays
 	// 頂点数
 	GLuint arrays;
 	// 描画インスタンス数
-	GLuint instance;
-	// 開始インデックス
-	GLuint index;
+	GLuint instance_count;
+	// 開始頂点
+	GLuint first;
 	// インスタンス基点値（0）
-	GLuint instance_base;
+	GLuint instance_count_base;
 
 	draw_arrays() :
-		arrays(0), instance(1),
-		index(0), instance_base(0)
+		arrays(0),
+		instance_count(1),
+		first(0),
+		instance_count_base(0)
 	{}
-	draw_arrays(GLuint arrays, GLuint instance = 1, GLuint index = 0) :
-		arrays(arrays), instance(instance),
-		index(index), instance_base(0)
+	draw_arrays(GLuint arrays, GLuint instance_count = 1, GLuint first = 0) :
+		arrays(arrays),
+		instance_count(instance_count),
+		first(first),
+		instance_count_base(0)
 	{}
 };
 // glDrawElementsIndirect用
@@ -44,23 +48,27 @@ struct draw_elements
 	// 要素数
 	GLuint elements;
 	// 描画インスタンス数
-	GLuint instance;
+	GLuint instance_count;
 	// 開始インデックス
-	GLuint index;
+	GLuint first;
 	// 頂点基点値
 	GLuint vertex_base;
 	// インスタンス基点値（0）
-	GLuint instance_base;
+	GLuint instance_count_base;
 
 	draw_elements() :
-		elements(0), instance(1),
-		index(0), vertex_base(0),
-		instance_base(0)
+		elements(0),
+		instance_count(1),
+		first(0),
+		vertex_base(0),
+		instance_count_base(0)
 	{}
-	draw_elements(GLuint elements, GLuint instance = 1, GLuint index = 0, GLuint vertex_base = 0) :
-		elements(elements), instance(instance),
-		index(index), vertex_base(vertex_base),
-		instance_base(0)
+	draw_elements(GLuint elements, GLuint instance_count = 1, GLuint first = 0, GLuint vertex_base = 0) :
+		elements(elements),
+		instance_count(instance_count),
+		first(first),
+		vertex_base(vertex_base),
+		instance_count_base(0)
 	{}
 };
 // glDispatchComputeIndirect用
@@ -74,10 +82,14 @@ struct dispatch_compute
 	GLuint z;
 
 	dispatch_compute() :
-		x(0), y(0), z(0)
+		x(0),
+		y(0),
+		z(0)
 	{}
 	dispatch_compute(GLuint x, GLuint y, GLuint z) :
-		x(x), y(y), z(z)
+		x(x),
+		y(y),
+		z(z)
 	{}
 };
 

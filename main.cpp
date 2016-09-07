@@ -130,7 +130,7 @@ int main()
 			prog.clear();
 		}
 		// UBOの情報を出力
-		prog.refrect_uniform_block(std::cout);
+		prog.reflect_uniform_block(std::cout);
 	}
 	POCKET_GL_ERROR();
 

@@ -701,7 +701,7 @@ public:
 
 	// uniform block情報の出力
 	template <typename CharT, typename CharTraits>
-	void refrect_uniform_block(std::basic_ostream<CharT, CharTraits>& os, std::basic_ostream<CharT, CharTraits>&(*func)(std::basic_ostream<CharT, CharTraits>&) = NULL) const
+	void reflect_uniform_block(std::basic_ostream<CharT, CharTraits>& os, std::basic_ostream<CharT, CharTraits>&(*func)(std::basic_ostream<CharT, CharTraits>&) = NULL) const
 	{
 		// uniform block数
 		int count = uniform_block_count();
@@ -714,6 +714,12 @@ public:
 				func(os);
 			}
 			os << io::widen(static_cast<const char*>(&name[0])) << io::widen(": {") << std::endl;
+
+			if (func != NULL)
+			{
+				func(os);
+			}
+			os << io::tab << io::widen("index: ") << i << std::endl;
 
 			if (func != NULL)
 			{

@@ -31,7 +31,7 @@ EXECUTE_FILE = "main"
 # 文字列はダブルコーテーションは外して渡される
 # ダブルコーテーションをつけるときは "\\\"NAME\\\""
 EXECUTE_ARGS = [
-
+	# 文字列配列
 ]
 # システムインクルード法で検索が行われるディレクトリ
 INC_DIRS = [
@@ -109,7 +109,6 @@ AUTO_INCLUDE_HEADERS = [
 #---------------------------------------------------------------------------------------------------------------------------------
 # implementatioin
 #---------------------------------------------------------------------------------------------------------------------------------
-
 # プラットフォーム判定
 require "rbconfig"
 def os?
@@ -192,7 +191,7 @@ end
 #--------------------------------------------------------------------------------
 # デフォルトタスク
 #--------------------------------------------------------------------------------
-desc "default: build_and_run"
+desc "default: build run"
 task :default => [:build, :run]
 
 #--------------------------------------------------------------------------------
@@ -217,20 +216,8 @@ task :run do |t|
 	# 実行ファイルの引数の連結
 	args = array_to_join_string EXECUTE_ARGS do |e| e.to_s end
 	command += " #{args}" if args != nil
-	sh command
+	sh command, verbose: false
 end
-
-#--------------------------------------------------------------------------------
-# 実行ファイルを作成して実行
-#--------------------------------------------------------------------------------
-desc "build project and run: #{EXECUTABLE_FILE_NAME}"
-task :build_run => [:build, :run]
-
-#--------------------------------------------------------------------------------
-# 実行ファイルを作成し直して実行
-#--------------------------------------------------------------------------------
-desc "rebuild project and run: #{EXECUTABLE_FILE_NAME}"
-task :rebuild_run => [:rebuild, :run]
 
 #--------------------------------------------------------------------------------
 # ビルド用ディレクトリ作成
@@ -246,9 +233,12 @@ if EXEC_DIR != "." && EXEC_DIR != "./" && EXEC_DIR != "../"
 	directory EXEC_DIR
 	dir_task_list << EXEC_DIR
 end
-desc "create directories #{dir_task_list}"
+#desc "make directories #{dir_task_list}"
 task :make_directory => dir_task_list # 全管理
 
+#---------------------------------------------------------------------------------------------------------------------------------
+# internal function
+#---------------------------------------------------------------------------------------------------------------------------------
 # 拡張子を変更
 def replace_ext(path, ext)
 	path.gsub File.extname(path), ext
@@ -377,10 +367,9 @@ class Numeric
 	end
 end
 
-#--------------------------------------------------------------------------------
-# 内部設定
-#--------------------------------------------------------------------------------
-
+#---------------------------------------------------------------------------------------------------------------------------------
+# internal config
+#---------------------------------------------------------------------------------------------------------------------------------
 # 調整後C++バージョン
 CXX_VERSION = adjust_cxx_version(CXX_VER, [98, "03", "0x", 11, "1y", 14, "1z", 17]).freeze
 
@@ -395,7 +384,7 @@ OBJ_LIST = SOURCE_LIST.map do |e| obj_filepath e end
 # リリースを有効にするか
 RELEASE = !DEBUG
 # アセンブラを出力するか
-ASSEMBLY = false
+ASSEMBLY = true
 
 # 経過時間の計測
 start_time = nil
@@ -405,6 +394,10 @@ defines_internal = DEFINES
 defines_internal << "DEBUG" if DEBUG
 defines_internal << "_DEBUG" if DEBUG
 defines_internal << "NDEBUG" if RELEASE
+undefines_internal = UNDEFINES
+undefines_internal << "NDEBUG" if DEBUG
+undefines_internal << "DEBUG" if RELEASE
+undefines_internal << "_DEBUG" if RELEASE
 
 def make_version(name, defs, mj, nmj, mn, mnmax)
 	if mj < nmj
@@ -439,7 +432,7 @@ end
 # 事前に定義する配列
 defines = array_to_join_string defines_internal do |e| "-D\"#{e}\"" end
 define_values = hash_to_join_string DEFINE_VALUES do |k, v| "-D\"#{k}=#{v}\"" end
-undefines = array_to_join_string UNDEFINES do |e| "-U\"#{e}\"" end
+undefines = array_to_join_string undefines_internal do |e| "-U\"#{e}\"" end
 # ライブラリ文字列の連結
 inc = array_to_join_string INC_DIRS do |e| "-I\"#{e}\"" end
 lib = array_to_join_string LIB_DIRS do |e| "-L\"#{e}\"" end
@@ -548,21 +541,21 @@ task :pre_build do |t|
 	end
 
 	# コンパイル時に付加されるコマンド事前作成
-	addition_command = ""
-	addition_command += " -std=c++#{CXX_VERSION}" if CXX_VERSION != nil
-	addition_command += " -Wall -Wextra -Wcast-qual" if WARNING # 警告
-	addition_command += " -w" unless WARNING # 警告をすべて無効
-	addition_command += " -g" if DEBUG # デバッグ情報をつける
-	addition_command += " -O2 -march=native" if RELEASE # 最高の最適化＋コンパイルマシン最適化
-	addition_command += " #{auto_include}" if auto_include != nil # 自動でインクルードするファイル
-	addition_command += " #{defines}" if defines != nil # 事前定義
-	addition_command += " #{define_values}" if define_values != nil # 事前定義+値
-	addition_command += " #{undefines}" if undefines != nil # 事前定義無効
-	addition_command += " #{inc}" if inc != nil # システムinclude
-	#addition_command += " #{lib}" if lib != nil # システムlibrary
-	#addition_command += " #{lib_name}" if lib_name != nil # 使用ライブラリ名
-	#addition_command += " #{frameworks}" if frameworks != nil # frameworkオプション
-	addition_command += " #{options}" if options != nil # その他オプション
+	add_cmd = ""
+	add_cmd += " -std=c++#{CXX_VERSION}" if CXX_VERSION != nil
+	add_cmd += " -W\"all\" -W\"extra\" -W\"cast-qual\"" if WARNING # 警告
+	add_cmd += " -w" unless WARNING # 警告をすべて無効
+	add_cmd += " -g" if DEBUG # デバッグ情報をつける
+	add_cmd += " -O2 -march=native" if RELEASE # 最高の最適化＋コンパイルマシン最適化
+	add_cmd += " #{auto_include}" if auto_include != nil # 自動でインクルードするファイル
+	add_cmd += " #{defines}" if defines != nil # 事前定義
+	add_cmd += " #{define_values}" if define_values != nil # 事前定義+値
+	add_cmd += " #{undefines}" if undefines != nil # 事前定義無効
+	add_cmd += " #{inc}" if inc != nil # システムinclude
+	#add_cmd += " #{lib}" if lib != nil # システムlibrary
+	#add_cmd += " #{lib_name}" if lib_name != nil # 使用ライブラリ名
+	#add_cmd += " #{frameworks}" if frameworks != nil # frameworkオプション
+	add_cmd += " #{options}" if options != nil # その他オプション
 
 	# ファイルタスクを生成
 	for i in 0...SOURCE_LIST.length
@@ -574,16 +567,17 @@ task :pre_build do |t|
 		is_dep = false
 
 		# 現在のコンパイルしているソースファイルを紅色で出力
-		color_print :red do
+		color_print :green do
 			print "-- #{src_file}\n"
 		end
 
 		# ソースが変更されていたら依存関係ファイルを更新する
+		dep_cmd = "#{COMPILER} #{src_file} -E -MM -MT #{obj_file} -MF #{dep_file}"
 		file dep_file => src_file do
 			# -MM システムinclude以外の依存include
 			# -MT 中間ファイルターゲット名
 			# -MF 出力ファイルパス
-			command = "#{COMPILER} -E -MM -MT #{obj_file} -MF #{dep_file} #{src_file}"
+			command = dep_cmd
 			command += " #{inc}" if inc != nil
 			sh command
 			is_dep = true
@@ -596,22 +590,20 @@ task :pre_build do |t|
 		# ソースが変更されていない場合はヘッダが依存しているヘッダーを見る
 		if !is_dep && headers.length > 0 then
 			file dep_file => headers do
-				sh "#{COMPILER} -E -MM -MT #{obj_file} -MF #{dep_file} #{src_file}"
+				sh dep_cmd
 				# 同じもの読み込み防止
 				is_dep = true
 			end
 			file(dep_file).invoke
 			# 実行されたらもう一度読み込み
-			if is_dep then
-				headers = load_dep_to_headers dep_file
-			end
+			headers = load_dep_to_headers dep_file if is_dep
 		end
 
 		# ソースと依存しているヘッダを見て中間ファイルを作成
 		file obj_file => [src_file, headers].flatten do |t|
 			# 実行するシェルコマンド
 			# -x c++
-			command = "#{COMPILER} -c #{src_file} -o #{obj_file}#{addition_command}"
+			command = "#{COMPILER} -c #{src_file} -o #{obj_file}#{add_cmd}"
 			# シェル実行
 			sh command
 
@@ -648,8 +640,11 @@ task :touch do
 	# Windowsの場合はcopyコマンドを代用
 	# メッセージは邪魔なので破棄
 	proc = windows? ? Proc.new{ |n| sh "copy /B #{n} +,, > nul" } : Proc.new{ |n| sh "touch #{n}" }
-	SOURCE_LIST.each do |name|
-		proc.call name
+	# シェルの実行を標示させない
+	verbose false do
+		SOURCE_LIST.each do |name|
+			proc.call name
+		end
 	end
 end
 
@@ -657,6 +652,10 @@ end
 # 実行ファイル作成
 #--------------------------------------------------------------------------------
 file EXECUTABLE_FILE_NAME => OBJ_LIST do |t|
+	color_print :green do
+		print "\n-- #{EXECUTABLE_FILE_NAME}\n"
+	end
+
 	command = "#{COMPILER} -o #{EXECUTABLE_FILE_NAME} #{t.prerequisites.join " "}"
 	command += " #{auto_include}" if auto_include != nil
 	command += " #{defines}" if defines != nil
