@@ -176,7 +176,7 @@ bool output_error(std::basic_ostream<CharT, CharTraits>& os, GLenum err, const c
 		std::va_list ap;
 		va_start(ap, msg);
 #ifdef _MSC_VER
-		_vstprintf_s(buf, 512, msg, ap);
+		vsprintf_s(buf, 512, msg, ap);
 #else
 		vsprintf(buf, msg, ap);
 #endif // _MSC_VER

@@ -14,7 +14,7 @@ namespace math
 //------------------------------------------------------------------------------------------
 // math_traits
 //------------------------------------------------------------------------------------------
-template <typename> class math_traits;
+template <typename> struct math_traits;
 #ifndef _UNUSING_MATH_INT_FLOAT
 typedef math_traits<int> math_traitsi;
 typedef math_traits<float> math_traitsf;
