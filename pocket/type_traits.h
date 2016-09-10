@@ -2,36 +2,36 @@
 #define __POCKET_TYPE_TRAITS_H__
 
 #include "config.h"
-#ifdef _USE_PRAGMA_ONCE
+#ifdef POCKET_USE_PRAGMA_ONCE
 #pragma once
-#endif // _USE_PRAGMA_ONCE
+#endif // POCKET_USE_PRAGMA_ONCE
 
-#ifdef _USE_CXX11
+#ifdef POCKET_USE_CXX11
 #include <type_traits>
-#endif // _USE_CXX11
-#include <stddef.h>
+#endif // POCKET_USE_CXX11
+#include <cstddef>
 
-#ifndef _TEMPLATE_TYPE_VALIDATE
-#	ifdef _USE_CXX11
-#		define _TEMPLATE_TYPE_VALIDATE(VALID_TYPE, T) typename = typename pocket::type_traits::enable_if< VALID_TYPE < T >::value, T >::type
+#ifndef POCKET_TEMPLATE_TYPE_VALIDATE
+#	ifdef POCKET_USE_CXX11
+#		define POCKET_TEMPLATE_TYPE_VALIDATE(VALID_TYPE, T) typename = typename pocket::type_traits::enable_if< VALID_TYPE < T >::value, T >::type
 #	else
-#		define _TEMPLATE_TYPE_VALIDATE(VALID_TYPE, T) typename pocket::type_traits::enable_if< VALID_TYPE < T >::value, T >::type
+#		define POCKET_TEMPLATE_TYPE_VALIDATE(VALID_TYPE, T) typename pocket::type_traits::enable_if< VALID_TYPE < T >::value, T >::type
 #	endif
-#endif // _TEMPLATE_TYPE_VALIDATE
+#endif // POCKET_TEMPLATE_TYPE_VALIDATE
 
 /*---------------------------------------------------------------------------------------
 * テンプレートの型チェックの設定（算術型か？）
 *---------------------------------------------------------------------------------------*/
-#ifndef _TEMPLATE_TYPE_VALIDATE_ARITHMETIC
-#	define _TEMPLATE_TYPE_VALIDATE_ARITHMETIC(T) _TEMPLATE_TYPE_VALIDATE(pocket::type_traits::is_arithmetic, T)
-#endif // _TEMPLATE_TYPE_VALIDATE_ARITHMETIC
+#ifndef POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC
+#	define POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(T) POCKET_TEMPLATE_TYPE_VALIDATE(pocket::type_traits::is_arithmetic, T)
+#endif // POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC
 
 /*---------------------------------------------------------------------------------------
 * テンプレートの型チェックの設定（数学クラスで使用できるか？）
 *---------------------------------------------------------------------------------------*/
-#ifndef _TEMPLATE_TYPE_VALIDATE_MATH_TYPE
-#	define _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T) _TEMPLATE_TYPE_VALIDATE(pocket::type_traits::is_math_type, T)
-#endif // _TEMPLATE_TYPE_VALIDATE_MATH_TYPE
+#ifndef POCKET_TEMPLATE_TYPE_VALIDATE_MATH_TYPE
+#	define POCKET_TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T) POCKET_TEMPLATE_TYPE_VALIDATE(pocket::type_traits::is_math_type, T)
+#endif // POCKET_TEMPLATE_TYPE_VALIDATE_MATH_TYPE
 
 namespace pocket
 {
@@ -40,7 +40,7 @@ namespace type_traits
 /*---------------------------------------------------------------------
 * const修飾を外す
 *---------------------------------------------------------------------*/
-#ifndef _USE_CXX11
+#ifndef POCKET_USE_CXX11
 template <typename T>
 struct remove_const
 {
@@ -54,12 +54,12 @@ struct remove_const<const T>
 #else
 
 using std::remove_const;
-#endif // _USE_CXX11
+#endif // POCKET_USE_CXX11
 
 /*---------------------------------------------------------------------
 * volatile修飾を外す
 *---------------------------------------------------------------------*/
-#ifndef _USE_CXX11
+#ifndef POCKET_USE_CXX11
 template <typename T>
 struct remove_volatile
 {
@@ -73,12 +73,12 @@ struct remove_volatile<volatile T>
 #else
 
 using std::remove_volatile;
-#endif // _USE_CXX11
+#endif // POCKET_USE_CXX11
 
 /*---------------------------------------------------------------------
 * cv修飾どちらも外す
 *---------------------------------------------------------------------*/
-#ifndef _USE_CXX11
+#ifndef POCKET_USE_CXX11
 template <typename T>
 struct remove_cv
 {
@@ -87,12 +87,12 @@ struct remove_cv
 #else
 
 using std::remove_cv;
-#endif // _USE_CXX11
+#endif // POCKET_USE_CXX11
 
 /*---------------------------------------------------------------------
 * 参照修飾を外す
 *---------------------------------------------------------------------*/
-#ifndef _USE_CXX11
+#ifndef POCKET_USE_CXX11
 template <typename T>
 struct remove_reference
 {
@@ -106,7 +106,7 @@ struct remove_reference<T&>
 #else
 
 using std::remove_reference;
-#endif // _USE_CXX11
+#endif // POCKET_USE_CXX11
 
 /*---------------------------------------------------------------------
 * const volatile&を外す
@@ -121,7 +121,7 @@ struct remove_cv_reference
 /*---------------------------------------------------------------------
 * ポインターを外す
 *---------------------------------------------------------------------*/
-#ifndef _USE_CXX11
+#ifndef POCKET_USE_CXX11
 template <typename T>
 struct remove_pointer
 {
@@ -150,13 +150,13 @@ struct remove_pointer<T* const volatile>
 #else
 
 using std::remove_pointer;
-#endif // _USE_CXX11
+#endif // POCKET_USE_CXX11
 
 
 /*---------------------------------------------------------------------
 * 整数型定数
 *---------------------------------------------------------------------*/
-#if _VCXX_VER(14) || _CXX_VER(11)
+#if POCKET_VCXX_VER(14) || POCKET_CXX_VER(11)
 using std::integral_constant;
 
 #else
@@ -164,38 +164,36 @@ using std::integral_constant;
 template <typename T, T N>
 struct integral_constant
 {
-	_STATICAL_CONSTANT T value = N;
+	POCKET_STATICAL_CONSTANT T value = N;
 
 	typedef T value_type;
 	typedef integral_constant<T, N> type;
 	typedef type self;
 
-	_CXX11_CONSTEXPR operator T () const
+	POCKET_CXX11_CONSTEXPR operator T () const
 	{
 		return value;
 	}
-	_CXX11_CONSTEXPR T operator () () const
+	POCKET_CXX11_CONSTEXPR T operator () () const
 	{
 		return value;
 	}
 };
 template <typename T, T N>
 const T integral_constant<T, N>::value;
-#endif // _USE_CXX11
+#endif // POCKET_USE_CXX11
 
 /*---------------------------------------------------------------------
 * 常に真・偽を返す型
 *---------------------------------------------------------------------*/
-#ifndef _USE_CXX11
-struct true_type : integral_constant<bool, true>
-{};
-struct false_type : integral_constant<bool, false>
-{};
+#ifndef POCKET_USE_CXX11
+typedef integral_constant<bool, true> true_type;
+typedef integral_constant<bool, false> false_type;
 #else
 
 using std::true_type;
 using std::false_type;
-#endif // _USE_CXX11
+#endif // POCKET_USE_CXX11
 
 /*---------------------------------------------------------------------
 * 数学クラスで使用できる型か
@@ -238,7 +236,7 @@ struct is_math_floating_type<long double> : true_type
 /*---------------------------------------------------------------------
 * bool Cが真の時のみ型を定義、コンパイル時エラーチェック
 *---------------------------------------------------------------------*/
-#ifndef _USE_CXX11
+#ifndef POCKET_USE_CXX11
 template <bool C, typename T>
 struct enable_if
 {};
@@ -250,13 +248,13 @@ struct enable_if<true, T>
 #else
 
 using std::enable_if;
-#endif // _USE_CXX11
+#endif // POCKET_USE_CXX11
 
 
 /*---------------------------------------------------------------------
 * 整数の型か
 *---------------------------------------------------------------------*/
-#ifndef _USE_CXX11
+#ifndef POCKET_USE_CXX11
 template <typename T>
 struct is_integral_base : false_type
 {};
@@ -300,12 +298,12 @@ struct is_integral : is_integral_base<typename remove_cv_reference<T>::type>
 #else
 
 using std::is_integral;
-#endif // _USE_CXX11
+#endif // POCKET_USE_CXX11
 
 /*---------------------------------------------------------------------
 * 少数の型か
 *---------------------------------------------------------------------*/
-#ifndef _USE_CXX11
+#ifndef POCKET_USE_CXX11
 template <typename T>
 struct is_floating_point_base : false_type
 {};
@@ -324,12 +322,12 @@ struct is_floating_point : is_floating_point_base<typename remove_cv_reference<T
 #else
 
 using std::is_floating_point;
-#endif // _USE_CXX11
+#endif // POCKET_USE_CXX11
 
 /*---------------------------------------------------------------------
 * 算術可能なクラス化
 *---------------------------------------------------------------------*/
-#ifndef _USE_CXX11
+#ifndef POCKET_USE_CXX11
 template <typename T>
 struct is_arithmetic : integral_constant<bool, is_integral<T>::value || is_floating_point<T>::value>
 {};
@@ -337,12 +335,12 @@ struct is_arithmetic : integral_constant<bool, is_integral<T>::value || is_float
 #else
 
 using std::is_arithmetic;
-#endif // _USE_CXX11
+#endif // POCKET_USE_CXX11
 
 /*---------------------------------------------------------------------
 * 型が同じか
 *---------------------------------------------------------------------*/
-#ifndef _USE_CXX11
+#ifndef POCKET_USE_CXX11
 template<typename T, typename U>
 struct is_same : false_type
 {};
@@ -353,12 +351,12 @@ struct is_same<T, T> : true_type
 #else
 
 using std::is_same;
-#endif // _USE_CXX11
+#endif // POCKET_USE_CXX11
 
 /*---------------------------------------------------------------------
 * 真の時にT1、偽の時にT2の型となる型
 *---------------------------------------------------------------------*/
-#ifndef _USE_CXX11
+#ifndef POCKET_USE_CXX11
 template <bool C, typename T1, typename T2>
 struct conditional
 {
@@ -372,7 +370,7 @@ struct conditional<false, T1, T2>
 #else
 
 using std::conditional;
-#endif // _USE_CXX11
+#endif // POCKET_USE_CXX11
 
 /*---------------------------------------------------------------------
 * 真の時にN1、偽の時にN2のサイズとなる型
@@ -380,12 +378,12 @@ using std::conditional;
 template <bool C, size_t N1, size_t N2>
 struct conditional_size
 {
-	_STATICAL_CONSTANT size_t value = N1;
+	POCKET_STATICAL_CONSTANT size_t value = N1;
 };
 template <size_t N1, size_t N2>
 struct conditional_size<false, N1, N2>
 {
-	_STATICAL_CONSTANT size_t value = N2;
+	POCKET_STATICAL_CONSTANT size_t value = N2;
 };
 
 /*---------------------------------------------------------------------

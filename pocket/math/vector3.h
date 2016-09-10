@@ -2,9 +2,9 @@
 #define __POCKET_MATH_VECTOR3_H__
 
 #include "../config.h"
-#ifdef _USE_PRAGMA_ONCE
+#ifdef POCKET_USE_PRAGMA_ONCE
 #pragma once
-#endif // _USE_PRAGMA_ONCE
+#endif // POCKET_USE_PRAGMA_ONCE
 
 #include "../debug.h"
 #include "../behavior.h"
@@ -38,7 +38,7 @@ typedef vector3<long double> vector3ld;
 template <typename T>
 struct vector3
 {
-	_MATH_STATICAL_ASSERT(T);
+	POCKET_MATH_STATICAL_ASSERT(T);
 
 	/*-----------------------------------------------------------------------------------------
 	* Types
@@ -59,30 +59,30 @@ struct vector3
 	* Members
 	*-----------------------------------------------------------------------------------------*/
 
-#ifdef _USE_ANONYMOUS
+#ifdef POCKET_USE_ANONYMOUS
 	union
 	{
 		struct
 		{
-#endif // _USE_ANONYMOUS
+#endif // POCKET_USE_ANONYMOUS
 
 			T x;
 			T y;
 			T z;
 
-#ifdef _USE_ANONYMOUS
+#ifdef POCKET_USE_ANONYMOUS
 		};
 
-#ifdef _USE_ANONYMOUS_NON_POD
+#ifdef POCKET_USE_ANONYMOUS_NON_POD
 		struct
 		{
 			vector2<T> xy;
 		};
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 
 		array_type data;
 	};
-#endif // _USE_ANONYMOUS
+#endif // POCKET_USE_ANONYMOUS
 
 	template <typename> friend struct vector3;
 
@@ -106,13 +106,13 @@ struct vector3
 	* Constructors
 	*-----------------------------------------------------------------------------------------*/
 
-	_DEFAULT_CONSTRUCTOR(vector3);
+	POCKET_DEFAULT_CONSTRUCTOR(vector3);
 	explicit vector3(const behavior::_noinitialize_t&)
 	{
 
 	}
 	explicit vector3(const behavior::_zero_t&) :
-#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+#ifdef POCKET_USE_ANONYMOUS_NORMAL_CONSTRUCT
 		x(math_type::zero), y(math_type::zero),
 #else
 		xy(math_type::zero, math_type::zero),
@@ -122,7 +122,7 @@ struct vector3
 
 	}
 	explicit vector3(const behavior::_one_t&) :
-#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+#ifdef POCKET_USE_ANONYMOUS_NORMAL_CONSTRUCT
 		x(math_type::one), y(math_type::one),
 #else
 		xy(math_type::one, math_type::one),
@@ -132,7 +132,7 @@ struct vector3
 
 	}
 	explicit vector3(const behavior::_half_t&) :
-#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+#ifdef POCKET_USE_ANONYMOUS_NORMAL_CONSTRUCT
 		x(math_type::half), y(math_type::half),
 #else
 		xy(math_type::half, math_type::half),
@@ -142,7 +142,7 @@ struct vector3
 
 	}
 	explicit vector3(const behavior::_half_of_half_t&) :
-#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+#ifdef POCKET_USE_ANONYMOUS_NORMAL_CONSTRUCT
 		x(math_type::half_of_half), y(math_type::half_of_half),
 #else
 		xy(math_type::half_of_half, math_type::half_of_half),
@@ -153,7 +153,7 @@ struct vector3
 	}
 
 	vector3(T x, T y, T z) :
-#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+#ifdef POCKET_USE_ANONYMOUS_NORMAL_CONSTRUCT
 		x(x), y(y),
 #else
 		xy(x, y),
@@ -163,12 +163,12 @@ struct vector3
 
 	}
 	template <typename U, typename U1, typename U2,
-		_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U),
-		_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U1),
-		_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U2)
+		POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U),
+		POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U1),
+		POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U2)
 	>
 		vector3(U x, U1 y, U2 z) :
-#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+#ifdef POCKET_USE_ANONYMOUS_NORMAL_CONSTRUCT
 		x(static_cast<T>(x)), y(static_cast<T>(y)),
 #else
 		xy(static_cast<T>(x), static_cast<T>(y)),
@@ -178,7 +178,7 @@ struct vector3
 
 	}
 	explicit vector3(T f) :
-#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+#ifdef POCKET_USE_ANONYMOUS_NORMAL_CONSTRUCT
 		x(f), y(f),
 #else
 		xy(f),
@@ -187,9 +187,9 @@ struct vector3
 	{
 
 	}
-	template <typename U, _TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
+	template <typename U, POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
 	explicit vector3(U f) :
-#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+#ifdef POCKET_USE_ANONYMOUS_NORMAL_CONSTRUCT
 		x(static_cast<T>(f)), y(static_cast<T>(f)),
 #else
 		xy(static_cast<T>(f)),
@@ -199,7 +199,7 @@ struct vector3
 
 	}
 	vector3(const vector2<T>& v, T z) :
-#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+#ifdef POCKET_USE_ANONYMOUS_NORMAL_CONSTRUCT
 		x(v.x), y(v.y),
 #else
 		xy(v),
@@ -210,7 +210,7 @@ struct vector3
 	}
 	template <typename U>
 	vector3(const vector2<U>& v, U z) :
-#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+#ifdef POCKET_USE_ANONYMOUS_NORMAL_CONSTRUCT
 		x(static_cast<T>(v.x)), y(static_cast<T>(v.y)),
 #else
 		xy(static_cast<T>(v.x), static_cast<T>(v.y)),
@@ -221,7 +221,7 @@ struct vector3
 	}
 	template <typename U>
 	vector3(const vector3<U>& v) :
-#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+#ifdef POCKET_USE_ANONYMOUS_NORMAL_CONSTRUCT
 		x(static_cast<T>(v.x)), y(static_cast<T>(v.y)),
 #else
 		xy(static_cast<T>(v.x), static_cast<T>(v.y)),
@@ -231,7 +231,7 @@ struct vector3
 
 	}
 	vector3(const T* p) :
-#ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+#ifdef POCKET_USE_ANONYMOUS_NORMAL_CONSTRUCT
 		x(p[0]), y(p[1]),
 #else
 		xy(p[0], p[1]),
@@ -304,7 +304,7 @@ struct vector3
 		result.z = z * f;
 		return result;
 	}
-	template <typename U, _TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
+	template <typename U, POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
 	vector3& multiply(U f, vector3& result) const
 	{
 		return multiply(static_cast<T>(f), result);
@@ -314,13 +314,13 @@ struct vector3
 	*---------------------------------------------------------------------*/
 	vector3& divide(T f, vector3& result) const
 	{
-		_DEB_ASSERT(f != math_type::zero);
+		POCKET_DEBUG_ASSERT(f != math_type::zero);
 		return multiply(math_type::reciprocal(f), result);
 	}
-	template <typename U, _TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
+	template <typename U, POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
 	vector3& divide(U f, vector3& result) const
 	{
-		_DEB_ASSERT(f != math_traits<U>::zero);
+		POCKET_DEBUG_ASSERT(f != math_traits<U>::zero);
 		return divide(static_cast<T>(f), result);
 	}
 	/*---------------------------------------------------------------------
@@ -648,15 +648,15 @@ struct vector3
 	*---------------------------------------------------------------------*/
 	vector2<T> swizzle(int x, int y) const
 	{
-		_DEB_RANGE_ASSERT(x, 0, 2);
-		_DEB_RANGE_ASSERT(y, 0, 2);
+		POCKET_DEBUG_RANGE_ASSERT(x, 0, 2);
+		POCKET_DEBUG_RANGE_ASSERT(y, 0, 2);
 		return vector2<T>((*this)[x], (*this)[y]);
 	}
 	vector3 swizzle(int x, int y, int z) const
 	{
-		_DEB_RANGE_ASSERT(x, 0, 2);
-		_DEB_RANGE_ASSERT(y, 0, 2);
-		_DEB_RANGE_ASSERT(z, 0, 2);
+		POCKET_DEBUG_RANGE_ASSERT(x, 0, 2);
+		POCKET_DEBUG_RANGE_ASSERT(y, 0, 2);
+		POCKET_DEBUG_RANGE_ASSERT(z, 0, 2);
 		return vector3((*this)[x], (*this)[y], (*this)[z]);
 	}
 	vector4<T> swizzle(int, int, int, int) const; // vector4.h
@@ -670,55 +670,55 @@ struct vector3
 	*---------------------------------------------------------------------*/
 	T& operator [] (int i)
 	{
-		_DEB_RANGE_ASSERT(i, 0, 2);
-#ifdef _USE_ANONYMOUS
+		POCKET_DEBUG_RANGE_ASSERT(i, 0, 2);
+#ifdef POCKET_USE_ANONYMOUS
 		return data[i];
 #else
 		return (&x)[i];
-#endif // _USE_ANONYMOUS
+#endif // POCKET_USE_ANONYMOUS
 	}
 	const T& operator [] (int i) const
 	{
-		_DEB_RANGE_ASSERT(i, 0, 2);
-#ifdef _USE_ANONYMOUS
+		POCKET_DEBUG_RANGE_ASSERT(i, 0, 2);
+#ifdef POCKET_USE_ANONYMOUS
 		return data[i];
 #else
 		return (&x)[i];
-#endif // _USE_ANONYMOUS
+#endif // POCKET_USE_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------
 	* 型変換演算子
 	*---------------------------------------------------------------------*/
 	template <typename U>
-	_CXX11_EXPLICIT operator vector3<U>() const
+	POCKET_CXX11_EXPLICIT operator vector3<U>() const
 	{
 		return vector3<U>(static_cast<U>(x), static_cast<U>(y), static_cast<U>(z));
 	}
-	_CXX11_EXPLICIT operator vector2<T>() const
+	POCKET_CXX11_EXPLICIT operator vector2<T>() const
 	{
 		return vector2<T>(x, y);
 	}
 	template <typename U>
-	_CXX11_EXPLICIT operator vector2<U>() const
+	POCKET_CXX11_EXPLICIT operator vector2<U>() const
 	{
 		return vector2<U>(static_cast<U>(x), static_cast<U>(y));
 	}
-	_CXX11_EXPLICIT operator T* ()
+	POCKET_CXX11_EXPLICIT operator T* ()
 	{
-#ifdef _USE_ANONYMOUS
+#ifdef POCKET_USE_ANONYMOUS
 		return &data[0];
 #else
 		return &x;
-#endif // _USE_ANONYMOUS
+#endif // POCKET_USE_ANONYMOUS
 	}
-	_CXX11_EXPLICIT operator const T* () const
+	POCKET_CXX11_EXPLICIT operator const T* () const
 	{
-#ifdef _USE_ANONYMOUS
+#ifdef POCKET_USE_ANONYMOUS
 		return &data[0];
 #else
 		return &x;
-#endif // _USE_ANONYMOUS
+#endif // POCKET_USE_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------
@@ -820,7 +820,7 @@ struct vector3
 		vector3 result(behavior::noinitialize);
 		return multiply(f, result);
 	}
-	template <typename U, _TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
+	template <typename U, POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
 	vector3 operator * (U f) const
 	{
 		vector3 result(behavior::noinitialize);
@@ -831,7 +831,7 @@ struct vector3
 		vector3 result(behavior::noinitialize);
 		return divide(f, result);
 	}
-	template <typename U, _TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
+	template <typename U, POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
 	vector3 operator / (U f) const
 	{
 		vector3 result(behavior::noinitialize);
@@ -854,7 +854,7 @@ struct vector3
 		x = y = z = f;
 		return *this;
 	}
-	template <typename U, _TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
+	template <typename U, POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
 	vector3& operator = (U f)
 	{
 		*this = static_cast<T>(f);
@@ -948,7 +948,7 @@ struct vector3
 	{
 		return rotate(q);
 	}
-	template <typename U, _TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
+	template <typename U, POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
 	vector3& operator *= (U f)
 	{
 		x *= static_cast<T>(f);
@@ -958,13 +958,13 @@ struct vector3
 	}
 	vector3& operator /= (T f)
 	{
-		_DEB_ASSERT(f != math_type::zero);
+		POCKET_DEBUG_ASSERT(f != math_type::zero);
 		return *this *= math_type::reciprocal(f);
 	}
-	template <typename U, _TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
+	template <typename U, POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
 	vector3& operator /= (U f)
 	{
-		_DEB_ASSERT(f != math_traits<U>::zero);
+		POCKET_DEBUG_ASSERT(f != math_traits<U>::zero);
 		return *this *= math_type::reciprocal(static_cast<T>(f));
 	}
 	vector3& operator %= (T f)
@@ -1257,9 +1257,9 @@ vector2<T>::vector2(const vector3<U>& v) :
 template <typename T> inline
 vector3<T> vector2<T>::swizzle(int x, int y, int z) const
 {
-	_DEB_RANGE_ASSERT(x, 0, 2);
-	_DEB_RANGE_ASSERT(y, 0, 2);
-	_DEB_RANGE_ASSERT(z, 0, 2);
+	POCKET_DEBUG_RANGE_ASSERT(x, 0, 2);
+	POCKET_DEBUG_RANGE_ASSERT(y, 0, 2);
+	POCKET_DEBUG_RANGE_ASSERT(z, 0, 2);
 	return vector3<T>((*this)[x], (*this)[y], (*this)[z]);
 }
 

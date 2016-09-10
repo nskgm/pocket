@@ -2,9 +2,9 @@
 #define __POCKET_BUFFER_VIEW_H__
 
 #include "../config.h"
-#ifdef _USE_PRAGMA_ONCE
+#ifdef POCKET_USE_PRAGMA_ONCE
 #pragma once
-#endif // _USE_PRAGMA_ONCE
+#endif // POCKET_USE_PRAGMA_ONCE
 
 #include "gl.h"
 #include "buffer.h"
@@ -132,7 +132,7 @@ public:
 	buffer_view(const buffer_view& b) :
 		_type(b._type), _id(b._id)
 	{}
-#ifdef _USE_CXX11
+#ifdef POCKET_USE_CXX11
 	buffer_view(buffer_view&& b) :
 		_type(std::move(b._type)),
 		_id(std::move(b._id))
@@ -140,7 +140,7 @@ public:
 		b._id = 0;
 		b._type = buffer_type::unknown;
 	}
-#endif // _USE_CXX11
+#endif // POCKET_USE_CXX11
 	~buffer_view()
 	{}
 
@@ -192,7 +192,7 @@ public:
 	bool binding() const
 	{
 		GLuint i;
-		glGetIntegerv(buffer_type::to_binding_type(_type), reinterpret_cast<GLint*>(&i));
+		glGetIntegerv(gl::to_binding_type(_type), reinterpret_cast<GLint*>(&i));
 		// バインドされていない
 		if (i == 0)
 		{
@@ -430,7 +430,7 @@ public:
 	* Operators
 	*------------------------------------------------------------------------------------------*/
 
-	_CXX11_EXPLICIT operator bool () const
+	POCKET_CXX11_EXPLICIT operator bool () const
 	{
 		return valid();
 	}
@@ -454,7 +454,7 @@ public:
 		_id = b._id;
 		return *this;
 	}
-#ifdef _USE_CXX11
+#ifdef POCKET_USE_CXX11
 	buffer_view& operator = (buffer_view&& b)
 	{
 		_type = std::move(b._type);
@@ -470,7 +470,7 @@ public:
 		_id = 0;
 		return *this;
 	}
-#endif // _USE_CXX11
+#endif // POCKET_USE_CXX11
 };
 
 inline
@@ -554,7 +554,7 @@ binder_map<buffer_view, T> binder<buffer_view>::make_binder_map() const
 inline
 GLuint get_binding_buffer(buffer_type_t type)
 {
-	return get_binding_buffer(buffer_type::to_binding_type(type));
+	return get_binding_buffer(gl::to_binding_type(type));
 }
 inline
 GLuint get_binding_buffer(buffer_binding_type_t type)
@@ -566,7 +566,7 @@ GLuint get_binding_buffer(buffer_binding_type_t type)
 inline
 bool get_binding_buffer(buffer_type_t type, GLuint& id)
 {
-	return get_binding_buffer(buffer_type::to_binding_type(type), id);
+	return get_binding_buffer(gl::to_binding_type(type), id);
 }
 inline
 bool get_binding_buffer(buffer_binding_type_t type, GLuint& id)
@@ -578,7 +578,7 @@ bool get_binding_buffer(buffer_binding_type_t type, GLuint& id)
 inline
 buffer_view get_binding_buffer_view(buffer_type_t type)
 {
-	buffer_binding_type_t binding_type = buffer_type::to_binding_type(type);
+	buffer_binding_type_t binding_type = gl::to_binding_type(type);
 	GLint i = 0;
 	glGetIntegerv(binding_type, &i);
 	return buffer_view(type, static_cast<GLuint>(i));
@@ -593,7 +593,7 @@ buffer_view get_binding_buffer_view(buffer_binding_type_t type)
 inline
 bool get_binding_buffer_view(buffer_type_t type, buffer_view& view)
 {
-	buffer_binding_type_t binding_type = buffer_type::to_binding_type(type);
+	buffer_binding_type_t binding_type = gl::to_binding_type(type);
 	view._type = type;
 	view._id = 0;
 	glGetIntegerv(binding_type, reinterpret_cast<GLint*>(&view._id));

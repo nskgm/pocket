@@ -2,16 +2,16 @@
 #define __POCKET_MATH_COLOR_H__
 
 #include "../config.h"
-#ifdef _USE_PRAGMA_ONCE
+#ifdef POCKET_USE_PRAGMA_ONCE
 #pragma once
-#endif // _USE_PRAGMA_ONCE
+#endif // POCKET_USE_PRAGMA_ONCE
 
 #include "../behavior.h"
 #include "../container/array.h"
 #include "math_traits.h"
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 #include "simd_traits.h"
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 #include "../io.h"
 
 namespace pocket
@@ -33,7 +33,7 @@ typedef color<long double> colorld;
 template <typename T>
 struct color
 {
-	_MATH_STATICAL_ASSERT_FLOATING(T);
+	POCKET_MATH_STATICAL_ASSERT_FLOATING(T);
 
 	/*------------------------------------------------------------------------------------------
 	* Types
@@ -51,37 +51,37 @@ struct color
 
 	typedef typename math_type::value_int_type int_type;
 
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 	typedef simd_traits<T> simd;
 	typedef typename simd::type simd_type;
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 
 	/*------------------------------------------------------------------------------------------
 	* Members
 	*------------------------------------------------------------------------------------------*/
 
-#ifdef _USE_ANONYMOUS
+#ifdef POCKET_USE_ANONYMOUS
 	union
 	{
 		struct
 		{
-#endif // _USE_ANONYMOUS
+#endif // POCKET_USE_ANONYMOUS
 
 			T r;
 			T g;
 			T b;
 			T a;
 
-#ifdef _USE_ANONYMOUS
+#ifdef POCKET_USE_ANONYMOUS
 		};
 
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		simd_type mm;
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 
 		array_type data;
 	};
-#endif // _USE_ANONYMOUS
+#endif // POCKET_USE_ANONYMOUS
 
 	template <typename> friend struct color;
 
@@ -109,47 +109,47 @@ struct color
 	* Constructors
 	*------------------------------------------------------------------------------------------*/
 
-	_DEFAULT_CONSTRUCTOR(color);
+	POCKET_DEFAULT_CONSTRUCTOR(color);
 	explicit color(const behavior::_noinitialize_t&)
 	{
 
 	}
 	color(T r, T g, T b, T a) :
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		mm(simd::set(r, g, b, a))
 #else
 		r(r), g(g), b(b), a(a)
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 	{
 
 	}
 	template <typename U, typename U1, typename U2, typename U3,
-		_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U),
-		_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U1),
-		_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U2),
-		_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U3)
+		POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U),
+		POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U1),
+		POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U2),
+		POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U3)
 	>
 	color(U r, U1 g, U2 b, U3 a) :
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		mm(simd::set(static_cast<T>(r), static_cast<T>(g), static_cast<T>(b), static_cast<T>(a)))
 #else
 		r(static_cast<T>(r)), g(static_cast<T>(g)), b(static_cast<T>(b)), a(static_cast<T>(a))
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 	{
 
 	}
 	template <typename U>
 	color(const color<U>& c) :
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		mm(simd::set(static_cast<T>(c.r), static_cast<T>(c.g), static_cast<T>(c.b), static_cast<T>(c.a)))
 #else
 		r(static_cast<T>(c.r)), g(static_cast<T>(c.g)), b(static_cast<U>(c.b)), a(static_cast<U>(c.a))
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 	{
 
 	}
 	color(int_type bytes) :
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		mm(simd::set(color::byte_to_float_r(bytes),
 			color::byte_to_float_g(bytes),
 			color::byte_to_float_b(bytes),
@@ -159,17 +159,17 @@ struct color
 		g(color::byte_to_float_g(bytes)),
 		b(color::byte_to_float_b(bytes)),
 		a(color::byte_to_float_a(bytes))
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 	{
 
 	}
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 	explicit color(simd_type mm) :
 		mm(mm)
 	{
 
 	}
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 
 	/*------------------------------------------------------------------------------------------
 	* Functions
@@ -180,14 +180,14 @@ struct color
 	*---------------------------------------------------------------------*/
 	color& add(const color& c, color& result) const
 	{
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		result.mm = simd::add(mm, c.mm);
 #else
 		result.r = r + c.r;
 		result.g = g + c.g;
 		result.b = b + c.b;
 		result.a = a + c.a;
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 		return result;
 	}
 	/*---------------------------------------------------------------------
@@ -195,14 +195,14 @@ struct color
 	*---------------------------------------------------------------------*/
 	color& subtract(const color& c, color& result) const
 	{
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		result.mm = simd::sub(mm, c.mm);
 #else
 		result.r = r - c.r;
 		result.g = g - c.g;
 		result.b = b - c.b;
 		result.a = a - c.a;
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 		return result;
 	}
 	/*---------------------------------------------------------------------
@@ -210,26 +210,26 @@ struct color
 	*---------------------------------------------------------------------*/
 	color& multiply(T f, color& result) const
 	{
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		result.mm = simd::mul(mm, f);
 #else
 		result.r = r * f;
 		result.g = g * f;
 		result.b = b * f;
 		result.a = a * f;
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 		return result;
 	}
 	color& multiply(const color& c, color& result) const
 	{
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		result.mm = simd::mul(mm, c.mm);
 #else
 		result.r = r * c.r;
 		result.g = g * c.g;
 		result.b = b * c.b;
 		result.a = a * c.a;
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 		return result;
 	}
 	color& modulate(const color& c, color& result) const
@@ -241,8 +241,8 @@ struct color
 	*---------------------------------------------------------------------*/
 	color& divide(T f, color& result) const
 	{
-		_DEB_ASSERT(f != math_type::zero);
-#ifdef _USE_SIMD_ANONYMOUS
+		POCKET_DEBUG_ASSERT(f != math_type::zero);
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		result.mm = simd::div(mm, f);
 #else
 		f = math_type::reciprocal(f);
@@ -250,7 +250,7 @@ struct color
 		result.g = g * f;
 		result.b = b * f;
 		result.a = a * f;
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------
@@ -258,33 +258,33 @@ struct color
 	*---------------------------------------------------------------------*/
 	bool is_near(const color& c) const
 	{
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		return simd::near_equal(mm, c.mm);
 #else
 		return (math_type::is_near(r, c.r) && math_type::is_near(g, c.g) && math_type::is_near(b, c.b) && math_type::is_near(a, c.a));
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 	}
 	/*---------------------------------------------------------------------
 	* 値がすべてゼロに等しいか
 	*---------------------------------------------------------------------*/
 	bool is_near_zero() const
 	{
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		return simd::near_equal_zero(mm);
 #else
 		return (math_type::is_near_zero(r) && math_type::is_near_zero(g) && math_type::is_near_zero(b) && math_type::is_near_zero(a));
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 	}
 	/*---------------------------------------------------------------------
 	* 値がすべてゼロか
 	*---------------------------------------------------------------------*/
 	bool is_zero() const
 	{
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		return simd::equal(mm, simd::zero());
 #else
 		return (r == math_type::zero && g == math_type::zero && b == math_type::zero && a == math_type::zero);
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------
@@ -310,38 +310,38 @@ struct color
 	*---------------------------------------------------------------------*/
 	color& saturate()
 	{
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		mm = simd::clamp01(mm);
 #else
 		r = math_type::clamp01(r);
 		g = math_type::clamp01(g);
 		b = math_type::clamp01(b);
 		a = math_type::clamp01(a);
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 		return *this;
 	}
 	color& saturate(color& result) const
 	{
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		result.mm = simd::clamp01(mm);
 #else
 		result.r = math_type::clamp01(r);
 		result.g = math_type::clamp01(g);
 		result.b = math_type::clamp01(b);
 		result.a = math_type::clamp01(a);
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 		return result;
 	}
 	color saturated() const
 	{
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		return color(simd::clamp01(mm));
 #else
 		return color(math_type::clamp01(r),
 			math_type::clamp01(g),
 			math_type::clamp01(b),
 			math_type::clamp01(a));
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------
@@ -349,25 +349,25 @@ struct color
 	*---------------------------------------------------------------------*/
 	color lerp(const color& to, T t) const
 	{
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		return color(simd::lerp(mm, to.mm, t));
 #else
 		return color(math_type::lerp(r, to.r, t),
 			math_type::lerp(g, to.g, t),
 			math_type::lerp(b, to.b, t),
 			math_type::lerp(a, to.a, t));
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 	}
 	color& lerp(const color& to, T t, color& result) const
 	{
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		result.mm = simd::lerp(mm, to.mm, t);
 #else
 		result.r = math_type::lerp(r, to.r, t);
 		result.g = math_type::lerp(g, to.g, t);
 		result.b = math_type::lerp(b, to.b, t);
 		result.a = math_type::lerp(a, to.a, t);
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 		return result;
 	}
 	color& lerp(const color& from, const color& to, T t)
@@ -391,11 +391,11 @@ struct color
 	*---------------------------------------------------------------------*/
 	static color alpha(T a)
 	{
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		return color(simd::set(math_type::one, math_type::one, math_type::one, a));
 #else
 		return color(math_type::one, math_type::one, math_type::one, a);
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------
@@ -435,46 +435,46 @@ struct color
 	*---------------------------------------------------------------------*/
 	T& operator [] (int i)
 	{
-		_DEB_RANGE_ASSERT(i, 0, 3);
-#ifdef _USE_ANONYMOUS
+		POCKET_DEBUG_RANGE_ASSERT(i, 0, 3);
+#ifdef POCKET_USE_ANONYMOUS
 		return data[i];
 #else
 		return (&r)[i];
-#endif // _USE_ANONYMOUS
+#endif // POCKET_USE_ANONYMOUS
 	}
 	const T& operator [] (int i) const
 	{
-		_DEB_RANGE_ASSERT(i, 0, 3);
-#ifdef _USE_ANONYMOUS
+		POCKET_DEBUG_RANGE_ASSERT(i, 0, 3);
+#ifdef POCKET_USE_ANONYMOUS
 		return data[i];
 #else
 		return (&r)[i];
-#endif // _USE_ANONYMOUS
+#endif // POCKET_USE_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------
 	* 変換演算子
 	*---------------------------------------------------------------------*/
 	template <typename U>
-	_CXX11_EXPLICIT operator color<U>() const
+	POCKET_CXX11_EXPLICIT operator color<U>() const
 	{
 		return color<U>(static_cast<U>(r), static_cast<U>(g), static_cast<U>(b), static_cast<U>(a));
 	}
-	_CXX11_EXPLICIT operator T* ()
+	POCKET_CXX11_EXPLICIT operator T* ()
 	{
-#ifdef _USE_ANONYMOUS
+#ifdef POCKET_USE_ANONYMOUS
 		return &data[0];
 #else
 		return &r;
-#endif // _USE_ANONYMOUS
+#endif // POCKET_USE_ANONYMOUS
 	}
-	_CXX11_EXPLICIT operator const T* () const
+	POCKET_CXX11_EXPLICIT operator const T* () const
 	{
-#ifdef _USE_ANONYMOUS
+#ifdef POCKET_USE_ANONYMOUS
 		return &data[0];
 #else
 		return &r;
-#endif // _USE_ANONYMOUS
+#endif // POCKET_USE_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------
@@ -482,11 +482,11 @@ struct color
 	*---------------------------------------------------------------------*/
 	bool operator == (const color& c) const
 	{
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		return simd::equal(mm, c.mm);
 #else
 		return r == c.r && g == c.g && b == c.b && a == c.a;
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 	}
 	bool operator != (const color& c) const
 	{
@@ -502,11 +502,11 @@ struct color
 	}
 	color operator - () const
 	{
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		return color(simd::sub(simd::one(), mm));
 #else
 		return color(math_type::one - r, math_type::one - g, math_type::one - b, math_type::one - a);
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------
@@ -514,49 +514,49 @@ struct color
 	*---------------------------------------------------------------------*/
 	color operator + (const color& c) const
 	{
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		return color(simd::add(mm, c.mm));
 #else
 		color result(behavior::noinitialize);
 		return add(c, result);
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 	}
 	color operator - (const color& c) const
 	{
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		return color(simd::sub(mm, c.mm));
 #else
 		color result(behavior::noinitialize);
 		return subtract(c, result);
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 	}
 	color operator * (T f) const
 	{
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		return color(simd::mul(mm, f));
 #else
 		color result(behavior::noinitialize);
 		return multiply(f, result);
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 	}
 	color operator * (const color& c) const
 	{
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		return color(simd::mul(mm, c.mm));
 #else
 		color result(behavior::noinitialize);
 		return multiply(c, result);
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 	}
 	color operator / (T f) const
 	{
-#ifdef _USE_SIMD_ANONYMOUS
-		_DEB_ASSERT(f != math_type::zero);
+#ifdef POCKET_USE_SIMD_ANONYMOUS
+		POCKET_DEBUG_ASSERT(f != math_type::zero);
 		return color(simd::div(mm, f));
 #else
 		color result(behavior::noinitialize);
 		return divide(f, result);
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------
@@ -580,7 +580,7 @@ struct color
 	}
 	color& operator /= (T f)
 	{
-		_DEB_ASSERT(f != math_type::zero);
+		POCKET_DEBUG_ASSERT(f != math_type::zero);
 		return operator*=(math_type::reciprocal(f));
 	}
 };

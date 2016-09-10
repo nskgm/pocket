@@ -2,12 +2,12 @@
 #define __POCKET_GL_BUFFER_H__
 
 #include "../config.h"
-#ifdef _USE_PRAGMA_ONCE
+#ifdef POCKET_USE_PRAGMA_ONCE
 #pragma once
-#endif // _USE_PRAGMA_ONCE
+#endif // POCKET_USE_PRAGMA_ONCE
 
 #include "gl.h"
-#include "buffer_base.h"
+#include "common_type.h"
 #include "../debug.h"
 #include "../io.h"
 
@@ -163,7 +163,7 @@ public:
 		_type(b._type),
 		_error_bitfield(b._error_bitfield)
 	{}
-#ifdef _USE_CXX11
+#ifdef POCKET_USE_CXX11
 	buffer(buffer&& b) :
 		_id(std::move(b._id)),
 		_type(std::move(b._type)),
@@ -173,7 +173,7 @@ public:
 		b._type = buffer_type::unknown;
 		b._error_bitfield = 0;
 	}
-#endif // _USE_CXX11
+#endif // POCKET_USE_CXX11
 	~buffer()
 	{
 		finalize();
@@ -330,7 +330,7 @@ public:
 	bool binding() const
 	{
 		GLuint i;
-		glGetIntegerv(buffer_type::to_binding_type(_type), reinterpret_cast<GLint*>(&i));
+		glGetIntegerv(gl::to_binding_type(_type), reinterpret_cast<GLint*>(&i));
 		// バインドされていない
 		if (i == 0)
 		{
@@ -653,7 +653,7 @@ public:
 	* Operators
 	*------------------------------------------------------------------------------------------*/
 
-	_CXX11_EXPLICIT operator bool () const
+	POCKET_CXX11_EXPLICIT operator bool () const
 	{
 		return valid();
 	}
@@ -678,7 +678,7 @@ public:
 		_error_bitfield = b._error_bitfield;
 		return *this;
 	}
-#ifdef _USE_CXX11
+#ifdef POCKET_USE_CXX11
 	buffer& operator = (buffer&& b)
 	{
 		_type = std::move(b._type);
@@ -695,7 +695,7 @@ public:
 		finalize();
 		return *this;
 	}
-#endif // _USE_CXX11
+#endif // POCKET_USE_CXX11
 };
 
 template <int N>
@@ -759,7 +759,7 @@ public:
 			_ids[i]._id = b._ids[i]._id;
 		}
 	}
-#ifdef _USE_CXX11
+#ifdef POCKET_USE_CXX11
 	buffers(buffers&& b) :
 		_ids(std::move(b._ids))
 	{
@@ -768,7 +768,7 @@ public:
 			b._ids[i]._id = 0;
 		}
 	}
-#endif // _USE_CXX11
+#endif // POCKET_USE_CXX11
 
 	/*------------------------------------------------------------------------------------------
 	* Functions
@@ -1001,7 +1001,7 @@ public:
 	* Operators
 	*------------------------------------------------------------------------------------------*/
 
-	_CXX11_EXPLICIT operator bool () const
+	POCKET_CXX11_EXPLICIT operator bool () const
 	{
 		return _data != NULL;
 	}
@@ -1010,7 +1010,7 @@ public:
 		return _data == NULL;
 	}
 
-	_CXX11_EXPLICIT operator M* () const
+	POCKET_CXX11_EXPLICIT operator M* () const
 	{
 		return _data;
 	}
@@ -1121,7 +1121,7 @@ public:
 	* Operators
 	*------------------------------------------------------------------------------------------*/
 
-	_CXX11_EXPLICIT operator bool () const
+	POCKET_CXX11_EXPLICIT operator bool () const
 	{
 		return _data != NULL;
 	}

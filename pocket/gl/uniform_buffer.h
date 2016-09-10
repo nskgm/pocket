@@ -2,9 +2,9 @@
 #define __POCKET_GL_UNIFORM_BUFFER_H__
 
 #include "../config.h"
-#ifdef _USE_PRAGMA_ONCE
+#ifdef POCKET_USE_PRAGMA_ONCE
 #pragma once
-#endif // _USE_PRAGMA_ONCE
+#endif // POCKET_USE_PRAGMA_ONCE
 
 #include "gl.h"
 #include "../debug.h"
@@ -74,7 +74,7 @@ public:
 	* Operators
 	*------------------------------------------------------------------------------------------*/
 
-	_CXX11_EXPLICIT operator bool () const
+	POCKET_CXX11_EXPLICIT operator bool () const
 	{
 		return _data != NULL;
 	}
@@ -83,7 +83,7 @@ public:
 		return _data == NULL;
 	}
 
-	_CXX11_EXPLICIT operator M* () const
+	POCKET_CXX11_EXPLICIT operator M* () const
 	{
 		return _data;
 	}
@@ -226,7 +226,7 @@ public:
 		_binding_point(u._binding_point),
 		_size(u._size)
 	{}
-#ifdef _USE_CXX11
+#ifdef POCKET_USE_CXX11
 	uniform_buffer(uniform_buffer&& u) :
 		_buffer(std::move(u._buffer)),
 		_index(std::move(u._index)),
@@ -237,7 +237,7 @@ public:
 		u._binding_point = 0;
 		u._size = 0;
 	}
-#endif // _USE_CXX11
+#endif // POCKET_USE_CXX11
 	~uniform_buffer()
 	{
 		finalize();
@@ -546,7 +546,7 @@ public:
 	* Operators
 	*------------------------------------------------------------------------------------------*/
 
-	_CXX11_EXPLICIT operator bool () const
+	POCKET_CXX11_EXPLICIT operator bool () const
 	{
 		return valid();
 	}
@@ -591,7 +591,7 @@ public:
 		_size = u._size;
 		return *this;
 	}
-#ifdef _USE_CXX11
+#ifdef POCKET_USE_CXX11
 	uniform_buffer& operator = (uniform_buffer&& u)
 	{
 		_buffer = std::move(u._buffer);
@@ -609,7 +609,7 @@ public:
 		finalize();
 		return *this;
 	}
-#endif // _USE_CXX11
+#endif // POCKET_USE_CXX11
 
 	template <typename T>
 	void operator = (const T& a) const

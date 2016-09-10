@@ -2,9 +2,9 @@
 #define __POCKET_IO_H__
 
 #include "config.h"
-#ifdef _USE_PRAGMA_ONCE
+#ifdef POCKET_USE_PRAGMA_ONCE
 #pragma once
-#endif // _USE_PRAGMA_ONCE
+#endif // POCKET_USE_PRAGMA_ONCE
 
 #include "type_traits.h"
 #include <iostream>
@@ -14,41 +14,41 @@ namespace pocket
 {
 namespace io
 {
-#ifndef _DECL_OUT_CHAR_FUNCTION
-#define _DECL_OUT_CHAR_FUNCTION(NAME, CHAR) template <typename CharT, typename CharTraits> inline \
+#ifndef __POCKET_DECL_OUT_CHAR_FUNCTION
+#define __POCKET_DECL_OUT_CHAR_FUNCTION(NAME, CHAR) template <typename CharT, typename CharTraits> inline \
 		std::basic_ostream<CharT, CharTraits>& NAME(std::basic_ostream<CharT, CharTraits>& os) \
 	{\
 		os.put(os.widen((CHAR)));\
 		return os;\
 	}
-#endif // _DECL_OUT_CHAR_FUNCTION
+#endif // __POCKET_DECL_OUT_CHAR_FUNCTION
 
-_DECL_OUT_CHAR_FUNCTION(bel, '\7');
-_DECL_OUT_CHAR_FUNCTION(space, ' ');
-_DECL_OUT_CHAR_FUNCTION(line_feed, '\n');
-_DECL_OUT_CHAR_FUNCTION(parentheses_left, '(');
-_DECL_OUT_CHAR_FUNCTION(parentheses_right, ')');
-_DECL_OUT_CHAR_FUNCTION(braces_left, '{');
-_DECL_OUT_CHAR_FUNCTION(braces_right, '}');
-_DECL_OUT_CHAR_FUNCTION(box_brackets_left, '[');
-_DECL_OUT_CHAR_FUNCTION(box_brackets_right, ']');
-_DECL_OUT_CHAR_FUNCTION(angle_brackets_left, '<');
-_DECL_OUT_CHAR_FUNCTION(angle_brackets_right, '>');
-_DECL_OUT_CHAR_FUNCTION(comma, ',');
-_DECL_OUT_CHAR_FUNCTION(tab, '\t');
-_DECL_OUT_CHAR_FUNCTION(carriage_return, '\r');
-_DECL_OUT_CHAR_FUNCTION(single_quotation, '\'');
-_DECL_OUT_CHAR_FUNCTION(double_quotation, '\"');
-_DECL_OUT_CHAR_FUNCTION(quation, '\?');
-_DECL_OUT_CHAR_FUNCTION(exclamation, '!');
-_DECL_OUT_CHAR_FUNCTION(colon, ':');
-_DECL_OUT_CHAR_FUNCTION(semicolon, ';');
-_DECL_OUT_CHAR_FUNCTION(sharp, '#');
-_DECL_OUT_CHAR_FUNCTION(dollars, '$');
-_DECL_OUT_CHAR_FUNCTION(percent, '%');
-_DECL_OUT_CHAR_FUNCTION(asterisk, '*');
+__POCKET_DECL_OUT_CHAR_FUNCTION(bel, '\7');
+__POCKET_DECL_OUT_CHAR_FUNCTION(space, ' ');
+__POCKET_DECL_OUT_CHAR_FUNCTION(line_feed, '\n');
+__POCKET_DECL_OUT_CHAR_FUNCTION(parentheses_left, '(');
+__POCKET_DECL_OUT_CHAR_FUNCTION(parentheses_right, ')');
+__POCKET_DECL_OUT_CHAR_FUNCTION(braces_left, '{');
+__POCKET_DECL_OUT_CHAR_FUNCTION(braces_right, '}');
+__POCKET_DECL_OUT_CHAR_FUNCTION(box_brackets_left, '[');
+__POCKET_DECL_OUT_CHAR_FUNCTION(box_brackets_right, ']');
+__POCKET_DECL_OUT_CHAR_FUNCTION(angle_brackets_left, '<');
+__POCKET_DECL_OUT_CHAR_FUNCTION(angle_brackets_right, '>');
+__POCKET_DECL_OUT_CHAR_FUNCTION(comma, ',');
+__POCKET_DECL_OUT_CHAR_FUNCTION(tab, '\t');
+__POCKET_DECL_OUT_CHAR_FUNCTION(carriage_return, '\r');
+__POCKET_DECL_OUT_CHAR_FUNCTION(single_quotation, '\'');
+__POCKET_DECL_OUT_CHAR_FUNCTION(double_quotation, '\"');
+__POCKET_DECL_OUT_CHAR_FUNCTION(quation, '\?');
+__POCKET_DECL_OUT_CHAR_FUNCTION(exclamation, '!');
+__POCKET_DECL_OUT_CHAR_FUNCTION(colon, ':');
+__POCKET_DECL_OUT_CHAR_FUNCTION(semicolon, ';');
+__POCKET_DECL_OUT_CHAR_FUNCTION(sharp, '#');
+__POCKET_DECL_OUT_CHAR_FUNCTION(dollars, '$');
+__POCKET_DECL_OUT_CHAR_FUNCTION(percent, '%');
+__POCKET_DECL_OUT_CHAR_FUNCTION(asterisk, '*');
 
-#undef _DECL_OUT_CHAR_FUNCTION
+#undef __POCKET_DECL_OUT_CHAR_FUNCTION
 
 // [, ]
 template <typename CharT, typename CharTraits> inline

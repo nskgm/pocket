@@ -351,9 +351,11 @@ end
 # d: 戻す色
 def color_print_impl(c, d)
 	print color_element(c)
+	STDOUT.flush
 	yield
 	print color_element(d)
 	STDOUT.flush
+	#STDOUT.flush
 end
 # 変えたい色に変更してブロックが終了したら標準に色に戻す
 def color_print(c)
@@ -384,7 +386,7 @@ OBJ_LIST = SOURCE_LIST.map do |e| obj_filepath e end
 # リリースを有効にするか
 RELEASE = !DEBUG
 # アセンブラを出力するか
-ASSEMBLY = true
+ASSEMBLY = false
 
 # 経過時間の計測
 start_time = nil
@@ -568,7 +570,7 @@ task :pre_build do |t|
 
 		# 現在のコンパイルしているソースファイルを紅色で出力
 		color_print :green do
-			print "-- #{src_file}\n"
+			print "-- #{src_file} -> #{obj_file}\n"
 		end
 
 		# ソースが変更されていたら依存関係ファイルを更新する

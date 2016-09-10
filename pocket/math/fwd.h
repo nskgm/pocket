@@ -2,11 +2,9 @@
 #define __POCKET_MATH_FORWARD_H__
 
 #include "../config.h"
-#ifdef _USE_PRAGMA_ONCE
+#ifdef POCKET_USE_PRAGMA_ONCE
 #pragma once
-#endif // _USE_PRAGMA_ONCE
-
-#include "../fwd.h"
+#endif // POCKET_USE_PRAGMA_ONCE
 
 namespace pocket
 {

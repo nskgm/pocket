@@ -2,12 +2,13 @@
 #define __POCKET_MATH_MATH_TRAITS_H__
 
 #include "../config.h"
-#ifdef _USE_PRAGMA_ONCE
+#ifdef POCKET_USE_PRAGMA_ONCE
 #pragma once
-#endif // _USE_PRAGMA_ONCE
+#endif // POCKET_USE_PRAGMA_ONCE
 
 #include "../debug.h"
 #include "../behavior.h"
+#include "../fwd.h"
 #include "fwd.h"
 #include "../container/array.h"
 #include "../io.h"
@@ -42,26 +43,26 @@ template <>
 struct math_int_t<int>
 {
 	typedef int type;
-	_STATICAL_CONSTANT type sign_bit = 1 << 31;
+	POCKET_STATICAL_CONSTANT type sign_bit = 1 << 31;
 };
 template <>
 struct math_int_t<float>
 {
 	typedef uint32_t type;
-	_STATICAL_CONSTANT type sign_bit = 1UL << 31;
+	POCKET_STATICAL_CONSTANT type sign_bit = 1UL << 31;
 };
 template <>
 struct math_int_t<double>
 {
 	typedef uint64_t type;
-	_STATICAL_CONSTANT type sign_bit = 1ULL << 63;
+	POCKET_STATICAL_CONSTANT type sign_bit = 1ULL << 63;
 };
 }
 
 template <typename T>
 struct math_traits
 {
-	_MATH_STATICAL_ASSERT(T);
+	POCKET_MATH_STATICAL_ASSERT(T);
 
 	/*-----------------------------------------------------------------------------------------
 	* Types
@@ -72,7 +73,7 @@ struct math_traits
 		T sin; // サイン値
 		T cos; // コサイン値
 
-		_DEFAULT_CONSTRUCTOR(sin_cos_t);
+		POCKET_DEFAULT_CONSTRUCTOR(sin_cos_t);
 		sin_cos_t(const behavior::_noinitialize_t&)
 		{
 
@@ -177,7 +178,7 @@ struct math_traits
 	*---------------------------------------------------------------------*/
 	static inline T reciprocal(T f)
 	{
-		_DEB_ASSERT(!math_traits::is_near_zero(f));
+		POCKET_DEBUG_ASSERT(!math_traits::is_near_zero(f));
 		return (math_traits::one / f);
 	}
 
@@ -272,7 +273,7 @@ struct math_traits
 	*---------------------------------------------------------------------*/
 	static inline T round(T x)
 	{
-#ifdef _USE_CXX11
+#ifdef POCKET_USE_CXX11
 		return std::round(x);
 #else
 		T y = math_traits::remainder(x, math_traits::one);
@@ -281,7 +282,7 @@ struct math_traits
 			return math_traits::ceil(x);
 		}
 		return math_traits::floor(x);
-#endif // _USE_CXX11
+#endif // POCKET_USE_CXX11
 	}
 	/*---------------------------------------------------------------------
 	* 値の四捨五入した値を整数型で返す
@@ -710,26 +711,26 @@ struct math_traits
 	*---------------------------------------------------------------------*/
 	static inline T divide(T x, T y)
 	{
-		_DEB_ASSERT(y != math_traits::zero);
+		POCKET_DEBUG_ASSERT(y != math_traits::zero);
 		return (x / y);
 	}
 	template <template <typename> class MathType>
 	static inline MathType<T> divide(const MathType<T>& x, T s)
 	{
-		_DEB_ASSERT(s != math_traits::zero);
+		POCKET_DEBUG_ASSERT(s != math_traits::zero);
 		s = math_traits::one / s;
 		return multiply(x, s);
 	}
 	static inline T divide_assign(T& x, T y)
 	{
-		_DEB_ASSERT(y != math_traits::zero);
+		POCKET_DEBUG_ASSERT(y != math_traits::zero);
 		x /= y;
 		return x;
 	}
 	template <template <typename> class MathType>
 	static inline MathType<T>& divide_assign(MathType<T>& x, T s)
 	{
-		_DEB_ASSERT(s != math_traits::zero);
+		POCKET_DEBUG_ASSERT(s != math_traits::zero);
 		s = math_traits::one / s;
 		return multiply_assign(x, s);
 	}
@@ -738,7 +739,7 @@ struct math_traits
 	*---------------------------------------------------------------------*/
 	static inline T remainder(T x, T y)
 	{
-		_DEB_ASSERT(!math_traits::is_near_zero(y));
+		POCKET_DEBUG_ASSERT(!math_traits::is_near_zero(y));
 		return (x >= y ? std::fmod(x, y) : x);
 		//return std::fmod(x, y);
 	}
@@ -754,7 +755,7 @@ struct math_traits
 	}
 	static inline T& remainder_assign(T& x, T y)
 	{
-		_DEB_ASSERT(!math_traits::is_near_zero(y));
+		POCKET_DEBUG_ASSERT(!math_traits::is_near_zero(y));
 		if (x >= y)
 		{
 			x = std::fmod(x, y);
@@ -845,13 +846,13 @@ int math_traits<int>::floor_to_int(int x)
 template <> inline
 int math_traits<int>::remainder(int x, int y)
 {
-	_DEB_ASSERT(y > 0);
+	POCKET_DEBUG_ASSERT(y > 0);
 	return (x % y);
 }
 template <> inline
 int& math_traits<int>::remainder_assign(int& x, int y)
 {
-	_DEB_ASSERT(y > 0);
+	POCKET_DEBUG_ASSERT(y > 0);
 	x %= y;
 	return x;
 }
@@ -974,113 +975,113 @@ _MATH_SIN_COS_OUTPUT_OPERATOR(math::detail::math_traits_sin_cos_tld);
 
   // 数学クラスの関数を＊演算子で呼び出す
 
-#ifdef _USE_CXX11
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
+#ifdef POCKET_USE_CXX11
+template <typename T, POCKET_TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 T operator * (const T& f, const pocket::behavior::_sqr_t&)
 {
 	return pocket::math::math_traits<T>::sqr(f);
 }
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
+template <typename T, POCKET_TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 T operator * (const T& f, const pocket::behavior::_radians_t&)
 {
 	return pocket::math::math_traits<T>::to_radian(f);
 }
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
+template <typename T, POCKET_TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 T operator * (const T& f, const pocket::behavior::_degrees_t&)
 {
 	return pocket::math::math_traits<T>::to_degree(f);
 }
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
+template <typename T, POCKET_TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 T operator * (const T& f, const pocket::behavior::_sin_t&)
 {
 	return pocket::math::math_traits<T>::sin(f);
 }
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
+template <typename T, POCKET_TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 T operator * (const T& f, const pocket::behavior::_cos_t&)
 {
 	return pocket::math::math_traits<T>::cos(f);
 }
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
+template <typename T, POCKET_TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 T operator * (const T& f, const pocket::behavior::_tan_t&)
 {
 	return pocket::math::math_traits<T>::tan(f);
 }
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
+template <typename T, POCKET_TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 T operator * (const T& f, const pocket::behavior::_asin_t&)
 {
 	return pocket::math::math_traits<T>::asin(f);
 }
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
+template <typename T, POCKET_TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 T operator * (const T& f, const pocket::behavior::_acos_t&)
 {
 	return pocket::math::math_traits<T>::acos(f);
 }
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
+template <typename T, POCKET_TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 T operator * (const T& f, const pocket::behavior::_atan_t&)
 {
 	return pocket::math::math_traits<T>::atan(f);
 }
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
+template <typename T, POCKET_TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 typename pocket::math::math_traits<T>::sin_cos_t operator * (const T& f, const pocket::behavior::_sin_cos_t&)
 {
 	return pocket::math::math_traits<T>::sin_cos(f);
 }
 
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
+template <typename T, POCKET_TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 T operator * (const T& f, const pocket::behavior::_round_t&)
 {
 	return pocket::math::math_traits<T>::round(f);
 }
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
+template <typename T, POCKET_TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 T operator * (const T& f, const pocket::behavior::_abs_t&)
 {
 	return pocket::math::math_traits<T>::abs(f);
 }
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
+template <typename T, POCKET_TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 T operator * (const T& f, const pocket::behavior::_ceil_t&)
 {
 	return pocket::math::math_traits<T>::ceil(f);
 }
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
+template <typename T, POCKET_TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 T operator * (const T& f, const pocket::behavior::_floor_t&)
 {
 	return pocket::math::math_traits<T>::floor(f);
 }
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
+template <typename T, POCKET_TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 T operator * (const T& f, const pocket::behavior::_sqrt_t&)
 {
 	return pocket::math::math_traits<T>::sqrt(f);
 }
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
+template <typename T, POCKET_TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 T operator * (const T& f, const pocket::behavior::_pot_t&)
 {
 	return pocket::math::math_traits<T>::power_of_two(f);
 }
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
+template <typename T, POCKET_TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 bool operator * (const T& f, const pocket::behavior::_is_pot_t&)
 {
 	return pocket::math::math_traits<T>::is_power_of_two(f);
 }
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
+template <typename T, POCKET_TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 T operator * (const T& f, const pocket::behavior::_clamp01_t&)
 {
 	return pocket::math::math_traits<T>::clamp01(f);
 }
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
+template <typename T, POCKET_TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 pocket::math::vector2<T> operator * (const T& f, const pocket::behavior::_vec2_t&)
 {
 	return pocket::math::vector2<T>(f);
 }
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
+template <typename T, POCKET_TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 pocket::math::vector3<T> operator * (const T& f, const pocket::behavior::_vec3_t&)
 {
 	return pocket::math::vector3<T>(f);
 }
-template <typename T, _TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
+template <typename T, POCKET_TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
 pocket::math::vector4<T> operator * (const T& f, const pocket::behavior::_vec4_t&)
 {
 	return pocket::math::vector4<T>(f, f);
 }
-#endif // _USE_CXX11
+#endif // POCKET_USE_CXX11
 
 #endif // __POCKET_MATH_MATH_TRAITS_H__

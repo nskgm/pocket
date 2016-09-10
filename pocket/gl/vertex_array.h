@@ -2,9 +2,9 @@
 #define __POCKET_GL_VERTEX_ARRAY_H__
 
 #include "../config.h"
-#ifdef _USE_PRAGMA_ONCE
+#ifdef POCKET_USE_PRAGMA_ONCE
 #pragma once
-#endif // _USE_PRAGMA_ONCE
+#endif // POCKET_USE_PRAGMA_ONCE
 
 #include "gl.h"
 #include "../debug.h"
@@ -12,7 +12,7 @@
 #include "../container/array.h"
 #include "buffer.h"
 #include "vertex_buffer.h"
-#include "type.h"
+#include "common_type.h"
 
 namespace pocket
 {
@@ -213,7 +213,7 @@ public:
 		_id(b._id),
 		_error_bitfield(b._error_bitfield)
 	{}
-#ifdef _USE_CXX11
+#ifdef POCKET_USE_CXX11
 	vertex_array(vertex_array&& v) :
 		_id(std::move(v._id)),
 		_error_bitfield(std::move(v._error_bitfield))
@@ -221,7 +221,7 @@ public:
 		v._id = 0;
 		v._error_bitfield = 0;
 	}
-#endif // _USE_CXX11
+#endif // POCKET_USE_CXX11
 	~vertex_array()
 	{
 		finalize();
@@ -781,7 +781,7 @@ public:
 	* Operators
 	*------------------------------------------------------------------------------------------*/
 
-	_CXX11_EXPLICIT operator bool () const
+	POCKET_CXX11_EXPLICIT operator bool () const
 	{
 		return valid();
 	}
@@ -805,7 +805,7 @@ public:
 		_error_bitfield = b._error_bitfield;
 		return *this;
 	}
-#ifdef _USE_CXX11
+#ifdef POCKET_USE_CXX11
 	vertex_array& operator = (vertex_array&& b)
 	{
 		_id = std::move(b._id);
@@ -820,7 +820,7 @@ public:
 		finalize();
 		return *this;
 	}
-#endif // _USE_CXX11
+#endif // POCKET_USE_CXX11
 };
 
 inline

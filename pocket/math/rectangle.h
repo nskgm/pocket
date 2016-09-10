@@ -2,9 +2,9 @@
 #define __POCKET_MATH_RECTANGLE_H__
 
 #include "../config.h"
-#ifdef _USE_PRAGMA_ONCE
+#ifdef POCKET_USE_PRAGMA_ONCE
 #pragma once
-#endif // _USE_PRAGMA_ONCE
+#endif // POCKET_USE_PRAGMA_ONCE
 
 #include "../behavior.h"
 #include "../debug.h"
@@ -39,7 +39,7 @@ typedef rectangle<long double> rectangleld;
 template <typename T>
 struct range
 {
-	_MATH_STATICAL_ASSERT(T);
+	POCKET_MATH_STATICAL_ASSERT(T);
 
 	/*------------------------------------------------------------------------------------------
 	* Types
@@ -60,22 +60,22 @@ struct range
 	* Members
 	*------------------------------------------------------------------------------------------*/
 
-#ifdef _USE_ANONYMOUS
+#ifdef POCKET_USE_ANONYMOUS
 	union
 	{
 		struct
 		{
-#endif // _USE_ANONYMOUS
+#endif // POCKET_USE_ANONYMOUS
 
 			T minimum;
 			T maximum;
 
-#ifdef _USE_ANONYMOUS
+#ifdef POCKET_USE_ANONYMOUS
 		};
 
 		array_type data;
 	};
-#endif // _USE_ANONYMOUS
+#endif // POCKET_USE_ANONYMOUS
 
 	template <typename> friend struct range;
 
@@ -89,7 +89,7 @@ struct range
 	* Constantors
 	*------------------------------------------------------------------------------------------*/
 
-	_DEFAULT_CONSTRUCTOR(range);
+	POCKET_DEFAULT_CONSTRUCTOR(range);
 	explicit range(const behavior::_noinitialize_t&)
 	{
 
@@ -106,8 +106,8 @@ struct range
 
 	}
 	template <typename U, typename U1,
-		_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U),
-		_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U1)
+		POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U),
+		POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U1)
 	>
 		range(U min, U1 max) :
 		minimum(static_cast<T>(min)), maximum(static_cast<T>(max))
@@ -147,46 +147,46 @@ struct range
 	*---------------------------------------------------------------------*/
 	T& operator [] (int i)
 	{
-		_DEB_RANGE_ASSERT(i, 0, 1);
-#ifdef _USE_ANONYMOUS
+		POCKET_DEBUG_RANGE_ASSERT(i, 0, 1);
+#ifdef POCKET_USE_ANONYMOUS
 		return data[i];
 #else
 		return (&minimum)[i];
-#endif // _USE_ANONYMOUS
+#endif // POCKET_USE_ANONYMOUS
 	}
 	const T& operator [] (int i) const
 	{
-		_DEB_RANGE_ASSERT(i, 0, 1);
-#ifdef _USE_ANONYMOUS
+		POCKET_DEBUG_RANGE_ASSERT(i, 0, 1);
+#ifdef POCKET_USE_ANONYMOUS
 		return data[i];
 #else
 		return (&minimum)[i];
-#endif // _USE_ANONYMOUS
+#endif // POCKET_USE_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------
 	* 型変換演算子
 	*---------------------------------------------------------------------*/
 	template <typename U>
-	_CXX11_EXPLICIT operator range<U>() const
+	POCKET_CXX11_EXPLICIT operator range<U>() const
 	{
 		return range<U>(static_cast<U>(minimum), static_cast<U>(maximum));
 	}
-	_CXX11_EXPLICIT operator T* ()
+	POCKET_CXX11_EXPLICIT operator T* ()
 	{
-#ifdef _USE_ANONYMOUS
+#ifdef POCKET_USE_ANONYMOUS
 		return &data[0];
 #else
 		return &minimum;
-#endif // _USE_ANONYMOUS
+#endif // POCKET_USE_ANONYMOUS
 	}
-	_CXX11_EXPLICIT operator const T* () const
+	POCKET_CXX11_EXPLICIT operator const T* () const
 	{
-#ifdef _USE_ANONYMOUS
+#ifdef POCKET_USE_ANONYMOUS
 		return &data[0];
 #else
 		return &minimum;
-#endif // _USE_ANONYMOUS
+#endif // POCKET_USE_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------
@@ -225,7 +225,7 @@ std::basic_istream<CharT, CharTraits>& operator >> (std::basic_istream<CharT, Ch
 template <typename T>
 struct rectangle
 {
-	_MATH_STATICAL_ASSERT(T);
+	POCKET_MATH_STATICAL_ASSERT(T);
 
 	/*------------------------------------------------------------------------------------------
 	* Types
@@ -247,22 +247,22 @@ struct rectangle
 	* Members
 	*------------------------------------------------------------------------------------------*/
 
-#ifdef _USE_ANONYMOUS_NON_POD
+#ifdef POCKET_USE_ANONYMOUS_NON_POD
 	union
 	{
 		struct
 		{
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 
 			range_type x;
 			range_type y;
 
-#ifdef _USE_ANONYMOUS_NON_POD
+#ifdef POCKET_USE_ANONYMOUS_NON_POD
 		};
 
 		array_type data;
 	};
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 
 	template <typename> friend struct rectangle;
 
@@ -276,7 +276,7 @@ struct rectangle
 	* Constantors
 	*------------------------------------------------------------------------------------------*/
 
-	_DEFAULT_CONSTRUCTOR(rectangle);
+	POCKET_DEFAULT_CONSTRUCTOR(rectangle);
 	explicit rectangle(const behavior::_noinitialize_t&)
 	{
 
@@ -311,10 +311,10 @@ struct rectangle
 
 	}
 	template <typename U, typename U1, typename U2, typename U3,
-		_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U),
-		_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U1),
-		_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U2),
-		_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U3)
+		POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U),
+		POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U1),
+		POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U2),
+		POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U3)
 	>
 		rectangle(U l, U1 r, U2 t, U3 b) :
 		x(static_cast<T>(l), static_cast<T>(r)),
@@ -405,47 +405,47 @@ struct rectangle
 	*---------------------------------------------------------------------*/
 	T& operator [] (int i)
 	{
-		_DEB_RANGE_ASSERT(i, 0, 3);
-#ifdef _USE_ANONYMOUS_NON_POD
+		POCKET_DEBUG_RANGE_ASSERT(i, 0, 3);
+#ifdef POCKET_USE_ANONYMOUS_NON_POD
 		return data[i];
 #else
 		return (&x.minimum)[i];
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 	}
 	const T& operator [] (int i) const
 	{
-		_DEB_RANGE_ASSERT(i, 0, 3);
-#ifdef _USE_ANONYMOUS_NON_POD
+		POCKET_DEBUG_RANGE_ASSERT(i, 0, 3);
+#ifdef POCKET_USE_ANONYMOUS_NON_POD
 		return data[i];
 #else
 		return (&x.minimum)[i];
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 	}
 
 	/*---------------------------------------------------------------------
 	* 型変換演算子
 	*---------------------------------------------------------------------*/
 	template <typename U>
-	_CXX11_EXPLICIT operator rectangle<U>() const
+	POCKET_CXX11_EXPLICIT operator rectangle<U>() const
 	{
 		typedef range<U> other_range_type;
 		return rectangle<U>(static_cast<other_range_type>(x), static_cast<other_range_type>(y));
 	}
-	_CXX11_EXPLICIT operator T* ()
+	POCKET_CXX11_EXPLICIT operator T* ()
 	{
-#ifdef _USE_ANONYMOUS_NON_POD
+#ifdef POCKET_USE_ANONYMOUS_NON_POD
 		return &data[0];
 #else
 		return &x.minimum;
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 	}
-	_CXX11_EXPLICIT operator const T* () const
+	POCKET_CXX11_EXPLICIT operator const T* () const
 	{
-#ifdef _USE_ANONYMOUS_NON_POD
+#ifdef POCKET_USE_ANONYMOUS_NON_POD
 		return &data[0];
 #else
 		return &x.minimum;
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 	}
 
 	/*---------------------------------------------------------------------

@@ -2,9 +2,9 @@
 #define __POCKET_GL_LAYERED_VERTEX_BUFFER_H__
 
 #include "../config.h"
-#ifdef _USE_PRAGMA_ONCE
+#ifdef POCKET_USE_PRAGMA_ONCE
 #pragma once
-#endif // _USE_PRAGMA_ONCE
+#endif // POCKET_USE_PRAGMA_ONCE
 
 #include "gl.h"
 #include "../debug.h"
@@ -207,7 +207,7 @@ public:
 		_vertex_count(b._vertex_count),
 		_error(b._error)
 	{}
-#ifdef _USE_CXX11
+#ifdef POCKET_USE_CXX11
 	layered_vertex_buffer(layered_vertex_buffer&& v) :
 		_vbo(std::move(v._vbo)),
 		_vao(std::move(v._vao)),
@@ -217,7 +217,7 @@ public:
 		v._vertex_count = 0;
 		v._error = none;
 	}
-#endif // _USE_CXX11
+#endif // POCKET_USE_CXX11
 	~layered_vertex_buffer()
 	{
 		finalize();
@@ -524,7 +524,7 @@ public:
 	* Operators
 	*------------------------------------------------------------------------------------------*/
 
-	_CXX11_EXPLICIT operator bool () const
+	POCKET_CXX11_EXPLICIT operator bool () const
 	{
 		return valid();
 	}
@@ -549,7 +549,7 @@ public:
 		_error = b._error;
 		return *this;
 	}
-#ifdef _USE_CXX11
+#ifdef POCKET_USE_CXX11
 	layered_vertex_buffer& operator = (layered_vertex_buffer&& b)
 	{
 		_vbo = std::move(b._vbo);
@@ -565,7 +565,7 @@ public:
 		finalize();
 		return *this;
 	}
-#endif // _USE_CXX11
+#endif // POCKET_USE_CXX11
 };
 
 #undef __POCKET_LAYERED_VERTEX_BUFFER_INITIALIZE

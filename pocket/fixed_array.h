@@ -2,9 +2,9 @@
 #define __POCKET_FIXED_ARRAY_H__
 
 #include "config.h"
-#ifdef _USE_PRAGMA_ONCE
+#ifdef POCKET_USE_PRAGMA_ONCE
 #pragma once
-#endif // _USE_PRAGMA_ONCE
+#endif // POCKET_USE_PRAGMA_ONCE
 
 #include "container/array.h"
 #include "io.h"
@@ -608,7 +608,7 @@ struct bool_reference
 		return b;
 	}
 
-	_CXX11_EXPLICIT operator bool () const
+	POCKET_CXX11_EXPLICIT operator bool () const
 	{
 		return (a & bit) != 0x00;
 	}
@@ -618,7 +618,7 @@ struct bool_reference
 	}
 };
 
-inline _CXX11_CONSTEXPR int or_bit(bool a, int shift)
+inline POCKET_CXX11_CONSTEXPR int or_bit(bool a, int shift)
 {
 	return a ? 0x01 << shift : 0x00;
 }
@@ -669,12 +669,12 @@ struct fixed_array<bool, 2>
 	}
 	reference operator [] (int i)
 	{
-		_DEB_RANGE_ASSERT(i, 0, 1);
+		POCKET_DEBUG_RANGE_ASSERT(i, 0, 1);
 		return reference(data, i);
 	}
 	bool operator [] (int i) const
 	{
-		_DEB_RANGE_ASSERT(i, 0, 1);
+		POCKET_DEBUG_RANGE_ASSERT(i, 0, 1);
 		return (data & (0x01 << i)) != 0;
 	}
 };
@@ -732,12 +732,12 @@ struct fixed_array<bool, 3>
 	}
 	reference operator [] (int i)
 	{
-		_DEB_RANGE_ASSERT(i, 0, 2);
+		POCKET_DEBUG_RANGE_ASSERT(i, 0, 2);
 		return reference(data, i);
 	}
 	bool operator [] (int i) const
 	{
-		_DEB_RANGE_ASSERT(i, 0, 2);
+		POCKET_DEBUG_RANGE_ASSERT(i, 0, 2);
 		return (data & (0x01 << i)) != 0;
 	}
 };
@@ -809,12 +809,12 @@ struct fixed_array<bool, 4>
 	}
 	reference operator [] (int i)
 	{
-		_DEB_RANGE_ASSERT(i, 0, 3);
+		POCKET_DEBUG_RANGE_ASSERT(i, 0, 3);
 		return reference(data, i);
 	}
 	bool operator [] (int i) const
 	{
-		_DEB_RANGE_ASSERT(i, 0, 3);
+		POCKET_DEBUG_RANGE_ASSERT(i, 0, 3);
 		return (data & (0x01 << i)) != 0;
 	}
 };

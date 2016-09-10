@@ -2,9 +2,9 @@
 #define __POCKET_GL_VERTEX_BUFFER_H__
 
 #include "../config.h"
-#ifdef _USE_PRAGMA_ONCE
+#ifdef POCKET_USE_PRAGMA_ONCE
 #pragma once
-#endif // _USE_PRAGMA_ONCE
+#endif // POCKET_USE_PRAGMA_ONCE
 
 #include "gl.h"
 #include "../debug.h"
@@ -113,7 +113,7 @@ public:
 
 	int count() const;
 
-	_CXX11_EXPLICIT operator bool () const
+	POCKET_CXX11_EXPLICIT operator bool () const
 	{
 		return _data != NULL;
 	}
@@ -122,7 +122,7 @@ public:
 		return _data == NULL;
 	}
 
-	_CXX11_EXPLICIT operator T* () const
+	POCKET_CXX11_EXPLICIT operator T* () const
 	{
 		return _data;
 	}
@@ -218,11 +218,11 @@ public:
 	vertex_buffer(const vertex_buffer& b) :
 		_buffer(b._buffer)
 	{}
-#ifdef _USE_CXX11
+#ifdef POCKET_USE_CXX11
 	vertex_buffer(vertex_buffer&& v) :
 		_buffer(std::move(v._buffer))
 	{}
-#endif // _USE_CXX11
+#endif // POCKET_USE_CXX11
 	~vertex_buffer()
 	{
 		finalize();
@@ -483,7 +483,7 @@ public:
 	* Operators
 	*------------------------------------------------------------------------------------------*/
 
-	_CXX11_EXPLICIT operator bool () const
+	POCKET_CXX11_EXPLICIT operator bool () const
 	{
 		return valid();
 	}
@@ -506,7 +506,7 @@ public:
 		_buffer = b._buffer;
 		return *this;
 	}
-#ifdef _USE_CXX11
+#ifdef POCKET_USE_CXX11
 	vertex_buffer& operator = (vertex_buffer&& b)
 	{
 		_buffer = std::move(b._buffer);
@@ -518,7 +518,7 @@ public:
 		finalize();
 		return *this;
 	}
-#endif // _USE_CXX11
+#endif // POCKET_USE_CXX11
 };
 
 

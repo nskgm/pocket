@@ -2,8 +2,6 @@
 #include "pocket/gl/all.h"
 #include <GLFW/glfw3.h>
 #include <iomanip>
-#include <vector>
-#include <typeinfo>
 
 namespace io = pocket::io;
 namespace gl = pocket::gl;
@@ -35,8 +33,6 @@ static void glfw_error_log(int, const char* msg)
 {
 	std::cout << msg << std::endl;
 }
-
-#define _ARRAY_SIZE(ARY) (sizeof(ARY) / sizeof(ARY[0]))
 
 struct simple_vertex
 {

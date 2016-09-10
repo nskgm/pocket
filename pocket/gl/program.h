@@ -2,9 +2,9 @@
 #define __POCKET_GL_PROGRAM_H__
 
 #include "../config.h"
-#ifdef _USE_PRAGMA_ONCE
+#ifdef POCKET_USE_PRAGMA_ONCE
 #pragma once
-#endif // _USE_PRAGMA_ONCE
+#endif // POCKET_USE_PRAGMA_ONCE
 
 #include "gl.h"
 #include "../debug.h"
@@ -12,7 +12,7 @@
 #include "../type_traits.h"
 #include "../container/array.h"
 #include "shader.h"
-#include "buffer_base.h"
+#include "common_type.h"
 #include <string>
 #include <fstream>
 
@@ -250,7 +250,7 @@ public:
 		_id(s._id),
 		_error_bitfield(s._error_bitfield)
 	{}
-#ifdef _USE_CXX11
+#ifdef POCKET_USE_CXX11
 	program(program&& s) :
 		_id(std::move(s._id)),
 		_error_bitfield(std::move(s._error_bitfield))
@@ -258,7 +258,7 @@ public:
 		s._id = 0;
 		s._error_bitfield = 0;
 	}
-#endif // _USE_CXX11
+#endif // POCKET_USE_CXX11
 	~program()
 	{
 		finalize();
@@ -359,7 +359,7 @@ public:
 			return false;
 		}
 		std::string bin;
-		GLenum format = GL_INVALID_ENUM;
+		GLenum format = POCKET_GL_UNINITIALIZED_VALUE;
 		GLsizei length;
 		if (!read(path, bin, format, length, file_front_format_written))
 		{
@@ -402,6 +402,7 @@ public:
 		glUseProgram(0);
 	}
 
+	// バインドされているか
 	bool binding() const
 	{
 		GLuint i;
@@ -592,7 +593,7 @@ public:
 	{
 		typename indices_t<N>::type a;
 		glGetUniformIndices(_id, N, &s[0], &a[0]);
-		return _CXX11_MOVE(a);
+		return POCKET_CXX11_MOVE(a);
 	}
 	template <int N>
 	typename indices_t<N>::type uniform_indices(__POCKET_STD_STRING_ARRAY_REF(s, N))
@@ -604,7 +605,7 @@ public:
 			c_str[i] = s[i].c_str();
 		}
 		glGetUniformIndices(_id, N, &c_str[0], &a[0]);
-		return _CXX11_MOVE(a);
+		return POCKET_CXX11_MOVE(a);
 	}
 
 	// uniform block数
@@ -684,7 +685,7 @@ public:
 		std::string name(static_cast<size_t>(length), '\0');
 		glGetActiveUniformName(_id, location, length, &length, &name[0]);
 		name.resize(static_cast<size_t>(length));
-		return _CXX11_MOVE(name);
+		return POCKET_CXX11_MOVE(name);
 	}
 	template <int N>
 	void uniform_block_name(GLuint index, char(&name)[N]) const
@@ -696,7 +697,7 @@ public:
 		std::string name(static_cast<size_t>(length), '\0');
 		glGetActiveUniformBlockName(_id, index, length, &length, &name[0]);
 		name.resize(static_cast<size_t>(length));
-		return _CXX11_MOVE(name);
+		return POCKET_CXX11_MOVE(name);
 	}
 
 	// uniform block情報の出力
@@ -879,7 +880,7 @@ public:
 	uniform_buffer& make_uniform_buffer(uniform_buffer&, const std::string&, GLuint, const VECTOR<T, ALLOC>&, buffer_usage_t = buffer_usage::dynamic_draw) const;
 
 	// サブルーチン数
-	int subroutine_count(GLuint index, shader::shader_type type) const
+	int subroutine_count(GLuint index, shader_type_t type) const
 	{
 		GLint n = 0;
 		glGetActiveSubroutineUniformiv(_id, type, index, GL_NUM_COMPATIBLE_SUBROUTINES, &n);
@@ -887,11 +888,11 @@ public:
 	}
 
 	// サブルーチンインデックス取得
-	GLuint subroutine_index(const char* name, shader::shader_type type) const
+	GLuint subroutine_index(const char* name, shader_type_t type) const
 	{
 		return glGetSubroutineIndex(_id, type, name);
 	}
-	GLuint subroutine_index(const std::string& name, shader::shader_type type) const
+	GLuint subroutine_index(const std::string& name, shader_type_t type) const
 	{
 		return glGetSubroutineIndex(_id, type, name.c_str());
 	}
@@ -903,22 +904,22 @@ public:
 	{
 		return glGetSubroutineIndex(_id, s.kind(), name.c_str());
 	}
-	template <shader::shader_type T>
+	template <shader_type_t T>
 	GLuint subroutine_index(const char* name) const
 	{
 		return glGetSubroutineIndex(_id, T, name);
 	}
-	template <shader::shader_type T>
+	template <shader_type_t T>
 	GLuint subroutine_index(const std::string& name) const
 	{
 		return glGetSubroutineIndex(_id, T, name.c_str());
 	}
-	bool subroutine_index(const char* name, shader::shader_type type, GLuint& index) const
+	bool subroutine_index(const char* name, shader_type_t type, GLuint& index) const
 	{
 		index = subroutine_index(name, type);
 		return index != GL_INVALID_INDEX;
 	}
-	bool subroutine_index(const std::string& name, shader::shader_type type, GLuint& index) const
+	bool subroutine_index(const std::string& name, shader_type_t type, GLuint& index) const
 	{
 		index = subroutine_index(name, type);
 		return index != GL_INVALID_INDEX;
@@ -931,13 +932,13 @@ public:
 	{
 		return subroutine_index(name, s.kind(), index);
 	}
-	template <shader::shader_type T>
+	template <shader_type_t T>
 	bool subroutine_index(const char* name, GLuint& index) const
 	{
 		index = subroutine_index(name, T);
 		return index != GL_INVALID_INDEX;
 	}
-	template <shader::shader_type T>
+	template <shader_type_t T>
 	bool subroutine_index(const std::string& name, GLuint& index) const
 	{
 		index = subroutine_index(name, T);
@@ -945,12 +946,12 @@ public:
 	}
 
 	// サブルーチン設定
-	void subroutine(GLuint index, shader::shader_type type) const
+	void subroutine(GLuint index, shader_type_t type) const
 	{
 		glUniformSubroutinesuiv(type, 1, &index);
 	}
 	template <int N>
-	void subroutine(const GLuint(&index)[N], shader::shader_type type) const
+	void subroutine(const GLuint(&index)[N], shader_type_t type) const
 	{
 		glUniformSubroutinesuiv(type, N, &index[0]);
 	}
@@ -964,7 +965,7 @@ public:
 		glUniformSubroutinesuiv(s.kind(), N, &index[0]);
 	}
 
-	bool subroutine(const char* name, shader::shader_type type) const
+	bool subroutine(const char* name, shader_type_t type) const
 	{
 		GLuint index;
 		if (!subroutine_index(name, type, index))
@@ -974,7 +975,7 @@ public:
 		glUniformSubroutinesuiv(type, 1, &index);
 		return true;
 	}
-	bool subroutine(const std::string& name, shader::shader_type type) const
+	bool subroutine(const std::string& name, shader_type_t type) const
 	{
 		return subroutine(name.c_str(), type);
 	}
@@ -986,19 +987,19 @@ public:
 	{
 		return subroutine(name.c_str(), s.kind());
 	}
-	template <shader::shader_type T>
+	template <shader_type_t T>
 	bool subroutine(const char* name) const
 	{
 		return subroutine(name, T);
 	}
-	template <shader::shader_type T>
+	template <shader_type_t T>
 	bool subroutine(const std::string& name) const
 	{
 		return subroutine(name, T);
 	}
 
 	template <int N>
-	bool subroutine(const char*(&name)[N], shader::shader_type type) const
+	bool subroutine(const char*(&name)[N], shader_type_t type) const
 	{
 		GLuint indices[N];
 		for (int i = 0; i < N; ++i)
@@ -1013,7 +1014,7 @@ public:
 	}
 
 	template <int N>
-	bool subroutine(__POCKET_STD_STRING_ARRAY_REF(name, N), shader::shader_type type) const
+	bool subroutine(__POCKET_STD_STRING_ARRAY_REF(name, N), shader_type_t type) const
 	{
 		GLuint indices[N];
 		for (int i = 0; i < N; ++i)
@@ -1036,12 +1037,12 @@ public:
 	{
 		return subroutine(name, s.kind());
 	}
-	template <shader::shader_type T, int N>
+	template <shader_type_t T, int N>
 	bool subroutine(const char*(&name)[N]) const
 	{
 		return subroutine(name, T);
 	}
-	template <shader::shader_type T, int N>
+	template <shader_type_t T, int N>
 	bool subroutine(__POCKET_STD_STRING_ARRAY_REF(name, N)) const
 	{
 		return subroutine(name, T);
@@ -1182,11 +1183,7 @@ private:
 		if (file_front_format_written)
 		{
 			// 指定された値がすでに渡されている場合は無視
-#ifdef GL_DONT_CARE
-			if (format != GL_INVALID_ENUM && format != GL_DONT_CARE)
-#else
-			if (format != GL_INVALID_ENUM)
-#endif // GL_DONT_CARE
+			if (format != POCKET_GL_UNINITIALIZED_VALUE)
 			{
 				// std::ifstream::traits_type::eof()
 				fs.ignore(sizeof(GLenum));
@@ -1210,7 +1207,7 @@ public:
 	* Operators
 	*------------------------------------------------------------------------------------------*/
 
-	_CXX11_EXPLICIT operator bool () const
+	POCKET_CXX11_EXPLICIT operator bool () const
 	{
 		return valid();
 	}
@@ -1234,7 +1231,7 @@ public:
 		_error_bitfield = p._error_bitfield;
 		return *this;
 	}
-#ifdef _USE_CXX11
+#ifdef POCKET_USE_CXX11
 	program& operator = (program&& p)
 	{
 		_id = std::move(p._id);
@@ -1249,7 +1246,7 @@ public:
 		finalize();
 		return *this;
 	}
-#endif // _USE_CXX11
+#endif // POCKET_USE_CXX11
 
 	// 戻り値で型チェック
 	template <typename T>

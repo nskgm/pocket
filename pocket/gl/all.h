@@ -2,15 +2,15 @@
 #define __POCKET_GL_ALL_H__
 
 #include "../config.h"
-#ifdef _USE_PRAGMA_ONCE
+#ifdef POCKET_USE_PRAGMA_ONCE
 #pragma once
-#endif // _USE_PRAGMA_ONCE
+#endif // POCKET_USE_PRAGMA_ONCE
 
 #include "fwd.h"
 #include "config.h"
 #include "gl.h"
 #include "commands.h"
-#include "type.h"
+#include "common_type.h"
 #include "shader.h"
 #include "program.h"
 #include "buffer.h"
@@ -20,6 +20,7 @@
 #include "vertex_buffer.h"
 #include "index_buffer.h"
 #include "layered_vertex_buffer.h"
+#include "sampler.h"
 #include "sync.h"
 
 #endif // __POCKET_GL_ALL_H__

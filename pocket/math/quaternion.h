@@ -2,9 +2,9 @@
 #define __POCKET_MATH_QUATERNION_H__
 
 #include "../config.h"
-#ifdef _USE_PRAGMA_ONCE
+#ifdef POCKET_USE_PRAGMA_ONCE
 #pragma once
-#endif // _USE_PRAGMA_ONCE
+#endif // POCKET_USE_PRAGMA_ONCE
 
 #include "../behavior.h"
 #include "../debug.h"
@@ -36,7 +36,7 @@ typedef quaternion<long double> quaternionld;
 template <typename T>
 struct quaternion
 {
-	_MATH_STATICAL_ASSERT_FLOATING(T);
+	POCKET_MATH_STATICAL_ASSERT_FLOATING(T);
 
 	/*-----------------------------------------------------------------------------------------
 	* Types
@@ -57,23 +57,23 @@ struct quaternion
 	* Members
 	*-----------------------------------------------------------------------------------------*/
 
-#ifdef _USE_ANONYMOUS
+#ifdef POCKET_USE_ANONYMOUS
 	union
 	{
 		struct
 		{
-#endif // _USE_ANONYMOUS
+#endif // POCKET_USE_ANONYMOUS
 
 			T x; // x軸、虚部
 			T y; // y軸、虚部
 			T z; // z軸、虚部
 			T w; // 回転量、実部
 
-#ifdef _USE_ANONYMOUS
+#ifdef POCKET_USE_ANONYMOUS
 		};
 		array_type data;
 	};
-#endif // _USE_ANONYMOUS
+#endif // POCKET_USE_ANONYMOUS
 
 	template <typename> friend struct quaternion;
 
@@ -89,7 +89,7 @@ struct quaternion
 	* Constructors
 	*-----------------------------------------------------------------------------------------*/
 
-	_DEFAULT_CONSTRUCTOR(quaternion);
+	POCKET_DEFAULT_CONSTRUCTOR(quaternion);
 	explicit quaternion(const behavior::_noinitialize_t&)
 	{
 
@@ -177,7 +177,7 @@ struct quaternion
 	*---------------------------------------------------------------------*/
 	quaternion& divide(T f, quaternion& result) const
 	{
-		_DEB_ASSERT(f != math_type::zero);
+		POCKET_DEBUG_ASSERT(f != math_type::zero);
 		return multiply(math_type::reciprocal(f), result);
 	}
 
@@ -507,51 +507,51 @@ struct quaternion
 	*---------------------------------------------------------------------*/
 	T& operator [] (int i)
 	{
-		_DEB_RANGE_ASSERT(i, 0, 3);
-#ifdef _USE_ANONYMOUS
+		POCKET_DEBUG_RANGE_ASSERT(i, 0, 3);
+#ifdef POCKET_USE_ANONYMOUS
 		return data[i];
 #else
 		return (&x)[i];
-#endif // _USE_ANONYMOUS
+#endif // POCKET_USE_ANONYMOUS
 	}
 	const T& operator [] (int i) const
 	{
-		_DEB_RANGE_ASSERT(i, 0, 3);
-#ifdef _USE_ANONYMOUS
+		POCKET_DEBUG_RANGE_ASSERT(i, 0, 3);
+#ifdef POCKET_USE_ANONYMOUS
 		return data[i];
 #else
 		return (&x)[i];
-#endif // _USE_ANONYMOUS
+#endif // POCKET_USE_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------
 	* 型変換演算子
 	*---------------------------------------------------------------------*/
 	template <typename U>
-	_CXX11_EXPLICIT operator quaternion<U>() const
+	POCKET_CXX11_EXPLICIT operator quaternion<U>() const
 	{
 		return quaternion<U>(static_cast<U>(x), static_cast<U>(y), static_cast<U>(z), static_cast<U>(w));
 	}
-	_CXX11_EXPLICIT operator vector3<T>() const
+	POCKET_CXX11_EXPLICIT operator vector3<T>() const
 	{
 		vector3<T> r(behavior::noinitialize);
 		return axis(r);
 	}
-	_CXX11_EXPLICIT operator T* ()
+	POCKET_CXX11_EXPLICIT operator T* ()
 	{
-#ifdef _USE_ANONYMOUS
+#ifdef POCKET_USE_ANONYMOUS
 		return &data[0];
 #else
 		return &x;
-#endif // _USE_ANONYMOUS
+#endif // POCKET_USE_ANONYMOUS
 	}
-	_CXX11_EXPLICIT operator const T* () const
+	POCKET_CXX11_EXPLICIT operator const T* () const
 	{
-#ifdef _USE_ANONYMOUS
+#ifdef POCKET_USE_ANONYMOUS
 		return &data[0];
 #else
 		return &x;
-#endif // _USE_ANONYMOUS
+#endif // POCKET_USE_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------
@@ -664,7 +664,7 @@ struct quaternion
 	}
 	quaternion& operator /= (T f)
 	{
-		_DEB_ASSERT(f != math_type::zero);
+		POCKET_DEBUG_ASSERT(f != math_type::zero);
 		return *this *= math_type::reciprocal(f);
 	}
 

@@ -2,9 +2,9 @@
 #define __POCKET_MATH_PLANE_H__
 
 #include "../config.h"
-#ifdef _USE_PRAGMA_ONCE
+#ifdef POCKET_USE_PRAGMA_ONCE
 #pragma once
-#endif // _USE_PRAGMA_ONCE
+#endif // POCKET_USE_PRAGMA_ONCE
 
 #include "../debug.h"
 #include "../behavior.h"
@@ -14,9 +14,9 @@
 #include "vector4.h"
 #include "line.h"
 #include "ray.h"
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 #include "simd_traits.h"
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 #include "../io.h"
 
 namespace pocket
@@ -39,7 +39,7 @@ typedef plane<long double> planeld;
 template <typename T>
 struct plane
 {
-	_MATH_STATICAL_ASSERT_FLOATING(T);
+	POCKET_MATH_STATICAL_ASSERT_FLOATING(T);
 
 	/*-----------------------------------------------------------------------------------------
 	* Types
@@ -62,10 +62,10 @@ struct plane
 	typedef typename array_type::reference reference;
 	typedef typename array_type::const_reference const_reference;
 
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 	typedef simd_traits<T> simd;
 	typedef typename simd::type simd_type;
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 
 	enum intersect_result
 	{
@@ -78,35 +78,35 @@ struct plane
 	* Members
 	*-----------------------------------------------------------------------------------------*/
 
-#ifdef _USE_ANONYMOUS
+#ifdef POCKET_USE_ANONYMOUS
 	union
 	{
 		struct
 		{
-#endif // _USE_ANONYMOUS
+#endif // POCKET_USE_ANONYMOUS
 
 			T a; // 法線x成分
 			T b; // 法線y成分
 			T c; // 法線z成分
 			T d; // 原点からの距離
 
-#ifdef _USE_ANONYMOUS
+#ifdef POCKET_USE_ANONYMOUS
 		};
-#ifdef _USE_ANONYMOUS_NON_POD
+#ifdef POCKET_USE_ANONYMOUS_NON_POD
 		struct
 		{
 			vector3<T> n; // 法線
 			T distance;
 		};
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		simd_type mm;
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 
 		array_type data;
 	};
-#endif // _USE_ANONYMOUS
+#endif // POCKET_USE_ANONYMOUS
 
 	/*-----------------------------------------------------------------------------------------
 	* Constants
@@ -123,16 +123,16 @@ struct plane
 	* Constructors
 	*-----------------------------------------------------------------------------------------*/
 
-	_DEFAULT_CONSTRUCTOR(plane);
+	POCKET_DEFAULT_CONSTRUCTOR(plane);
 	explicit plane(const behavior::_noinitialize_t&)
 	{
 
 	}
 	explicit plane(const behavior::_right_t&, T d) :
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		mm(simd::set(math_type::one, math_type::zero, math_type::zero, -d))
 #else
-#	ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+#	ifdef POCKET_USE_ANONYMOUS_NORMAL_CONSTRUCT
 		a(math_type::one), b(math_type::zero), c(math_type::zero),
 #	else
 		n(math_type::one, math_type::zero, math_type::zero),
@@ -143,10 +143,10 @@ struct plane
 
 	}
 	explicit plane(const behavior::_left_t&, T d) :
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		mm(simd::set(-math_type::one, math_type::zero, math_type::zero, -d))
 #else
-#	ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+#	ifdef POCKET_USE_ANONYMOUS_NORMAL_CONSTRUCT
 		a(-math_type::one), b(math_type::zero), c(math_type::zero),
 #	else
 		n(-math_type::one, math_type::zero, math_type::zero),
@@ -157,10 +157,10 @@ struct plane
 
 	}
 	explicit plane(const behavior::_up_t&, T d) :
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		mm(simd::set(math_type::zero, math_type::one, math_type::zero, -d))
 #else
-#	ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+#	ifdef POCKET_USE_ANONYMOUS_NORMAL_CONSTRUCT
 		a(math_type::zero), b(math_type::one), c(math_type::zero),
 #	else
 		n(math_type::zero, math_type::one, math_type::zero),
@@ -171,10 +171,10 @@ struct plane
 
 	}
 	explicit plane(const behavior::_down_t&, T d) :
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		mm(simd::set(math_type::zero, -math_type::one, math_type::zero, -d))
 #else
-#	ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+#	ifdef POCKET_USE_ANONYMOUS_NORMAL_CONSTRUCT
 		a(math_type::zero), b(-math_type::one), c(math_type::zero),
 #	else
 		n(math_type::zero, -math_type::one, math_type::zero),
@@ -185,10 +185,10 @@ struct plane
 
 	}
 	explicit plane(const behavior::_front_t&, T d) :
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		mm(simd::set(math_type::zero, math_type::zero, math_type::one, -d))
 #else
-#	ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+#	ifdef POCKET_USE_ANONYMOUS_NORMAL_CONSTRUCT
 		a(math_type::zero), b(math_type::zero), c(math_type::one),
 #	else
 		n(math_type::zero, math_type::zero, math_type::one),
@@ -199,10 +199,10 @@ struct plane
 
 	}
 	explicit plane(const behavior::_back_t&, T d) :
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		mm(simd::set(math_type::zero, math_type::zero, -math_type::one, -d))
 #else
-#	ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+#	ifdef POCKET_USE_ANONYMOUS_NORMAL_CONSTRUCT
 		a(math_type::zero), b(math_type::zero), c(-math_type::one),
 #	else
 		n(math_type::zero, math_type::zero, -math_type::one),
@@ -213,10 +213,10 @@ struct plane
 
 	}
 	plane(T a, T b, T c, T d) :
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		mm(simd::set(a, b, c, d))
 #else
-#	ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+#	ifdef POCKET_USE_ANONYMOUS_NORMAL_CONSTRUCT
 		a(a), b(b), c(c),
 #	else
 		n(a, b, c),
@@ -227,10 +227,10 @@ struct plane
 
 	}
 	plane(const vector3<T>& n, T d) :
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		mm(simd::set(n.x, n.y, n.z, d))
 #else
-#	ifdef _USE_ANONYMOUS_NORMAL_CONSTRUCT
+#	ifdef POCKET_USE_ANONYMOUS_NORMAL_CONSTRUCT
 		a(n.x), b(n.y), c(n.z),
 #	else
 		n(n),
@@ -256,13 +256,13 @@ struct plane
 	{
 		from_normal_point(nrm, p);
 	}
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 	plane(simd_type mm) :
 		mm(mm)
 	{
 
 	}
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 
 	/*-----------------------------------------------------------------------------------------
 	* Functions
@@ -273,33 +273,33 @@ struct plane
 	*---------------------------------------------------------------------*/
 	bool is_near(const plane& p) const
 	{
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		return simd::near_equal(mm, p.mm);
 #else
 		return (math_type::is_near(a, p.a) && math_type::is_near(b, p.b) && math_type::is_near(c, p.c) && math_type::is_near(d, p.d));
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 	}
 	/*---------------------------------------------------------------------
 	* 値がゼロに近いか
 	*---------------------------------------------------------------------*/
 	bool is_near_zero() const
 	{
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		return simd::near_equal_zero(mm);
 #else
 		return (math_type::is_near_zero(a) && math_type::is_near_zero(b) && math_type::is_near_zero(c) && math_type::is_near_zero(d));
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 	}
 	/*---------------------------------------------------------------------
 	* 値がゼロか
 	*---------------------------------------------------------------------*/
 	bool is_zero() const
 	{
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		return simd::equal(mm, simd::zero());
 #else
 		return (a == math_type::zero && b == math_type::zero && c == math_type::zero && d == math_type::zero);
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------
@@ -325,7 +325,7 @@ struct plane
 	*---------------------------------------------------------------------*/
 	plane& from_normal_point(const vector3<T>& normal, const vector3<T>& p)
 	{
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		simd_type m = simd::normalize(simd::set(normal.x, normal.y, normal.z, math_type::zero));
 		simd_type md = simd::negate(simd::dot(m, simd::set(p.x, p.y, p.z, math_type::zero)));
 		mm = simd::select1110(m, md);
@@ -345,12 +345,12 @@ struct plane
 		// dotという名の平面の方程式から求められる値, [ax + by + cz + d] -> [d = -(ax + by + cz)]
 		// [a b c] = n
 		d = -dot_normal(p);
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 		return *this;
 	}
 	plane& from_normal_point(const vector4<T>& normal, const vector4<T>& p)
 	{
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		simd_type m = simd::normalize(normal.mm);
 		simd_type md = simd::negate(simd::dot(m, p.mm));
 		mm = simd::select1110(m, md);
@@ -367,7 +367,7 @@ struct plane
 			c *= l;
 		}
 		d = -dot_normal(p);
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 		return *this;
 	}
 	/*---------------------------------------------------------------------
@@ -375,11 +375,11 @@ struct plane
 	*---------------------------------------------------------------------*/
 	T dot(const vector4<T>& v) const
 	{
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		return simd::first(simd::dot(mm, v.mm));
 #else
 		return a * v.x + b * v.y + c * v.z + d * v.w;
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 	}
 	/*---------------------------------------------------------------------
 	* 法線との内積を求める
@@ -401,7 +401,7 @@ struct plane
 	plane& normalize()
 	{
 		// 法線の長さでdも正規化を行う
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		simd_type r = simd::dot3(mm, mm);
 		r = simd::rsqrt(r);
 		mm = simd::mul(mm, r);
@@ -415,7 +415,7 @@ struct plane
 			c *= length;
 			d *= length;
 		}
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 		return *this;
 	}
 	plane& normalize(plane& result) const
@@ -443,13 +443,13 @@ struct plane
 	}
 	vector4<T> point4() const
 	{
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		simd_type m = simd::mul(mm, -d);
 		return vector4<T>(simd::select1110(m, simd::one()));
 #else
 		T dd = -d;
 		return vector4<T>(a*dd, b*dd, c*dd, math_type::one);
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 	}
 	vector3<T>& point(vector3<T>& result) const
 	{
@@ -458,12 +458,12 @@ struct plane
 	}
 	vector4<T>& point(vector4<T>& result) const
 	{
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		simd_type m = simd::mul(mm, -d);
 		result.mm = simd::select1110(m, simd::one());
 #else
 		result = point4();
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 		return result;
 	}
 	/*---------------------------------------------------------------------
@@ -471,7 +471,7 @@ struct plane
 	*---------------------------------------------------------------------*/
 	plane lerp(const plane& to, T t) const
 	{
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		return plane(simd::lerp(mm, to.mm, t));
 #else
 		return plane(math_type::lerp(a, to.a, t),
@@ -479,11 +479,11 @@ struct plane
 			math_type::lerp(c, to.c, t),
 			math_type::lerp(d, to.d, t)
 		);
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 	}
 	plane& lerp(const plane& to, T t, plane& result) const
 	{
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		result.mm = simd::lerp(mm, to.mm, t);
 #else
 		result.a = math_type::lerp(a, to.a, t);
@@ -552,13 +552,13 @@ struct plane
 	}
 	bool is_intersect_line(const vector4<T>& begin, const vector4<T>& end) const
 	{
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		simd_type m1 = simd::dot(mm, begin.mm);
 		simd_type m2 = simd::dot(mm, end.mm);
 		return !simd::greater(simd::zero(), simd::mul(m1, m2));
 #else
 		return dot(begin) * dot(end) <= math_type::zero;
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 	}
 	bool is_intersect_line(const line4_type& line) const
 	{
@@ -581,11 +581,11 @@ struct plane
 	{
 		// 法線との内積を行って0じゃなければいずれ交差する
 		static_cast<void>(position);
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		return simd::not_equal(simd::dot(mm, direction.mm), simd::zero());
 #else
 		return dot(direction) != math_type::zero;
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 	}
 	bool is_intersect_ray(const ray4_type& ray) const
 	{
@@ -615,7 +615,7 @@ struct plane
 	}
 	intersect_result intersect_point(const vector4<T>& point) const
 	{
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		simd_type m = simd::dot(mm, point.mm);
 		simd_type ep = simd::set(math_type::epsilon);
 		if (simd::greater_equal(m, ep))
@@ -638,7 +638,7 @@ struct plane
 			return on_backward;
 		}
 		return on_plane;
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 	}
 	bool is_intersect_point(const vector4<T>& point) const
 	{
@@ -669,7 +669,7 @@ struct plane
 	}
 	intersect_result intersect_sphere(const vector4<T>& center, T radius) const
 	{
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		simd_type m = simd::dot(mm, center.mm);
 		simd_type r = simd::set(radius);
 		if (simd::less_equal(simd::abs(m), r))
@@ -692,7 +692,7 @@ struct plane
 			return on_forward;
 		}
 		return on_backward;
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 	}
 	bool is_intersect_sphere(const vector4<T>& center, T radius) const
 	{
@@ -705,19 +705,19 @@ struct plane
 	*---------------------------------------------------------------------*/
 	T normal_dot(T pa, T pb, T pc) const
 	{
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		return simd::first(simd::dot3(mm, simd::set(pa, pb, pc, math_type::zero)));
 #else
 		return a * pa + b * pb + c * pc;
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 	}
 	T normal_dot(const vector3<T>& v) const
 	{
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		return simd::first(simd::dot3(mm, simd::set(v.x, v.y, v.z, math_type::zero)));
 #else
 		return a * v.x + b * v.y + c * v.z;
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 	}
 
 	T normal_length_sq() const
@@ -732,29 +732,29 @@ struct plane
 
 	vector3<T>& normal()
 	{
-#ifdef _USE_ANONYMOUS_NON_POD
+#ifdef POCKET_USE_ANONYMOUS_NON_POD
 		return n;
 #else
 		return reinterpret_cast<vector3<T>&>(a);
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 	}
 	const vector3<T>& normal() const
 	{
-#ifdef _USE_ANONYMOUS_NON_POD
+#ifdef POCKET_USE_ANONYMOUS_NON_POD
 		return n;
 #else
 		return reinterpret_cast<const vector3<T>&>(a);
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 	}
 	plane& normal(const vector3<T>& v)
 	{
-#ifdef _USE_ANONYMOUS_NON_POD
+#ifdef POCKET_USE_ANONYMOUS_NON_POD
 		n = v;
 #else
 		a = v.x;
 		b = v.y;
 		c = v.z;
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 		return *this;
 	}
 
@@ -767,46 +767,46 @@ struct plane
 	*---------------------------------------------------------------------*/
 	T& operator [] (int i)
 	{
-		_DEB_RANGE_ASSERT(i, 0, 3);
-#ifdef _USE_ANONYMOUS_NON_POD
+		POCKET_DEBUG_RANGE_ASSERT(i, 0, 3);
+#ifdef POCKET_USE_ANONYMOUS_NON_POD
 		return data[i];
 #else
 		return (&a)[i];
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 	}
 	const T& operator [] (int i) const
 	{
-		_DEB_RANGE_ASSERT(i, 0, 3);
-#ifdef _USE_ANONYMOUS_NON_POD
+		POCKET_DEBUG_RANGE_ASSERT(i, 0, 3);
+#ifdef POCKET_USE_ANONYMOUS_NON_POD
 		return data[i];
 #else
 		return (&a)[i];
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 	}
 
 	/*---------------------------------------------------------------------
 	* 型変換演算子
 	*---------------------------------------------------------------------*/
 	template <typename U>
-	_CXX11_EXPLICIT operator plane<U>() const
+	POCKET_CXX11_EXPLICIT operator plane<U>() const
 	{
 		return plane<U>(static_cast<U>(a), static_cast<U>(b), static_cast<U>(c), static_cast<U>(d));
 	}
-	_CXX11_EXPLICIT operator T* ()
+	POCKET_CXX11_EXPLICIT operator T* ()
 	{
-#ifdef _USE_ANONYMOUS_NON_POD
+#ifdef POCKET_USE_ANONYMOUS_NON_POD
 		return &data[0];
 #else
 		return &a;
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 	}
-	_CXX11_EXPLICIT operator const T* () const
+	POCKET_CXX11_EXPLICIT operator const T* () const
 	{
-#ifdef _USE_ANONYMOUS_NON_POD
+#ifdef POCKET_USE_ANONYMOUS_NON_POD
 		return &data[0];
 #else
 		return &a;
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 	}
 
 	/*---------------------------------------------------------------------
@@ -830,11 +830,11 @@ struct plane
 	}
 	plane operator - () const
 	{
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		return plane(simd::negate(mm));
 #else
 		return plane(-a, -b, -c, -d);
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------

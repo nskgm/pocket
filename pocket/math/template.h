@@ -2,9 +2,9 @@
 #define __MATH_TEMPLATE_H__
 
 #include "../config.h"
-#ifdef _USE_PRAGMA_ONCE
+#ifdef POCKET_USE_PRAGMA_ONCE
 #pragma once
-#endif // _USE_PRAGMA_ONCE
+#endif // POCKET_USE_PRAGMA_ONCE
 
 #include "../behavior.h"
 #include "fwd.h"
@@ -30,7 +30,7 @@ typedef __template_struct<long double> __template_structld;
 template <typename T>
 struct __template_struct
 {
-	_MATH_STATICAL_ASSERT_FLOATING(T);
+	POCKET_MATH_STATICAL_ASSERT_FLOATING(T);
 
 	/*------------------------------------------------------------------------------------------
 	* Types
@@ -48,21 +48,21 @@ struct __template_struct
 	* Members
 	*------------------------------------------------------------------------------------------*/
 
-#ifdef _USE_ANONYMOUS
+#ifdef POCKET_USE_ANONYMOUS
 	union
 	{
 		struct
 		{
-#endif // _USE_ANONYMOUS
+#endif // POCKET_USE_ANONYMOUS
 
 			// Noen
 
-#ifdef _USE_ANONYMOUS
+#ifdef POCKET_USE_ANONYMOUS
 		};
 
 		// none
 	};
-#endif // _USE_ANONYMOUS
+#endif // POCKET_USE_ANONYMOUS
 
 	template <typename> friend struct __template_struct;
 
@@ -76,7 +76,7 @@ struct __template_struct
 	* Constructors
 	*------------------------------------------------------------------------------------------*/
 
-	_DEFAULT_CONSTRUCTOR(__template_struct);
+	POCKET_DEFAULT_CONSTRUCTOR(__template_struct);
 	explicit __template_struct(const behavior::_noinitialize_t&)
 	{
 
@@ -95,43 +95,43 @@ struct __template_struct
 #if 0
 	T& operator [] (int i)
 	{
-		_DEB_RANGE_ASSERT(i, 0, 3);
-#ifdef _USE_ANONYMOUS
+		POCKET_DEBUG_RANGE_ASSERT(i, 0, 3);
+#ifdef POCKET_USE_ANONYMOUS
 		return Data[i];
 #else
 		return (&X)[i];
-#endif // _USE_ANONYMOUS
+#endif // POCKET_USE_ANONYMOUS
 	}
 	const T& operator [] (int i) const
 	{
-		_DEB_RANGE_ASSERT(i, 0, 3);
-#ifdef _USE_ANONYMOUS
+		POCKET_DEBUG_RANGE_ASSERT(i, 0, 3);
+#ifdef POCKET_USE_ANONYMOUS
 		return Data[i];
 #else
 		return (&X)[i];
-#endif // _USE_ANONYMOUS
+#endif // POCKET_USE_ANONYMOUS
 	}
 
 	template <typename U>
-	_CXX11_EXPLICIT operator __template_struct<U>() const
+	POCKET_CXX11_EXPLICIT operator __template_struct<U>() const
 	{
 		return __template_struct<U>();
 	}
-	_CXX11_EXPLICIT operator T* ()
+	POCKET_CXX11_EXPLICIT operator T* ()
 	{
-#ifdef _USE_ANONYMOUS
+#ifdef POCKET_USE_ANONYMOUS
 		return &Data[0];
 #else
 		return &X;
-#endif // _USE_ANONYMOUS
+#endif // POCKET_USE_ANONYMOUS
 	}
-	_CXX11_EXPLICIT operator const T* () const
+	POCKET_CXX11_EXPLICIT operator const T* () const
 	{
-#ifdef _USE_ANONYMOUS
+#ifdef POCKET_USE_ANONYMOUS
 		return &Data[0];
 #else
 		return &X;
-#endif // _USE_ANONYMOUS
+#endif // POCKET_USE_ANONYMOUS
 	}
 #endif
 

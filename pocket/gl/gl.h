@@ -2,14 +2,15 @@
 #define __POCKET_GL_GL_H__
 
 #include "../config.h"
-#ifdef _USE_PRAGMA_ONCE
+#ifdef POCKET_USE_PRAGMA_ONCE
 #pragma once
-#endif // _USE_PRAGMA_ONCE
+#endif // POCKET_USE_PRAGMA_ONCE
 
 #include "config.h"
 #include "../io.h"
+#include "../debug.h"
 
-#ifdef _INTERNAL_USE_GLEW
+#ifdef POCKET_INTERNAL_USE_GLEW
 #include <GL/glew.h>
 #else
 #	if defined(__APPLE__) || defined(__OSX__)
@@ -17,19 +18,20 @@
 #	else
 #include <GL/gl.h>
 #	endif
-#endif
+#endif // POCKET_INTERNAL_USE_GLEW
 
 #include <vector>
 #include <cstring> // for std::strstr, std::strcmp, std::strlen
 #include <string>
+#include <cstdarg>
 
-#ifndef _GL_UNINITIALIZED_VALUE
+#ifndef POCKET_GL_UNINITIALIZED_VALUE
 #	ifdef GL_DONT_CARE
-#		define _GL_UNINITIALIZED_VALUE GL_DONT_CARE
+#		define POCKET_GL_UNINITIALIZED_VALUE GL_DONT_CARE
 #	else
-#		define _GL_UNINITIALIZED_VALUE GL_INVALID_VALUE
+#		define POCKET_GL_UNINITIALIZED_VALUE (~0)
 #	endif // GL_DONT_CARE
-#endif // _GL_UNINITIALIZED_VALUE
+#endif // POCKET_GL_UNINITIALIZED_VALUE
 
 namespace pocket
 {
@@ -160,15 +162,26 @@ const char* get_error_string(GLenum err)
 
 // エラーの出力
 template <typename CharT, typename CharTraits> inline
-void output_error(std::basic_ostream<CharT, CharTraits>& os, GLenum err, const char* func, int line, const char* msg)
+bool output_error(std::basic_ostream<CharT, CharTraits>& os, GLenum err, const char* func, int line, const char* msg, ...)
 {
 	if (err == GL_NO_ERROR)
 	{
-		return;
+		return false;
 	}
+	// メッセージを表示
 	if (msg != NULL)
 	{
-		os << io::widen("## ") << io::widen(msg) << io::widen(" ##") << std::endl;
+		char buf[512];
+		// 可変長リスト
+		std::va_list ap;
+		va_start(ap, msg);
+#ifdef _MSC_VER
+		_vstprintf_s(buf, 512, msg, ap);
+#else
+		vsprintf(buf, msg, ap);
+#endif // _MSC_VER
+		va_end(ap);
+		os << io::widen("## ") << io::widen(static_cast<const char*>(&buf[0])) << io::widen(" ##") << std::endl;
 	}
 	do
 	{
@@ -179,11 +192,13 @@ void output_error(std::basic_ostream<CharT, CharTraits>& os, GLenum err, const c
 			do
 			{
 				// とりあえずエラーコードを出力
-				os << err << std::endl;
+				std::ios_base::fmtflags flag = os.flags();
+				os << io::widen("unknown error code: ") << err << std::endl;
+				os.flags(flag);
 				err = glGetError();
 				if (err == GL_NO_ERROR)
 				{
-					return;
+					return true;
 				}
 				_string = get_error_string(err);
 			} while (_string != NULL);
@@ -192,35 +207,43 @@ void output_error(std::basic_ostream<CharT, CharTraits>& os, GLenum err, const c
 		{
 			os << io::tab;
 		}
-		os << io::widen("-- ") << io::widen(_string) << io::widen(" # ") << io::widen(func) << io::widen(": ") << line << std::endl;
+		os << io::widen("-- ") << io::widen(_string) << io::widen(" #") << io::widen(func) << io::widen(":") << line << std::endl;
+
+		// 次を検索
 		err = glGetError();
 	} while (err != GL_NO_ERROR);
 	os << std::endl;
+
+	return true;
 }
 
 // coutへのエラー出力
 #ifndef POCKET_GL_ERROR_MSG
-#define POCKET_GL_ERROR_MSG(MSG) {\
-	GLenum opengl_error = glGetError();\
-	if (opengl_error != GL_NO_ERROR)\
-		pocket::gl::output_error(std::cerr, opengl_error, __FUNCTION__, __LINE__, MSG);\
-}
+#define POCKET_GL_ERROR_MSG(MSG, ...) pocket::gl::output_error(std::cerr, glGetError(), __FUNCTION__, __LINE__, MSG, ##__VA_ARGS__)
 #endif // POCKET_GL_ERROR_MSG
 #ifndef POCKET_GL_ERROR
 #define POCKET_GL_ERROR() POCKET_GL_ERROR_MSG(NULL)
 #endif // POCKET_GL_ERROR
+#ifndef POCKET_GL_ASSERT_MSG
+#define POCKET_GL_ASSERT_MSG(MSG, ...) POCKET_DEBUG_ASSERT(POCKET_GL_ERROR_MSG(MSG, ##__VA_ARGS__))
+#endif // POCKET_GL_ASSERT_MSG
+#ifndef POCKET_GL_ASSERT
+#define POCKET_GL_ASSERT() POCKET_DEBUG_ASSERT(POCKET_GL_ERROR())
+#endif // POCKET_GL_ASSERT
 
 // wcoutへのエラー出力
 #ifndef POCKET_GL_ERROR_MSG_W
-#define POCKET_GL_ERROR_MSG_W(MSG) {\
-	GLenum opengl_error = glGetError();\
-	if (opengl_error != GL_NO_ERROR)\
-		pocket::gl::output_error(std::wcerr, opengl_error, __FUNCTION__, __LINE__, MSG);\
-}
+#define POCKET_GL_ERROR_MSG_W(MSG, ...) pocket::gl::output_error(std::wcerr, glGetError(), __FUNCTION__, __LINE__, MSG, ##__VA_ARGS__)
 #endif // POCKET_GL_ERROR_MSG
 #ifndef POCKET_GL_ERROR_W
 #define POCKET_GL_ERROR_W() POCKET_GL_ERROR_MSG_W(NULL)
 #endif // POCKET_GL_ERROR_W
+#ifndef POCKET_GL_ASSERT_MSG_W
+#define POCKET_GL_ASSERT_MSG_W(MSG, ...) POCKET_DEBUG_ASSERT(POCKET_GL_ERROR_MSG(MSG, ##__VA_ARGS__))
+#endif // POCKET_GL_ASSERT_MSG_W
+#ifndef POCKET_GL_ASSERT_W
+#define POCKET_GL_ASSERT_W() POCKET_DEBUG_ASSERT(POCKET_GL_ERROR())
+#endif // POCKET_GL_ASSERT_W
 
 // エラーチェック付きOpenGL関数呼び出し
 #ifndef POCKET_GL_FUNC
@@ -473,7 +496,7 @@ std::string get_object_name(const T& obj)
 	glGetObjectLabel(T::identifier, obj.get(), 0, &length, NULL);
 	std::string name(static_cast<size_t>(length+1), '\0');
 	glGetObjectLabel(T::identifier, obj.get(), length+1, NULL, &name[0]);
-	return _CXX11_MOVE(name);
+	return POCKET_CXX11_MOVE(name);
 }
 
 } // namespace gl

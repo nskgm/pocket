@@ -2,9 +2,9 @@
 #define __MATH_MATRIX4X4_H__
 
 #include "../config.h"
-#ifdef _USE_PRAGMA_ONCE
+#ifdef POCKET_USE_PRAGMA_ONCE
 #pragma once
-#endif // _USE_PRAGMA_ONCE
+#endif // POCKET_USE_PRAGMA_ONCE
 
 #include "../debug.h"
 #include "../behavior.h"
@@ -13,13 +13,13 @@
 #include "vector4.h"
 #include "quaternion.h"
 #include "matrix3x3.h"
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 #include "simd_traits.h"
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 #include "../io.h"
-#ifdef _USE_CXX11
+#ifdef POCKET_USE_CXX11
 #include <initializer_list>
-#endif // _USE_CXX11
+#endif // POCKET_USE_CXX11
 
 namespace pocket
 {
@@ -41,7 +41,7 @@ typedef matrix4x4<long double> matrix4x4ld;
 template <typename T>
 struct matrix4x4
 {
-	_MATH_STATICAL_ASSERT_FLOATING(T);
+	POCKET_MATH_STATICAL_ASSERT_FLOATING(T);
 
 	/*-----------------------------------------------------------------------------------------
 	* Types
@@ -53,10 +53,10 @@ struct matrix4x4
 	typedef vector4<T> column_type;
 	typedef typename math_type::sin_cos_t sin_cos_type;
 
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 	typedef typename vector4<T>::simd simd;
 	typedef typename vector4<T>::simd_type simd_type;
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 
 	typedef container::array<vector4<T>, 4> array4x4_type;
 	typedef typename array4x4_type::value_type value_type;
@@ -82,16 +82,16 @@ struct matrix4x4
 	* Members
 	*-----------------------------------------------------------------------------------------*/
 
-#ifdef _USE_ANONYMOUS_NON_POD
+#ifdef POCKET_USE_ANONYMOUS_NON_POD
 	union
 	{
 		struct
 		{
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 
 			array4x4_type M;
 
-#ifdef _USE_ANONYMOUS_NON_POD
+#ifdef POCKET_USE_ANONYMOUS_NON_POD
 		};
 		struct
 		{
@@ -120,7 +120,7 @@ struct matrix4x4
 		};
 		array16_type data;
 	};
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 
 	template <typename> friend struct matrix4x4;
 
@@ -135,7 +135,7 @@ struct matrix4x4
 	* Constructors
 	*-----------------------------------------------------------------------------------------*/
 
-	_DEFAULT_CONSTRUCTOR(matrix4x4);
+	POCKET_DEFAULT_CONSTRUCTOR(matrix4x4);
 	explicit matrix4x4(const behavior::_noinitialize_t&)
 	{
 
@@ -172,46 +172,46 @@ struct matrix4x4
 		M[3] = row_type(M41, M42, M43, M44);
 	}
 	matrix4x4(const vector4<T>& M1, const vector4<T>& M2, const vector4<T>& M3, const vector4<T>& M4)
-#ifdef _USE_ANONYMOUS_NON_POD
+#ifdef POCKET_USE_ANONYMOUS_NON_POD
 		: mv0(M1), mv1(M2), mv2(M3), mv3(M4)
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 	{
-#ifndef _USE_ANONYMOUS_NON_POD
+#ifndef POCKET_USE_ANONYMOUS_NON_POD
 		M[0] = M1;
 		M[1] = M2;
 		M[2] = M3;
 		M[3] = M4;
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 	}
 	explicit matrix4x4(const vector3<T>& M1, T M1W,
 		const vector3<T>& M2, T M2W,
 		const vector3<T>& M3, T M3W,
 		const vector3<T>& M4, T M4W = math_type::one)
-#ifdef _USE_ANONYMOUS_NON_POD
+#ifdef POCKET_USE_ANONYMOUS_NON_POD
 		: mv0(M1, M1W), mv1(M2, M2W), mv2(M3, M3W), mv3(M4, M4W)
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 	{
-#ifndef _USE_ANONYMOUS_NON_POD
+#ifndef POCKET_USE_ANONYMOUS_NON_POD
 		M[0] = row_type(M1, M1W);
 		M[1] = row_type(M2, M2W);
 		M[2] = row_type(M3, M3W);
 		M[3] = row_type(M4, M4W);
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 	}
 	explicit matrix4x4(const matrix3x3<T>& m)
-#ifdef _USE_ANONYMOUS_NON_POD
+#ifdef POCKET_USE_ANONYMOUS_NON_POD
 		: mv0(m[0], math_type::zero),
 		mv1(m[1], math_type::zero),
 		mv2(m[2], math_type::zero),
 		mv3(row_type::unit_w)
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 	{
-#ifndef _USE_ANONYMOUS_NON_POD
+#ifndef POCKET_USE_ANONYMOUS_NON_POD
 		M[0] = row_type(m[0], math_type::zero);
 		M[1] = row_type(m[1], math_type::zero);
 		M[2] = row_type(m[2], math_type::zero);
 		M[3] = row_type::unit_w;
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 	}
 
 	/*-----------------------------------------------------------------------------------------
@@ -276,7 +276,7 @@ struct matrix4x4
 		}
 #endif
 
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		/*------------------------------
 		*    1  2  3  4   ->
 		*   ____________   ____________   ____________
@@ -310,9 +310,9 @@ struct matrix4x4
 
 			ri->mm = simd::add(mx, my);
 		}
-#else // _USE_SIMD_ANONYMOUS
+#else // POCKET_USE_SIMD_ANONYMOUS
 
-#	if defined(__DEBUG)
+#	if defined(POCKET_DEBUG)
 		// コピー&転置をして計算しやすいようにする
 		matrix4x4 t = m.transposed();
 		iterator ri = result.M.begin();
@@ -342,7 +342,7 @@ struct matrix4x4
 			ri->w = i->x * oi0->w + i->y * oi1->w + i->z * oi2->w + i->w * oi3->w;
 		}
 #	endif
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 		return result;
 	}
 	matrix4x4& multiply(T s, matrix4x4& result) const
@@ -359,8 +359,8 @@ struct matrix4x4
 	*---------------------------------------------------------------------*/
 	matrix4x4& divide(T s, matrix4x4& result) const
 	{
-		_DEB_ASSERT(s != math_type::zero);
-#ifdef _USE_SIMD_ANONYMOUS
+		POCKET_DEBUG_ASSERT(s != math_type::zero);
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		simd_type rcp = simd::set(math_type::reciprocal(s));
 		iterator ri = result.M.begin();
 		for (const_iterator i = M.begin(), end = M.end(); i != end; ++i, ++ri)
@@ -370,7 +370,7 @@ struct matrix4x4
 		return result;
 #else
 		return multiply(math_type::reciprocal(s), result);
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------
@@ -421,11 +421,11 @@ struct matrix4x4
 	vector3<T>& right()
 	{
 		//return vector3<T>(m.x, m.y, m.z);
-#ifdef _USE_ANONYMOUS_NON_POD
+#ifdef POCKET_USE_ANONYMOUS_NON_POD
 		return _right;
 #else
 		return reinterpret_cast<vector3<T>&>(M[0]);
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 	}
 	const vector3<T>& right() const
 	{
@@ -442,11 +442,11 @@ struct matrix4x4
 	vector3<T>& up()
 	{
 		//return vector3<T>(m.x, m.y, m.z);
-#ifdef _USE_ANONYMOUS_NON_POD
+#ifdef POCKET_USE_ANONYMOUS_NON_POD
 		return _up;
 #else
 		return reinterpret_cast<vector3<T>&>(M[1]);
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 	}
 	const vector3<T>& up() const
 	{
@@ -463,11 +463,11 @@ struct matrix4x4
 	vector3<T>& forward()
 	{
 		//return vector3<T>(m.x, m.y, m.z);
-#ifdef _USE_ANONYMOUS_NON_POD
+#ifdef POCKET_USE_ANONYMOUS_NON_POD
 		return _forward;
 #else
 		return reinterpret_cast<vector3<T>&>(M[2]);
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 	}
 	const vector3<T>& forward() const
 	{
@@ -484,11 +484,11 @@ struct matrix4x4
 	vector3<T>& position()
 	{
 		// vector3<T>(m.x, m.y, m.z);
-#ifdef _USE_ANONYMOUS_NON_POD
+#ifdef POCKET_USE_ANONYMOUS_NON_POD
 		return _position;
 #else
 		return reinterpret_cast<vector3<T>&>(M[3]);
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 	}
 	const vector3<T>& position() const
 	{
@@ -684,11 +684,11 @@ struct matrix4x4
 	matrix4x4& load_translate(T x, T y, T z)
 	{
 		load_identity();
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		M[3].mm = simd::set(x, y, z, math_type::one);
 #else
 		M[3] = row_type(x, y, z, math_type::one);
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 		return *this;
 	}
 	matrix4x4& load_translate(const vector3<T>& v)
@@ -878,7 +878,7 @@ struct matrix4x4
 		row_type& v2 = M[2];
 		row_type& v3 = M[3];
 
-#ifdef __DEBUG
+#ifdef POCKET_DEBUG
 		// [0][1] = [1][0]
 		T tmp = v0.y;
 		v0.y = v1.x;
@@ -910,7 +910,7 @@ struct matrix4x4
 		std::swap(v1.z, v2.y);
 		std::swap(v1.w, v3.y);
 		std::swap(v2.w, v3.z);
-#endif // __DEBUG
+#endif // POCKET_DEBUG
 
 		return *this;
 	}
@@ -1223,12 +1223,12 @@ struct matrix4x4
 	*---------------------------------------------------------------------*/
 	vector4<T>& operator [] (int i)
 	{
-		_DEB_RANGE_ASSERT(i, 0, 3);
+		POCKET_DEBUG_RANGE_ASSERT(i, 0, 3);
 		return M[i];
 	}
 	const vector4<T>& operator [] (int i) const
 	{
-		_DEB_RANGE_ASSERT(i, 0, 3);
+		POCKET_DEBUG_RANGE_ASSERT(i, 0, 3);
 		return M[i];
 	}
 	T& operator [] (const matrix_point& p)
@@ -1241,14 +1241,14 @@ struct matrix4x4
 	}
 	T& operator () (int y, int x)
 	{
-		_DEB_RANGE_ASSERT(x, 0, 3);
-		_DEB_RANGE_ASSERT(y, 0, 3);
+		POCKET_DEBUG_RANGE_ASSERT(x, 0, 3);
+		POCKET_DEBUG_RANGE_ASSERT(y, 0, 3);
 		return M[y][x];
 	}
 	const T& operator () (int y, int x) const
 	{
-		_DEB_RANGE_ASSERT(x, 0, 3);
-		_DEB_RANGE_ASSERT(y, 0, 3);
+		POCKET_DEBUG_RANGE_ASSERT(x, 0, 3);
+		POCKET_DEBUG_RANGE_ASSERT(y, 0, 3);
 		return M[y][x];
 	}
 
@@ -1256,7 +1256,7 @@ struct matrix4x4
 	* 型変換演算子
 	*---------------------------------------------------------------------*/
 	template <typename U>
-	_CXX11_EXPLICIT operator matrix4x4<U>() const
+	POCKET_CXX11_EXPLICIT operator matrix4x4<U>() const
 	{
 		typedef vector4<U> other_vector4_type;
 		return matrix4x4<U>(static_cast<other_vector4_type>(M[0]),
@@ -1264,21 +1264,21 @@ struct matrix4x4
 			static_cast<other_vector4_type>(M[2]),
 			static_cast<other_vector4_type>(M[3]));
 	}
-	_CXX11_EXPLICIT operator T* ()
+	POCKET_CXX11_EXPLICIT operator T* ()
 	{
-#ifdef _USE_ANONYMOUS_NON_POD
+#ifdef POCKET_USE_ANONYMOUS_NON_POD
 		return &data[0];
 #else
 		return &M[0].x;
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 	}
-	_CXX11_EXPLICIT operator const T* () const
+	POCKET_CXX11_EXPLICIT operator const T* () const
 	{
-#ifdef _USE_ANONYMOUS_NON_POD
+#ifdef POCKET_USE_ANONYMOUS_NON_POD
 		return &data[0];
 #else
 		return &M[0].x;
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 	}
 
 	/*---------------------------------------------------------------------
@@ -1335,7 +1335,7 @@ struct matrix4x4
 	}
 	matrix4x4 operator / (T f) const
 	{
-		_DEB_ASSERT(f != math_type::zero);
+		POCKET_DEBUG_ASSERT(f != math_type::zero);
 		T r = math_type::reciprocal(f);
 		return matrix4x4(M[0] * r, M[1] * r, M[2] * r, M[3] * r);
 	}
@@ -1351,10 +1351,10 @@ struct matrix4x4
 	{
 		return load_identity();
 	}
-#ifdef _USE_CXX11
+#ifdef POCKET_USE_CXX11
 	matrix4x4& operator = (const std::initializer_list<T>& t)
 	{
-		_DEB_ASSERT(t.size() <= 16);
+		POCKET_DEBUG_ASSERT(t.size() <= 16);
 
 		typename std::initializer_list<T>::const_iterator o = t.begin();
 		T* p = static_cast<T*>(M[0]);
@@ -1364,7 +1364,7 @@ struct matrix4x4
 		}
 		return *this;
 	}
-#endif // _USE_CXX11
+#endif // POCKET_USE_CXX11
 
 	/*---------------------------------------------------------------------
 	* 複合演算子
@@ -1394,25 +1394,25 @@ struct matrix4x4
 	}
 	matrix4x4& operator *= (T s)
 	{
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 		simd_type factor = simd::set(s);
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 		for (iterator i = M.begin(), end = M.end(); i != end; ++i)
 		{
-#ifdef _USE_SIMD_ANONYMOUS
+#ifdef POCKET_USE_SIMD_ANONYMOUS
 			i->mm = simd::mul(i->mm, factor);
 #else
 			i->x *= s;
 			i->y *= s;
 			i->z *= s;
 			i->w *= s;
-#endif // _USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 		}
 		return *this;
 	}
 	matrix4x4& operator /= (T s)
 	{
-		_DEB_ASSERT(s != math_type::zero);
+		POCKET_DEBUG_ASSERT(s != math_type::zero);
 		return operator*=(math_type::reciprocal(s));
 	}
 

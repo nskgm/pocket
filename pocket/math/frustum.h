@@ -2,9 +2,9 @@
 #define __POCKET_MATH_FRUSTUM_H__
 
 #include "../config.h"
-#ifdef _USE_PRAGMA_ONCE
+#ifdef POCKET_USE_PRAGMA_ONCE
 #pragma once
-#endif // _USE_PRAGMA_ONCE
+#endif // POCKET_USE_PRAGMA_ONCE
 
 #include "../debug.h"
 #include "../behavior.h"
@@ -35,7 +35,7 @@ typedef frustum<long double> frustumld;
 template <typename T>
 struct frustum
 {
-	_MATH_STATICAL_ASSERT_FLOATING(T);
+	POCKET_MATH_STATICAL_ASSERT_FLOATING(T);
 
 	/*---------------------------------------------------------------------------------------
 	* Types
@@ -110,16 +110,16 @@ struct frustum
 	* Members
 	*---------------------------------------------------------------------------------------*/
 
-#ifdef _USE_ANONYMOUS_NON_POD
+#ifdef POCKET_USE_ANONYMOUS_NON_POD
 	union
 	{
 		struct
 		{
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 
 			array_type planes;
 
-#ifdef _USE_ANONYMOUS_NON_POD
+#ifdef POCKET_USE_ANONYMOUS_NON_POD
 		};
 		struct
 		{
@@ -131,7 +131,7 @@ struct frustum
 			plane_type f;
 		};
 	};
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 
 	template <typename> friend struct frustum;
 
@@ -145,43 +145,43 @@ struct frustum
 	* Constructors
 	*---------------------------------------------------------------------------------------*/
 
-	_DEFAULT_CONSTRUCTOR(frustum);
+	POCKET_DEFAULT_CONSTRUCTOR(frustum);
 	explicit frustum(const behavior::_noinitialize_t&)
 	{
 
 	}
 	frustum(const plane_type& left, const plane_type& right, const plane_type& up, const plane_type& down, const plane_type& n, const plane_type& f)
-#ifdef _USE_ANONYMOUS_NON_POD
+#ifdef POCKET_USE_ANONYMOUS_NON_POD
 		: left(left), right(right),
 		up(up), down(down),
 		n(n), f(f)
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 	{
-#ifndef _USE_ANONYMOUS_NON_POD
+#ifndef POCKET_USE_ANONYMOUS_NON_POD
 		planes[0] = left;
 		planes[1] = right;
 		planes[2] = up;
 		planes[3] = down;
 		planes[4] = n;
 		planes[5] = f;
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 	}
 	template <typename U>
 	frustum(const plane<U>& left, const plane<U>& right, const plane<U>& up, const plane<U>& down, const plane<U>& n, const plane<U>& f)
-#ifdef _USE_ANONYMOUS_NON_POD
+#ifdef POCKET_USE_ANONYMOUS_NON_POD
 		: left(static_cast<plane_type>(left)), right(static_cast<plane_type>(right)),
 		up(static_cast<plane_type>(up)), down(static_cast<plane_type>(down)),
 		n(static_cast<plane_type>(n)), f(static_cast<plane_type>(f))
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 	{
-#ifndef _USE_ANONYMOUS_NON_POD
+#ifndef POCKET_USE_ANONYMOUS_NON_POD
 		planes[0] = static_cast<plane_type>(left);
 		planes[1] = static_cast<plane_type>(right);
 		planes[2] = static_cast<plane_type>(up);
 		planes[3] = static_cast<plane_type>(down);
 		planes[4] = static_cast<plane_type>(n);
 		planes[5] = static_cast<plane_type>(f);
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 	}
 
 	explicit frustum(const look_at_t& lookat, const projection_field_of_view_t& fov)
@@ -383,49 +383,49 @@ struct frustum
 	*---------------------------------------------------------------------*/
 	plane_type& operator [] (int i)
 	{
-		_DEB_RANGE_ASSERT(i, 0, 5);
+		POCKET_DEBUG_RANGE_ASSERT(i, 0, 5);
 		return planes[i];
 	}
 	const plane_type& operator [] (int i) const
 	{
-		_DEB_RANGE_ASSERT(i, 0, 5);
+		POCKET_DEBUG_RANGE_ASSERT(i, 0, 5);
 		return planes[i];
 	}
 
 	/*---------------------------------------------------------------------
 	* 変換演算子
 	*---------------------------------------------------------------------*/
-	_CXX11_EXPLICIT operator plane_type* ()
+	POCKET_CXX11_EXPLICIT operator plane_type* ()
 	{
-#ifdef _USE_ANONYMOUS_NON_POD
+#ifdef POCKET_USE_ANONYMOUS_NON_POD
 		return &left;
 #else
 		return &planes[0];
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 	}
-	_CXX11_EXPLICIT operator const plane_type* () const
+	POCKET_CXX11_EXPLICIT operator const plane_type* () const
 	{
-#ifdef _USE_ANONYMOUS_NON_POD
+#ifdef POCKET_USE_ANONYMOUS_NON_POD
 		return &left;
 #else
 		return &planes[0];
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 	}
-	_CXX11_EXPLICIT operator T* ()
+	POCKET_CXX11_EXPLICIT operator T* ()
 	{
-#ifdef _USE_ANONYMOUS_NON_POD
+#ifdef POCKET_USE_ANONYMOUS_NON_POD
 		return &left.a;
 #else
 		return &planes[0].a;
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 	}
-	_CXX11_EXPLICIT operator const T* () const
+	POCKET_CXX11_EXPLICIT operator const T* () const
 	{
-#ifdef _USE_ANONYMOUS_NON_POD
+#ifdef POCKET_USE_ANONYMOUS_NON_POD
 		return &left.a;
 #else
 		return &planes[0].a;
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 	}
 
 	/*---------------------------------------------------------------------

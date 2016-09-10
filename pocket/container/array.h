@@ -2,14 +2,14 @@
 #define __POCKET_CONTAINER_ARRAY_H__
 
 #include "../config.h"
-#ifdef _USE_PRAGMA_ONCE
+#ifdef POCKET_USE_PRAGMA_ONCE
 #pragma once
-#endif // _USE_PRAGMA_ONCE
+#endif // POCKET_USE_PRAGMA_ONCE
 
 #include "../debug.h"
 #include "../io.h"
 
-#ifdef _USE_CXX11
+#ifdef POCKET_USE_CXX11
 // C++11が使用できる場合は標準のものを使用
 #include <array>
 
@@ -161,12 +161,12 @@ public:
 	}
 	reference at(int i)
 	{
-		_DEB_RANGE_ASSERT(i, 0, N - 1);
+		POCKET_DEBUG_RANGE_ASSERT(i, 0, N - 1);
 		return _Data[i];
 	}
 	const_reference at(int i) const
 	{
-		_DEB_RANGE_ASSERT(i, 0, N - 1);
+		POCKET_DEBUG_RANGE_ASSERT(i, 0, N - 1);
 		return _Data[i];
 	}
 	reference front()
@@ -200,12 +200,12 @@ public:
 
 	reference operator [] (int i)
 	{
-		_DEB_RANGE_ASSERT(i, 0, static_cast<int>(N - 1));
+		POCKET_DEBUG_RANGE_ASSERT(i, 0, static_cast<int>(N - 1));
 		return _Data[i];
 	}
 	const_reference operator [] (int i) const
 	{
-		_DEB_RANGE_ASSERT(i, 0, static_cast<int>(N - 1));
+		POCKET_DEBUG_RANGE_ASSERT(i, 0, static_cast<int>(N - 1));
 		return _Data[i];
 	}
 };
@@ -238,6 +238,6 @@ namespace std
 	}
 }
 
-#endif // _USE_CXX11
+#endif // POCKET_USE_CXX11
 
 #endif // __POCKET_CONTAINER_ARRAY_H__

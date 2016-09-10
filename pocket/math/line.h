@@ -2,9 +2,9 @@
 #define __POCKET_MATH_LINE_H__
 
 #include "../config.h"
-#ifdef _USE_PRAGMA_ONCE
+#ifdef POCKET_USE_PRAGMA_ONCE
 #pragma once
-#endif // _USE_PRAGMA_ONCE
+#endif // POCKET_USE_PRAGMA_ONCE
 
 #include "../behavior.h"
 #include "math_traits.h"
@@ -41,7 +41,7 @@ typedef line<long double, vector4> line4ld;
 template <typename T, template <typename> class VectorN>
 struct line
 {
-	_MATH_STATICAL_ASSERT_FLOATING(T);
+	POCKET_MATH_STATICAL_ASSERT_FLOATING(T);
 
 	/*-----------------------------------------------------------------------------------------
 	* Types
@@ -85,7 +85,7 @@ struct line
 	* Constructors
 	*-----------------------------------------------------------------------------------------*/
 
-	_DEFAULT_CONSTRUCTOR(line);
+	POCKET_DEFAULT_CONSTRUCTOR(line);
 	explicit line(const behavior::_noinitialize_t&)
 	{
 

@@ -2,9 +2,9 @@
 #define __POCKET_MATH_VECTOR2_H__
 
 #include "../config.h"
-#ifdef _USE_PRAGMA_ONCE
+#ifdef POCKET_USE_PRAGMA_ONCE
 #pragma once
-#endif // _USE_PRAGMA_ONCE
+#endif // POCKET_USE_PRAGMA_ONCE
 
 #include "../behavior.h"
 #include "../debug.h"
@@ -37,7 +37,7 @@ typedef vector2<long double> vector2ld;
 template <typename T>
 struct vector2
 {
-	_MATH_STATICAL_ASSERT(T);
+	POCKET_MATH_STATICAL_ASSERT(T);
 
 	/*-----------------------------------------------------------------------------------------
 	* Types
@@ -58,21 +58,21 @@ struct vector2
 	* Members
 	*-----------------------------------------------------------------------------------------*/
 
-#ifdef _USE_ANONYMOUS
+#ifdef POCKET_USE_ANONYMOUS
 	union
 	{
 		struct
 		{
-#endif // _USE_ANONYMOUS
+#endif // POCKET_USE_ANONYMOUS
 
 			T x;
 			T y;
 
-#ifdef _USE_ANONYMOUS
+#ifdef POCKET_USE_ANONYMOUS
 		};
 		array_type data;
 	};
-#endif // _USE_ANONYMOUS
+#endif // POCKET_USE_ANONYMOUS
 
 	template <typename> friend struct vector2;
 
@@ -97,7 +97,7 @@ struct vector2
 	* Constructors
 	*-----------------------------------------------------------------------------------------*/
 
-	_DEFAULT_CONSTRUCTOR(vector2);
+	POCKET_DEFAULT_CONSTRUCTOR(vector2);
 	explicit vector2(const behavior::_noinitialize_t&)
 	{
 
@@ -128,7 +128,7 @@ struct vector2
 
 	}
 	template <typename U, typename U1,
-		_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U), _TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U1)>
+		POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U), POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U1)>
 		vector2(U x, U1 y) :
 		x(static_cast<T>(x)), y(static_cast<T>(y))
 	{
@@ -139,7 +139,7 @@ struct vector2
 	{
 
 	}
-	template <typename U, _TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
+	template <typename U, POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
 	explicit vector2(U f) :
 		x(static_cast<T>(f)), y(static_cast<T>(f))
 	{
@@ -216,7 +216,7 @@ struct vector2
 		result.y = y * f;
 		return result;
 	}
-	template <typename U, _TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
+	template <typename U, POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
 	vector2& multiply(U f, vector2& result) const
 	{
 		return multiply(static_cast<T>(f), result);
@@ -226,13 +226,13 @@ struct vector2
 	*---------------------------------------------------------------------*/
 	vector2& divide(T f, vector2& result) const
 	{
-		_DEB_ASSERT(f != math_type::zero);
+		POCKET_DEBUG_ASSERT(f != math_type::zero);
 		return multiply(math_type::reciprocal(f), result);
 	}
-	template <typename U, _TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
+	template <typename U, POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
 	vector2& divide(U f, vector2& result) const
 	{
-		_DEB_ASSERT(f != math_traits<U>::zero);
+		POCKET_DEBUG_ASSERT(f != math_traits<U>::zero);
 		return divide(static_cast<T>(f), result);
 	}
 	/*---------------------------------------------------------------------
@@ -485,8 +485,8 @@ struct vector2
 	*---------------------------------------------------------------------*/
 	vector2 swizzle(int x, int y) const
 	{
-		_DEB_RANGE_ASSERT(x, 0, 1);
-		_DEB_RANGE_ASSERT(y, 0, 1);
+		POCKET_DEBUG_RANGE_ASSERT(x, 0, 1);
+		POCKET_DEBUG_RANGE_ASSERT(y, 0, 1);
 		return vector2((*this)[x], (*this)[y]);
 	}
 	vector3<T> swizzle(int, int, int) const; // vector3.h
@@ -501,46 +501,46 @@ struct vector2
 	*---------------------------------------------------------------------*/
 	T& operator [] (int i)
 	{
-		_DEB_RANGE_ASSERT(i, 0, 1);
-#ifdef _USE_ANONYMOUS
+		POCKET_DEBUG_RANGE_ASSERT(i, 0, 1);
+#ifdef POCKET_USE_ANONYMOUS
 		return data[i];
 #else
 		return (&x)[i];
-#endif // _USE_ANONYMOUS
+#endif // POCKET_USE_ANONYMOUS
 	}
 	const T& operator [] (int i) const
 	{
-		_DEB_RANGE_ASSERT(i, 0, 1);
-#ifdef _USE_ANONYMOUS
+		POCKET_DEBUG_RANGE_ASSERT(i, 0, 1);
+#ifdef POCKET_USE_ANONYMOUS
 		return data[i];
 #else
 		return (&x)[i];
-#endif // _USE_ANONYMOUS
+#endif // POCKET_USE_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------
 	* 型変換演算子
 	*---------------------------------------------------------------------*/
 	template <typename U>
-	_CXX11_EXPLICIT operator vector2<U>() const
+	POCKET_CXX11_EXPLICIT operator vector2<U>() const
 	{
 		return vector2<U>(static_cast<U>(x), static_cast<U>(y));
 	}
-	_CXX11_EXPLICIT operator T* ()
+	POCKET_CXX11_EXPLICIT operator T* ()
 	{
-#ifdef _USE_ANONYMOUS
+#ifdef POCKET_USE_ANONYMOUS
 		return &data[0];
 #else
 		return &x;
-#endif // _USE_ANONYMOUS
+#endif // POCKET_USE_ANONYMOUS
 	}
-	_CXX11_EXPLICIT operator const T* () const
+	POCKET_CXX11_EXPLICIT operator const T* () const
 	{
-#ifdef _USE_ANONYMOUS
+#ifdef POCKET_USE_ANONYMOUS
 		return &data[0];
 #else
 		return &x;
-#endif // _USE_ANONYMOUS
+#endif // POCKET_USE_ANONYMOUS
 	}
 
 	/*---------------------------------------------------------------------
@@ -638,7 +638,7 @@ struct vector2
 		return multiply(f, result);
 	}
 	vector2 operator * (const matrix3x3<T>&) const; // matrix3x3.h
-	template <typename U, _TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
+	template <typename U, POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
 	vector2 operator * (U f) const
 	{
 		vector2 result(behavior::noinitialize);
@@ -649,7 +649,7 @@ struct vector2
 		vector2 result(behavior::noinitialize);
 		return divide(f, result);
 	}
-	template <typename U, _TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
+	template <typename U, POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
 	vector2 operator / (U f) const
 	{
 		vector2 result(behavior::noinitialize);
@@ -672,7 +672,7 @@ struct vector2
 		x = y = f;
 		return *this;
 	}
-	template <typename U, _TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
+	template <typename U, POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
 	vector2& operator = (U f)
 	{
 		return operator=(static_cast<T>(f));
@@ -740,7 +740,7 @@ struct vector2
 		y *= f;
 		return *this;
 	}
-	template <typename U, _TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
+	template <typename U, POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
 	vector2& operator *= (U f)
 	{
 		x *= static_cast<T>(f);
@@ -749,14 +749,14 @@ struct vector2
 	}
 	vector2& operator /= (T f)
 	{
-		_DEB_ASSERT(f != math_type::zero);
+		POCKET_DEBUG_ASSERT(f != math_type::zero);
 		f = math_type::one / f;
 		return *this *= f;
 	}
-	template <typename U, _TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
+	template <typename U, POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
 	vector2& operator /= (U f)
 	{
-		_DEB_ASSERT(f != math_traits<U>::zero);
+		POCKET_DEBUG_ASSERT(f != math_traits<U>::zero);
 		T inv = math_type::one / static_cast<T>(f);
 		return *this *= inv;
 	}

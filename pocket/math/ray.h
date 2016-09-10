@@ -2,9 +2,9 @@
 #define __POCKET_MATH_RAY_H__
 
 #include "../config.h"
-#ifdef _USE_PRAGMA_ONCE
+#ifdef POCKET_USE_PRAGMA_ONCE
 #pragma once
-#endif // _USE_PRAGMA_ONCE
+#endif // POCKET_USE_PRAGMA_ONCE
 
 #include "../behavior.h"
 #include "../debug.h"
@@ -43,7 +43,7 @@ typedef ray<long double, vector4> ray4ld;
 template <typename T, template <typename> class VectorN>
 struct ray
 {
-	_MATH_STATICAL_ASSERT_FLOATING(T);
+	POCKET_MATH_STATICAL_ASSERT_FLOATING(T);
 
 	/*-----------------------------------------------------------------------------------------
 	* Types
@@ -86,7 +86,7 @@ struct ray
 	* Constructors
 	*-----------------------------------------------------------------------------------------*/
 
-	_DEFAULT_CONSTRUCTOR(ray);
+	POCKET_DEFAULT_CONSTRUCTOR(ray);
 	explicit ray(const behavior::_noinitialize_t&)
 	{
 

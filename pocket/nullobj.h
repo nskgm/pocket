@@ -2,14 +2,14 @@
 #define __POCKET_NULLOBJ_H__
 
 #include "config.h"
-#ifdef _USE_PRAGMA_ONCE
+#ifdef POCKET_USE_PRAGMA_ONCE
 #pragma once
-#endif // _USE_PRAGMA_ONCE
+#endif // POCKET_USE_PRAGMA_ONCE
 
 #include <cstring> // for memset
-#ifdef _USE_CXX11
+#ifdef POCKET_USE_CXX11
 #include <utility>
-#endif // _USE_CXX11
+#endif // POCKET_USE_CXX11
 
 namespace pocket
 {
@@ -95,19 +95,19 @@ struct nullobj_t
 		return NULL;
 	}
 
-#ifdef _USE_CXX11
+#ifdef POCKET_USE_CXX11
 	operator std::nullptr_t () const
 	{
 		return nullptr;
 	}
-#endif // _USE_CXX11
+#endif // POCKET_USE_CXX11
 
 	template <typename T>
 	operator T () const
 	{
 		T r;
 		std::memset(&r, 0, sizeof(T));
-		return _CXX11_MOVE(r);
+		return POCKET_CXX11_MOVE(r);
 	}
 
 	const nullobj_t& operator + () const
@@ -258,7 +258,7 @@ struct nullobj_t
 		return *this;
 	}
 
-#ifdef _USE_CXX11
+#ifdef POCKET_USE_CXX11
 	template <typename... Args>
 	const nullobj_t& operator () (Args&&...) const
 	{
@@ -304,7 +304,7 @@ struct nullobj_t
 	{
 		return *this;
 	}
-#endif // _USE_CXX11
+#endif // POCKET_USE_CXX11
 
 private:
 	nullobj_t(const nullobj_t&);
@@ -313,14 +313,14 @@ private:
 	nullobj_t& operator = (const nullobj_t&);
 	template <typename T>
 	nullobj_t& operator = (const T&);
-#ifdef _USE_CXX11
+#ifdef POCKET_USE_CXX11
 	nullobj_t(nullobj_t&&);
 	template <typename T>
 	nullobj_t(T&&);
 	nullobj_t& operator = (nullobj_t&&);
 	template <typename T>
 	nullobj_t& operator = (T&&);
-#endif // _USE_CXX11
+#endif // POCKET_USE_CXX11
 };
 
 // +

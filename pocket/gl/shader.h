@@ -2,9 +2,9 @@
 #define __POCKET_GL_SHADER_H__
 
 #include "../config.h"
-#ifdef _USE_PRAGMA_ONCE
+#ifdef POCKET_USE_PRAGMA_ONCE
 #pragma once
-#endif // _USE_PRAGMA_ONCE
+#endif // POCKET_USE_PRAGMA_ONCE
 
 #include "gl.h"
 #include "../debug.h"
@@ -27,18 +27,7 @@ public:
 	/*------------------------------------------------------------------------------------------
 	* Types
 	*------------------------------------------------------------------------------------------*/
-	// シェーダー種類
-	enum shader_type
-	{
-		vertex = GL_VERTEX_SHADER,
-		fragment = GL_FRAGMENT_SHADER,
-		geometry = GL_GEOMETRY_SHADER,
-		tess_control = GL_TESS_CONTROL_SHADER,
-		tess_evaluate = GL_TESS_EVALUATION_SHADER,
-		compute = GL_COMPUTE_SHADER,
 
-		unknown = 0,
-	};
 	// コンパイル種類
 	enum compile_type
 	{
@@ -58,7 +47,7 @@ private:
 	* Members
 	*------------------------------------------------------------------------------------------*/
 
-	shader_type _type;
+	shader_type_t _type;
 	GLuint _id;
 	int _error_bitfield;
 
@@ -74,17 +63,17 @@ public:
 	*------------------------------------------------------------------------------------------*/
 
 	shader() :
-		_type(unknown),
+		_type(shader_type::unknown),
 		_id(0),
 		_error_bitfield(0)
 	{}
-	explicit shader(shader_type type, const char* str, compile_type comp = file) :
+	explicit shader(shader_type_t type, const char* str, compile_type comp = file) :
 		_id(0)
 	{
 		initialize(type, str, comp);
 	}
 	template <int N>
-	explicit shader(shader_type type, const char*(&str)[N], compile_type comp = file) :
+	explicit shader(shader_type_t type, const char*(&str)[N], compile_type comp = file) :
 		_id(0)
 	{
 		initialize(type, str, comp);
@@ -94,17 +83,17 @@ public:
 		_id(s._id),
 		_error_bitfield(s._error_bitfield)
 	{}
-#ifdef _USE_CXX11
+#ifdef POCKET_USE_CXX11
 	shader(shader&& s) :
 		_type(std::move(s._type)),
 		_id(std::move(s._id)),
 		_error_bitfield(std::move(s._error_bitfield))
 	{
-		s._type = unknown;
+		s._type = shader_type::unknown;
 		s._id = 0;
 		s._error_bitfield = 0;
 	}
-#endif // _USE_CXX11
+#endif // POCKET_USE_CXX11
 	~shader()
 	{
 		finalize();
@@ -115,7 +104,7 @@ public:
 	*------------------------------------------------------------------------------------------*/
 
 	// 初期化
-	bool initialize(shader_type type, const char* s, compile_type compile = file)
+	bool initialize(shader_type_t type, const char* s, compile_type compile = file)
 	{
 		finalize();
 		// ファイルから作成
@@ -127,7 +116,7 @@ public:
 		return create_from_memory(type, 1, &s);
 	}
 	template <int N>
-	bool initialize(shader_type type, const char*(&s)[N], compile_type compile = file)
+	bool initialize(shader_type_t type, const char*(&s)[N], compile_type compile = file)
 	{
 		finalize();
 		// ファイルから作成
@@ -146,7 +135,7 @@ public:
 			glDeleteShader(_id);
 			_id = 0;
 		}
-		_type = unknown;
+		_type = shader_type::unknown;
 		_error_bitfield = 0;
 	}
 
@@ -174,7 +163,7 @@ public:
 		std::string source(length, '\0');
 		glGetShaderSource(_id, length, &length, &source[0]);
 		source.resize(static_cast<size_t>(length));
-		return _CXX11_MOVE(source);
+		return POCKET_CXX11_MOVE(source);
 	}
 
 	// サブルーチン
@@ -224,7 +213,7 @@ public:
 		}
 		// 作成されていない
 		// またはすでに破棄済み
-		if (_type == unknown ||
+		if (_type == shader_type::unknown ||
 			_id == 0)
 		{
 			return "not created. or already destroyed.";
@@ -251,13 +240,13 @@ public:
 	}
 
 	// シェーダー種類
-	shader_type kind() const
+	shader_type_t kind() const
 	{
 		return _type;
 	}
 
 	// シェーダー種類の比較
-	bool kind_of(shader_type type) const
+	bool kind_of(shader_type_t type) const
 	{
 		return _type == type;
 	}
@@ -273,7 +262,7 @@ public:
 	}
 
 private:
-	bool create_from_file(shader_type type, const char* path)
+	bool create_from_file(shader_type_t type, const char* path)
 	{
 		std::ifstream fs(path, std::ios_base::in | std::ios_base::ate);
 		// ファイルが存在していない
@@ -297,7 +286,7 @@ private:
 		return create_from_memory(type, 1, &c_str, &length);
 	}
 	template <int N>
-	bool create_from_files(shader_type type, const char*(&path)[N])
+	bool create_from_files(shader_type_t type, const char*(&path)[N])
 	{
 		// ファイルごとの文字列
 		std::string sources[N];
@@ -327,7 +316,7 @@ private:
 		// ファイル内容からコンパイル
 		return create_from_memory(type, N, &c_sources[0], &lengths[0]);
 	}
-	bool create_from_memory(shader_type type, GLsizei count, const char* const* str, const GLint* len = NULL)
+	bool create_from_memory(shader_type_t type, GLsizei count, const char* const* str, const GLint* len = NULL)
 	{
 		_type = type;
 
@@ -359,7 +348,7 @@ public:
 	* Operators
 	*------------------------------------------------------------------------------------------*/
 
-	_CXX11_EXPLICIT operator bool () const
+	POCKET_CXX11_EXPLICIT operator bool () const
 	{
 		return valid();
 	}
@@ -384,13 +373,13 @@ public:
 		_error_bitfield = s._error_bitfield;
 		return *this;
 	}
-#ifdef _USE_CXX11
+#ifdef POCKET_USE_CXX11
 	shader& operator = (shader&& s)
 	{
 		_type = std::move(s._type);
 		_id = std::move(s._id);
 		_error_bitfield = std::move(s._error_bitfield);
-		s._type = unknown;
+		s._type = shader_type::unknown;
 		s._id = 0;
 		s._error_bitfield = 0;
 		return *this;
@@ -401,16 +390,16 @@ public:
 		finalize();
 		return *this;
 	}
-#endif // _USE_CXX11
+#endif // POCKET_USE_CXX11
 };
 
 // シェーダー作成
-template <shader::shader_type T> inline
+template <shader_type_t T> inline
 shader make_shader(const char* s, shader::compile_type compile = shader::file)
 {
 	return shader(T, s, compile);
 }
-template <shader::shader_type T> inline
+template <shader_type_t T> inline
 shader& make_shader(shader& sdr, const char* s, shader::compile_type compile = shader::file)
 {
 	sdr.initialize(T, s, compile);
@@ -420,23 +409,23 @@ shader& make_shader(shader& sdr, const char* s, shader::compile_type compile = s
 #define __POCKET_MAKE_SHADER_TYPE(TYPE) inline \
 	shader make_##TYPE##_shader(const char* s, shader::compile_type compile = shader::file) \
 	{ \
-		return shader(shader::TYPE, s, compile); \
+		return shader(shader_type::TYPE, s, compile); \
 	} \
 	template <int N> inline \
 	shader make_##TYPE##_shader(const char*(&s)[N], shader::compile_type compile = shader::file) \
 	{ \
-		return shader(shader::TYPE, s, compile); \
+		return shader(shader_type::TYPE, s, compile); \
 	} \
 	inline \
 	shader& make_##TYPE##_shader(shader& sdr, const char* s, shader::compile_type compile = shader::file) \
 	{ \
-		sdr.initialize(shader::TYPE, s, compile); \
+		sdr.initialize(shader_type::TYPE, s, compile); \
 		return sdr; \
 	} \
 	template <int N> inline \
 	shader& make_##TYPE##_shader(shader& sdr, const char*(&s)[N], shader::compile_type compile = shader::file) \
 	{ \
-		sdr.initialize(shader::TYPE, s, compile); \
+		sdr.initialize(shader_type::TYPE, s, compile); \
 		return sdr; \
 	}
 
@@ -461,22 +450,22 @@ std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, Ch
 	const char* type;
 	switch (v.kind())
 	{
-		case shader::vertex:
+		case shader_type::vertex:
 			type = "vertex";
 			break;
-		case shader::fragment:
+		case shader_type::fragment:
 			type = "fragment";
 			break;
-		case shader::geometry:
+		case shader_type::geometry:
 			type = "geometry";
 			break;
-		case shader::tess_control:
+		case shader_type::tess_control:
 			type = "tess_control";
 			break;
-		case shader::tess_evaluate:
+		case shader_type::tess_evaluate:
 			type = "tess_evaluate";
 			break;
-		case shader::compute:
+		case shader_type::compute:
 			type = "compute";
 			break;
 		default:

@@ -2,9 +2,9 @@
 #define __POCKET_MATH_MATRIX3X3_H__
 
 #include "../config.h"
-#ifdef _USE_PRAGMA_ONCE
+#ifdef POCKET_USE_PRAGMA_ONCE
 #pragma once
-#endif // _USE_PRAGMA_ONCE
+#endif // POCKET_USE_PRAGMA_ONCE
 
 #include "../container/array.h"
 #include "math_traits.h"
@@ -35,16 +35,16 @@ typedef matrix3x3<long double> matrix3x3ld;
 struct matrix_point
 {
 	enum element
-#ifdef _USE_CXX11
+#ifdef POCKET_USE_CXX11
 		: unsigned int
-#endif // _USE_CXX11
+#endif // POCKET_USE_CXX11
 	{
 
-#ifdef _USE_CXX11
+#ifdef POCKET_USE_CXX11
 		_0, _1, _2, _3,
 #else
 		_0 = 0x00U, _1 = 0x01U, _2 = 0x02U, _3 = 0x03U,
-#endif // _USE_CXX11
+#endif // POCKET_USE_CXX11
 
 		_X = _0,
 		_Y = _1,
@@ -55,7 +55,7 @@ struct matrix_point
 	element x;
 	element y;
 
-	_DEFAULT_CONSTRUCTOR(matrix_point);
+	POCKET_DEFAULT_CONSTRUCTOR(matrix_point);
 	matrix_point(element x, element y) :
 		x(x), y(y)
 	{
@@ -79,7 +79,7 @@ inline matrix_point operator , (matrix_point::element y, matrix_point::element x
 template <typename T>
 struct matrix3x3
 {
-	_MATH_STATICAL_ASSERT_FLOATING(T);
+	POCKET_MATH_STATICAL_ASSERT_FLOATING(T);
 
 	/*------------------------------------------------------------------------------------------
 	* Types
@@ -113,16 +113,16 @@ struct matrix3x3
 	* Members
 	*------------------------------------------------------------------------------------------*/
 
-#ifdef _USE_ANONYMOUS_NON_POD
+#ifdef POCKET_USE_ANONYMOUS_NON_POD
 	union
 	{
 		struct
 		{
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 
 			array3x3_type M; // 行3
 
-#ifdef _USE_ANONYMOUS_NON_POD
+#ifdef POCKET_USE_ANONYMOUS_NON_POD
 		};
 		// 1行ごと
 		struct
@@ -156,7 +156,7 @@ struct matrix3x3
 		};
 		array9_type data;
 	};
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 
 	/*------------------------------------------------------------------------------------------
 	* Constants
@@ -169,7 +169,7 @@ struct matrix3x3
 	* Constructors
 	*------------------------------------------------------------------------------------------*/
 
-	_DEFAULT_CONSTRUCTOR(matrix3x3);
+	POCKET_DEFAULT_CONSTRUCTOR(matrix3x3);
 	explicit matrix3x3(const behavior::_noinitialize_t&)
 	{
 
@@ -195,26 +195,26 @@ struct matrix3x3
 	matrix3x3(T M11, T M12, T M13,
 		T M21, T M22, T M23,
 		T M31, T M32, T M33)
-#ifdef _USE_ANONYMOUS_NON_POD
+#ifdef POCKET_USE_ANONYMOUS_NON_POD
 		: mv0(M11, M12, M13), mv1(M21, M22, M23), mv2(M31, M32, M33)
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 	{
-#ifndef _USE_ANONYMOUS_NON_POD
+#ifndef POCKET_USE_ANONYMOUS_NON_POD
 		M[0] = vector3<T>(M11, M12, M13);
 		M[1] = vector3<T>(M21, M22, M23);
 		M[2] = vector3<T>(M31, M32, M33);
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 	}
 	matrix3x3(const vector3<T>& M1, const vector3<T>& M2, const vector3<T>& M3)
-#ifdef _USE_ANONYMOUS_NON_POD
+#ifdef POCKET_USE_ANONYMOUS_NON_POD
 		: mv0(M1), mv1(M2), mv2(M3)
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 	{
-#ifndef _USE_ANONYMOUS_NON_POD
+#ifndef POCKET_USE_ANONYMOUS_NON_POD
 		M[0] = M1;
 		M[1] = M2;
 		M[2] = M3;
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 	}
 	explicit matrix3x3(const matrix4x4<T>&); // matrix4x4.h
 
@@ -253,7 +253,7 @@ struct matrix3x3
 	*---------------------------------------------------------------------*/
 	matrix3x3& multiply(const matrix3x3& m, matrix3x3& result) const
 	{
-#if defined(__DEBUG)
+#if defined(POCKET_DEBUG)
 		matrix3x3 t = m.transposed();
 		iterator ri = result.M.begin();
 		const_iterator ti = t.M.begin(), j;
@@ -296,7 +296,7 @@ struct matrix3x3
 	*---------------------------------------------------------------------*/
 	matrix3x3& divide(T s, matrix3x3& result) const
 	{
-		_DEB_ASSERT(s != math_type::zero);
+		POCKET_DEBUG_ASSERT(s != math_type::zero);
 		return multiply(math_type::reciprocal(s), result);
 	}
 
@@ -342,11 +342,11 @@ struct matrix3x3
 	vector3<T>& right()
 	{
 		//return vector3<T>(m.x, m.y, m.z);
-#ifdef _USE_ANONYMOUS_NON_POD
+#ifdef POCKET_USE_ANONYMOUS_NON_POD
 		return _right;
 #else
 		return M[0];
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 	}
 	const vector3<T>& right() const
 	{
@@ -354,11 +354,11 @@ struct matrix3x3
 	}
 	matrix3x3& right(const vector3<T>& v)
 	{
-#ifdef _USE_ANONYMOUS_NON_POD
+#ifdef POCKET_USE_ANONYMOUS_NON_POD
 		_right = v;
 #else
 		M[0] = v;
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 		return *this;
 	}
 
@@ -368,11 +368,11 @@ struct matrix3x3
 	vector3<T>& up()
 	{
 		//return vector3<T>(m.x, m.y, m.z);
-#ifdef _USE_ANONYMOUS_NON_POD
+#ifdef POCKET_USE_ANONYMOUS_NON_POD
 		return _up;
 #else
 		return M[1];
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 	}
 	const vector3<T>& up() const
 	{
@@ -380,11 +380,11 @@ struct matrix3x3
 	}
 	matrix3x3& up(const vector3<T>& v)
 	{
-#ifdef _USE_ANONYMOUS_NON_POD
+#ifdef POCKET_USE_ANONYMOUS_NON_POD
 		_up = v;
 #else
 		M[1] = v;
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 		return *this;
 	}
 
@@ -394,11 +394,11 @@ struct matrix3x3
 	vector3<T>& forward()
 	{
 		//return vector3<T>(m.x, m.y, m.z);
-#ifdef _USE_ANONYMOUS_NON_POD
+#ifdef POCKET_USE_ANONYMOUS_NON_POD
 		return _forward;
 #else
 		return M[2];
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 	}
 	const vector3<T>& forward() const
 	{
@@ -406,11 +406,11 @@ struct matrix3x3
 	}
 	matrix3x3& forward(const vector3<T>& v)
 	{
-#ifdef _USE_ANONYMOUS_NON_POD
+#ifdef POCKET_USE_ANONYMOUS_NON_POD
 		_forward = v;
 #else
 		M[2] = v;
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 		return *this;
 	}
 	/*---------------------------------------------------------------------
@@ -418,11 +418,11 @@ struct matrix3x3
 	*---------------------------------------------------------------------*/
 	vector2<T>& position()
 	{
-#ifdef _USE_ANONYMOUS_NON_POD
+#ifdef POCKET_USE_ANONYMOUS_NON_POD
 		return _position;
 #else
 		return reinterpret_cast<vector2<T>&>(M[2]);
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 	}
 	const vector2<T>& position() const
 	{
@@ -430,13 +430,13 @@ struct matrix3x3
 	}
 	matrix3x3& position(const vector2<T>& v)
 	{
-#ifdef _USE_ANONYMOUS_NON_POD
+#ifdef POCKET_USE_ANONYMOUS_NON_POD
 		_position = v;
 #else
 		vector3<T>& m = M[2];
 		m.x = v.x;
 		m.y = v.y;
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 		return *this;
 	}
 
@@ -639,26 +639,26 @@ struct matrix3x3
 	matrix3x3& load_translate(T x, T y)
 	{
 		load_identity();
-#ifdef _USE_ANONYMOUS_NON_POD
+#ifdef POCKET_USE_ANONYMOUS_NON_POD
 		_position = vector2<T>(x, y);
 #else
 		// ４の位置が座標を扱う要素
 		vector3<T>& m = M[2];
 		m.x = x;
 		m.y = y;
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 		return *this;
 	}
 	matrix3x3& load_translate(const vector2<T>& v)
 	{
 		load_identity();
-#ifdef _USE_ANONYMOUS_NON_POD
+#ifdef POCKET_USE_ANONYMOUS_NON_POD
 		_position = v;
 #else
 		vector3<T>& m = M[2];
 		m.x = v.x;
 		m.y = v.y;
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 		return *this;
 	}
 
@@ -860,12 +860,12 @@ struct matrix3x3
 	*---------------------------------------------------------------------*/
 	vector3<T>& operator [] (int i)
 	{
-		_DEB_RANGE_ASSERT(i, 0, 2);
+		POCKET_DEBUG_RANGE_ASSERT(i, 0, 2);
 		return M[i];
 	}
 	const vector3<T>& operator [] (int i) const
 	{
-		_DEB_RANGE_ASSERT(i, 0, 2);
+		POCKET_DEBUG_RANGE_ASSERT(i, 0, 2);
 		return M[i];
 	}
 	T& operator [] (const matrix_point& p)
@@ -878,14 +878,14 @@ struct matrix3x3
 	}
 	T& operator () (int y, int x)
 	{
-		_DEB_RANGE_ASSERT(x, 0, 2);
-		_DEB_RANGE_ASSERT(y, 0, 2);
+		POCKET_DEBUG_RANGE_ASSERT(x, 0, 2);
+		POCKET_DEBUG_RANGE_ASSERT(y, 0, 2);
 		return M[y][x];
 	}
 	const T& operator () (int y, int x) const
 	{
-		_DEB_RANGE_ASSERT(x, 0, 2);
-		_DEB_RANGE_ASSERT(y, 0, 2);
+		POCKET_DEBUG_RANGE_ASSERT(x, 0, 2);
+		POCKET_DEBUG_RANGE_ASSERT(y, 0, 2);
 		return M[y][x];
 	}
 
@@ -893,28 +893,28 @@ struct matrix3x3
 	* 型変換演算子
 	*---------------------------------------------------------------------*/
 	template <typename U>
-	_CXX11_EXPLICIT operator matrix3x3<U>() const
+	POCKET_CXX11_EXPLICIT operator matrix3x3<U>() const
 	{
 		typedef vector3<U> other_vector3_type;
 		return matrix3x3<U>(static_cast<other_vector3_type>(M[0]),
 			static_cast<other_vector3_type>(M[1]),
 			static_cast<other_vector3_type>(M[2]));
 	}
-	_CXX11_EXPLICIT operator T* ()
+	POCKET_CXX11_EXPLICIT operator T* ()
 	{
-#ifdef _USE_ANONYMOUS_NON_POD
+#ifdef POCKET_USE_ANONYMOUS_NON_POD
 		return &data[0];
 #else
 		return &M[0].x;
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 	}
-	_CXX11_EXPLICIT operator const T* () const
+	POCKET_CXX11_EXPLICIT operator const T* () const
 	{
-#ifdef _USE_ANONYMOUS_NON_POD
+#ifdef POCKET_USE_ANONYMOUS_NON_POD
 		return &data[0];
 #else
 		return &M[0].x;
-#endif // _USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_ANONYMOUS_NON_POD
 	}
 
 	/*---------------------------------------------------------------------
@@ -989,10 +989,10 @@ struct matrix3x3
 	{
 		return load_identity();
 	}
-#ifdef _USE_CXX11
+#ifdef POCKET_USE_CXX11
 	matrix3x3& operator = (const std::initializer_list<T>& t)
 	{
-		_DEB_ASSERT(t.size() <= 9);
+		POCKET_DEBUG_ASSERT(t.size() <= 9);
 
 		typename std::initializer_list<T>::const_iterator o = t.begin();
 		T* p = static_cast<T*>(M[0]);
@@ -1002,7 +1002,7 @@ struct matrix3x3
 		}
 		return *this;
 	}
-#endif // _USE_CXX11
+#endif // POCKET_USE_CXX11
 
 	/*---------------------------------------------------------------------
 	* 複合演算子
@@ -1042,7 +1042,7 @@ struct matrix3x3
 	}
 	matrix3x3& operator /= (T s)
 	{
-		_DEB_ASSERT(s != math_type::zero);
+		POCKET_DEBUG_ASSERT(s != math_type::zero);
 		return operator*=(math_type::reciprocal(s));
 	}
 };
