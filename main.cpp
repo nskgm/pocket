@@ -168,7 +168,7 @@ int main()
 	POCKET_GL_ERROR();
 
 	// インダイレクトバッファ作成
-	gl::commands::draw_arrays cmd = _ARRAY_SIZE(vertices); // 描画数
+	gl::commands::draw_arrays cmd = POCKET_ARRAY_SIZE(vertices); // 描画数
 	gl::buffer indirect = gl::make_draw_indirect_buffer_immutable(cmd);
 	if (!indirect)
 	{
