@@ -78,7 +78,6 @@ public:
 	//------------------------------------------------------------------------------------------
 
 	friend class buffer_view;
-	friend class uniform_buffer;
 
 	typedef binder<buffer> binder_type;
 	typedef binder_map<buffer, void> binder_map_type;
@@ -1249,11 +1248,11 @@ typename buffer::template rebinder_map<T>::type buffer::make_binder_map(const bi
 	return typename rebinder_map<T>::type(a, U);
 }
 
-/*------------------------------
-* make_buffer
-* make_[type]_buffer
-* make_[type]_buffer_[usage(immutable, dynamic, stream)]
-*------------------------------*/
+//------------------------------
+// make_buffer
+// make_[type]_buffer
+// make_[type]_buffer_[usage(immutable, dynamic, stream)]
+//------------------------------
 
 #define __POCKET_MAKE_BUFFER_USAGE(TYPE, USAGE) inline \
 	buffer make_##TYPE##_buffer_##USAGE(int size, const void* data) \

@@ -4,32 +4,32 @@
 //---------------------------------------------------------------------------------------
 // コンパイラ種類
 //---------------------------------------------------------------------------------------
-#ifndef POCKET_COMPILER_GCC
-#	define POCKET_COMPILER_GCC (0)
-#endif // POCKET_COMPILER_GCC
-#ifndef POCKET_COMPILER_CLANG
-#	define POCKET_COMPILER_CLANG (1)
-#endif // POCKET_COMPILER_CLANG
-#ifndef POCKET_COMPILER_VC
-#	define POCKET_COMPILER_VC (2)
+#ifndef POCKET_COMPILER_TYPE_GCC
+#	define POCKET_COMPILER_TYPE_GCC (0)
+#endif // POCKET_COMPILER_TYPE_GCC
+#ifndef POCKET_COMPILER_TYPE_CLANG
+#	define POCKET_COMPILER_TYPE_CLANG (1)
+#endif // POCKET_COMPILER_TYPE_CLANG
+#ifndef POCKET_COMPILER_TYPE_VC
+#	define POCKET_COMPILER_TYPE_VC (2)
 #endif // POCKET_USE_VC
 
-#ifndef POCKET_COMPILER_UNKNOWN
-#	define POCKET_COMPILER_UNKNOWN (0xFFFFFFFF)
-#endif // POCKET_COMPILER_UNKNOWN
+#ifndef POCKET_COMPILER_TYPE_UNKNOWN
+#	define POCKET_COMPILER_TYPE_UNKNOWN (0xFFFFFFFF)
+#endif // POCKET_COMPILER_TYPE_UNKNOWN
 
 //---------------------------------------------------------------------------------------
 // コンパイラ種類の統合
 //---------------------------------------------------------------------------------------
 #ifndef POCKET_COMPILER
 #	ifdef __GNUC__
-#		define POCKET_COMPILER POCKET_COMPILER_GCC
+#		define POCKET_COMPILER POCKET_COMPILER_TYPE_GCC
 #	elif defined(__clang__)
-#		define POCKET_COMPILER POCKET_COMPILER_CLANG
+#		define POCKET_COMPILER POCKET_COMPILER_TYPE_CLANG
 #	elif defined(_MSC_VER)
-#		define POCKET_COMPILER POCKET_COMPILER_VC
+#		define POCKET_COMPILER POCKET_COMPILER_TYPE_VC
 #	else
-#		define POCKET_COMPILER POCKET_COMPILER_UNKNOWN
+#		define POCKET_COMPILER POCKET_COMPILER_TYPE_UNKNOWN
 #	endif
 #endif // POCKET_COMPILER
 
@@ -39,7 +39,7 @@
 // visual c++: POCKET_COMPILER_IF(VC)
 //---------------------------------------------------------------------------------------
 #ifndef POCKET_COMPILER_IF
-#	define POCKET_COMPILER_IF(C) (POCKET_COMPILER == POCKET_COMPILER_##C)
+#	define POCKET_COMPILER_IF(C) (POCKET_COMPILER == POCKET_COMPILER_TYPE_##C)
 #endif // POCKET_COMPILER_IF
 
 //---------------------------------------------------------------------------------------
@@ -353,8 +353,7 @@
 //---------------------------------------------------------------------------------------
 #ifndef POCKET_DEFAULT_DECLARE_RVALUES
 #	if POCKET_VCXX_VERSION_IF(14) || POCKET_CXX_VERSION_IF(11)
-#		define POCKET_DEFAULT_DECLARE_RVALUES(CLASS) CLASS(CLASS&&) = default;\
-												CLASS& operator = (CLASS&&) = default
+#		define POCKET_DEFAULT_DECLARE_RVALUES(CLASS) CLASS(CLASS&&)=default; CLASS& operator=(CLASS&&)=default
 #	else
 #		define POCKET_DEFAULT_DECLARE_RVALUES(CLASS)
 #	endif //
@@ -362,10 +361,7 @@
 
 #ifndef POCKET_DEFAULT_CONSTRUCTOR
 #	ifdef POCKET_USE_CXX11
-#		define POCKET_DEFAULT_CONSTRUCTOR(CLASS) CLASS() = default;\
-											CLASS(const CLASS&) = default;\
-											CLASS& operator = (const CLASS&) = default;\
-											POCKET_DEFAULT_DECLARE_RVALUES(CLASS)
+#		define POCKET_DEFAULT_CONSTRUCTOR(CLASS) CLASS()=default; CLASS(const CLASS&)=default; CLASS& operator=(const CLASS&)=default; POCKET_DEFAULT_DECLARE_RVALUES(CLASS)
 #	else
 #		define POCKET_DEFAULT_CONSTRUCTOR(CLASS) CLASS() {}
 #	endif // POCKET_USE_CXX11
@@ -430,21 +426,28 @@
 											(N) <= POCKET_ALIGNED_SIZE_INT_COUNT(16) ? POCKET_ALIGNED_SIZE_INT_COUNT(16) : POCKET_ALIGNED_SIZE_INT_COUNT(0))
 #endif // POCKET_ALIGNED_SIZEABLE_POT_MAX_64
 
-#ifndef POCKET_DECLARE_ALIGNED_STRUCT
+#ifndef POCKET_ALIGNED_DECL
 #	if POCKET_COMPILER_IF(VC)
 #		if POCKET_VCXX_VERSION_IF(14)
-#			define POCKET_DECLARE_ALIGNED_STRUCT(N) struct POCKET_ALIGNED(N)
+#			define POCKET_ALIGNED_DECL(IDENTIFIER, N) IDENTIFIER POCKET_ALIGNED(N)
 #		else
-#			define POCKET_DECLARE_ALIGNED_STRUCT(N) POCKET_ALIGNED(N) struct
+#			define POCKET_ALIGNED_DECL(IDENTIFIER, N) POCKET_ALIGNED(N) IDENTIFIER
 #		endif
 #	else
-#		define POCKET_DECLARE_ALIGNED_STRUCT(N) struct POCKET_ALIGNED(N)
+#		define POCKET_ALIGNED_DECL(IDENTIFIER, N) IDENTIFIER POCKET_ALIGNED(N)
 #	endif
-#endif // POCKET_DECLARE_ALIGNED_STRUCT
+#endif // POCKET_ALIGNED_DECL
 
-#ifndef POCKET_DECLARE_ALIGNED_APPROPRIATE_STRUCT
-#	define POCKET_DECLARE_ALIGNED_APPROPRIATE_STRUCT(N) POCKET_DECLARE_ALIGNED_STRUCT(POCKET_ALIGNED_SIZEABLE_POT_MAX_64(N))
-#endif // POCKET_DECLARE_ALIGNED_APPROPRIATE_STRUCT
+#ifndef POCKET_ALIGNED_STRUCT
+#	define POCKET_ALIGNED_STRUCT(N) POCKET_ALIGNED_DECL(struct, N)
+#endif // POCKET_ALIGNED_STRUCT
+#ifndef POCKET_ALIGNED_CLASS
+#	define POCKET_ALIGNED_CLASS(N) POCKET_ALIGNED_DECL(class, N)
+#endif // POCKET_ALIGNED_CLASS
+
+#ifndef POCKET_ALIGNED_STRUCT_APPROPRIATE
+#	define POCKET_ALIGNED_STRUCT_APPROPRIATE(N) POCKET_ALIGNED_STRUCT(POCKET_ALIGNED_SIZEABLE_POT_MAX_64(N))
+#endif // POCKET_ALIGNED_STRUCT_APPROPRIATE
 
 //---------------------------------------------------------------------------------------
 // 数学クラスで使用する静的アサーションの設定
@@ -497,6 +500,138 @@
 #		endif
 #	endif // POCKET_USING_MATH_EXTERN_TYPE
 #endif // POCKET_MATH_STATICAL_ASSERT
+
+//---------------------------------------------------------------------------------------
+// 配列サイズ
+//---------------------------------------------------------------------------------------
+#ifndef POCKET_ARRAY_SIZE
+#	define POCKET_ARRAY_SIZE(ARY) (sizeof(ARY) / sizeof(ARY[0]))
+#endif // POCKET_ARRAY_SIZE
+
+//---------------------------------------------------------------------------------------
+// SIMD種類
+//---------------------------------------------------------------------------------------
+#ifndef POCKET_SIMD_TYPE_SSE
+#	define POCKET_SIMD_TYPE_SSE (0)
+#endif // POCKET_SIMD_TYPE_SSE
+#ifndef POCKET_SIMD_TYPE_SSE2
+#	define POCKET_SIMD_TYPE_SSE2 (1)
+#endif // POCKET_SIMD_TYPE_SSE2
+#ifndef POCKET_SIMD_TYPE_SSE3
+#	define POCKET_SIMD_TYPE_SSE3 (2)
+#endif // POCKET_SIMD_TYPE_SSE3
+#ifndef POCKET_SIMD_TYPE_SSE4
+#	define POCKET_SIMD_TYPE_SSE4 (3)
+#endif // POCKET_SIMD_TYPE_SSE4
+#ifndef POCKET_SIMD_TYPE_SSE4_1
+#	define POCKET_SIMD_TYPE_SSE4_1 (4)
+#endif // POCKET_SIMD_TYPE_SSE4_1
+#ifndef POCKET_SIMD_TYPE_SSE4_2
+#	define POCKET_SIMD_TYPE_SSE4_2 (5)
+#endif // POCKET_SIMD_TYPE_SSE4_2
+#ifndef POCKET_SIMD_TYPE_AVX
+#	define POCKET_SIMD_TYPE_AVX (6)
+#endif // POCKET_SIMD_TYPE_AVX
+#ifndef POCKET_SIMD_TYPE_AVX2
+#	define POCKET_SIMD_TYPE_AVX2 (7)
+#endif // POCKET_SIMD_TYPE_AVX2
+
+//---------------------------------------------------------------------------------------
+// SIMD設定
+//---------------------------------------------------------------------------------------
+#if !defined(POCKET_USE_SIMD) && !defined(POCKET_USE_SIMD_TYPE) && !defined(POCKET_UNUSING_SIMD)
+#	if defined(__AVX2__) || defined(__AVX__) // AVXは共通処理
+#		define POCKET_USE_SIMD
+#		ifdef __AVX2__
+#			define POCKET_USE_SIMD_TYPE POCKET_SIMD_TYPE_AVX2
+#		else
+#			define POCKET_USE_SIMD_TYPE POCKET_SIMD_TYPE_AVX
+#		endif // __AVX2__
+#	elif POCKET_COMPILER_IF(VC)
+#		if defined(_M_IX86_FP) || defined(_M_IX86) || defined(_M_IX64_FP) || defined(_M_IX64)
+#			define POCKET_USE_SIMD
+#			if defined(_M_IX86_FP)
+#				if _M_IX86_FP == 2
+#					define POCKET_USE_SIMD_TYPE POCKET_SIMD_TYPE_SSE2
+#				elif _M_IX86_FP == 1
+#					define POCKET_USE_SIMD_TYPE POCKET_SIMD_TYPE_SSE
+#				endif
+#			elif defined(_M_IX64_FP)
+#				if _M_IX64_FP == 2
+#					define POCKET_USE_SIMD_TYPE POCKET_SIMD_TYPE_SSE2
+#				elif _M_IX64_FP == 1
+#					define POCKET_USE_SIMD_TYPE POCKET_SIMD_TYPE_SSE
+#				endif
+#			else
+#				define POCKET_USE_SIMD_TYPE POCKET_SIMD_TYPE_SSE2
+#			endif
+#		elif defined(POCKET_USE_X64) // 64bitが使用できる場合は必ずSSE2以上が使用可能, AVXかは上で判定
+#			define POCKET_USE_SIMD
+#			define POCKET_USE_SIMD_TYPE POCKET_SIMD_TYPE_SSE2
+#		endif
+#	elif POCKET_COMPILER_IF(GCC) || POCKET_COMPILER_IF(CLANG)
+#		if defined(__SSE4_2__) || defined(__SSE4_1__) || defined(__SSE4__) || defined(__SSE3__) || defined(__SSE2__)
+#			define POCKET_USE_SIMD
+#			if defined(__SSE4_2__)
+#				define POCKET_USE_SIMD_TYPE POCKET_SIMD_TYPE_SSE4_2
+#			elif defined(__SSE4_1__)
+#				define POCKET_USE_SIMD_TYPE POCKET_SIMD_TYPE_SSE4_1
+#			elif defined(__SSE4__)
+#				define POCKET_USE_SIMD_TYPE POCKET_SIMD_TYPE_SSE4
+#			elif defined(__SSE3__)
+#				define POCKET_USE_SIMD_TYPE POCKET_SIMD_TYPE_SSE3
+#			else
+#				define POCKET_USE_SIMD_TYPE POCKET_SIMD_TYPE_SSE2
+#			endif
+#		endif // __SSE4_2__ || __SSE4_1__ || __SSE4__ || __SSE3__ || __SSE2__
+#	endif
+#endif // POCKET_USE_SIMD
+
+//---------------------------------------------------------------------------------------
+// SIMDと無名が使用できるか
+//---------------------------------------------------------------------------------------
+#if defined(POCKET_USE_SIMD) && defined(POCKET_USE_ANONYMOUS)
+#	define POCKET_USE_SIMD_ANONYMOUS
+#endif // POCKET_USE_SIMD && POCKET_USE_ANONYMOUS
+
+//---------------------------------------------------------------------------------------
+// 128と256 が使用できるか
+//---------------------------------------------------------------------------------------
+#ifdef POCKET_USE_SIMD
+#	ifndef POCKET_USE_SIMD_128 // 128bitが使用できる
+#		if POCKET_USE_SIMD_TYPE >= POCKET_SIMD_TYPE_SSE2
+#			define POCKET_USE_SIMD_128
+#		endif // POCKET_USE_SIMD_TYPE >= POCKET_SIMD_TYPE_SSE2
+#	endif // POCKET_USE_SIMD_128
+#	ifndef POCKET_USE_SIMD_256 // 256btiが使用できる
+#		if POCKET_USE_SIMD_TYPE >= POCKET_SIMD_TYPE_AVX
+#			define POCKET_USE_SIMD_256
+#		endif // POCKET_USE_SIMD_TYPE >= POCKET_SIMD_TYPE_AVX
+#	endif // POCKET_USE_SIMD_256
+#endif // POCKET_USE_SIMD
+
+//---------------------------------------------------------------------------------------
+// SIMDのタイプを文字列定義
+//---------------------------------------------------------------------------------------
+#if !defined(POCKET_USE_SIMD_TYPE_STRING) && defined(POCKET_USE_SIMD)
+#	if POCKET_USE_SIMD_TYPE == POCKET_SIMD_TYPE_AVX2
+#		define POCKET_USE_SIMD_TYPE_STRING "AVX2"
+#	elif POCKET_USE_SIMD_TYPE == POCKET_SIMD_TYPE_AVX
+#		define POCKET_USE_SIMD_TYPE_STRING "AVX"
+#	elif POCKET_USE_SIMD_TYPE == POCKET_SIMD_TYPE_SSE4_2
+#		define POCKET_USE_SIMD_TYPE_STRING "SSE4.2"
+#	elif POCKET_USE_SIMD_TYPE == POCKET_SIMD_TYPE_SSE4_1
+#		define POCKET_USE_SIMD_TYPE_STRING "SSE4.1"
+#	elif POCKET_USE_SIMD_TYPE == POCKET_SIMD_TYPE_SSE4
+#		define POCKET_USE_SIMD_TYPE_STRING "SSE4"
+#	elif POCKET_USE_SIMD_TYPE == POCKET_SIMD_TYPE_SSE3
+#		define POCKET_USE_SIMD_TYPE_STRING "SSE3"
+#	elif POCKET_USE_SIMD_TYPE == POCKET_SIMD_TYPE_SSE2
+#		define POCKET_USE_SIMD_TYPE_STRING "SSE2"
+#	elif POCKET_USE_SIMD_TYPE == POCKET_SIMD_TYPE_SSE
+#		define POCKET_USE_SIMD_TYPE_STRING "SSE"
+#	endif
+#endif // POCKET_USE_SIMD_TYPE_STRING
 
 //---------------------------------------------------------------------------------------
 // テンプレートクラスの暗黙定義を抑制するための設定. 使用するにはPOCKET_USING_MATH_EXTERN_TYPEを定義する
@@ -572,137 +707,5 @@
 #		endif // POCKET_USE_CXX11
 #	endif // POCKET_USING_MATH_EXTERN_TYPE
 #endif // POCKET_MATH_EXTERN_TYPE
-
-//---------------------------------------------------------------------------------------
-// 配列サイズ
-//---------------------------------------------------------------------------------------
-#ifndef POCKET_ARRAY_SIZE
-#	define POCKET_ARRAY_SIZE(ARY) (sizeof(ARY) / sizeof(ARY[0]))
-#endif // POCKET_ARRAY_SIZE
-
-//---------------------------------------------------------------------------------------
-// SIMD種類
-//---------------------------------------------------------------------------------------
-#ifndef POCKET_SIMD_TYPE_SSE
-#	define POCKET_SIMD_TYPE_SSE (0)
-#endif // POCKET_SIMD_TYPE_SSE
-#ifndef POCKET_SIMD_TYPE_SSE2
-#	define POCKET_SIMD_TYPE_SSE2 (1)
-#endif // POCKET_SIMD_TYPE_SSE2
-#ifndef POCKET_SIMD_TYPE_SSE3
-#	define POCKET_SIMD_TYPE_SSE3 (2)
-#endif // POCKET_SIMD_TYPE_SSE3
-#ifndef POCKET_SIMD_TYPE_SSE4
-#	define POCKET_SIMD_TYPE_SSE4 (3)
-#endif // POCKET_SIMD_TYPE_SSE4
-#ifndef POCKET_SIMD_TYPE_SSE4_1
-#	define POCKET_SIMD_TYPE_SSE4_1 (4)
-#endif // POCKET_SIMD_TYPE_SSE4_1
-#ifndef POCKET_SIMD_TYPE_SSE4_2
-#	define POCKET_SIMD_TYPE_SSE4_2 (5)
-#endif // POCKET_SIMD_TYPE_SSE4_2
-#ifndef POCKET_SIMD_TYPE_AVX
-#	define POCKET_SIMD_TYPE_AVX (6)
-#endif // POCKET_SIMD_TYPE_AVX
-#ifndef POCKET_SIMD_TYPE_AVX2
-#	define POCKET_SIMD_TYPE_AVX2 (7)
-#endif // POCKET_SIMD_TYPE_AVX2
-
-//---------------------------------------------------------------------------------------
-// SIMD設定
-//---------------------------------------------------------------------------------------
-#if !defined(POCKET_USE_SIMD) && !defined(POCKET_USE_SIMD_TYPE) && !defined(POCKET_UNUSING_SIMD)
-#	if defined(__AVX2__) || defined(__AVX__) // AVXは共通処理
-#		define POCKET_USE_SIMD
-#		ifdef __AVX2__
-#			define POCKET_USE_SIMD_TYPE POCKET_SIMD_TYPE_AVX2
-#		else
-#			define POCKET_USE_SIMD_TYPE POCKET_SIMD_TYPE_AVX
-#		endif // __AVX2__
-#	elif defined(_MSC_VER)
-#		if defined(_M_IX86_FP) || defined(_M_IX86) || defined(_M_IX64_FP) || defined(_M_IX64)
-#			define POCKET_USE_SIMD
-#			if defined(_M_IX86_FP)
-#				if _M_IX86_FP == 2
-#					define POCKET_USE_SIMD_TYPE POCKET_SIMD_TYPE_SSE2
-#				elif _M_IX86_FP == 1
-#					define POCKET_USE_SIMD_TYPE POCKET_SIMD_TYPE_SSE
-#				endif
-#			elif defined(_M_IX64_FP)
-#				if _M_IX64_FP == 2
-#					define POCKET_USE_SIMD_TYPE POCKET_SIMD_TYPE_SSE2
-#				elif _M_IX64_FP == 1
-#					define POCKET_USE_SIMD_TYPE POCKET_SIMD_TYPE_SSE
-#				endif
-#			else
-#				define POCKET_USE_SIMD_TYPE POCKET_SIMD_TYPE_SSE2
-#			endif
-#		elif defined(POCKET_USE_X64) // 64bitが使用できる場合は必ずSSE2以上が使用可能, AVXかは上で判定
-#			define POCKET_USE_SIMD
-#			define POCKET_USE_SIMD_TYPE POCKET_SIMD_TYPE_SSE2
-#		endif
-#	elif defined(__GNUC__) || defined(__clang__)
-#		if defined(__SSE4_2__) || defined(__SSE4_1__) || defined(__SSE4__) || defined(__SSE3__) || defined(__SSE2__)
-#			define POCKET_USE_SIMD
-#			if defined(__SSE4_2__)
-#				define POCKET_USE_SIMD_TYPE POCKET_SIMD_TYPE_SSE4_2
-#			elif defined(__SSE4_1__)
-#				define POCKET_USE_SIMD_TYPE POCKET_SIMD_TYPE_SSE4_1
-#			elif defined(__SSE4__)
-#				define POCKET_USE_SIMD_TYPE POCKET_SIMD_TYPE_SSE4
-#			elif defined(__SSE3__)
-#				define POCKET_USE_SIMD_TYPE POCKET_SIMD_TYPE_SSE3
-#			else
-#				define POCKET_USE_SIMD_TYPE POCKET_SIMD_TYPE_SSE2
-#			endif
-#		endif // __SSE4_2__ || __SSE4_1__ || __SSE4__ || __SSE3__ || __SSE2__
-#	endif
-#endif // POCKET_USE_SIMD
-
-//---------------------------------------------------------------------------------------
-// SIMDと無名が使用できるか
-//---------------------------------------------------------------------------------------
-#if defined(POCKET_USE_SIMD) && defined(POCKET_USE_ANONYMOUS)
-#	define POCKET_USE_SIMD_ANONYMOUS
-#endif // POCKET_USE_SIMD && POCKET_USE_ANONYMOUS
-
-//---------------------------------------------------------------------------------------
-// 128 と 256 が使用できるか
-//---------------------------------------------------------------------------------------
-#ifdef POCKET_USE_SIMD
-#	ifndef POCKET_USE_SIMD_128 // 128bitが使用できる
-#		if POCKET_USE_SIMD_TYPE >= POCKET_SIMD_TYPE_SSE2
-#			define POCKET_USE_SIMD_128
-#		endif // POCKET_USE_SIMD_TYPE >= POCKET_SIMD_TYPE_SSE2
-#	endif // POCKET_USE_SIMD_128
-#	ifndef POCKET_USE_SIMD_256 // 256btiが使用できる
-#		if POCKET_USE_SIMD_TYPE >= POCKET_SIMD_TYPE_AVX
-#			define POCKET_USE_SIMD_256
-#		endif // POCKET_USE_SIMD_TYPE >= POCKET_SIMD_TYPE_SSE2
-#	endif // POCKET_USE_SIMD_256
-#endif // POCKET_USE_SIMD
-
-//---------------------------------------------------------------------------------------
-// SIMDのタイプを文字列定義
-//---------------------------------------------------------------------------------------
-#if !defined(POCKET_USE_SIMD_TYPE_STRING) && defined(POCKET_USE_SIMD)
-#	if POCKET_USE_SIMD_TYPE == POCKET_SIMD_TYPE_AVX2
-#		define POCKET_USE_SIMD_TYPE_STRING "AVX2"
-#	elif POCKET_USE_SIMD_TYPE == POCKET_SIMD_TYPE_AVX
-#		define POCKET_USE_SIMD_TYPE_STRING "AVX"
-#	elif POCKET_USE_SIMD_TYPE == POCKET_SIMD_TYPE_SSE4_2
-#		define POCKET_USE_SIMD_TYPE_STRING "SSE4.2"
-#	elif POCKET_USE_SIMD_TYPE == POCKET_SIMD_TYPE_SSE4_1
-#		define POCKET_USE_SIMD_TYPE_STRING "SSE4.1"
-#	elif POCKET_USE_SIMD_TYPE == POCKET_SIMD_TYPE_SSE4
-#		define POCKET_USE_SIMD_TYPE_STRING "SSE4"
-#	elif POCKET_USE_SIMD_TYPE == POCKET_SIMD_TYPE_SSE3
-#		define POCKET_USE_SIMD_TYPE_STRING "SSE3"
-#	elif POCKET_USE_SIMD_TYPE == POCKET_SIMD_TYPE_SSE2
-#		define POCKET_USE_SIMD_TYPE_STRING "SSE2"
-#	elif POCKET_USE_SIMD_TYPE == POCKET_SIMD_TYPE_SSE
-#		define POCKET_USE_SIMD_TYPE_STRING "SSE"
-#	endif
-#endif // POCKET_USE_SIMD_TYPE_STRING
 
 #endif // __POCKET_CONFIG_H__

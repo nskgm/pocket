@@ -49,6 +49,16 @@ public:
 	sampler() :
 		_id(0), _error_bitfield(0)
 	{}
+	explicit sampler(wrap_type_t s, wrap_type_t t, wrap_type_t r, filter_type_t min, filter_type_t mag, compare_func_type_t com, int lodmin = 0, int lodmax = 0) :
+		_id(0)
+	{
+		initialize(s, t, r, min, mag, com, lodmin, lodmax);
+	}
+	explicit sampler(wrap_type_t w, filter_type_t f, compare_func_type_t com, int lodmin = 0, int lodmax = 0) :
+		_id(0)
+	{
+		initialize(w, f, com, lodmin, lodmax);
+	}
 	~sampler()
 	{
 		finalize();
@@ -215,6 +225,18 @@ public:
 		glSamplerParameteri(_id, GL_TEXTURE_MAG_FILTER, type);
 	}
 
+	// 比較法
+	void compare_func(compare_func_type_t type) const
+	{
+		glSamplerParameteri(_id, GL_TEXTURE_COMPARE_FUNC, type);
+	}
+	compare_func_type_t compare_func() const
+	{
+		GLint f = 0;
+		glGetSamplerParameteriv(_id, GL_TEXTURE_COMPARE_FUNC, &f);
+		return static_cast<compare_func_type_t>(f);
+	}
+
 	// エラー文
 	std::string error() const
 	{
@@ -306,15 +328,32 @@ public:
 #endif // POCKET_USE_CXX11
 };
 
+inline
+sampler make_sampler(wrap_type_t s, wrap_type_t t, wrap_type_t r, filter_type_t min, filter_type_t mag, compare_func_type_t com, int lodmin = 0, int lodmax = 0)
+{
+	return sampler(s, t, r, min, mag, com, lodmin, lodmax);
+}
+inline
+sampler make_sampler(wrap_type_t w, filter_type_t f, compare_func_type_t com, int lodmin = 0, int lodmax = 0)
+{
+	return sampler(w, f, com, lodmin, lodmax);
+}
+
 template <typename CharT, typename CharTraits> inline
 std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const sampler& v)
 {
+	std::ios_base::fmtflags flag = os.flags();
+	os << std::hex << io::widen("sampler: {") << std::endl <<
+		io::tab << io::widen("id: ") << v.get() << std::endl <<
+		io::tab << io::widen("wrap: [s: 0x") << v.wrap_s() <<
+			io::widen(", t: 0x") << v.wrap_t() <<
+			io::widen(", r: 0x") << v.wrap_r() << io::box_brackets_right << std::endl <<
+		io::tab << io::widen("filter: [min: 0x") << v.filter_min() <<
+			io::widen(", mag: 0x") << v.filter_mag() << io::box_brackets_right << std::endl <<
+		io::tab << io::widen("compare func: 0x") << v.compare_func() << std::endl <<
+		io::braces_right;
+	os.flags(flag);
 	return os;
-}
-template <typename CharT, typename CharTraits> inline
-std::basic_istream<CharT, CharTraits>& operator >> (std::basic_istream<CharT, CharTraits>& is, sampler& v)
-{
-	return is;
 }
 
 } // namespace gl

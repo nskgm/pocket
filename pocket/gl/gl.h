@@ -193,7 +193,7 @@ bool output_error(std::basic_ostream<CharT, CharTraits>& os, GLenum err, const c
 			{
 				// とりあえずエラーコードを出力
 				std::ios_base::fmtflags flag = os.flags();
-				os << io::widen("unknown error code: ") << err << std::endl;
+				os << io::widen("unknown error code: 0x") << err << std::endl;
 				os.flags(flag);
 				err = glGetError();
 				if (err == GL_NO_ERROR)
@@ -239,10 +239,10 @@ bool output_error(std::basic_ostream<CharT, CharTraits>& os, GLenum err, const c
 #define POCKET_GL_ERROR_W() POCKET_GL_ERROR_MSG_W(NULL)
 #endif // POCKET_GL_ERROR_W
 #ifndef POCKET_GL_ASSERT_MSG_W
-#define POCKET_GL_ASSERT_MSG_W(MSG, ...) POCKET_DEBUG_ASSERT(!POCKET_GL_ERROR_MSG(MSG, ##__VA_ARGS__))
+#define POCKET_GL_ASSERT_MSG_W(MSG, ...) POCKET_DEBUG_ASSERT(!POCKET_GL_ERROR_MSG_W(MSG, ##__VA_ARGS__))
 #endif // POCKET_GL_ASSERT_MSG_W
 #ifndef POCKET_GL_ASSERT_W
-#define POCKET_GL_ASSERT_W() POCKET_DEBUG_ASSERT(!POCKET_GL_ERROR())
+#define POCKET_GL_ASSERT_W() POCKET_DEBUG_ASSERT(!POCKET_GL_ERROR_W())
 #endif // POCKET_GL_ASSERT_W
 
 // エラーチェック付きOpenGL関数呼び出し

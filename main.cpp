@@ -126,7 +126,7 @@ int main()
 			prog.clear();
 		}
 		// UBOの情報を出力
-		prog.reflect_uniform_block(std::cout);
+		//prog.reflect_uniform_block(std::cout);
 	}
 	POCKET_GL_ERROR();
 
@@ -181,6 +181,18 @@ int main()
 	}
 	POCKET_GL_ERROR();
 
+	// サンプラー作成
+	gl::sampler sampl = gl::make_sampler(gl::wrap_type::clamp_to_edge, gl::filter_type::nearest, gl::compare_func_type::equal);
+	if (!sampl)
+	{
+		std::cout << sampl.error() << std::endl;
+	}
+	else
+	{
+		std::cout << sampl << std::endl;
+	}
+	POCKET_GL_ERROR();
+
 	// 受け取るメッセージバッファ
 	char message[256];
 
@@ -226,6 +238,7 @@ int main()
 		glfwSwapBuffers(window);
 	} while ((glfwGetKey(window, GLFW_KEY_ESCAPE) | glfwWindowShouldClose(window)) == GL_FALSE);
 
+	sampl.finalize();
 	indirect.finalize();
 	lvb.finalize();
 	ubo.finalize();

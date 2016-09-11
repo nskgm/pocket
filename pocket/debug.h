@@ -6,11 +6,18 @@
 #pragma once
 #endif // POCKET_USE_PRAGMA_ONCE
 
+//---------------------------------------------------------------------
+// デバッグを使用するか
+//---------------------------------------------------------------------
 #if (defined(_DEBUG) || defined(DEBUG) || defined(POCKET_USE_DEBUG)) && !defined(NDEBUG)
 #	ifndef POCKET_DEBUG
 #		define POCKET_DEBUG
 #	endif // POCKET_DEBUG
+#	if POCKET_COMPILER_IF(VC)
+#include <crtdbg.h>
+#	else
 #include <cassert>
+#	endif // POCKET_COMPILER_IF
 #include <iostream>
 #endif // defined(_DEBUG) || defined(DEBUG)
 
@@ -19,18 +26,37 @@
 //---------------------------------------------------------------------
 #ifndef POCKET_DEBUG_ASSERT
 #	ifdef POCKET_DEBUG
-#		define POCKET_DEBUG_ASSERT assert
+#		if POCKET_COMPILER_IF(VC)
+#			define POCKET_DEBUG_ASSERT _ASSERTE
+#		else
+#			define POCKET_DEBUG_ASSERT assert
+#		endif
 #	else
-#		define POCKET_DEBUG_ASSERT(c)
+#		define POCKET_DEBUG_ASSERT(COND)
 #	endif // POCKET_DEBUG
 #endif // POCKET_DEBUG_ASSERT
+
+//---------------------------------------------------------------------
+// デバッグ時のみ判定
+//---------------------------------------------------------------------
+#ifndef POCKET_DEBUG_ASSERT_MSG
+#	ifdef POCKET_DEBUG
+#		if POCKET_COMPILER_IF(VC)
+#			define POCKET_DEBUG_ASSERT_MSG(COND, MSG) _ASSERT_EXPR((COND), MSG)
+#		else
+#			define POCKET_DEBUG_ASSERT_MSG(COND, MSG) assert((COND) && MSG)
+#		endif
+#	else
+#		define POCKET_DEBUG_ASSERT_MSG(COND, MSG)
+#	endif // POCKET_DEBUG
+#endif // POCKET_DEBUG_ASSERT_MSG
 
 //---------------------------------------------------------------------
 // 範囲判定
 //---------------------------------------------------------------------
 #ifndef POCKET_DEBUG_RANGE_ASSERT
 #	ifdef POCKET_DEBUG
-#		define POCKET_DEBUG_RANGE_ASSERT(N, MIN, MAX) assert((N) >= (MIN) && (N) <= (MAX) && "out of range")
+#		define POCKET_DEBUG_RANGE_ASSERT(N, MIN, MAX) POCKET_DEBUG_ASSERT_MSG(((N) >= (MIN) && (N) <= (MAX)), "out of range")
 #	else
 #		define POCKET_DEBUG_RANGE_ASSERT(N, MIN, MAX)
 #	endif // POCKET_DEBUG
@@ -41,9 +67,9 @@
 //---------------------------------------------------------------------
 #ifndef POCKET_DEBUG_OUTPUT_STREAM
 #	ifdef POCKET_DEBUG
-#		define POCKET_DEBUG_OUTPUT_STREAM(stream, format) stream << format
+#		define POCKET_DEBUG_OUTPUT_STREAM(STREAM, FORMAT) STREAM << FORMAT
 #	else
-#		define POCKET_DEBUG_OUTPUT_STREAM(stream, format)
+#		define POCKET_DEBUG_OUTPUT_STREAM(STREAM, FORMAT)
 #	endif // POCKET_DEBUG
 #endif // POCKET_DEBUG_OUTPUT_STREAM
 
@@ -52,9 +78,9 @@
 //---------------------------------------------------------------------
 #ifndef POCKET_DEBUG_OUTPUT_STREAM_ONCE
 #	ifdef POCKET_DEBUG
-#		define POCKET_DEBUG_OUTPUT_STREAM_ONCE(stream, value) POCKET_DEBUG_OUTPUT_STREAM(stream, (value) << std::endl)
+#		define POCKET_DEBUG_OUTPUT_STREAM_ONCE(STREAM, VALUE) POCKET_DEBUG_OUTPUT_STREAM(STREAM, (VALUE) << std::endl)
 #	else
-#		define POCKET_DEBUG_OUTPUT_STREAM_ONCE(stream, value)
+#		define POCKET_DEBUG_OUTPUT_STREAM_ONCE(STREAM, VALUE)
 #	endif
 #endif // POCKET_DEBUG_OUTPUT_STREAM_ONCE
 
@@ -63,9 +89,9 @@
 //---------------------------------------------------------------------
 #ifndef POCKET_DEBUG_OUTPUT_STDOUT
 #	ifdef POCKET_DEBUG
-#		define POCKET_DEBUG_OUTPUT_STDOUT(format) POCKET_DEBUG_OUTPUT_STREAM(std::cout, format)
+#		define POCKET_DEBUG_OUTPUT_STDOUT(FORMAT) POCKET_DEBUG_OUTPUT_STREAM(std::cout, FORMAT)
 #	else
-#		define POCKET_DEBUG_OUTPUT_STDOUT(format)
+#		define POCKET_DEBUG_OUTPUT_STDOUT(FORMAT)
 #	endif // POCKET_DEBUG
 #endif // POCKET_DEBUG_OUTPUT_STDOUT
 
@@ -74,9 +100,9 @@
 //---------------------------------------------------------------------
 #ifndef POCKET_DEBUG_OUTPUT_STDOUT_ONCE
 #	ifdef POCKET_DEBUG
-#		define POCKET_DEBUG_OUTPUT_STDOUT_ONCE(value) POCKET_DEBUG_OUTPUT_STREAM_LINE(std::cout, value)
+#		define POCKET_DEBUG_OUTPUT_STDOUT_ONCE(VALUE) POCKET_DEBUG_OUTPUT_STREAM_LINE(std::cout, VALUE)
 #	else
-#		define POCKET_DEBUG_OUTPUT_STDOUT_ONCE(value)
+#		define POCKET_DEBUG_OUTPUT_STDOUT_ONCE(VALUE)
 #	endif // POCKET_DEBUG
 #endif // POCKET_DEBUG_OUTPUT_STDOUT_ONCE
 
@@ -85,9 +111,9 @@
 //---------------------------------------------------------------------
 #ifndef POCKET_DEBUG_OUTPUT_STDERR
 #	ifdef POCKET_DEBUG
-#		define POCKET_DEBUG_OUTPUT_STDERR(format) POCKET_DEBUG_OUTPUT_STREAM(std::cerr, format)
+#		define POCKET_DEBUG_OUTPUT_STDERR(FORMAT) POCKET_DEBUG_OUTPUT_STREAM(std::cerr, FORMAT)
 #	else
-#		define POCKET_DEBUG_OUTPUT_STDERR(format)
+#		define POCKET_DEBUG_OUTPUT_STDERR(FORMAT)
 #	endif // POCKET_DEBUG
 #endif // POCKET_DEBUG_OUTPUT_STDERR
 
@@ -96,9 +122,9 @@
 //---------------------------------------------------------------------
 #ifndef POCKET_DEBUG_OUTPUT_STDERR_ONCE
 #	ifdef POCKET_DEBUG
-#		define POCKET_DEBUG_OUTPUT_STDERR_ONCE(value) POCKET_DEBUG_OUTPUT_STREAM_LINE(std::cerr, value)
+#		define POCKET_DEBUG_OUTPUT_STDERR_ONCE(VALUE) POCKET_DEBUG_OUTPUT_STREAM_LINE(std::cerr, VALUE)
 #	else
-#		define POCKET_DEBUG_OUTPUT_STDERR_ONCE(value)
+#		define POCKET_DEBUG_OUTPUT_STDERR_ONCE(VALUE)
 #	endif // POCKET_DEBUG
 #endif // POCKET_DEBUG_OUTPUT_STDERR_ONCE
 

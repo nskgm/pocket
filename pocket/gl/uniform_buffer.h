@@ -257,8 +257,6 @@ public:
 		// プログラム中のユニフォームバッファの位置を取得
 		if (!prog.uniform_block_index(name, _index))
 		{
-			// バッファのエラーコードを利用
-			_buffer._error_bitfield |= error_invalid_index;
 			return false;
 		}
 		// バインド位置の初期設定
