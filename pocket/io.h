@@ -1,4 +1,4 @@
-﻿#ifndef __POCKET_IO_H__
+#ifndef __POCKET_IO_H__
 #define __POCKET_IO_H__
 
 #include "config.h"
@@ -9,6 +9,16 @@
 #include "type_traits.h"
 #include <iostream>
 #include <limits>
+
+#if (defined(_WIN32) || defined(_WIN64)) && defined(POCKET_USE_COLOR_OUTPUT)
+#	ifndef NOMINMAX
+#		define NOMINMAX
+#	endif /* NOMINMAX */
+#	ifndef WIN32_LEAN_AND_MEAN
+#		define WIN32_LEAN_AND_MEAN
+#	endif /* WIN32_LEAN_AND_MEAN */
+#include <windows.h>
+#endif
 
 namespace pocket
 {
@@ -81,6 +91,58 @@ std::basic_ostream<CharT, CharTraits>& tab5(std::basic_ostream<CharT, CharTraits
 	os << tab4 << tab;
 	return os;
 }
+
+#ifdef POCKET_USE_COLOR_OUTPUT
+#	ifndef __POCKET_DECL_OUT_CHAR_FUNCTION
+#		if defined(__APPLE__) || defined(__OSX__)
+#			define __POCKET_DECL_OUT_CHAR_FUNCTION(NAME, STR) template <typename CharT, typename CharTraits> inline \
+		std::basic_ostream<CharT, CharTraits>& NAME(std::basic_ostream<CharT, CharTraits>& os) \
+	{\
+		os << widen(STR) << std::flush;\
+		return os;\
+	}
+#		else
+#			define __POCKET_DECL_OUT_CHAR_FUNCTION(NAME, TYPE) template <typename CharT, typename CharTraits> inline \
+		std::basic_ostream<CharT, CharTraits>& NAME(std::basic_ostream<CharT, CharTraits>& os) \
+	{\
+		::SetConsoleTextAttribute(::GetStdHandle(STD_OUTPUT_HANDLE), (TYPE));\
+		return os;\
+	}
+#		endif
+#	endif // __POCKET_DECL_OUT_CHAR_FUNCTION
+
+#	if defined(__APPLE__) || defined(__OSX__)
+__POCKET_DECL_OUT_CHAR_FUNCTION(reset, "\033[0m");
+__POCKET_DECL_OUT_CHAR_FUNCTION(red, "\033[31m");
+__POCKET_DECL_OUT_CHAR_FUNCTION(green, "\033[32m");
+__POCKET_DECL_OUT_CHAR_FUNCTION(yellow, "\033[33m");
+__POCKET_DECL_OUT_CHAR_FUNCTION(blue, "\033[34m");
+__POCKET_DECL_OUT_CHAR_FUNCTION(magenta, "\033[35m");
+__POCKET_DECL_OUT_CHAR_FUNCTION(cyan, "\033[36m");
+__POCKET_DECL_OUT_CHAR_FUNCTION(white, "\033[37m");
+#	else
+__POCKET_DECL_OUT_CHAR_FUNCTION(reset, FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_GREEN);
+__POCKET_DECL_OUT_CHAR_FUNCTION(red, FOREGROUND_RED | FOREGROUND_INTENSITY);
+__POCKET_DECL_OUT_CHAR_FUNCTION(green, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+__POCKET_DECL_OUT_CHAR_FUNCTION(yellow, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+__POCKET_DECL_OUT_CHAR_FUNCTION(blue, FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+__POCKET_DECL_OUT_CHAR_FUNCTION(magenta, FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_INTENSITY);
+__POCKET_DECL_OUT_CHAR_FUNCTION(cyan, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+__POCKET_DECL_OUT_CHAR_FUNCTION(white, FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+#	endif
+
+//__POCKET_DECL_OUT_CHAR_FUNCTION(black_bold, "\033[1m\033[30m");
+//__POCKET_DECL_OUT_CHAR_FUNCTION(red_bold, "\033[1m\033[31m");
+//__POCKET_DECL_OUT_CHAR_FUNCTION(green_bold, "\033[1m\033[32m");
+//__POCKET_DECL_OUT_CHAR_FUNCTION(yellow_bold, "\033[1m\033[33m");
+//__POCKET_DECL_OUT_CHAR_FUNCTION(blue_bold, "\033[1m\033[34m");
+//__POCKET_DECL_OUT_CHAR_FUNCTION(magenta_bold, "\033[1m\033[35m");
+//__POCKET_DECL_OUT_CHAR_FUNCTION(cyan_bold, "\033[1m\033[36m");
+//__POCKET_DECL_OUT_CHAR_FUNCTION(white_bold, "\033[1m\033[37m");
+
+#undef __POCKET_DECL_OUT_CHAR_FUNCTION
+
+#endif // POCKET_USE_COLOR_OUTPUT
 
 //---------------------------------------------------------------------
 // widen

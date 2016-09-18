@@ -1,4 +1,4 @@
-﻿#ifndef __POCKET_COMMON_TYPE_H__
+#ifndef __POCKET_COMMON_TYPE_H__
 #define __POCKET_COMMON_TYPE_H__
 
 #include "../config.h"
@@ -322,6 +322,35 @@ struct shader_type
 	};
 };
 typedef shader_type::type shader_type_t;
+
+//---------------------------------------------------------------------------------------
+// GL側プリミティブ種類
+//---------------------------------------------------------------------------------------
+struct primitive_type
+{
+	enum type
+	{
+		points = GL_POINTS,
+
+		lines = GL_LINES,
+		line_strip = GL_LINE_STRIP,
+		line_loop = GL_LINE_LOOP,
+
+		triangles = GL_TRIANGLES,
+		triangle_strip = GL_TRIANGLE_STRIP,
+		triangle_fan = GL_TRIANGLE_FAN,
+
+		lines_adjacency = GL_LINES_ADJACENCY,
+		line_strip_adjacency = GL_LINE_STRIP_ADJACENCY,
+		triangles_adjacency = GL_TRIANGLES_ADJACENCY,
+		triangle_strip_adjacency = GL_TRIANGLE_STRIP_ADJACENCY,
+
+		patch = GL_PATCHES, // geometry, tess_control, tess_evaluate
+
+		unknown = 0,
+	};
+};
+typedef primitive_type::type primitive_type_t;
 
 } // namespace gl
 } // namespace pocket

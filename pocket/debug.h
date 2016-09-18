@@ -1,4 +1,4 @@
-﻿#ifndef __POCKET_DEBUG_H__
+#ifndef __POCKET_DEBUG_H__
 #define __POCKET_DEBUG_H__
 
 #include "config.h"
@@ -44,7 +44,7 @@
 #		if POCKET_COMPILER_IF(VC)
 #			define POCKET_DEBUG_ASSERT_MSG(COND, MSG) _ASSERT_EXPR((COND), MSG)
 #		else
-#			define POCKET_DEBUG_ASSERT_MSG(COND, MSG) assert((COND) && MSG)
+#			define POCKET_DEBUG_ASSERT_MSG(COND, MSG) assert((COND) && (MSG))
 #		endif
 #	else
 #		define POCKET_DEBUG_ASSERT_MSG(COND, MSG)

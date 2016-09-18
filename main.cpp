@@ -1,7 +1,8 @@
-﻿#include "pocket/math/all.h"
+#include "pocket/math/all.h"
 #include "pocket/gl/all.h"
 #include <GLFW/glfw3.h>
 #include <iomanip>
+#include <stddef.h>
 
 namespace io = pocket::io;
 namespace gl = pocket::gl;
@@ -53,7 +54,7 @@ int main()
 	GLuint err = glfwInit();
 	if (err != GL_TRUE)
 	{
-		return 1;
+		return EXIT_FAILURE;
 	}
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -63,11 +64,12 @@ int main()
 	//glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
 	glfwSetErrorCallback(&glfw_error_log);
 
-	GLFWwindow* window = glfwCreateWindow(640, 480, "test", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(640, 480, "opengl", NULL, NULL);
+	// ウィンドウの破棄と終了処理を自動で呼ぶようにする
 	const main_lock lock(window);
 	if (window == NULL)
 	{
-		return 1;
+		return EXIT_FAILURE;
 	}
 	glfwMakeContextCurrent(window);
 	glfwSetWindowPos(window, 4, 28);
@@ -78,9 +80,10 @@ int main()
 	if (err != GLEW_NO_ERROR)
 	{
 		std::cout << glewGetErrorString(err) << std::endl;
-		return 1;
+		return EXIT_FAILURE;
 	}
-	POCKET_GL_ERROR_MSG("glew skip error.");
+	POCKET_GL_ERROR_MSG("glew skip error");
+	//POCKET_GL_ERROR();
 
 	// デバッグ機能が使えるか
 	std::cout << "GL_ARB_debug_output: " << gl::is_extension_support("GL_ARB_debug_output") << std::endl;
@@ -89,11 +92,8 @@ int main()
 	gl::shader vert = gl::make_vertex_shader("test.vert");
 	if (!vert)
 	{
-		std::cout << vert.error() << std::endl;
-	}
-	else
-	{
 		std::cout << vert << std::endl;
+		return EXIT_FAILURE;
 	}
 	POCKET_GL_ERROR();
 
@@ -101,11 +101,8 @@ int main()
 	gl::shader frag = gl::make_fragment_shader("test.frag");
 	if (!frag)
 	{
-		std::cout << frag.error() << std::endl;
-	}
-	else
-	{
 		std::cout << frag << std::endl;
+		return EXIT_FAILURE;
 	}
 	POCKET_GL_ERROR();
 
@@ -114,20 +111,17 @@ int main()
 	//gl::program prog = gl::make_program("test.shbin", true);
 	if (!prog)
 	{
-		std::cout << prog.error() << std::endl;
+		std::cout << prog << std::endl;
+		return EXIT_FAILURE;
 	}
-	else
+	// バイナリの保存
+	if (!prog.save_binary("test.shbin", true))
 	{
 		std::cout << prog << std::endl;
-		// バイナリの保存
-		if (!prog.save_binary("test.shbin", true))
-		{
-			std::cout << prog.error() << std::endl;
-			prog.clear();
-		}
-		// UBOの情報を出力
-		//prog.reflect_uniform_block(std::cout);
+		prog.clear();
 	}
+	// UBOの情報を出力
+	//prog.reflect_uniform_block(std::cout);
 	POCKET_GL_ERROR();
 
 	// uniform buffer object作成
@@ -137,18 +131,17 @@ int main()
 	gl::uniform_buffer ubo = prog.make_uniform_buffer("ublock", 0, data);
 	if (!ubo)
 	{
-		std::cout << ubo.error() << std::endl;
-	}
-	else
-	{
 		std::cout << ubo << std::endl;
+		return EXIT_FAILURE;
 	}
 	POCKET_GL_ERROR();
 
 	// レイアウトを指定した頂点バッファを作成
 	gl::vertex_layout layouts[] = {
-		gl::layout_t<2, float, false, offsetof(simple_vertex, position)>::value,
-		gl::layout_t<4, float, false, offsetof(simple_vertex, color)>::value,
+		gl::layout_constant<float, 2, false, offsetof(simple_vertex, position)>::value,
+		gl::layout_constant<float, 4, false, offsetof(simple_vertex, color)>::value,
+		//POCKET_VERTEX_LAYOUT_OF(float, 2, false, simple_vertex, position),
+		//POCKET_VERTEX_LAYOUT_OF(float, 4, false, simple_vertex, color),
 	};
 	simple_vertex vertices[] = {
 		{math::vector2f(320.0f, 0.0f), math::colorf::red},
@@ -158,38 +151,26 @@ int main()
 	gl::layered_vertex_buffer<simple_vertex> lvb = gl::make_layered_vertex_buffer<simple_vertex>(vertices, layouts);
 	if (!lvb)
 	{
-		std::cout << lvb.error() << std::endl;
-	}
-	else
-	{
-		gl::layered_vertex_buffer<simple_vertex>::binder_type bind = lvb.make_binder();
-		std::cout << *bind << std::endl;
+		std::cout << lvb << std::endl;
+		return EXIT_FAILURE;
 	}
 	POCKET_GL_ERROR();
 
 	// インダイレクトバッファ作成
-	gl::commands::draw_arrays cmd = POCKET_ARRAY_SIZE(vertices); // 描画数
-	gl::buffer indirect = gl::make_draw_indirect_buffer_immutable(cmd);
+	gl::draw_indirect_buffer indirect = gl::make_draw_indirect_buffer(gl::draw_indirect_buffer::arrays, POCKET_ARRAY_SIZE(vertices));
 	if (!indirect)
 	{
-		std::cout << indirect.error() << std::endl;
-	}
-	else
-	{
-		gl::buffer::binder_type bind = indirect.make_binder();
-		std::cout << *bind << std::endl;
+		std::cout << indirect << std::endl;
+		return EXIT_FAILURE;
 	}
 	POCKET_GL_ERROR();
 
 	// サンプラー作成
-	gl::sampler sampl = gl::make_sampler(gl::wrap_type::clamp_to_edge, gl::filter_type::nearest, gl::compare_func_type::equal);
-	if (!sampl)
+	gl::sampler smpl = gl::make_sampler(gl::wrap_type::clamp_to_edge, gl::filter_type::nearest, gl::compare_func_type::equal);
+	if (!smpl)
 	{
-		std::cout << sampl.error() << std::endl;
-	}
-	else
-	{
-		std::cout << sampl << std::endl;
+		std::cout << smpl << std::endl;
+		return EXIT_FAILURE;
 	}
 	POCKET_GL_ERROR();
 
@@ -203,32 +184,27 @@ int main()
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// UBO更新
 		float time = math::math_traitsf::sin(static_cast<float>(glfwGetTime()*120.0f));
 		data.world.load_world(math::vector3f::one, math::quaternionf::identity, math::vector3f(time*30.0f, 0.0f, 0.0f));
 		ubo.uniform(0, data.world); // オフセットを指定して指定した型サイズのみ更新
 		//ubo.uniform(data); // 全体の更新
 
-		// プログラムバインド
+		// 各種バインド
 		prog.bind();
-		// UBOバインド
 		ubo.bind();
-		// 頂点バッファバインド
 		lvb.bind();
-		// インダイレクトバッファバインド
 		indirect.bind();
 
 		// バインドされている状態で描画できる状態か確認
 		if (!prog.drawable(message))
 		{
-			// 描画できる状態じゃなければ終了
 			std::cout << message << std::endl;
 			break;
 		}
 
 		// 描画
-		//POCKET_GL_FUNC(glDrawArrays, GL_TRIANGLES, 0, lvb.count());
-		POCKET_GL_FUNC(glDrawArraysIndirect, GL_TRIANGLES, NULL);
+		//POCKET_GL_FUNC(glDrawArrays, gl::primitive_type::triangles, 0, lvb.count());
+		POCKET_GL_FUNC(glDrawArraysIndirect, gl::primitive_type::triangles, NULL);
 
 		// バインド解除
 		prog.unbind();
@@ -238,7 +214,7 @@ int main()
 		glfwSwapBuffers(window);
 	} while ((glfwGetKey(window, GLFW_KEY_ESCAPE) | glfwWindowShouldClose(window)) == GL_FALSE);
 
-	sampl.finalize();
+	smpl.finalize();
 	indirect.finalize();
 	lvb.finalize();
 	ubo.finalize();

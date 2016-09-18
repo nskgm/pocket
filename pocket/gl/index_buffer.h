@@ -1,4 +1,4 @@
-﻿#ifndef __POCKET_GL_INDEX_BUFFER_H__
+#ifndef __POCKET_GL_INDEX_BUFFER_H__
 #define __POCKET_GL_INDEX_BUFFER_H__
 
 #include "../config.h"
@@ -184,6 +184,12 @@ public:
 	// Constants
 	//------------------------------------------------------------------------------------------
 
+	// none
+
+	//------------------------------------------------------------------------------------------
+	// Constructors
+	//------------------------------------------------------------------------------------------
+
 	index_buffer() :
 		_buffer()
 	{}
@@ -227,12 +233,6 @@ public:
 	{
 		finalize();
 	}
-
-	//------------------------------------------------------------------------------------------
-	// Constructors
-	//------------------------------------------------------------------------------------------
-
-	// none
 
 	//------------------------------------------------------------------------------------------
 	// Functions
@@ -378,7 +378,7 @@ public:
 		return _buffer.mapping();
 	}
 
-
+	// 書き込み可能か
 	bool writable() const
 	{
 		return _buffer.writable();
@@ -386,6 +386,16 @@ public:
 	bool writable_binding() const
 	{
 		return _buffer.writable_binding();
+	}
+
+	// ストリーミング可能か
+	bool streamable() const
+	{
+		return _buffer.streamable();
+	}
+	bool streamable_binding() const
+	{
+		return _buffer.streamable_binding();
 	}
 
 	// 展開を管理するオブジェクト生成

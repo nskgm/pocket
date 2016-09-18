@@ -1,4 +1,4 @@
-﻿#ifndef __MATH_MATRIX4X4_H__
+#ifndef __MATH_MATRIX4X4_H__
 #define __MATH_MATRIX4X4_H__
 
 #include "../config.h"
@@ -780,13 +780,13 @@ struct matrix4x4
 	//---------------------------------------------------------------------
 	// 正射影変換行列にする
 	//---------------------------------------------------------------------
-	matrix4x4& load_orthographics(T left, T right, T top, T bottom, T near, T far)
+	matrix4x4& load_orthographics(T left, T right, T top, T bottom, T n, T f)
 	{
 		load_identity();
 
 		T dx = math_type::reciprocal(right - left);
 		T dy = math_type::reciprocal(top - bottom);
-		T dz = math_type::reciprocal(far - near);
+		T dz = math_type::reciprocal(f - n);
 
 		M[0].x = math_type::two * dx;
 		M[1].y = math_type::two * dy;
@@ -795,13 +795,13 @@ struct matrix4x4
 		row_type& r3 = M[3];
 		r3.x = -(right + left) * dx;
 		r3.y = -(bottom + top) * dy;
-		r3.z = -(far + near) * dz;
+		r3.z = -(f + n) * dz;
 
 		return *this;
 	}
-	matrix4x4& load_orthographics(T width, T height, T near, T far)
+	matrix4x4& load_orthographics(T width, T height, T n, T f)
 	{
-		return load_orthographics(math_type::zero, width, math_type::zero, height, near, far);
+		return load_orthographics(math_type::zero, width, math_type::zero, height, n, f);
 	}
 	//---------------------------------------------------------------------
 	// 2D用正射影変換行列にする

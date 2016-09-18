@@ -1,4 +1,4 @@
-﻿#ifndef __MATH_TEMPLATE_H__
+#ifndef __MATH_TEMPLATE_H__
 #define __MATH_TEMPLATE_H__
 
 #include "../config.h"

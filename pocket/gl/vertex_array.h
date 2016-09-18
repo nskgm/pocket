@@ -1,4 +1,4 @@
-﻿#ifndef __POCKET_GL_VERTEX_ARRAY_H__
+#ifndef __POCKET_GL_VERTEX_ARRAY_H__
 #define __POCKET_GL_VERTEX_ARRAY_H__
 
 #include "../config.h"
@@ -24,38 +24,53 @@ class vertex_array;
 
 struct vertex_layout
 {
-	int count;
 	int type;
+	int count;
 	int normalized;
 	int offset;
 };
-template <int C, typename T, bool N, int O>
-struct layout_t
+template <typename T, int C, bool N, int O>
+struct layout_constant
 {
 	static const vertex_layout value;
 };
-template <int C, typename T, bool N, int O>
-const vertex_layout layout_t<C, T, N, O>::value = {
-	C, gl_type<T>::value, gl_bool<N>::value, O
+template <typename T, int C, bool N, int O>
+const vertex_layout layout_constant<T, C, N, O>::value = {
+	pocket::gl::gl_type<T>::value, C, pocket::gl::gl_bool<N>::value, O
 };
+
+#ifndef POCKET_VERTEX_LAYOUT
+#	define POCKET_VERTEX_LAYOUT(TYPE, COUNT, NORMALIZED, OFFSET) { pocket::gl::gl_type<TYPE>::value, (COUNT), pocket::gl::gl_bool<NORMALIZED>::value, (OFFSET) }
+#endif // POCKET_VERTEX_LAYOUT
+#ifndef POCKET_VERTEX_LAYOUT_OF
+#	define POCKET_VERTEX_LAYOUT_OF(TYPE, COUNT, NORMALIZED, VT, MEM) { pocket::gl::gl_type<TYPE>::value, (COUNT), pocket::gl::gl_bool<NORMALIZED>::value, offsetof(VT, MEM) }
+#endif // POCKET_VERTEX_LAYOUT_OF
 
 struct vertex_layout_index
 {
 	int index;
-	int count;
 	int type;
+	int count;
 	int normalized;
 	int offset;
 };
-template <int I, int C, typename T, bool N, int O>
-struct layout_index_t
+template <int I, typename T, int C, bool N, int O>
+struct layout_index_constant
 {
 	static const vertex_layout_index value;
 };
-template <int I, int C, typename T, bool N, int O>
-const vertex_layout_index layout_index_t<I, C, T, N, O>::value = {
-	I, C, gl_type<T>::value, gl_bool<N>::value, O
+template <int I, typename T, int C, bool N, int O>
+const vertex_layout_index layout_index_constant<I, T, C, N, O>::value = {
+	I, pocket::gl::gl_type<T>::value, C, pocket::gl::gl_bool<N>::value, O
 };
+
+#ifndef POCKET_VERTEX_LAYOUT_INDEX
+#	define POCKET_VERTEX_LAYOUT_INDEX(INDEX, TYPE, COUNT, NORMALIZED, OFFSET) { (INDEX), pocket::gl::gl_type<TYPE>::value, COUNT, pocket::gl::gl_bool<NORMALIZED>::value, (OFFSET) }
+#endif // POCKET_VERTEX_LAYOUT_INDEX
+#ifndef POCKET_VERTEX_LAYOUT_INDEX_OF
+#	define POCKET_VERTEX_LAYOUT_INDEX_OF(INDEX, TYPE, COUNT, NORMALIZED, VT, MEM) { (INDEX), pocket::gl::gl_type<TYPE>::value, (COUNT), pocket::gl::gl_bool<NORMALIZED>::value, offsetof(VT, MEM) }
+#endif // POCKET_VERTEX_LAYOUT_INDEX_OF
+
 
 #define __POCKET_BUFFER_OFFSET(OFFSET) (static_cast<const void*>(reinterpret_cast<const char*>(0)+(OFFSET)))
 // VSCodeシンタックスハイライト解除回避用

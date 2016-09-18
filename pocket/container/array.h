@@ -1,4 +1,4 @@
-﻿#ifndef __POCKET_CONTAINER_ARRAY_H__
+#ifndef __POCKET_CONTAINER_ARRAY_H__
 #define __POCKET_CONTAINER_ARRAY_H__
 
 #include "../config.h"

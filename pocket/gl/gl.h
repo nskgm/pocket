@@ -1,4 +1,4 @@
-﻿#ifndef __POCKET_GL_GL_H__
+#ifndef __POCKET_GL_GL_H__
 #define __POCKET_GL_GL_H__
 
 #include "../config.h"
@@ -143,17 +143,17 @@ private:
 inline
 const char* get_error_string(GLenum err)
 {
-#define __POCKET_CASE_TO_STRING(e, s) case e: return s
+#define __POCKET_CASE_TO_STRING(e) case e: return #e
 
 	switch (err)
 	{
-		__POCKET_CASE_TO_STRING(GL_INVALID_OPERATION, "invalid operate.");
-		__POCKET_CASE_TO_STRING(GL_INVALID_ENUM, "invalid enum.");
-		__POCKET_CASE_TO_STRING(GL_INVALID_VALUE, "invalid value.");
-		__POCKET_CASE_TO_STRING(GL_STACK_OVERFLOW, "stack overflow.");
-		__POCKET_CASE_TO_STRING(GL_STACK_UNDERFLOW, "stack underflow.");
-		__POCKET_CASE_TO_STRING(GL_OUT_OF_MEMORY, "out of memory.");
-		__POCKET_CASE_TO_STRING(GL_INVALID_FRAMEBUFFER_OPERATION, "invalid framebuffer operate.");
+		__POCKET_CASE_TO_STRING(GL_INVALID_OPERATION);
+		__POCKET_CASE_TO_STRING(GL_INVALID_ENUM);
+		__POCKET_CASE_TO_STRING(GL_INVALID_VALUE);
+		__POCKET_CASE_TO_STRING(GL_STACK_OVERFLOW);
+		__POCKET_CASE_TO_STRING(GL_STACK_UNDERFLOW);
+		__POCKET_CASE_TO_STRING(GL_OUT_OF_MEMORY);
+		__POCKET_CASE_TO_STRING(GL_INVALID_FRAMEBUFFER_OPERATION);
 	}
 	return NULL;
 
@@ -162,12 +162,19 @@ const char* get_error_string(GLenum err)
 
 // エラーの出力
 template <typename CharT, typename CharTraits> inline
-bool output_error(std::basic_ostream<CharT, CharTraits>& os, GLenum err, const char* func, int line, const char* msg, ...)
+bool output_error(std::basic_ostream<CharT, CharTraits>& os, GLenum err, const char* file, const char* func, int line, const char* msg, ...)
 {
+	// エラーなし
 	if (err == GL_NO_ERROR)
 	{
 		return false;
 	}
+
+	os << std::endl;
+#ifdef POCKET_USE_COLOR_OUTPUT
+	os << io::red << std::flush;
+#endif // POCKET_USE_COLOR_OUTPUT
+
 	// メッセージを表示
 	if (msg != NULL)
 	{
@@ -181,45 +188,56 @@ bool output_error(std::basic_ostream<CharT, CharTraits>& os, GLenum err, const c
 		vsprintf(buf, msg, ap);
 #endif // _MSC_VER
 		va_end(ap);
-		os << io::widen("## ") << io::widen(static_cast<const char*>(&buf[0])) << io::widen(" ##") << std::endl;
+		os << io::widen("### ") << io::widen(static_cast<const char*>(&buf[0])) << io::widen(" ###") << std::endl;
 	}
+	else
+	{
+		os << io::widen("### opengl error ###") << std::endl;
+	}
+
 	do
 	{
 		const char* _string = get_error_string(err);
 		if (_string == NULL)
 		{
+			// 16進で出力するので現在の状態をとっておく
+			std::ios_base::fmtflags flag = os.flags();
 			// 文字列がNULLじゃないモノまで検索
 			do
 			{
 				// とりあえずエラーコードを出力
-				std::ios_base::fmtflags flag = os.flags();
 				os << io::widen("unknown error code: 0x") << err << std::endl;
-				os.flags(flag);
 				err = glGetError();
-				if (err == GL_NO_ERROR)
-				{
-					return true;
-				}
+			} while (err != GL_NO_ERROR);
+			os.flags(flag);
+			// NO_ERRORじゃない場合はまた取得
+			if (err != GL_NO_ERROR)
+			{
 				_string = get_error_string(err);
-			} while (_string != NULL);
+			}
 		}
-		if (msg != NULL)
+		if (_string != NULL)
 		{
-			os << io::tab;
+			os << io::widen(_string) << std::endl;
 		}
-		os << io::widen("-- ") << io::widen(_string) << io::widen(" #") << io::widen(func) << io::widen(":") << line << std::endl;
-
 		// 次を検索
 		err = glGetError();
 	} while (err != GL_NO_ERROR);
-	os << std::endl;
 
+	// ファイル、関数、行数は必ず出力
+	os << io::widen("-- file: ") << io::widen(file) << std::endl <<
+		io::widen("-- func: ") << io::widen(func) << std::endl <<
+		io::widen("-- line: ") << line << std::endl << std::endl;
+
+#ifdef POCKET_USE_COLOR_OUTPUT
+	os << io::reset << std::flush;
+#endif // POCKET_USE_COLOR_OUTPUT
 	return true;
 }
 
-// coutへのエラー出力
+// cerrへのエラー出力
 #ifndef POCKET_GL_ERROR_MSG
-#define POCKET_GL_ERROR_MSG(MSG, ...) pocket::gl::output_error(std::cerr, glGetError(), __FUNCTION__, __LINE__, MSG, ##__VA_ARGS__)
+#define POCKET_GL_ERROR_MSG(MSG, ...) pocket::gl::output_error(std::cerr, glGetError(), __FILE__, __FUNCTION__, __LINE__, MSG, ##__VA_ARGS__)
 #endif // POCKET_GL_ERROR_MSG
 #ifndef POCKET_GL_ERROR
 #define POCKET_GL_ERROR() POCKET_GL_ERROR_MSG(NULL)
@@ -231,9 +249,9 @@ bool output_error(std::basic_ostream<CharT, CharTraits>& os, GLenum err, const c
 #define POCKET_GL_ASSERT() POCKET_DEBUG_ASSERT(!POCKET_GL_ERROR())
 #endif // POCKET_GL_ASSERT
 
-// wcoutへのエラー出力
+// wcerrへのエラー出力
 #ifndef POCKET_GL_ERROR_MSG_W
-#define POCKET_GL_ERROR_MSG_W(MSG, ...) pocket::gl::output_error(std::wcerr, glGetError(), __FUNCTION__, __LINE__, MSG, ##__VA_ARGS__)
+#define POCKET_GL_ERROR_MSG_W(MSG, ...) pocket::gl::output_error(std::wcerr, glGetError(), __FILE__, __FUNCTION__, __LINE__, MSG, ##__VA_ARGS__)
 #endif // POCKET_GL_ERROR_MSG
 #ifndef POCKET_GL_ERROR_W
 #define POCKET_GL_ERROR_W() POCKET_GL_ERROR_MSG_W(NULL)

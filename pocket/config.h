@@ -1,4 +1,4 @@
-﻿#ifndef __POCKET_CONFIG_H__
+#ifndef __POCKET_CONFIG_H__
 #define __POCKET_CONFIG_H__
 
 //---------------------------------------------------------------------------------------
@@ -105,7 +105,7 @@
 // 64bitか
 //---------------------------------------------------------------------------------------
 #ifndef POCKET_USE_X64
-#	if defined(_WIN64) && defined(__x86_64__)
+#	if defined(_WIN64) || defined(__x86_64__)
 #		define POCKET_USE_X64
 #	endif
 #endif // POCKET_USE_X64

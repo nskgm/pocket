@@ -1,4 +1,4 @@
-﻿#ifndef __POCKET_GL_SAMPLER_H__
+#ifndef __POCKET_GL_SAMPLER_H__
 #define __POCKET_GL_SAMPLER_H__
 
 #include "../config.h"
@@ -342,10 +342,10 @@ sampler make_sampler(wrap_type_t w, filter_type_t f, compare_func_type_t com, in
 template <typename CharT, typename CharTraits> inline
 std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const sampler& v)
 {
-	std::ios_base::fmtflags flag = os.flags();
 	os << std::hex << io::widen("sampler: {") << std::endl <<
-		io::tab << io::widen("id: ") << v.get() << std::endl <<
-		io::tab << io::widen("wrap: [s: 0x") << v.wrap_s() <<
+		io::tab << io::widen("id: ") << v.get() << std::endl;
+	std::ios_base::fmtflags flag = os.flags();
+	os << io::tab << io::widen("wrap: [s: 0x") << v.wrap_s() <<
 			io::widen(", t: 0x") << v.wrap_t() <<
 			io::widen(", r: 0x") << v.wrap_r() << io::box_brackets_right << std::endl <<
 		io::tab << io::widen("filter: [min: 0x") << v.filter_min() <<

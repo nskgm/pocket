@@ -1,4 +1,4 @@
-﻿#ifndef __POCKET_GL_LAYERED_VERTEX_BUFFER_H__
+#ifndef __POCKET_GL_LAYERED_VERTEX_BUFFER_H__
 #define __POCKET_GL_LAYERED_VERTEX_BUFFER_H__
 
 #include "../config.h"
@@ -442,11 +442,11 @@ public:
 	{
 		if (_error == vertex_buffer_object)
 		{
-			return "VBO: " + _vbo.error();
+			return "vbo: " + _vbo.error();
 		}
 		if (_error == vertex_array_object)
 		{
-			return "VAO: " + _vao.error();
+			return "vao: " + _vao.error();
 		}
 		// エラーは起きていない
 		return "";
@@ -634,7 +634,7 @@ std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, Ch
 	const vertex_buffer<T>& vbo = v.vbo();
 
 	os << io::widen("layered_vertex_buffer: {") << std::endl <<
-		io::tab << io::widen("VAO: {") << std::endl <<
+		io::tab << io::widen("vao: {") << std::endl <<
 		io::tab2 << io::widen("id: ") << vao.get() << std::endl;
 	if (vao.binding())
 	{
@@ -657,7 +657,7 @@ std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, Ch
 	}
 	os << io::tab << io::braces_right << std::endl;
 
-	os << io::tab << io::widen("VBO: {") << std::endl <<
+	os << io::tab << io::widen("vbo: {") << std::endl <<
 		io::tab2 << io::widen("id: ") << vbo.get() << std::endl;
 	if (vbo.binding())
 	{

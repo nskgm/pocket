@@ -1,4 +1,4 @@
-﻿#ifndef __POCKET_NULLOBJ_H__
+#ifndef __POCKET_NULLOBJ_H__
 #define __POCKET_NULLOBJ_H__
 
 #include "config.h"
@@ -30,6 +30,10 @@ struct nullobj_t
 	operator unsigned char () const
 	{
 		return '\0';
+	}
+	operator wchar_t () const
+	{
+		return L'\0';
 	}
 	operator short () const
 	{
@@ -500,6 +504,9 @@ bool operator != (const nullobj_t&, const T&)
 	return true;
 }
 
+//---------------------------------------------------------------------
+// 宣言
+//---------------------------------------------------------------------
 static const nullobj_t nullobj = {};
 
 } // namespace pocket

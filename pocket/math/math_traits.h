@@ -1,4 +1,4 @@
-﻿#ifndef __POCKET_MATH_MATH_TRAITS_H__
+#ifndef __POCKET_MATH_MATH_TRAITS_H__
 #define __POCKET_MATH_MATH_TRAITS_H__
 
 #include "../config.h"

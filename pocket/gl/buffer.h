@@ -1,4 +1,4 @@
-﻿#ifndef __POCKET_GL_BUFFER_H__
+#ifndef __POCKET_GL_BUFFER_H__
 #define __POCKET_GL_BUFFER_H__
 
 #include "../config.h"
@@ -440,9 +440,24 @@ public:
 	}
 	bool writable_binding() const
 	{
-		GLint immutable = 0;
-		glGetBufferParameteriv(_type, GL_BUFFER_IMMUTABLE_STORAGE, &immutable);
-		return immutable == GL_FALSE;
+		buffer_usage_t usg = usage_binding();
+		return (usg == buffer_usage::dynamic_read ||
+			usg == buffer_usage::dynamic_copy ||
+			usg == buffer_usage::dynamic_draw);
+	}
+
+	// ストリーミング可能か
+	bool streamable() const
+	{
+		binder_type lock(*this);
+		return streamable_binding();
+	}
+	bool streamable_binding() const
+	{
+		buffer_usage_t usg = usage_binding();
+		return (usg == buffer_usage::stream_read ||
+			usg == buffer_usage::stream_copy ||
+			usg == buffer_usage::stream_draw);
 	}
 
 	// マップしたものを管理するオブジェクトを作成

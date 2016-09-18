@@ -1,4 +1,4 @@
-﻿#-----------------------------------------------------------
+#-----------------------------------------------------------
 # config
 #-----------------------------------------------------------
 # C++バージョン
@@ -489,8 +489,8 @@ task :pre_build do |t|
 			# 全てのファイルをインクルード
 			#endl = windows? ? "\r\n" : "\n"
 			endl = "\n"
-			# BOM付き
-			files = "\uFEFF#ifndef __POCKET_PRE_COMPILE_HEADERS_H__#{endl}#define __POCKET_PRE_COMPILE_HEADERS_H__#{endl*2}"
+			# BOM付き \uFEFF
+			files = "#ifndef __POCKET_PRE_COMPILE_HEADERS_H__#{endl}#define __POCKET_PRE_COMPILE_HEADERS_H__#{endl*2}"
 			files += array_to_join_string t.prerequisites, endl do |e|
 				# すでに存在しているパスでは先頭ディレクトリ名を省く
 				if e.match("^#{dir}/") != nil
@@ -638,6 +638,7 @@ end
 #--------------------------------------------------------------------------------
 # ソースファイルのタイムスタンプ更新
 #--------------------------------------------------------------------------------
+desc "Time stamp update of cpp file"
 task :touch do
 	# Windowsの場合はcopyコマンドを代用
 	# メッセージは邪魔なので破棄
@@ -647,6 +648,25 @@ task :touch do
 		SOURCE_LIST.each do |name|
 			proc.call name
 		end
+	end
+end
+
+#--------------------------------------------------------------------------------
+# 構文チェック
+#--------------------------------------------------------------------------------
+desc "syntax check"
+task :syntax do
+	add_cmd = ""
+	add_cmd += " -std=c++#{CXX_VERSION}" if CXX_VERSION != nil
+	add_cmd += " #{auto_include}" if auto_include != nil
+	add_cmd += " #{defines}" if defines != nil
+	add_cmd += " #{define_values}" if define_values != nil
+	add_cmd += " #{undefines}" if undefines != nil
+	add_cmd += " #{inc}" if inc != nil
+	add_cmd += " #{options}" if options != nil
+
+	SOURCE_LIST.each do |path|
+		sh "#{COMPILER} -f\"syntax-only\" #{path}#{add_cmd}"
 	end
 end
 

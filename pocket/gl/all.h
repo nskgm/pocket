@@ -1,4 +1,4 @@
-﻿#ifndef __POCKET_GL_ALL_H__
+#ifndef __POCKET_GL_ALL_H__
 #define __POCKET_GL_ALL_H__
 
 #include "../config.h"
@@ -21,6 +21,7 @@
 #include "index_buffer.h"
 #include "layered_vertex_buffer.h"
 #include "sampler.h"
+#include "draw_indirect_buffer.h"
 #include "sync.h"
 
 #endif // __POCKET_GL_ALL_H__
