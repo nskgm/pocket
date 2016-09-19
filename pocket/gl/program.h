@@ -164,7 +164,7 @@ struct uniform_return_type
 
 // VScodeシンタックスハイライト解除回避
 // defineのスコープもおかしくなっているのでdetailの中に宣言
-#define __POCKET_ARRAY_REF(TYPE, NAME, N) const TYPE(&NAME)[N]
+#define __POCKET_ARRAY_REF(TYPE, NAME, N) const TYPE (&NAME)[N]
 #define __POCKET_STD_STRING_ARRAY_REF(NAME, N) __POCKET_ARRAY_REF(std::string, NAME, N)
 
 // 組み込み型用uniform関数
@@ -249,6 +249,111 @@ struct uniform_return_type
 	void uniform(const std::string& name, __POCKET_ARRAY_REF(TYPE, v, VEC)[N]) const\
 	{\
 		glUniform##SUFFIX##v(uniform_location(name), VEC, &v[0][0]);\
+	}
+
+// 配列行列用uniform関数
+#define __POCKET_PROGRAM_UNIFORM_ARRAY_MATRIX(TYPE, N, SUFFIX) \
+	template <int VEC>\
+	void uniform(GLint loc, __POCKET_ARRAY_REF(TYPE, v, VEC)[N][N]) const\
+	{\
+		glUniformMatrix##SUFFIX##v(loc, VEC, GL_FALSE, &v[0][0][0]);\
+	}\
+	template <bool TRANSPOSE>\
+	void uniform(GLint loc, __POCKET_ARRAY_REF(TYPE, v, N)[N]) const\
+	{\
+		glUniformMatrix##SUFFIX##v(loc, 1, gl_bool<TRANSPOSE>::value, &v[0][0]);\
+	}\
+	template <bool TRANSPOSE, int VEC>\
+	void uniform(GLint loc, __POCKET_ARRAY_REF(TYPE, v, VEC)[N][N]) const\
+	{\
+		glUniformMatrix##SUFFIX##v(loc, VEC, gl_bool<TRANSPOSE>::value, &v[0][0][0]);\
+	}\
+	template <int VEC>\
+	void uniform(const char* name, __POCKET_ARRAY_REF(TYPE, v, VEC)[N][N]) const\
+	{\
+		glUniformMatrix##SUFFIX##v(uniform_location(name), VEC, GL_FALSE, &v[0][0][0]);\
+	}\
+	template <bool TRANSPOSE>\
+	void uniform(const char* name, __POCKET_ARRAY_REF(TYPE, v, N)[N]) const\
+	{\
+		glUniformMatrix##SUFFIX##v(uniform_location(name), 1, gl_bool<TRANSPOSE>::value, &v[0][0]);\
+	}\
+	template <bool TRANSPOSE, int VEC>\
+	void uniform(const char* name, __POCKET_ARRAY_REF(TYPE, v, VEC)[N][N]) const\
+	{\
+		glUniformMatrix##SUFFIX##v(uniform_location(name), VEC, gl_bool<TRANSPOSE>::value, &v[0][0][0]);\
+	}\
+	template <int VEC>\
+	void uniform(const std::string& name, __POCKET_ARRAY_REF(TYPE, v, VEC)[N][N]) const\
+	{\
+		glUniformMatrix##SUFFIX##v(uniform_location(name), VEC, GL_FALSE, &v[0][0][0]);\
+	}\
+	template <bool TRANSPOSE>\
+	void uniform(const std::string& name, __POCKET_ARRAY_REF(TYPE, v, N)[N]) const\
+	{\
+		glUniformMatrix##SUFFIX##v(uniform_location(name), 1, gl_bool<TRANSPOSE>::value, &v[0][0]);\
+	}\
+	template <bool TRANSPOSE, int VEC>\
+	void uniform(const std::string& name, __POCKET_ARRAY_REF(TYPE, v, VEC)[N][N]) const\
+	{\
+		glUniformMatrix##SUFFIX##v(uniform_location(name), 1, gl_bool<TRANSPOSE>::value, &v[0][0][0]);\
+	}
+
+// 定義済み行列用uniform関数
+#define __POCKET_PROGRAM_UNIFORM_TYPED_MATRIX(TYPE, SUFFIX) \
+	void uniform(GLint loc, const TYPE& v) const\
+	{\
+		glUniformMatrix##SUFFIX##v(loc, 1, GL_FALSE, &v[0][0]);\
+	}\
+	void uniform(GLint loc, const TYPE* v, int count) const\
+	{\
+		glUniformMatrix##SUFFIX##v(loc, count, GL_FALSE, &v[0][0][0]);\
+	}\
+	template <bool TRANSPOSE>\
+	void uniform(GLint loc, const TYPE& v) const\
+	{\
+		glUniformMatrix##SUFFIX##v(loc, 1, gl_bool<TRANSPOSE>::value, &v[0][0]);\
+	}\
+	template <bool TRANSPOSE>\
+	void uniform(GLint loc, const TYPE* v, int count) const\
+	{\
+		glUniformMatrix##SUFFIX##v(loc, count, gl_bool<TRANSPOSE>::value, &v[0][0][0]);\
+	}\
+	void uniform(const char* name, const TYPE& v) const\
+	{\
+		glUniformMatrix##SUFFIX##v(uniform_location(name), 1, GL_FALSE, &v[0][0]);\
+	}\
+	void uniform(const char* name, const TYPE* v, int count) const\
+	{\
+		glUniformMatrix##SUFFIX##v(uniform_location(name), count, GL_FALSE, &v[0][0][0]);\
+	}\
+	template <bool TRANSPOSE>\
+	void uniform(const char* name, const TYPE& v) const\
+	{\
+		glUniformMatrix##SUFFIX##v(uniform_location(name), 1, gl_bool<TRANSPOSE>::value, &v[0][0]);\
+	}\
+	template <bool TRANSPOSE>\
+	void uniform(const char* name, const TYPE* v, int count) const\
+	{\
+		glUniformMatrix##SUFFIX##v(uniform_location(name), count, gl_bool<TRANSPOSE>::value, &v[0][0][0]);\
+	}\
+	void uniform(const std::string& name, const TYPE& v) const\
+	{\
+		glUniformMatrix##SUFFIX##v(uniform_location(name), 1, GL_FALSE, &v[0][0]);\
+	}\
+	void uniform(const std::string& name, const TYPE* v, int count) const\
+	{\
+		glUniformMatrix##SUFFIX##v(uniform_location(name), count, GL_FALSE, &v[0][0][0]);\
+	}\
+	template <bool TRANSPOSE>\
+	void uniform(const std::string& name, const TYPE& v) const\
+	{\
+		glUniformMatrix##SUFFIX##v(uniform_location(name), 1, gl_bool<TRANSPOSE>::value, &v[0][0]);\
+	}\
+	template <bool TRANSPOSE>\
+	void uniform(const std::string& name, const TYPE* v, int count) const\
+	{\
+		glUniformMatrix##SUFFIX##v(uniform_location(name), count, gl_bool<TRANSPOSE>::value, &v[0][0][0]);\
 	}
 }
 
@@ -653,6 +758,12 @@ public:
 	__POCKET_PROGRAM_UNIFORM_ARRAY(GLfloat, 4, 4f, v[0], v[1], v[2], v[3]);
 	//__POCKET_PROGRAM_UNIFORM_ARRAY(GLdouble, 4, 4d, v[0], v[1], v[2], v[3]);
 
+	__POCKET_PROGRAM_UNIFORM_ARRAY_MATRIX(GLfloat, 3, 3f);
+	//__POCKET_PROGRAM_UNIFORM_ARRAY_MATRIX(GLdouble, 3, 3d);
+
+	__POCKET_PROGRAM_UNIFORM_ARRAY_MATRIX(GLfloat, 4, 4f);
+	//__POCKET_PROGRAM_UNIFORM_ARRAY_MATRIX(GLdouble, 4, 4d);
+
 #ifndef POCKET_NO_USING_MATH_INT_FLOAT
 	__POCKET_PROGRAM_UNIFORM_TYPED(math::vector2<int>, 2i, v.x, v.y);
 	__POCKET_PROGRAM_UNIFORM_TYPED(math::vector2<float>, 2f, v.x, v.y);
@@ -665,6 +776,8 @@ public:
 
 	__POCKET_PROGRAM_UNIFORM_TYPED(math::quaternion<float>, 4f, v.x, v.y, v.z, v.w);
 	__POCKET_PROGRAM_UNIFORM_TYPED(math::color<float>, 4f, v.r, v.g, v.b, v.a);
+	__POCKET_PROGRAM_UNIFORM_TYPED_MATRIX(math::matrix3x3<float>, 3f);
+	__POCKET_PROGRAM_UNIFORM_TYPED_MATRIX(math::matrix4x4<float>, 4f);
 #endif // POCKET_NO_USING_MATH_INT_FLOAT
 
 #ifdef POCKET_USING_MATH_DOUBLE
@@ -673,6 +786,8 @@ public:
 	//__POCKET_PROGRAM_UNIFORM_TYPED(math::vector4<double>, 4d, v.x, v.y, v.z, v.w);
 	//__POCKET_PROGRAM_UNIFORM_TYPED(math::quaternion<double>, 4d, v.x, v.y, v.z, v.w);
 	//__POCKET_PROGRAM_UNIFORM_TYPED(math::color<double>, 4d, v.r, v.g, v.b, v.a);
+	//__POCKET_PROGRAM_UNIFORM_TYPED_MATRIX(math::matrix3x3<double>, 3d);
+	//__POCKET_PROGRAM_UNIFORM_TYPED_MATRIX(math::matrix4x4<double>, 4d);
 #endif // POCKET_USING_MATH_DOUBLE
 
 	template <typename T, int N>
@@ -695,17 +810,17 @@ public:
 	template <typename T>
 	void uniform(GLint loc, const std::initializer_list<T>& il) const
 	{
-		uniform(loc, list.begin(), static_cast<GLsizei>(list.size()));
+		uniform(loc, il.begin(), static_cast<GLsizei>(il.size()));
 	}
 	template <typename T>
 	void uniform(const char* name, const std::initializer_list<T>& il) const
 	{
-		uniform(name, list.begin(), static_cast<GLsizei>(list.size()));
+		uniform(name, il.begin(), static_cast<GLsizei>(il.size()));
 	}
 	template <typename T>
 	void uniform(const std::string& name, const std::initializer_list<T>& il) const
 	{
-		uniform(name, list.begin(), static_cast<GLsizei>(list.size()));
+		uniform(name, il.begin(), static_cast<GLsizei>(il.size()));
 	}
 #endif // POCKET_USE_CXX11
 
@@ -1461,6 +1576,8 @@ bool shader::subroutine(const std::string(&name)[N], const program& prog) const
 #undef __POCKET_PROGRAM_UNIFORM
 #undef __POCKET_PROGRAM_UNIFORM_TYPED
 #undef __POCKET_PROGRAM_UNIFORM_ARRAY
+#undef __POCKET_PROGRAM_UNIFORM_ARRAY_MATRIX
+#undef __POCKET_PROGRAM_UNIFORM_TYPED_MATRIX
 
 // プログラム作成
 inline

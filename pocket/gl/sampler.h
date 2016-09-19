@@ -59,6 +59,16 @@ public:
 	{
 		initialize(w, f, com, lodmin, lodmax);
 	}
+	sampler(const sampler& b) :
+		_id(b._id),
+		_error_bitfield(b._error_bitfield)
+	{}
+#ifdef POCKET_USE_CXX11
+	sampler(sampler&& v) :
+		_id(std::move(v._id)),
+		_error_bitfield(std::move(v._error_bitfield))
+	{}
+#endif // POCKET_USE_CXX11
 	~sampler()
 	{
 		finalize();

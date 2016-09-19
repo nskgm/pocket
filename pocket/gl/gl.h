@@ -220,6 +220,10 @@ bool output_error(std::basic_ostream<CharT, CharTraits>& os, GLenum err, const c
 		{
 			os << io::widen(_string) << std::endl;
 		}
+		else
+		{
+			break;
+		}
 		// 次を検索
 		err = glGetError();
 	} while (err != GL_NO_ERROR);
