@@ -1,4 +1,4 @@
-#ifndef __POCKET_GL_PROGRAM_H__
+﻿#ifndef __POCKET_GL_PROGRAM_H__
 #define __POCKET_GL_PROGRAM_H__
 
 #include "../config.h"
@@ -1030,7 +1030,7 @@ public:
 			{
 				func(os);
 			}
-			os << io::tab << io::widen("variables: [") << std::endl;
+			os << io::tab << io::widen("variables: {") << std::endl;
 
 			// uniform block内 uniform変数情報
 			for (int j = 0; j < ubcount; ++j)
@@ -1114,7 +1114,7 @@ public:
 			{
 				func(os);
 			}
-			os << io::tab << io::box_brackets_right << std::endl;
+			os << io::tab << io::braces_right << std::endl;
 
 			if (func != NULL)
 			{

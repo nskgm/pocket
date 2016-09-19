@@ -1,4 +1,4 @@
-#ifndef __POCKET_BUFFER_VIEW_H__
+﻿#ifndef __POCKET_BUFFER_VIEW_H__
 #define __POCKET_BUFFER_VIEW_H__
 
 #include "../config.h"

@@ -1,4 +1,4 @@
-#ifndef __POCKET_COMMON_TYPE_H__
+﻿#ifndef __POCKET_COMMON_TYPE_H__
 #define __POCKET_COMMON_TYPE_H__
 
 #include "../config.h"

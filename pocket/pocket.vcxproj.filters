@@ -159,6 +159,9 @@
     <ClInclude Include="gl\vertex_buffer.h">
       <Filter>ヘッダー ファイル\gl</Filter>
     </ClInclude>
+    <ClInclude Include="gl\draw_indirect_buffer.h">
+      <Filter>ヘッダー ファイル\gl</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\main.cpp">

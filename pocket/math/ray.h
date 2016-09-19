@@ -1,4 +1,4 @@
-#ifndef __POCKET_MATH_RAY_H__
+﻿#ifndef __POCKET_MATH_RAY_H__
 #define __POCKET_MATH_RAY_H__
 
 #include "../config.h"

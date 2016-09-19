@@ -1,4 +1,4 @@
-#ifndef __POCKET_MATH_VECTOR3_H__
+﻿#ifndef __POCKET_MATH_VECTOR3_H__
 #define __POCKET_MATH_VECTOR3_H__
 
 #include "../config.h"

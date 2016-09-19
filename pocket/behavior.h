@@ -1,4 +1,4 @@
-#ifndef __POCKET_BEHAVIOR_H__
+﻿#ifndef __POCKET_BEHAVIOR_H__
 #define __POCKET_BEHAVIOR_H__
 
 #include "config.h"

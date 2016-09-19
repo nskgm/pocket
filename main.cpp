@@ -1,4 +1,4 @@
-#include "pocket/math/all.h"
+﻿#include "pocket/math/all.h"
 #include "pocket/gl/all.h"
 #include <GLFW/glfw3.h>
 #include <iomanip>
@@ -89,7 +89,7 @@ int main()
 	std::cout << "GL_ARB_debug_output: " << gl::is_extension_support("GL_ARB_debug_output") << std::endl;
 
 	// 頂点シェーダ―作成
-	gl::shader vert = gl::make_vertex_shader("test.vert");
+	gl::shader vert = gl::make_vertex_shader("../test.vert");
 	if (!vert)
 	{
 		std::cout << vert << std::endl;
@@ -98,7 +98,7 @@ int main()
 	POCKET_GL_ERROR();
 
 	// フラグメントシェーダー作成
-	gl::shader frag = gl::make_fragment_shader("test.frag");
+	gl::shader frag = gl::make_fragment_shader("../test.frag");
 	if (!frag)
 	{
 		std::cout << frag << std::endl;
@@ -115,7 +115,7 @@ int main()
 		return EXIT_FAILURE;
 	}
 	// バイナリの保存
-	if (!prog.save_binary("test.shbin", true))
+	if (!prog.save_binary("../test.shbin", true))
 	{
 		std::cout << prog << std::endl;
 		prog.clear();

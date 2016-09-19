@@ -1,4 +1,4 @@
-#ifndef __POCKET_GL_VERTEX_ARRAY_H__
+﻿#ifndef __POCKET_GL_VERTEX_ARRAY_H__
 #define __POCKET_GL_VERTEX_ARRAY_H__
 
 #include "../config.h"

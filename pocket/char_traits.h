@@ -1,4 +1,4 @@
-#ifndef __POCKET_CHAR_TRAITS_H__
+﻿#ifndef __POCKET_CHAR_TRAITS_H__
 #define __POCKET_CHAR_TRAITS_H__
 
 #include "config.h"

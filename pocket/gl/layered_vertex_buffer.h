@@ -1,4 +1,4 @@
-#ifndef __POCKET_GL_LAYERED_VERTEX_BUFFER_H__
+﻿#ifndef __POCKET_GL_LAYERED_VERTEX_BUFFER_H__
 #define __POCKET_GL_LAYERED_VERTEX_BUFFER_H__
 
 #include "../config.h"

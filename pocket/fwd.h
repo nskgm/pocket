@@ -1,4 +1,4 @@
-#ifndef __POCKET_FORWARD_H__
+﻿#ifndef __POCKET_FORWARD_H__
 #define __POCKET_FORWARD_H__
 
 #include "config.h"

@@ -1,4 +1,4 @@
-#ifndef __POCKET_FIXED_ARRAY_H__
+﻿#ifndef __POCKET_FIXED_ARRAY_H__
 #define __POCKET_FIXED_ARRAY_H__
 
 #include "config.h"
@@ -6,6 +6,7 @@
 #pragma once
 #endif // POCKET_USE_PRAGMA_ONCE
 
+#include "fwd.h"
 #include "container/array.h"
 #include "io.h"
 

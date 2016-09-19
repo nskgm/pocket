@@ -1,4 +1,4 @@
-#ifndef __POCKET_NULLOBJ_H__
+﻿#ifndef __POCKET_NULLOBJ_H__
 #define __POCKET_NULLOBJ_H__
 
 #include "config.h"

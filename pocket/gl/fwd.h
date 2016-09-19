@@ -1,4 +1,4 @@
-#ifndef __POCKET_GL_FWD_H__
+﻿#ifndef __POCKET_GL_FWD_H__
 #define __POCKET_GL_FWD_H__
 
 #include "../config.h"
