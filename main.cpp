@@ -2,7 +2,7 @@
 #include "pocket/gl/all.h"
 #include <GLFW/glfw3.h>
 #include <iomanip>
-#include <stddef.h>
+#include <cstddef>
 
 namespace io = pocket::io;
 namespace gl = pocket::gl;
@@ -137,18 +137,16 @@ int main()
 	POCKET_GL_ERROR();
 
 	// レイアウトを指定した頂点バッファを作成
-	gl::vertex_layout layouts[] = {
-		gl::layout_constant<float, 2, false, offsetof(simple_vertex, position)>::value,
-		gl::layout_constant<float, 4, false, offsetof(simple_vertex, color)>::value,
-		//POCKET_VERTEX_LAYOUT_OF(float, 2, false, simple_vertex, position),
-		//POCKET_VERTEX_LAYOUT_OF(float, 4, false, simple_vertex, color),
+	const gl::vertex_layout layouts[] = {
+		POCKET_LAYOUT_OFFSETOF(float, 2, false, simple_vertex, position),
+		POCKET_LAYOUT_OFFSETOF(float, 4, false, simple_vertex, color),
 	};
-	simple_vertex vertices[] = {
+	const simple_vertex vertices[] = {
 		{math::vector2f(320.0f, 0.0f), math::colorf::red},
 		{math::vector2f(0.0f, 480.0f), math::colorf::blue},
 		{math::vector2f(640.0f, 480.0f), math::colorf::green}
 	};
-	gl::layered_vertex_buffer<simple_vertex> lvb = gl::make_layered_vertex_buffer<simple_vertex>(vertices, layouts);
+	gl::layered_vertex_buffer<simple_vertex> lvb = gl::make_layered_vertex_buffer(vertices, layouts);
 	if (!lvb)
 	{
 		std::cout << lvb << std::endl;
@@ -204,7 +202,8 @@ int main()
 
 		// 描画
 		//POCKET_GL_FUNC(glDrawArrays, gl::primitive_type::triangles, 0, lvb.count());
-		POCKET_GL_FUNC(glDrawArraysIndirect, gl::primitive_type::triangles, NULL);
+		//POCKET_GL_FUNC(glDrawArraysIndirect, gl::primitive_type::triangles, NULL);
+		lvb.draw(gl::primitive_type::triangles, indirect);
 
 		// バインド解除
 		prog.unbind();

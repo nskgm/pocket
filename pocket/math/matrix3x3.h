@@ -21,15 +21,15 @@ namespace math
 template <typename> struct matrix3x3;
 template <typename> struct matrix4x4;
 
-#ifndef _UNUSING_MATH_INT_FLOAT
+#ifndef POCKET_NO_USING_MATH_INT_FLOAT
 typedef matrix3x3<float> matrix3x3f;
-#endif // _UNUSING_MATH_INT_FLOAT
-#ifdef _USING_MATH_DOUBLE
+#endif // POCKET_NO_USING_MATH_INT_FLOAT
+#ifdef POCKET_USING_MATH_DOUBLE
 typedef matrix3x3<double> matrix3x3d;
-#endif // _USING_MATH_DOUBLE
-#ifdef _USING_MATH_LONG_DOUBLE
+#endif // POCKET_USING_MATH_DOUBLE
+#ifdef POCKET_USING_MATH_LONG_DOUBLE
 typedef matrix3x3<long double> matrix3x3ld;
-#endif // _USING_MATH_LONG_DOUBLE
+#endif // POCKET_USING_MATH_LONG_DOUBLE
 
 // 行列の配列位置を示す
 struct matrix_point
@@ -58,15 +58,11 @@ struct matrix_point
 	POCKET_DEFAULT_CONSTRUCTOR(matrix_point);
 	matrix_point(element x, element y) :
 		x(x), y(y)
-	{
-
-	}
+	{}
 	matrix_point(unsigned int y, unsigned int x) :
 		x(static_cast<element>(x)),
 		y(static_cast<element>(y))
-	{
-
-	}
+	{}
 };
 
 // カンマでmatrix_pointを生成する演算子
@@ -171,9 +167,7 @@ struct matrix3x3
 
 	POCKET_DEFAULT_CONSTRUCTOR(matrix3x3);
 	explicit matrix3x3(const behavior::_noinitialize_t&)
-	{
-
-	}
+	{}
 	explicit matrix3x3(const behavior::_zero_t&)
 	{
 		M[0] = row_type::zero;
@@ -303,37 +297,37 @@ struct matrix3x3
 	//---------------------------------------------------------------------
 	// 値が近いか
 	//---------------------------------------------------------------------
-	bool is_near(const matrix3x3& m) const
+	bool near_equal(const matrix3x3& m) const
 	{
-		return (M[0].is_near(m.M[0]) &&
-			M[1].is_near(m.M[1]) &&
-			M[2].is_near(m.M[2]));
+		return (M[0].near_equal(m.M[0]) &&
+			M[1].near_equal(m.M[1]) &&
+			M[2].near_equal(m.M[2]));
 	}
 	//---------------------------------------------------------------------
 	// すべてがゼロに近いか
 	//---------------------------------------------------------------------
-	bool is_near_zero() const
+	bool near_equal_zero() const
 	{
-		return (M[0].is_near(vector3<T>::zero) &&
-			M[1].is_near(vector3<T>::zero) &&
-			M[2].is_near(vector3<T>::zero));
+		return (M[0].near_equal(vector3<T>::zero) &&
+			M[1].near_equal(vector3<T>::zero) &&
+			M[2].near_equal(vector3<T>::zero));
 	}
 	//---------------------------------------------------------------------
 	// すべてがゼロか
 	//---------------------------------------------------------------------
-	bool is_zero() const
+	bool equal_zero() const
 	{
-		return (M[0].is_zero() && M[1].is_zero() && M[2].is_zero());
+		return (M[0].equal_zero() && M[1].equal_zero() && M[2].equal_zero());
 	}
 
 	//---------------------------------------------------------------------
 	// 単位行列に近いか
 	//---------------------------------------------------------------------
-	bool is_near_identity() const
+	bool near_identity() const
 	{
-		return (M[0].is_near(vector3<T>::unit_x) &&
-			M[1].is_near(vector3<T>::unit_y) &&
-			M[2].is_near(vector3<T>::unit_z));
+		return (M[0].near_equal(vector3<T>::unit_x) &&
+			M[1].near_equal(vector3<T>::unit_y) &&
+			M[2].near_equal(vector3<T>::unit_z));
 	}
 
 	//---------------------------------------------------------------------

@@ -22,57 +22,65 @@ namespace gl
 // forward
 class vertex_array;
 
+//------------------------------
+// レイアウト指定用構造体
+//------------------------------
 struct vertex_layout
 {
-	int type;
-	int count;
-	int normalized;
-	int offset;
-};
-template <typename T, int C, bool N, int O>
-struct layout_constant
-{
-	static const vertex_layout value;
-};
-template <typename T, int C, bool N, int O>
-const vertex_layout layout_constant<T, C, N, O>::value = {
-	pocket::gl::gl_type<T>::value, C, pocket::gl::gl_bool<N>::value, O
+	GLenum type; // 要素の型
+	int count; // 要素数
+	int normalized; // 正規化するか
+	int offset; // 構造体のオフセット
 };
 
-#ifndef POCKET_VERTEX_LAYOUT
-#	define POCKET_VERTEX_LAYOUT(TYPE, COUNT, NORMALIZED, OFFSET) { pocket::gl::gl_type<TYPE>::value, (COUNT), pocket::gl::gl_bool<NORMALIZED>::value, (OFFSET) }
-#endif // POCKET_VERTEX_LAYOUT
-#ifndef POCKET_VERTEX_LAYOUT_OF
-#	define POCKET_VERTEX_LAYOUT_OF(TYPE, COUNT, NORMALIZED, VT, MEM) { pocket::gl::gl_type<TYPE>::value, (COUNT), pocket::gl::gl_bool<NORMALIZED>::value, offsetof(VT, MEM) }
-#endif // POCKET_VERTEX_LAYOUT_OF
+#ifndef POCKET_LAYOUT
+#	define POCKET_LAYOUT(TYPE, COUNT, NORMALIZED, OFFSET) {\
+	pocket::gl::gl_type<TYPE>::value,\
+	(COUNT),\
+	static_cast<int>(pocket::gl::gl_bool<NORMALIZED>::value),\
+	(OFFSET)\
+	}
+#endif // POCKET_LAYOUT
+#ifndef POCKET_LAYOUT_OFFSETOF
+#	define POCKET_LAYOUT_OFFSETOF(TYPE, COUNT, NORMALIZED, VERTEX_TYPE, MEM) {\
+	pocket::gl::gl_type<TYPE>::value,\
+	(COUNT),\
+	static_cast<int>(pocket::gl::gl_bool<NORMALIZED>::value),\
+	static_cast<int>(POCKET_MEMBER_OFFSETOF(VERTEX_TYPE, MEM))\
+	}
+#endif // POCKET_LAYOUT_OFFSETOF
 
+//------------------------------
+// レイアウト指定用構造体（インデックス指定）
+//------------------------------
 struct vertex_layout_index
 {
-	int index;
-	int type;
+	int index; // 有効にするインデックス
+	GLenum type;
 	int count;
 	int normalized;
 	int offset;
 };
-template <int I, typename T, int C, bool N, int O>
-struct layout_index_constant
-{
-	static const vertex_layout_index value;
-};
-template <int I, typename T, int C, bool N, int O>
-const vertex_layout_index layout_index_constant<I, T, C, N, O>::value = {
-	I, pocket::gl::gl_type<T>::value, C, pocket::gl::gl_bool<N>::value, O
-};
 
-#ifndef POCKET_VERTEX_LAYOUT_INDEX
-#	define POCKET_VERTEX_LAYOUT_INDEX(INDEX, TYPE, COUNT, NORMALIZED, OFFSET) { (INDEX), pocket::gl::gl_type<TYPE>::value, COUNT, pocket::gl::gl_bool<NORMALIZED>::value, (OFFSET) }
-#endif // POCKET_VERTEX_LAYOUT_INDEX
-#ifndef POCKET_VERTEX_LAYOUT_INDEX_OF
-#	define POCKET_VERTEX_LAYOUT_INDEX_OF(INDEX, TYPE, COUNT, NORMALIZED, VT, MEM) { (INDEX), pocket::gl::gl_type<TYPE>::value, (COUNT), pocket::gl::gl_bool<NORMALIZED>::value, offsetof(VT, MEM) }
-#endif // POCKET_VERTEX_LAYOUT_INDEX_OF
+#ifndef POCKET_LAYOUT_INDEX
+#	define POCKET_LAYOUT_INDEX(INDEX, TYPE, COUNT, NORMALIZED, OFFSET) {\
+	(INDEX),\
+	pocket::gl::gl_type<TYPE>::value,\
+	(COUNT),\
+	static_cast<int>(pocket::gl::gl_bool<NORMALIZED>::value),\
+	(OFFSET)\
+	}
+#endif // POCKET_LAYOUT_INDEX
+#ifndef POCKET_LAYOUT_INDEX_OFFSETOF
+#	define POCKET_LAYOUT_INDEX_OFFSETOF(INDEX, TYPE, COUNT, NORMALIZED, VERTEX_TYPE, MEM) {\
+	(INDEX),\
+	pocket::gl::gl_type<TYPE>::value,\
+	(COUNT),\
+	static_cast<int>(pocket::gl::gl_bool<NORMALIZED>::value),\
+	static_cast<int>(POCKET_MEMBER_OFFSETOF(VERTEX_TYPE, MEM))\
+	}
+#endif // POCKET_LAYOUT_INDEX_OFFSETOF
 
-
-#define __POCKET_BUFFER_OFFSET(OFFSET) (static_cast<const void*>(reinterpret_cast<const char*>(0)+(OFFSET)))
 // VSCodeシンタックスハイライト解除回避用
 #define __POCKET_VERTEX_ARRAY_LAYOUTS_CR(TYPE, NAME, N) const TYPE(&NAME)[N]
 
@@ -287,7 +295,7 @@ public:
 			// 有効
 			glEnableVertexAttribArray(i);
 			glVertexAttribPointer(i, layout.count, layout.type, static_cast<GLboolean>(layout.normalized),
-				stride, __POCKET_BUFFER_OFFSET(layout.offset));
+				stride, POCKET_BUFFER_OFFSET(layout.offset));
 		}
 
 		glBindVertexArray(0);
@@ -362,7 +370,7 @@ public:
 			const vertex_layout& layout = layouts[i];
 			glEnableVertexAttribArray(i);
 			glVertexAttribPointer(i, layout.count, layout.type, static_cast<GLboolean>(layout.normalized),
-				stride, __POCKET_BUFFER_OFFSET(layout.offset));
+				stride, POCKET_BUFFER_OFFSET(layout.offset));
 		}
 
 		glBindVertexArray(0);
@@ -431,7 +439,7 @@ public:
 			const vertex_layout& layout = layouts[i];
 			glEnableVertexAttribArray(i);
 			glVertexAttribPointer(i, layout.count, layout.type, static_cast<GLboolean>(layout.normalized),
-				sizeof(T), __POCKET_BUFFER_OFFSET(layout.offset));
+				sizeof(T), POCKET_BUFFER_OFFSET(layout.offset));
 		}
 
 		glBindVertexArray(0);
@@ -484,7 +492,7 @@ public:
 			const vertex_layout_index& layout = layouts[i];
 			glEnableVertexAttribArray(layout.index);
 			glVertexAttribPointer(layout.index, layout.count, layout.type, static_cast<GLboolean>(layout.normalized),
-				stride, __POCKET_BUFFER_OFFSET(layout.offset));
+				stride, POCKET_BUFFER_OFFSET(layout.offset));
 		}
 		glBindVertexArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -554,7 +562,7 @@ public:
 			const vertex_layout_index& layout = layouts[i];
 			glEnableVertexAttribArray(layout.index);
 			glVertexAttribPointer(layout.index, layout.count, layout.type, static_cast<GLboolean>(layout.normalized),
-				stride, __POCKET_BUFFER_OFFSET(layout.offset));
+				stride, POCKET_BUFFER_OFFSET(layout.offset));
 		}
 
 		glBindVertexArray(0);
@@ -622,7 +630,7 @@ public:
 			const vertex_layout_index& layout = layouts[i];
 			glEnableVertexAttribArray(layout.index);
 			glVertexAttribPointer(layout.index, layout.count, layout.type, static_cast<GLboolean>(layout.normalized),
-				sizeof(T), __POCKET_BUFFER_OFFSET(layout.offset));
+				sizeof(T), POCKET_BUFFER_OFFSET(layout.offset));
 		}
 
 		glBindVertexArray(0);
@@ -1019,7 +1027,6 @@ vertex_array& make_vertex_array(vertex_array& a, const buffer& vbo, GLuint strid
 	return a;
 }
 
-#undef __POCKET_BUFFER_OFFSET
 #undef __POCKET_VERTEX_ARRAY_LAYOUTS_CR
 
 template <typename CharT, typename CharTraits> inline
@@ -1030,7 +1037,7 @@ std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, Ch
 	// バインド状態だったら有効状態を表示
 	if (v.binding())
 	{
-		os << io::tab << io::widen("enable: [") << std::endl;
+		os << io::tab << io::widen("enable: {") << std::endl;
 		GLint n = 0;
 		glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &n);
 		for (int i = 0; i < n; ++i)
@@ -1045,7 +1052,7 @@ std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, Ch
 				os << io::widen("size: ") << v.size(i) << io::box_brackets_right << std::endl;
 			}
 		}
-		os << io::tab << io::box_brackets_right << std::endl;
+		os << io::tab << io::braces_right << std::endl;
 	}
 	if (!v.valid())
 	{

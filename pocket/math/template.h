@@ -17,15 +17,15 @@ namespace pocket
 
 template <typename> struct __template_struct;
 
-#ifndef _UNUSING_MATH_INT_FLOAT
+#ifndef POCKET_NO_USING_MATH_INT_FLOAT
 typedef __template_struct<float> __template_structf;
-#endif // _UNUSING_MATH_INT_FLOAT
-#ifdef _USING_MATH_DOUBLE
+#endif // POCKET_NO_USING_MATH_INT_FLOAT
+#ifdef POCKET_USING_MATH_DOUBLE
 typedef __template_struct<double> __template_structd;
-#endif // _USING_MATH_DOUBLE
-#ifdef _USING_MATH_LONG_DOUBLE
+#endif // POCKET_USING_MATH_DOUBLE
+#ifdef POCKET_USING_MATH_LONG_DOUBLE
 typedef __template_struct<long double> __template_structld;
-#endif // _USING_MATH_LONG_DOUBLE
+#endif // POCKET_USING_MATH_LONG_DOUBLE
 
 template <typename T>
 struct __template_struct

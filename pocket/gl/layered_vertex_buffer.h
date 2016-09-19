@@ -19,6 +19,7 @@ namespace gl
 
 // forward
 template <typename> class layered_vertex_buffer;
+class draw_indirect_buffer;
 
 // vertex_layout vertex_layout_index用宣言
 #define __POCKET_LAYERED_VERTEX_BUFFER_INITIALIZE(TYPE) \
@@ -148,7 +149,6 @@ private:
 
 	vertex_buffer<T> _vbo;
 	vertex_array _vao;
-	int _vertex_count;
 	error_object_type _error;
 
 public:
@@ -165,7 +165,6 @@ public:
 	layered_vertex_buffer() :
 		_vbo(),
 		_vao(),
-		_vertex_count(0),
 		_error(none)
 	{}
 	explicit layered_vertex_buffer(const vertex_type* vertices, int vcount, const vertex_layout* layouts, int lcount, buffer_usage_t usg = buffer_usage::immutable_draw) :
@@ -204,17 +203,14 @@ public:
 	layered_vertex_buffer(const layered_vertex_buffer& b) :
 		_vbo(b._vbo),
 		_vao(b._vao),
-		_vertex_count(b._vertex_count),
 		_error(b._error)
 	{}
 #ifdef POCKET_USE_CXX11
 	layered_vertex_buffer(layered_vertex_buffer&& v) :
 		_vbo(std::move(v._vbo)),
 		_vao(std::move(v._vao)),
-		_vertex_count(std::move(v._vertex_count)),
 		_error(std::move(v._error))
 	{
-		v._vertex_count = 0;
 		v._error = none;
 	}
 #endif // POCKET_USE_CXX11
@@ -231,7 +227,6 @@ public:
 	bool initialize(const vertex_type* vertices, int vcount, const vertex_layout* layouts, int lcount, buffer_usage_t usg = buffer_usage::immutable_draw)
 	{
 		finalize();
-		_vertex_count = vcount;
 
 		// VBO作成
 		if (!_vbo.initialize(vertices, vcount, usg))
@@ -251,7 +246,6 @@ public:
 	bool initialize(const vertex_type* vertices, int vcount, const vertex_layout_index* layouts, int lcount, buffer_usage_t usg = buffer_usage::immutable_draw)
 	{
 		finalize();
-		_vertex_count = vcount;
 
 		if (!_vbo.initialize(vertices, vcount, usg))
 		{
@@ -274,7 +268,6 @@ public:
 	bool initialize(int vcount, const vertex_layout* layouts, int lcount)
 	{
 		finalize();
-		_vertex_count = vcount;
 
 		// 容量だけ確保
 		if (!_vbo.initialize(vcount))
@@ -308,7 +301,6 @@ public:
 	bool initialize(int vcount, const vertex_layout_index* layouts, int lcount)
 	{
 		finalize();
-		_vertex_count = vcount;
 
 		if (!_vbo.initialize(vcount))
 		{
@@ -343,7 +335,6 @@ public:
 	{
 		_vbo.finalize();
 		_vao.finalize();
-		_vertex_count = 0;
 		_error = none;
 	}
 
@@ -379,6 +370,24 @@ public:
 		return binder_type(*this);
 	}
 
+	// 描画
+	void draw(primitive_type_t type) const
+	{
+		_vbo.draw(type);
+	}
+	void draw(primitive_type_t type, GLint offset) const
+	{
+		_vbo.draw(type, offset);
+	}
+	void draw(primitive_type_t type, GLint first, GLsizei n) const
+	{
+		_vbo.draw(type, first, n);
+	}
+	void draw(primitive_type_t type, const draw_indirect_buffer& i) const
+	{
+		_vbo.draw(type, i);
+	}
+
 	// バッファを展開して先頭アドレスを取得
 	vertex_type* map(buffer_map_t type) const
 	{
@@ -404,7 +413,7 @@ public:
 		{
 			return false;
 		}
-		func(address, _vertex_count);
+		func(address);
 		unmap_binding();
 		return true;
 	}
@@ -434,7 +443,7 @@ public:
 	// 頂点数
 	int count() const
 	{
-		return _vertex_count;
+		return _vbo.count();
 	}
 
 	// エラー分
@@ -473,15 +482,7 @@ public:
 	// 有効な状態か
 	bool valid() const
 	{
-		if (_error != none)
-		{
-			return false;
-		}
-		if (!_vbo.valid())
-		{
-			return false;
-		}
-		return _vao.valid();
+		return _error == none;
 	}
 
 	// VBOの取得
@@ -580,8 +581,18 @@ layered_vertex_buffer<T> make_layered_vertex_buffer(const T* vertices, int vcoun
 {
 	return layered_vertex_buffer<T>(vertices, vcount, layouts, lcount, usg);
 }
-template <typename T, typename U> inline
-layered_vertex_buffer<T> make_layered_vertex_buffer(const U& vertices, const vertex_layout* layouts, int count, buffer_usage_t usg = buffer_usage::immutable_draw)
+template <typename T, int N> inline
+layered_vertex_buffer<T> make_layered_vertex_buffer(const T(&vertices)[N], const vertex_layout* layouts, int count, buffer_usage_t usg = buffer_usage::immutable_draw)
+{
+	return layered_vertex_buffer<T>(vertices, layouts, count, usg);
+}
+template <typename T, size_t N, template <typename, size_t> class ARRAY> inline
+layered_vertex_buffer<T> make_layered_vertex_buffer(const ARRAY<T, N>& vertices, const vertex_layout* layouts, int count, buffer_usage_t usg = buffer_usage::immutable_draw)
+{
+	return layered_vertex_buffer<T>(vertices, layouts, count, usg);
+}
+template <typename T, typename ALLOC, template <typename, typename> class VECTOR> inline
+layered_vertex_buffer<T> make_layered_vertex_buffer(const VECTOR<T, ALLOC>& vertices, const vertex_layout* layouts, int count, buffer_usage_t usg = buffer_usage::immutable_draw)
 {
 	return layered_vertex_buffer<T>(vertices, layouts, count, usg);
 }
@@ -590,8 +601,18 @@ layered_vertex_buffer<T> make_layered_vertex_buffer(const T* vertices, int count
 {
 	return layered_vertex_buffer<T>(vertices, count, layouts, usg);
 }
-template <typename T, typename U, typename V>
-layered_vertex_buffer<T> make_layered_vertex_buffer(const U& vertices, const V& layouts, buffer_usage_t usg = buffer_usage::immutable_draw)
+template <typename T, int N, typename U> inline
+layered_vertex_buffer<T> make_layered_vertex_buffer(const T(&vertices)[N], const U& layouts, buffer_usage_t usg = buffer_usage::immutable_draw)
+{
+	return layered_vertex_buffer<T>(vertices, layouts, usg);
+}
+template <typename T, size_t N, typename U, template <typename, size_t> class ARRAY> inline
+layered_vertex_buffer<T> make_layered_vertex_buffer(const ARRAY<T, N>& vertices, const U& layouts, buffer_usage_t usg = buffer_usage::immutable_draw)
+{
+	return layered_vertex_buffer<T>(vertices, layouts, usg);
+}
+template <typename T, typename ALLOC, typename U, template <typename, typename> class VECTOR> inline
+layered_vertex_buffer<T> make_layered_vertex_buffer(const VECTOR<T, ALLOC>& vertices, const U& layouts, buffer_usage_t usg = buffer_usage::immutable_draw)
 {
 	return layered_vertex_buffer<T>(vertices, layouts, usg);
 }
@@ -608,8 +629,20 @@ layered_vertex_buffer<T>& make_layered_vertex_buffer(layered_vertex_buffer<T>& b
 	b.initialize(vertices, vcount, layouts, lcount, usg);
 	return b;
 }
-template <typename T, typename U> inline
-layered_vertex_buffer<T>& make_layered_vertex_buffer(layered_vertex_buffer<T>& b, const U& vertices, const vertex_layout* layouts, int count, buffer_usage_t usg = buffer_usage::immutable_draw)
+template <typename T, int N> inline
+layered_vertex_buffer<T>& make_layered_vertex_buffer(layered_vertex_buffer<T>& b, const T(&vertices)[N], const vertex_layout* layouts, int count, buffer_usage_t usg = buffer_usage::immutable_draw)
+{
+	b.initialize(vertices, layouts, count, usg);
+	return b;
+}
+template <typename T, size_t N, template <typename, size_t> class ARRAY> inline
+layered_vertex_buffer<T>& make_layered_vertex_buffer(layered_vertex_buffer<T>& b, const ARRAY<T, N>& vertices, const vertex_layout* layouts, int count, buffer_usage_t usg = buffer_usage::immutable_draw)
+{
+	b.initialize(vertices, layouts, count, usg);
+	return b;
+}
+template <typename T, typename ALLOC, template <typename, typename> class VECTOR> inline
+layered_vertex_buffer<T>& make_layered_vertex_buffer(layered_vertex_buffer<T>& b, const VECTOR<T, ALLOC>& vertices, const vertex_layout* layouts, int count, buffer_usage_t usg = buffer_usage::immutable_draw)
 {
 	b.initialize(vertices, layouts, count, usg);
 	return b;
@@ -626,6 +659,24 @@ layered_vertex_buffer<T>& make_layered_vertex_buffer(layered_vertex_buffer<T>& b
 	b.initialize(vertices, layouts, usg);
 	return b;
 }
+template <typename T, int N, typename U> inline
+layered_vertex_buffer<T>& make_layered_vertex_buffer(layered_vertex_buffer<T>& b, const T(&vertices)[N], const U& layouts, buffer_usage_t usg = buffer_usage::immutable_draw)
+{
+	b.initialize(vertices, layouts, usg);
+	return b;
+}
+template <typename T, size_t N, typename U, template <typename, size_t> class ARRAY> inline
+layered_vertex_buffer<T>& make_layered_vertex_buffer(layered_vertex_buffer<T>& b, const ARRAY<T, N>& vertices, const U& layouts, buffer_usage_t usg = buffer_usage::immutable_draw)
+{
+	b.initialize(vertices, layouts, usg);
+	return b;
+}
+template <typename T, typename ALLOC, typename U, template <typename, typename> class VECTOR> inline
+layered_vertex_buffer<T>& make_layered_vertex_buffer(layered_vertex_buffer<T>& b, const VECTOR<T, ALLOC>& vertices, const U& layouts, buffer_usage_t usg = buffer_usage::immutable_draw)
+{
+	b.initialize(vertices, layouts, usg);
+	return b;
+}
 
 template <typename CharT, typename CharTraits, typename T> inline
 std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const layered_vertex_buffer<T>& v)
@@ -638,7 +689,7 @@ std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, Ch
 		io::tab2 << io::widen("id: ") << vao.get() << std::endl;
 	if (vao.binding())
 	{
-		os << io::tab2 << io::widen("enable: [") << std::endl;
+		os << io::tab2 << io::widen("enable: {") << std::endl;
 		GLint n = 0;
 		glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &n);
 		for (int i = 0; i < n; ++i)
@@ -653,15 +704,17 @@ std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, Ch
 				os << io::widen("size: ") << vao.size(i) << io::box_brackets_right << std::endl;
 			}
 		}
-		os << io::tab2 << io::box_brackets_right << std::endl;
+		os << io::tab2 << io::braces_right << std::endl;
 	}
 	os << io::tab << io::braces_right << std::endl;
 
 	os << io::tab << io::widen("vbo: {") << std::endl <<
-		io::tab2 << io::widen("id: ") << vbo.get() << std::endl;
+		io::tab2 << io::widen("id: ") << vbo.get() << std::endl <<
+		io::tab2 << io::widen("type size: ") << sizeof(T) << std::endl <<
+		io::tab2 << io::widen("count: ") << vbo.count() << std::endl <<
+		io::tab2 << io::widen("size: ") << (vbo.count() * sizeof(T)) << std::endl;
 	if (vbo.binding())
 	{
-		os << io::tab2 << io::widen("size: ") << vbo.size_binding() << std::endl;
 		std::ios_base::fmtflags flag = os.flags();
 		os << std::hex << io::tab2 << io::widen("usage: 0x") << vbo.usage_binding() << std::endl;
 		os.flags(flag);

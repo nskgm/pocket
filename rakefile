@@ -386,7 +386,7 @@ OBJ_LIST = SOURCE_LIST.map do |e| obj_filepath e end
 # リリースを有効にするか
 RELEASE = !DEBUG
 # アセンブラを出力するか
-ASSEMBLY = false
+ASSEMBLY = true
 
 # 経過時間の計測
 start_time = nil

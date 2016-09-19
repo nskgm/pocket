@@ -28,15 +28,15 @@ namespace math
 
 template <typename> struct matrix4x4;
 
-#ifndef _UNUSING_MATH_INT_FLOAT
+#ifndef POCKET_NO_USING_MATH_INT_FLOAT
 typedef matrix4x4<float> matrix4x4f;
-#endif // _UNUSING_MATH_INT_FLOAT
-#ifdef _USING_MATH_DOUBLE
+#endif // POCKET_NO_USING_MATH_INT_FLOAT
+#ifdef POCKET_USING_MATH_DOUBLE
 typedef matrix4x4<double> matrix4x4d;
-#endif // _USING_MATH_DOUBLE
-#ifdef _USING_MATH_LONG_DOUBLE
+#endif // POCKET_USING_MATH_DOUBLE
+#ifdef POCKET_USING_MATH_LONG_DOUBLE
 typedef matrix4x4<long double> matrix4x4ld;
-#endif // _USING_MATH_LONG_DOUBLE
+#endif // POCKET_USING_MATH_LONG_DOUBLE
 
 template <typename T>
 struct matrix4x4
@@ -137,9 +137,7 @@ struct matrix4x4
 
 	POCKET_DEFAULT_CONSTRUCTOR(matrix4x4);
 	explicit matrix4x4(const behavior::_noinitialize_t&)
-	{
-
-	}
+	{}
 	explicit matrix4x4(const behavior::_zero_t&)
 	{
 		M[0] = row_type::zero;
@@ -376,43 +374,43 @@ struct matrix4x4
 	//---------------------------------------------------------------------
 	// 値か近いか
 	//---------------------------------------------------------------------
-	bool is_near(const matrix4x4& m) const
+	bool near_equal(const matrix4x4& m) const
 	{
-		return M[0].is_near(m.M[0]) &&
-			M[1].is_near(m.M[1]) &&
-			M[2].is_near(m.M[2]) &&
-			M[3].is_near(m.M[3]);
+		return M[0].near_equal(m.M[0]) &&
+			M[1].near_equal(m.M[1]) &&
+			M[2].near_equal(m.M[2]) &&
+			M[3].near_equal(m.M[3]);
 	}
 	//---------------------------------------------------------------------
 	// 値がゼロに近いか
 	//---------------------------------------------------------------------
-	bool is_near_zero() const
+	bool near_equal_zero() const
 	{
-		return M[0].is_near_zero() &&
-			M[1].is_near_zero() &&
-			M[2].is_near_zero() &&
-			M[3].is_near_zero();
+		return M[0].near_equal_zero() &&
+			M[1].near_equal_zero() &&
+			M[2].near_equal_zero() &&
+			M[3].near_equal_zero();
 	}
 	//---------------------------------------------------------------------
 	// 値がすべてゼロか
 	//---------------------------------------------------------------------
-	bool is_zero() const
+	bool equal_zero() const
 	{
-		return M[0].is_zero() &&
-			M[1].is_zero() &&
-			M[2].is_zero() &&
-			M[3].is_zero();
+		return M[0].equal_zero() &&
+			M[1].equal_zero() &&
+			M[2].equal_zero() &&
+			M[3].equal_zero();
 	}
 
 	//---------------------------------------------------------------------
 	// 値が単位行列と近いか
 	//---------------------------------------------------------------------
-	bool is_near_identity() const
+	bool near_identity() const
 	{
-		return M[0].is_near(row_type::unit_x) &&
-			M[1].is_near(row_type::unit_y) &&
-			M[2].is_near(row_type::unit_z) &&
-			M[3].is_near(row_type::unit_w);
+		return M[0].near_equal(row_type::unit_x) &&
+			M[1].near_equal(row_type::unit_y) &&
+			M[2].near_equal(row_type::unit_z) &&
+			M[3].near_equal(row_type::unit_w);
 	}
 
 	//---------------------------------------------------------------------
@@ -1009,7 +1007,7 @@ struct matrix4x4
 		T det = determinant();
 		// 逆行列が存在しない
 		//if (det == math_type::zero)
-		if (math_type::is_near_zero(det))
+		if (math_type::near_equal_zero(det))
 		{
 			// 単位行列
 			return result.load_identity();
@@ -1075,8 +1073,8 @@ struct matrix4x4
 	//---------------------------------------------------------------------
 	matrix4x4 inversed() const
 	{
-		matrix4x4 result(behavior::noinitialize);
-		return inverse(result);;
+		matrix4x4 r(behavior::noinitialize);
+		return inverse(r);
 	}
 	//---------------------------------------------------------------------
 	// ベクトル座標変換（w=1）
@@ -1521,11 +1519,11 @@ struct matrix4x4
 	}
 	bool operator () (const behavior::_near_t&, const matrix4x4& m) const
 	{
-		return is_near(m);
+		return near_equal(m);
 	}
 	bool operator () (const behavior::_near_zero_t&) const
 	{
-		return is_near_zero();
+		return near_equal_zero();
 	}
 
 	vector3<T> operator () (const behavior::_scale_t&) const

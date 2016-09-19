@@ -23,17 +23,17 @@ template <typename> struct vector4;
 template <typename> struct matrix4x4;
 template <typename> struct quaternion;
 
-#ifndef _UNUSING_MATH_INT_FLOAT
+#ifndef POCKET_NO_USING_MATH_INT_FLOAT
 typedef vector3<int> Point3;
 typedef vector3<int> vector3i;
 typedef vector3<float> vector3f;
-#endif // _UNUSING_MATH_INT_FLOAT
-#ifdef _USING_MATH_DOUBLE
+#endif // POCKET_NO_USING_MATH_INT_FLOAT
+#ifdef POCKET_USING_MATH_DOUBLE
 typedef vector3<double> vector3d;
-#endif // _USING_MATH_DOUBLE
-#ifdef _USING_MATH_LONG_DOUBLE
+#endif // POCKET_USING_MATH_DOUBLE
+#ifdef POCKET_USING_MATH_LONG_DOUBLE
 typedef vector3<long double> vector3ld;
-#endif // _USING_MATH_LONG_DOUBLE
+#endif // POCKET_USING_MATH_LONG_DOUBLE
 
 template <typename T>
 struct vector3
@@ -108,9 +108,7 @@ struct vector3
 
 	POCKET_DEFAULT_CONSTRUCTOR(vector3);
 	explicit vector3(const behavior::_noinitialize_t&)
-	{
-
-	}
+	{}
 	explicit vector3(const behavior::_zero_t&) :
 #ifdef POCKET_USE_ANONYMOUS_NORMAL_CONSTRUCT
 		x(math_type::zero), y(math_type::zero),
@@ -118,9 +116,7 @@ struct vector3
 		xy(math_type::zero, math_type::zero),
 #endif
 		z(math_type::zero)
-	{
-
-	}
+	{}
 	explicit vector3(const behavior::_one_t&) :
 #ifdef POCKET_USE_ANONYMOUS_NORMAL_CONSTRUCT
 		x(math_type::one), y(math_type::one),
@@ -128,9 +124,7 @@ struct vector3
 		xy(math_type::one, math_type::one),
 #endif
 		z(math_type::one)
-	{
-
-	}
+	{}
 	explicit vector3(const behavior::_half_t&) :
 #ifdef POCKET_USE_ANONYMOUS_NORMAL_CONSTRUCT
 		x(math_type::half), y(math_type::half),
@@ -138,9 +132,7 @@ struct vector3
 		xy(math_type::half, math_type::half),
 #endif
 		z(math_type::half)
-	{
-
-	}
+	{}
 	explicit vector3(const behavior::_half_of_half_t&) :
 #ifdef POCKET_USE_ANONYMOUS_NORMAL_CONSTRUCT
 		x(math_type::half_of_half), y(math_type::half_of_half),
@@ -148,9 +140,7 @@ struct vector3
 		xy(math_type::half_of_half, math_type::half_of_half),
 #endif
 		z(math_type::half_of_half)
-	{
-
-	}
+	{}
 
 	vector3(T x, T y, T z) :
 #ifdef POCKET_USE_ANONYMOUS_NORMAL_CONSTRUCT
@@ -159,24 +149,20 @@ struct vector3
 		xy(x, y),
 #endif
 		z(z)
-	{
-
-	}
+	{}
 	template <typename U, typename U1, typename U2,
 		POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U),
 		POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U1),
 		POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U2)
 	>
-		vector3(U x, U1 y, U2 z) :
+	vector3(U x, U1 y, U2 z) :
 #ifdef POCKET_USE_ANONYMOUS_NORMAL_CONSTRUCT
 		x(static_cast<T>(x)), y(static_cast<T>(y)),
 #else
 		xy(static_cast<T>(x), static_cast<T>(y)),
 #endif
 		z(static_cast<T>(z))
-	{
-
-	}
+	{}
 	explicit vector3(T f) :
 #ifdef POCKET_USE_ANONYMOUS_NORMAL_CONSTRUCT
 		x(f), y(f),
@@ -184,9 +170,7 @@ struct vector3
 		xy(f),
 #endif
 		z(f)
-	{
-
-	}
+	{}
 	template <typename U, POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
 	explicit vector3(U f) :
 #ifdef POCKET_USE_ANONYMOUS_NORMAL_CONSTRUCT
@@ -195,9 +179,7 @@ struct vector3
 		xy(static_cast<T>(f)),
 #endif
 		z(static_cast<T>(f))
-	{
-
-	}
+	{}
 	vector3(const vector2<T>& v, T z) :
 #ifdef POCKET_USE_ANONYMOUS_NORMAL_CONSTRUCT
 		x(v.x), y(v.y),
@@ -205,9 +187,7 @@ struct vector3
 		xy(v),
 #endif
 		z(z)
-	{
-
-	}
+	{}
 	template <typename U>
 	vector3(const vector2<U>& v, U z) :
 #ifdef POCKET_USE_ANONYMOUS_NORMAL_CONSTRUCT
@@ -216,9 +196,7 @@ struct vector3
 		xy(static_cast<T>(v.x), static_cast<T>(v.y)),
 #endif
 		z(static_cast<T>(z))
-	{
-
-	}
+	{}
 	template <typename U>
 	vector3(const vector3<U>& v) :
 #ifdef POCKET_USE_ANONYMOUS_NORMAL_CONSTRUCT
@@ -227,9 +205,7 @@ struct vector3
 		xy(static_cast<T>(v.x), static_cast<T>(v.y)),
 #endif
 		z(static_cast<T>(v.z))
-	{
-
-	}
+	{}
 	vector3(const T* p) :
 #ifdef POCKET_USE_ANONYMOUS_NORMAL_CONSTRUCT
 		x(p[0]), y(p[1]),
@@ -237,9 +213,7 @@ struct vector3
 		xy(p[0], p[1]),
 #endif
 		z(p[2])
-	{
-
-	}
+	{}
 
 	explicit vector3(const vector4<T>&);
 	template <typename U> explicit vector3(const vector4<U>&); // vector4.h
@@ -326,36 +300,36 @@ struct vector3
 	//---------------------------------------------------------------------
 	// 平行か
 	//---------------------------------------------------------------------
-	bool is_parallel(const vector3& v) const
+	bool parallel(const vector3& v) const
 	{
 		// 長さの積の大きさが一致していたら平行(+: 同方向, -: 逆方向)
-		return math_type::is_near_zero(dot(v) - (length() * v.length()));
+		return math_type::near_equal_zero(dot(v) - (length() * v.length()));
 	}
 	//---------------------------------------------------------------------
 	// 垂直か
 	//---------------------------------------------------------------------
-	bool is_vertical(const vector3& v) const
+	bool vertical(const vector3& v) const
 	{
-		return math_type::is_near_zero(dot(v));
+		return math_type::near_equal_zero(dot(v));
 	}
 	//---------------------------------------------------------------------
 	// 値が近いか
 	//---------------------------------------------------------------------
-	bool is_near(const vector3& v) const
+	bool near_equal(const vector3& v) const
 	{
-		return (math_type::is_near(x, v.x) && math_type::is_near(y, v.y) && math_type::is_near(z, v.z));
+		return (math_type::near_equal(x, v.x) && math_type::near_equal(y, v.y) && math_type::near_equal(z, v.z));
 	}
 	//---------------------------------------------------------------------
 	// 値がゼロに近いか
 	//---------------------------------------------------------------------
-	bool is_near_zero() const
+	bool near_equal_zero() const
 	{
-		return (math_type::is_near_zero(x) && math_type::is_near_zero(y) && math_type::is_near_zero(z));
+		return (math_type::near_equal_zero(x) && math_type::near_equal_zero(y) && math_type::near_equal_zero(z));
 	}
 	//---------------------------------------------------------------------
 	// 値がゼロか
 	//---------------------------------------------------------------------
-	bool is_zero() const
+	bool equal_zero() const
 	{
 		return (x == math_type::zero && y == math_type::zero && z == math_type::zero);
 	}
@@ -1103,11 +1077,11 @@ struct vector3
 	}
 	bool operator () (const behavior::_near_t&, const vector3& v) const
 	{
-		return is_near(v);
+		return near_equal(v);
 	}
 	bool operator () (const behavior::_near_zero_t&) const
 	{
-		return is_near_zero();
+		return near_equal_zero();
 	}
 
 	T operator () (const behavior::_length_t&) const
@@ -1243,16 +1217,12 @@ vector3<T> operator * (T f, const vector3<T>& v)
 template <typename T> inline
 vector2<T>::vector2(const vector3<T>& v) :
 	x(v.x), y(v.y)
-{
-
-}
+{}
 template <typename T>
 template <typename U> inline
 vector2<T>::vector2(const vector3<U>& v) :
 	x(static_cast<T>(v.y)), y(static_cast<T>(v.x))
-{
-
-}
+{}
 
 template <typename T> inline
 vector3<T> vector2<T>::swizzle(int x, int y, int z) const

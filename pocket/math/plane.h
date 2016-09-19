@@ -26,15 +26,15 @@ namespace math
 
 template <typename> struct plane;
 
-#ifndef _UNUSING_MATH_INT_FLOAT
+#ifndef POCKET_NO_USING_MATH_INT_FLOAT
 typedef plane<float> planef;
-#endif // _UNUSING_MATH_INT_FLOAT
-#ifdef _USING_MATH_DOUBLE
+#endif // POCKET_NO_USING_MATH_INT_FLOAT
+#ifdef POCKET_USING_MATH_DOUBLE
 typedef plane<double> planed;
-#endif // _USING_MATH_DOUBLE
-#ifdef _USING_MATH_LONG_DOUBLE
+#endif // POCKET_USING_MATH_DOUBLE
+#ifdef POCKET_USING_MATH_LONG_DOUBLE
 typedef plane<long double> planeld;
-#endif // _USING_MATH_LONG_DOUBLE
+#endif // POCKET_USING_MATH_LONG_DOUBLE
 
 template <typename T>
 struct plane
@@ -67,11 +67,11 @@ struct plane
 	typedef typename simd::type simd_type;
 #endif // POCKET_USE_SIMD_ANONYMOUS
 
-	enum intersect_result
+	enum intersect_result_type
 	{
-		on_forward, // 前面
-		on_backward, // 背面
-		on_plane // 平面上
+		intersect_forward, // 前面
+		intersect_backward, // 背面
+		intersect_plane, // 平面上
 	};
 
 	//-----------------------------------------------------------------------------------------
@@ -125,9 +125,7 @@ struct plane
 
 	POCKET_DEFAULT_CONSTRUCTOR(plane);
 	explicit plane(const behavior::_noinitialize_t&)
-	{
-
-	}
+	{}
 	explicit plane(const behavior::_right_t&, T d) :
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		mm(simd::set(math_type::one, math_type::zero, math_type::zero, -d))
@@ -139,9 +137,7 @@ struct plane
 #	endif
 		d(-d)
 #endif
-	{
-
-	}
+	{}
 	explicit plane(const behavior::_left_t&, T d) :
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		mm(simd::set(-math_type::one, math_type::zero, math_type::zero, -d))
@@ -153,9 +149,7 @@ struct plane
 #	endif
 		d(-d)
 #endif
-	{
-
-	}
+	{}
 	explicit plane(const behavior::_up_t&, T d) :
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		mm(simd::set(math_type::zero, math_type::one, math_type::zero, -d))
@@ -167,9 +161,7 @@ struct plane
 #	endif
 		d(-d)
 #endif
-	{
-
-	}
+	{}
 	explicit plane(const behavior::_down_t&, T d) :
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		mm(simd::set(math_type::zero, -math_type::one, math_type::zero, -d))
@@ -181,9 +173,7 @@ struct plane
 #	endif
 		d(-d)
 #endif
-	{
-
-	}
+	{}
 	explicit plane(const behavior::_front_t&, T d) :
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		mm(simd::set(math_type::zero, math_type::zero, math_type::one, -d))
@@ -195,9 +185,7 @@ struct plane
 #	endif
 		d(-d)
 #endif
-	{
-
-	}
+	{}
 	explicit plane(const behavior::_back_t&, T d) :
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		mm(simd::set(math_type::zero, math_type::zero, -math_type::one, -d))
@@ -209,9 +197,7 @@ struct plane
 #	endif
 		d(-d)
 #endif
-	{
-
-	}
+	{}
 	plane(T a, T b, T c, T d) :
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		mm(simd::set(a, b, c, d))
@@ -223,9 +209,7 @@ struct plane
 #	endif
 		d(d)
 #endif
-	{
-
-	}
+	{}
 	plane(const vector3<T>& n, T d) :
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		mm(simd::set(n.x, n.y, n.z, d))
@@ -237,9 +221,7 @@ struct plane
 #	endif
 		d(d)
 #endif
-	{
-
-	}
+	{}
 	plane(const vector3<T>& v0, const vector3<T>& v1, const vector3<T>& v2)
 	{
 		from_points(v0, v1, v2);
@@ -259,9 +241,7 @@ struct plane
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 	plane(simd_type mm) :
 		mm(mm)
-	{
-
-	}
+	{}
 #endif // POCKET_USE_SIMD_ANONYMOUS
 
 	//-----------------------------------------------------------------------------------------
@@ -271,29 +251,29 @@ struct plane
 	//---------------------------------------------------------------------
 	// 値が近いか
 	//---------------------------------------------------------------------
-	bool is_near(const plane& p) const
+	bool near_equal(const plane& p) const
 	{
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		return simd::near_equal(mm, p.mm);
 #else
-		return (math_type::is_near(a, p.a) && math_type::is_near(b, p.b) && math_type::is_near(c, p.c) && math_type::is_near(d, p.d));
+		return (math_type::near_equal(a, p.a) && math_type::near_equal(b, p.b) && math_type::near_equal(c, p.c) && math_type::near_equal(d, p.d));
 #endif // POCKET_USE_SIMD_ANONYMOUS
 	}
 	//---------------------------------------------------------------------
 	// 値がゼロに近いか
 	//---------------------------------------------------------------------
-	bool is_near_zero() const
+	bool near_equal_zero() const
 	{
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		return simd::near_equal_zero(mm);
 #else
-		return (math_type::is_near_zero(a) && math_type::is_near_zero(b) && math_type::is_near_zero(c) && math_type::is_near_zero(d));
+		return (math_type::near_equal_zero(a) && math_type::near_equal_zero(b) && math_type::near_equal_zero(c) && math_type::near_equal_zero(d));
 #endif // POCKET_USE_SIMD_ANONYMOUS
 	}
 	//---------------------------------------------------------------------
 	// 値がゼロか
 	//---------------------------------------------------------------------
-	bool is_zero() const
+	bool equal_zero() const
 	{
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		return simd::equal(mm, simd::zero());
@@ -500,26 +480,26 @@ struct plane
 	//---------------------------------------------------------------------
 	// 交差判定（型で判定）
 	//---------------------------------------------------------------------
-	bool is_intersect(const line3_type& line) const
+	bool intersect(const line3_type& line) const
 	{
-		return is_intersect_line(line.begin, line.end);
+		return intersect_line(line.begin, line.end);
 	}
-	bool is_intersect(const line4_type& line) const
+	bool intersect(const line4_type& line) const
 	{
-		return is_intersect_line(line.begin, line.end);
+		return intersect_line(line.begin, line.end);
 	}
-	bool is_intersect(const ray3_type& ray) const
+	bool intersect(const ray3_type& ray) const
 	{
-		return is_intersect_ray(ray.origin, ray.direction);
+		return intersect_ray(ray.origin, ray.direction);
 	}
-	bool is_intersect(const ray4_type& ray) const
+	bool intersect(const ray4_type& ray) const
 	{
-		return is_intersect_ray(ray.origin, ray.direction);
+		return intersect_ray(ray.origin, ray.direction);
 	}
 	//---------------------------------------------------------------------
 	// 線分との交差状態か
 	//---------------------------------------------------------------------
-	bool is_intersect_line(const vector3<T>& begin, const vector3<T>& end) const
+	bool intersect_line(const vector3<T>& begin, const vector3<T>& end) const
 	{
 #if 0
 		// 始点から終点へのベクトルを求める
@@ -527,7 +507,7 @@ struct plane
 		end.Direction(begin, dir);
 
 		// 法線ベクトルとの内積が0の場合は垂直になっているので交差していない
-		if (math_type::is_near_zero(normal.dot(dir)))
+		if (math_type::near_equal_zero(normal.dot(dir)))
 		{
 			// 交差なし
 			return false;
@@ -546,11 +526,11 @@ struct plane
 		return dot_coord(begin) * dot_coord(end) <= math_type::zero;
 #endif
 	}
-	bool is_intersect_line(const line3_type& line) const
+	bool intersect_line(const line3_type& line) const
 	{
-		return is_intersect_line(line.begin, line.end);
+		return intersect_line(line.begin, line.end);
 	}
-	bool is_intersect_line(const vector4<T>& begin, const vector4<T>& end) const
+	bool intersect_line(const vector4<T>& begin, const vector4<T>& end) const
 	{
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		simd_type m1 = simd::dot(mm, begin.mm);
@@ -560,24 +540,24 @@ struct plane
 		return dot(begin) * dot(end) <= math_type::zero;
 #endif // POCKET_USE_SIMD_ANONYMOUS
 	}
-	bool is_intersect_line(const line4_type& line) const
+	bool intersect_line(const line4_type& line) const
 	{
-		return is_intersect_line(line.begin, line.end);
+		return intersect_line(line.begin, line.end);
 	}
 	//---------------------------------------------------------------------
 	// 無限線分と交差状態か
 	//---------------------------------------------------------------------
-	bool is_intersect_ray(const vector3<T>& position, const vector3<T>& direction) const
+	bool intersect_ray(const vector3<T>& position, const vector3<T>& direction) const
 	{
 		// 法線との内積を行って0じゃなければいずれ交差する
 		static_cast<void>(position);
 		return normal_dot(direction) != math_type::zero;
 	}
-	bool is_intersect_ray(const ray3_type& ray) const
+	bool intersect_ray(const ray3_type& ray) const
 	{
-		return is_intersect_ray(ray.origin, ray.direction);
+		return intersect_ray(ray.origin, ray.direction);
 	}
-	bool is_intersect_ray(const vector4<T>& position, const vector4<T>& direction) const
+	bool intersect_ray(const vector4<T>& position, const vector4<T>& direction) const
 	{
 		// 法線との内積を行って0じゃなければいずれ交差する
 		static_cast<void>(position);
@@ -587,118 +567,117 @@ struct plane
 		return dot(direction) != math_type::zero;
 #endif // POCKET_USE_SIMD_ANONYMOUS
 	}
-	bool is_intersect_ray(const ray4_type& ray) const
+	bool intersect_ray(const ray4_type& ray) const
 	{
-		return is_intersect_ray(ray.origin, ray.direction);
+		return intersect_ray(ray.origin, ray.direction);
 	}
 	//---------------------------------------------------------------------
 	// 座標との交差状態を求める
 	//---------------------------------------------------------------------
-	intersect_result intersect_point(const vector3<T>& point) const
+	intersect_result_type intersect_point(const vector3<T>& point) const
 	{
 		// 法線上の点との距離を計算
 		T distance = dot_coord(point);
 
 		if (distance >= math_type::epsilon)
 		{
-			return on_forward;
+			return intersect_forward;
 		}
 		if (distance <= -math_type::epsilon)
 		{
-			return on_backward;
+			return intersect_backward;
 		}
-		return on_plane;
+		return intersect_plane;
 	}
-	bool is_intersect_point(const vector3<T>& point) const
+	bool intersect_point(const vector3<T>& point, intersect_result_type res) const
 	{
-		return intersect_point(point) == on_plane;
+		return intersect_point(point) == res;
 	}
-	intersect_result intersect_point(const vector4<T>& point) const
+	intersect_result_type intersect_point(const vector4<T>& point) const
 	{
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		simd_type m = simd::dot(mm, point.mm);
 		simd_type ep = simd::set(math_type::epsilon);
 		if (simd::greater_equal(m, ep))
 		{
-			return on_forward;
+			return intersect_forward;
 		}
 		if (simd::less_equal(m, simd::negate(ep)))
 		{
-			return on_backward;
+			return intersect_backward;
 		}
-		return on_plane;
+		return intersect_plane;
 #else
 		T distance = dot(point);
 		if (distance >= math_type::epsilon)
 		{
-			return on_forward;
+			return intersect_forward;
 		}
 		if (distance <= -math_type::epsilon)
 		{
-			return on_backward;
+			return intersect_backward;
 		}
-		return on_plane;
+		return intersect_plane;
 #endif // POCKET_USE_SIMD_ANONYMOUS
 	}
-	bool is_intersect_point(const vector4<T>& point) const
+	bool intersect_point(const vector4<T>& point, intersect_result_type res) const
 	{
-		return intersect_point(point) == on_plane;
+		return intersect_point(point) == res;
 	}
 	//---------------------------------------------------------------------
 	// 球との交差状態を求める
 	//---------------------------------------------------------------------
-	intersect_result intersect_sphere(const vector3<T>& center, T radius) const
+	intersect_result_type intersect_sphere(const vector3<T>& center, T radius) const
 	{
 		T distance = dot_coord(center);
 
 		// 半径より小さかったら平面上に存在している
 		if (math_type::abs(distance) <= radius)
 		{
-			return on_plane;
+			return intersect_plane;
 		}
 		// 半径より大きい場合は前面
 		if (distance > radius)
 		{
-			return on_forward;
+			return intersect_forward;
 		}
-		return on_backward;
+		return intersect_backward;
 	}
-	bool is_intersect_sphere(const vector3<T>& center, T radius) const
+	bool intersect_sphere(const vector3<T>& center, T radius, intersect_result_type res) const
 	{
-		return intersect_sphere(center, radius) == on_plane;
+		return intersect_sphere(center, radius) == res;
 	}
-	intersect_result intersect_sphere(const vector4<T>& center, T radius) const
+	intersect_result_type intersect_sphere(const vector4<T>& center, T radius) const
 	{
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		simd_type m = simd::dot(mm, center.mm);
 		simd_type r = simd::set(radius);
 		if (simd::less_equal(simd::abs(m), r))
 		{
-			return on_plane;
+			return intersect_plane;
 		}
 		if (simd::greater(m, r))
 		{
-			return on_forward;
+			return intersect_forward;
 		}
-		return on_backward;
+		return intersect_backward;
 #else
 		T distance = dot(center);
 		if (math_type::abs(distance) <= radius)
 		{
-			return on_plane;
+			return intersect_plane;
 		}
 		if (distance > radius)
 		{
-			return on_forward;
+			return intersect_forward;
 		}
-		return on_backward;
+		return intersect_backward;
 #endif // POCKET_USE_SIMD_ANONYMOUS
 	}
-	bool is_intersect_sphere(const vector4<T>& center, T radius) const
+	bool intersect_sphere(const vector4<T>& center, T radius, intersect_result_type res) const
 	{
-		return intersect_sphere(center, radius) == on_plane;
+		return intersect_sphere(center, radius) == res;
 	}
-
 
 	//---------------------------------------------------------------------
 	// 法線補助
@@ -1010,11 +989,11 @@ struct plane
 	}
 	bool operator () (const behavior::_near_t&, const plane& q) const
 	{
-		return is_near(q);
+		return near_equal(q);
 	}
 	bool operator () (const behavior::_near_zero_t&) const
 	{
-		return is_near_zero();
+		return near_equal_zero();
 	}
 
 	plane& operator () (const behavior::_normalize_t&)
@@ -1048,27 +1027,27 @@ struct plane
 	}
 	bool operator () (const behavior::_intersect_t&, const ray<T, vector3>& r) const
 	{
-		return is_intersect_ray(r);
+		return intersect_ray(r);
 	}
 	bool operator () (const behavior::_intersect_t&, const line<T, vector3>& l) const
 	{
-		return is_intersect_line(l);
+		return intersect_line(l);
 	}
 	bool operator () (const behavior::_intersect_ray_t&, const ray<T, vector3>& r) const
 	{
-		return is_intersect_ray(r);
+		return intersect_ray(r);
 	}
 	bool operator () (const behavior::_intersect_ray_t&, const vector3<T>& position, const vector3<T>& direction) const
 	{
-		return is_intersect_ray(position, direction);
+		return intersect_ray(position, direction);
 	}
 	bool operator () (const behavior::_intersect_line_t&, const line<T, vector3>& l) const
 	{
-		return is_intersect_line(l);
+		return intersect_line(l);
 	}
 	bool operator () (const behavior::_intersect_line_t&, const vector3<T>& begin, const vector3<T>& end) const
 	{
-		return is_intersect_line(begin, end);
+		return intersect_line(begin, end);
 	}
 };
 
@@ -1086,15 +1065,15 @@ template <typename T>
 const plane<T> plane<T>::backward(math_type::zero, math_type::zero, -math_type::one, math_type::zero);
 
 template <typename T, template <typename> class VectorN> inline
-bool line<T, VectorN>::is_intersect(const plane<T>& p) const
+bool line<T, VectorN>::intersect(const plane<T>& p) const
 {
-	return p.is_intersect_line(begin, end);
+	return p.intersect_line(begin, end);
 }
 
 template <typename T, template <typename> class VectorN> inline
-bool ray<T, VectorN>::is_intersect(const plane<T>& p) const
+bool ray<T, VectorN>::intersect(const plane<T>& p) const
 {
-	return p.is_intersect_ray(origin, direction);
+	return p.intersect_ray(origin, direction);
 }
 
 template <typename CharT, typename CharTraits, typename T> inline

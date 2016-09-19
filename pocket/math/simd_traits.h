@@ -124,7 +124,7 @@ struct simd_traits
 	//---------------------------------------------------------------------
 	// 並列計算はできない
 	//---------------------------------------------------------------------
-	static POCKET_INLINE_FORCE bool is_vectorize()
+	static POCKET_INLINE_FORCE bool vectorize()
 	{
 		return false;
 	}
@@ -632,17 +632,17 @@ struct simd_traits
 	}
 	static POCKET_INLINE_FORCE bool near_equal_zero(type_const_reference mm1)
 	{
-		return math_type::is_near_zero(mm1.mm[0]) &&
-			math_type::is_near_zero(mm1.mm[1]) &&
-			math_type::is_near_zero(mm1.mm[2]) &&
-			math_type::is_near_zero(mm1.mm[3]);
+		return math_type::near_equal_zero(mm1.mm[0]) &&
+			math_type::near_equal_zero(mm1.mm[1]) &&
+			math_type::near_equal_zero(mm1.mm[2]) &&
+			math_type::near_equal_zero(mm1.mm[3]);
 	}
 	static POCKET_INLINE_FORCE bool near_equal(type_const_reference mm1, type_const_reference mm2)
 	{
-		return math_type::is_near(mm1.mm[0], mm2.mm[0]) &&
-			math_type::is_near(mm1.mm[1], mm2.mm[1]) &&
-			math_type::is_near(mm1.mm[2], mm2.mm[2]) &&
-			math_type::is_near(mm1.mm[3], mm2.mm[3]);
+		return math_type::near_equal(mm1.mm[0], mm2.mm[0]) &&
+			math_type::near_equal(mm1.mm[1], mm2.mm[1]) &&
+			math_type::near_equal(mm1.mm[2], mm2.mm[2]) &&
+			math_type::near_equal(mm1.mm[3], mm2.mm[3]);
 	}
 
 	//---------------------------------------------------------------------
@@ -832,7 +832,7 @@ namespace detail
 template <typename T>
 struct __mvec3;
 
-#	ifndef _UNUSING_MATH_INT_FLOAT
+#	ifndef POCKET_NO_USING_MATH_INT_FLOAT
 template <>
 struct __mvec3<float>
 {
@@ -842,9 +842,9 @@ struct __mvec3<float>
 	type mm;
 	value_type f;
 };
-#	endif // _UNUSING_MATH_INT_FLOAT
+#	endif // POCKET_NO_USING_MATH_INT_FLOAT
 
-#	ifdef _USING_MATH_DOUBLE
+#	ifdef POCKET_USING_MATH_DOUBLE
 template <>
 struct __mvec3<double>
 {
@@ -854,7 +854,7 @@ struct __mvec3<double>
 	type mm;
 	value_type f;
 };
-#	endif // _USING_MATH_DOUBLE
+#	endif // POCKET_USING_MATH_DOUBLE
 #endif // POCKET_USE_SIMD_TYPE >= POCKET_SIMD_TYPE_SSE2
 }
 
@@ -899,7 +899,7 @@ struct simd_traits<float>
 	//---------------------------------------------------------------------
 	// 並列計算ができる
 	//---------------------------------------------------------------------
-	static POCKET_INLINE_FORCE bool is_vectorize()
+	static POCKET_INLINE_FORCE bool vectorize()
 	{
 		return true;
 	}

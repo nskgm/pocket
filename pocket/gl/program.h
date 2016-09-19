@@ -13,8 +13,18 @@
 #include "../container/array.h"
 #include "shader.h"
 #include "common_type.h"
+#include "../math/vector2.h"
+#include "../math/vector3.h"
+#include "../math/vector4.h"
+#include "../math/quaternion.h"
+#include "../math/matrix3x3.h"
+#include "../math/matrix4x4.h"
+#include "../math/color.h"
 #include <string>
 #include <fstream>
+#ifdef POCKET_USE_CXX11
+#include <initializer_list>
+#endif // POCKET_USE_CXX11
 
 namespace pocket
 {
@@ -154,8 +164,92 @@ struct uniform_return_type
 
 // VScodeシンタックスハイライト解除回避
 // defineのスコープもおかしくなっているのでdetailの中に宣言
-#define __POCKET_STD_STRING_ARRAY_REF(NAME, N) const std::string(&NAME)[N]
+#define __POCKET_ARRAY_REF(TYPE, NAME, N) const TYPE(&NAME)[N]
+#define __POCKET_STD_STRING_ARRAY_REF(NAME, N) __POCKET_ARRAY_REF(std::string, NAME, N)
 
+// 組み込み型用uniform関数
+#define __POCKET_PROGRAM_UNIFORM(TYPE, SUFFIX) \
+	void uniform(GLint loc, TYPE v) const\
+	{\
+		glUniform##SUFFIX(loc, v);\
+	}\
+	void uniform(GLint loc, const TYPE* v, int count) const\
+	{\
+		glUniform##SUFFIX##v(loc, count, v);\
+	}\
+	void uniform(const char* name, TYPE v) const\
+	{\
+		glUniform##SUFFIX(uniform_location(name), v);\
+	}\
+	void uniform(const char* name, const TYPE* v, int count) const\
+	{\
+		glUniform##SUFFIX##v(uniform_location(name), count, v);\
+	}\
+	void uniform(const std::string& name, TYPE v) const\
+	{\
+		glUniform##SUFFIX(uniform_location(name), v);\
+	}\
+	void uniform(const std::string& name, const TYPE* v, int count) const\
+	{\
+		glUniform##SUFFIX##v(uniform_location(name), count, v);\
+	}
+
+// 定義済み型用uniform関数
+#define __POCKET_PROGRAM_UNIFORM_TYPED(TYPE, SUFFIX, ...) \
+	void uniform(GLint loc, const TYPE& v) const\
+	{\
+		glUniform##SUFFIX(loc, ##__VA_ARGS__);\
+	}\
+	void uniform(GLint loc, const TYPE* v, int count) const\
+	{\
+		glUniform##SUFFIX##v(loc, count, &v[0][0]);\
+	}\
+	void uniform(const char* name, const TYPE& v) const\
+	{\
+		glUniform##SUFFIX(uniform_location(name), ##__VA_ARGS__);\
+	}\
+	void uniform(const char* name, const TYPE* v, int count) const\
+	{\
+		glUniform##SUFFIX##v(uniform_location(name), count, &v[0][0]);\
+	}\
+	void uniform(const std::string& name, const TYPE& v) const\
+	{\
+		glUniform##SUFFIX(uniform_location(name), ##__VA_ARGS__);\
+	}\
+	void uniform(const std::string& name, const TYPE* v, int count) const\
+	{\
+		glUniform##SUFFIX##v(uniform_location(name), count, &v[0][0]);\
+	}
+
+// 配列型用uniform関数
+#define __POCKET_PROGRAM_UNIFORM_ARRAY(TYPE, N, SUFFIX, ...) \
+	void uniform(GLint loc, __POCKET_ARRAY_REF(TYPE, v, N)) const\
+	{\
+		glUniform##SUFFIX(loc, ##__VA_ARGS__);\
+	}\
+	template <int VEC>\
+	void uniform(GLint loc, __POCKET_ARRAY_REF(TYPE, v, VEC)[N]) const\
+	{\
+		glUniform##SUFFIX##v(loc, VEC, &v[0][0]);\
+	}\
+	void uniform(const char* name, __POCKET_ARRAY_REF(TYPE, v, N)) const\
+	{\
+		glUniform##SUFFIX(uniform_location(name), ##__VA_ARGS__);\
+	}\
+	template <int VEC>\
+	void uniform(const char* name, __POCKET_ARRAY_REF(TYPE, v, VEC)[N]) const\
+	{\
+		glUniform##SUFFIX##v(uniform_location(name), VEC, &v[0][0]);\
+	}\
+	void uniform(const std::string& name, __POCKET_ARRAY_REF(TYPE, v, N)) const\
+	{\
+		glUniform##SUFFIX(uniform_location(name), ##__VA_ARGS__);\
+	}\
+	template <int VEC>\
+	void uniform(const std::string& name, __POCKET_ARRAY_REF(TYPE, v, VEC)[N]) const\
+	{\
+		glUniform##SUFFIX##v(uniform_location(name), VEC, &v[0][0]);\
+	}
 }
 
 class program
@@ -346,7 +440,7 @@ public:
 		// バイナリ情報を送る
 		glProgramBinary(_id, format, bin.data(), length);
 		// リンクできているか
-		return is_linked();
+		return linked();
 	}
 	bool initialize(const std::string& path, GLenum format, bool file_front_format_written = true)
 	{
@@ -366,7 +460,7 @@ public:
 			return false;
 		}
 		glProgramBinary(_id, format, bin.data(), length);
-		return is_linked();
+		return linked();
 	}
 	bool initialize(const std::string& path, bool file_front_format_written = true)
 	{
@@ -537,6 +631,83 @@ public:
 		}
 		return true;
 	}
+
+	// ユニフォーム変数へ値を送る
+	__POCKET_PROGRAM_UNIFORM(GLint, 1i);
+	__POCKET_PROGRAM_UNIFORM(GLuint, 1ui);
+	__POCKET_PROGRAM_UNIFORM(GLfloat, 1f);
+	//__POCKET_PROGRAM_UNIFORM(GLdouble, 1d);
+
+	__POCKET_PROGRAM_UNIFORM_ARRAY(GLint, 2, 2i, v[0], v[1]);
+	__POCKET_PROGRAM_UNIFORM_ARRAY(GLuint, 2, 2ui, v[0], v[1]);
+	__POCKET_PROGRAM_UNIFORM_ARRAY(GLfloat, 2, 2f, v[0], v[1]);
+	//__POCKET_PROGRAM_UNIFORM_ARRAY(GLdouble, 2, 2d, v[0], v[1]);
+
+	__POCKET_PROGRAM_UNIFORM_ARRAY(GLint, 3, 3i, v[0], v[1], v[2]);
+	__POCKET_PROGRAM_UNIFORM_ARRAY(GLuint, 3, 3ui, v[0], v[1], v[2]);
+	__POCKET_PROGRAM_UNIFORM_ARRAY(GLfloat, 3, 3f, v[0], v[1], v[2]);
+	//__POCKET_PROGRAM_UNIFORM_ARRAY(GLdouble, 3, 3d, v[0], v[1], v[2]);
+
+	__POCKET_PROGRAM_UNIFORM_ARRAY(GLint, 4, 4i, v[0], v[1], v[2], v[3]);
+	__POCKET_PROGRAM_UNIFORM_ARRAY(GLuint, 4, 4ui, v[0], v[1], v[2], v[3]);
+	__POCKET_PROGRAM_UNIFORM_ARRAY(GLfloat, 4, 4f, v[0], v[1], v[2], v[3]);
+	//__POCKET_PROGRAM_UNIFORM_ARRAY(GLdouble, 4, 4d, v[0], v[1], v[2], v[3]);
+
+#ifndef POCKET_NO_USING_MATH_INT_FLOAT
+	__POCKET_PROGRAM_UNIFORM_TYPED(math::vector2<int>, 2i, v.x, v.y);
+	__POCKET_PROGRAM_UNIFORM_TYPED(math::vector2<float>, 2f, v.x, v.y);
+
+	__POCKET_PROGRAM_UNIFORM_TYPED(math::vector3<int>, 3i, v.x, v.y, v.z);
+	__POCKET_PROGRAM_UNIFORM_TYPED(math::vector3<float>, 3f, v.x, v.y, v.z);
+
+	__POCKET_PROGRAM_UNIFORM_TYPED(math::vector4<int>, 4i, v.x, v.y, v.z, v.w);
+	__POCKET_PROGRAM_UNIFORM_TYPED(math::vector4<float>, 4f, v.x, v.y, v.z, v.w);
+
+	__POCKET_PROGRAM_UNIFORM_TYPED(math::quaternion<float>, 4f, v.x, v.y, v.z, v.w);
+	__POCKET_PROGRAM_UNIFORM_TYPED(math::color<float>, 4f, v.r, v.g, v.b, v.a);
+#endif // POCKET_NO_USING_MATH_INT_FLOAT
+
+#ifdef POCKET_USING_MATH_DOUBLE
+	//__POCKET_PROGRAM_UNIFORM_TYPED(math::vector2<double>, 2d, v.x, v.y);
+	//__POCKET_PROGRAM_UNIFORM_TYPED(math::vector3<double>, 3d, v.x, v.y, v.z);
+	//__POCKET_PROGRAM_UNIFORM_TYPED(math::vector4<double>, 4d, v.x, v.y, v.z, v.w);
+	//__POCKET_PROGRAM_UNIFORM_TYPED(math::quaternion<double>, 4d, v.x, v.y, v.z, v.w);
+	//__POCKET_PROGRAM_UNIFORM_TYPED(math::color<double>, 4d, v.r, v.g, v.b, v.a);
+#endif // POCKET_USING_MATH_DOUBLE
+
+	template <typename T, int N>
+	void uniform(GLint loc, __POCKET_ARRAY_REF(T, v, N)) const
+	{
+		uniform(loc, &v[0], N);
+	}
+	template <typename T, size_t N, template <typename, size_t> class ARRAY>
+	void uniform(GLint loc, const ARRAY<T, N>& v) const
+	{
+		uniform(loc, &v[0], N);
+	}
+	template <typename T, typename ALLOC, template <typename, typename> class VECTOR>
+	void uniform(GLint loc, const VECTOR<T, ALLOC>& v) const
+	{
+		uniform(loc, &v[0], v.size());
+	}
+
+#ifdef POCKET_USE_CXX11
+	template <typename T>
+	void uniform(GLint loc, const std::initializer_list<T>& il) const
+	{
+		uniform(loc, list.begin(), static_cast<GLsizei>(list.size()));
+	}
+	template <typename T>
+	void uniform(const char* name, const std::initializer_list<T>& il) const
+	{
+		uniform(name, list.begin(), static_cast<GLsizei>(list.size()));
+	}
+	template <typename T>
+	void uniform(const std::string& name, const std::initializer_list<T>& il) const
+	{
+		uniform(name, list.begin(), static_cast<GLsizei>(list.size()));
+	}
+#endif // POCKET_USE_CXX11
 
 	// ユニフォーム変数のローケーション取得
 	GLint uniform_location(const char* name) const
@@ -1151,9 +1322,9 @@ private:
 	{
 		// プログラムのリンク
 		glLinkProgram(_id);
-		return is_linked();
+		return linked();
 	}
-	bool is_linked()
+	bool linked()
 	{
 		// リンクできているか
 		GLint linked;
@@ -1256,6 +1427,8 @@ public:
 	 >::type
 		operator [] (const T& v) const
 	{
+		// 文字列でロケーションを返す
+		// ロケーションで代入するための型を返す
 		typedef typename type_traits::remove_cv_reference<T>::type _type;
 		return detail::call_uniform<_type>::call(_id, v);
 	}
@@ -1283,7 +1456,11 @@ bool shader::subroutine(const std::string(&name)[N], const program& prog) const
 	return prog.subroutine(name, _type);
 }
 
+#undef __POCKET_ARRAY_REF
 #undef __POCKET_STD_STRING_ARRAY_REF
+#undef __POCKET_PROGRAM_UNIFORM
+#undef __POCKET_PROGRAM_UNIFORM_TYPED
+#undef __POCKET_PROGRAM_UNIFORM_ARRAY
 
 // プログラム作成
 inline

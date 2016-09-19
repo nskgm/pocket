@@ -23,15 +23,15 @@ template <typename> struct quaternion;
 template <typename> struct matrix3x3;
 template <typename> struct matrix4x4;
 
-#ifndef _UNUSING_MATH_INT_FLOAT
+#ifndef POCKET_NO_USING_MATH_INT_FLOAT
 typedef quaternion<float> quaternionf;
-#endif // _UNUSING_MATH_INT_FLOAT
-#ifdef _USING_MATH_DOUBLE
+#endif // POCKET_NO_USING_MATH_INT_FLOAT
+#ifdef POCKET_USING_MATH_DOUBLE
 typedef quaternion<double> quaterniond;
-#endif // _USING_MATH_DOUBLE
-#ifdef _USING_MATH_LONG_DOUBLE
+#endif // POCKET_USING_MATH_DOUBLE
+#ifdef POCKET_USING_MATH_LONG_DOUBLE
 typedef quaternion<long double> quaternionld;
-#endif // _USING_MATH_LONG_DOUBLE
+#endif // POCKET_USING_MATH_LONG_DOUBLE
 
 template <typename T>
 struct quaternion
@@ -91,31 +91,21 @@ struct quaternion
 
 	POCKET_DEFAULT_CONSTRUCTOR(quaternion);
 	explicit quaternion(const behavior::_noinitialize_t&)
-	{
-
-	}
+	{}
 	explicit quaternion(const behavior::_zero_t&) :
 		x(math_type::zero), y(math_type::zero), z(math_type::zero),
 		w(math_type::zero)
-	{
-
-	}
+	{}
 	explicit quaternion(const behavior::_identity_t&) :
 		x(math_type::zero), y(math_type::zero), z(math_type::zero),
 		w(math_type::one)
-	{
-
-	}
+	{}
 	quaternion(T x, T y, T z, T w) :
 		x(x), y(y), z(z), w(w)
-	{
-
-	}
+	{}
 	explicit quaternion(T f) :
 		x(f), y(f), z(f), w(f)
-	{
-
-	}
+	{}
 	explicit quaternion(const vector3<T>& axis, T deg)
 	{
 		from_axis(axis, deg);
@@ -184,21 +174,21 @@ struct quaternion
 	//---------------------------------------------------------------------
 	// 値が近いか
 	//---------------------------------------------------------------------
-	bool is_near(const quaternion& q) const
+	bool near_equal(const quaternion& q) const
 	{
-		return (math_type::is_near(x, q.x) && math_type::is_near(y, q.y) && math_type::is_near(z, q.z) && math_type::is_near(w, q.w));
+		return (math_type::near_equal(x, q.x) && math_type::near_equal(y, q.y) && math_type::near_equal(z, q.z) && math_type::near_equal(w, q.w));
 	}
 	//---------------------------------------------------------------------
 	// 値がゼロに近いか
 	//---------------------------------------------------------------------
-	bool is_near_zero() const
+	bool near_equal_zero() const
 	{
-		return (math_type::is_near_zero(x) && math_type::is_near_zero(y) && math_type::is_near_zero(z) && math_type::is_near_zero(w));
+		return (math_type::near_equal_zero(x) && math_type::near_equal_zero(y) && math_type::near_equal_zero(z) && math_type::near_equal_zero(w));
 	}
 	//---------------------------------------------------------------------
 	// 値がゼロか
 	//---------------------------------------------------------------------
-	bool is_zero() const
+	bool equal_zero() const
 	{
 		return (x == math_type::zero && y == math_type::zero && z == math_type::zero && w == math_type::zero);
 	}
@@ -206,9 +196,9 @@ struct quaternion
 	//---------------------------------------------------------------------
 	// 値が単位クォータニオンに近いか
 	//---------------------------------------------------------------------
-	bool is_near_identity() const
+	bool near_identity() const
 	{
-		return is_near(quaternion::identity);
+		return near_equal(quaternion::identity);
 	}
 
 	//---------------------------------------------------------------------
@@ -274,7 +264,7 @@ struct quaternion
 	quaternion inverse()
 	{
 		T len = length_sq();
-		if (math_type::is_near_zero(len))
+		if (math_type::near_equal_zero(len))
 		{
 			return *this;
 		}
@@ -290,7 +280,7 @@ struct quaternion
 	quaternion& inverse(quaternion& result) const
 	{
 		T len = length_sq();
-		if (math_type::is_near_zero(len))
+		if (math_type::near_equal_zero(len))
 		{
 			return result.load_identity();
 		}
@@ -758,11 +748,11 @@ struct quaternion
 	}
 	bool operator () (const behavior::_near_t&, const quaternion& q) const
 	{
-		return is_near(q);
+		return near_equal(q);
 	}
 	bool operator () (const behavior::_near_zero_t&) const
 	{
-		return is_near_zero();
+		return near_equal_zero();
 	}
 
 	T operator () (const behavior::_length_t&) const
@@ -831,15 +821,15 @@ template <typename T>
 const quaternion<T> quaternion<T>::zero(math_type::zero, math_type::zero, math_type::zero, math_type::zero);
 template <typename T>
 const quaternion<T> quaternion<T>::identity(math_type::zero, math_type::zero, math_type::zero, math_type::one);
-#ifndef _UNUSING_MATH_INT_FLOAT
+#ifndef POCKET_NO_USING_MATH_INT_FLOAT
 template <> const float quaternion<float>::error_slerp_value = 0.001f;
-#endif // _UNUSING_MATH_INT_FLOAT
-#ifdef _USING_MATH_DOUBLE
+#endif // POCKET_NO_USING_MATH_INT_FLOAT
+#ifdef POCKET_USING_MATH_DOUBLE
 template <> const double quaternion<double>::error_slerp_value = 0.001;
-#endif // _USING_MATH_DOUBLE
-#ifdef _USING_MATH_LONG_DOUBLE
+#endif // POCKET_USING_MATH_DOUBLE
+#ifdef POCKET_USING_MATH_LONG_DOUBLE
 template <> const long double quaternion<long double>::error_slerp_value = 0.001L;
-#endif // _USING_MATH_LONG_DOUBLE
+#endif // POCKET_USING_MATH_LONG_DOUBLE
 
 //---------------------------------------------------------------------
 // vector3.Rotate

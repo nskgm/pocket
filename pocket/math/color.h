@@ -20,15 +20,15 @@ namespace math
 {
 
 template <typename> struct color;
-#ifndef _UNUSING_MATH_INT_FLOAT
+#ifndef POCKET_NO_USING_MATH_INT_FLOAT
 typedef color<float> colorf;
-#endif // _UNUSING_MATH_INT_FLOAT
-#ifdef _USING_MATH_DOUBLE
+#endif // POCKET_NO_USING_MATH_INT_FLOAT
+#ifdef POCKET_USING_MATH_DOUBLE
 typedef color<double> colord;
-#endif // _USING_MATH_DOUBLE
-#ifdef _USING_MATH_LONG_DOUBLE
+#endif // POCKET_USING_MATH_DOUBLE
+#ifdef POCKET_USING_MATH_LONG_DOUBLE
 typedef color<long double> colorld;
-#endif // _USING_MATH_LONG_DOUBLE
+#endif // POCKET_USING_MATH_LONG_DOUBLE
 
 template <typename T>
 struct color
@@ -111,18 +111,14 @@ struct color
 
 	POCKET_DEFAULT_CONSTRUCTOR(color);
 	explicit color(const behavior::_noinitialize_t&)
-	{
-
-	}
+	{}
 	color(T r, T g, T b, T a) :
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		mm(simd::set(r, g, b, a))
 #else
 		r(r), g(g), b(b), a(a)
 #endif // POCKET_USE_SIMD_ANONYMOUS
-	{
-
-	}
+	{}
 	template <typename U, typename U1, typename U2, typename U3,
 		POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U),
 		POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U1),
@@ -135,9 +131,7 @@ struct color
 #else
 		r(static_cast<T>(r)), g(static_cast<T>(g)), b(static_cast<T>(b)), a(static_cast<T>(a))
 #endif // POCKET_USE_SIMD_ANONYMOUS
-	{
-
-	}
+	{}
 	template <typename U>
 	color(const color<U>& c) :
 #ifdef POCKET_USE_SIMD_ANONYMOUS
@@ -145,9 +139,7 @@ struct color
 #else
 		r(static_cast<T>(c.r)), g(static_cast<T>(c.g)), b(static_cast<U>(c.b)), a(static_cast<U>(c.a))
 #endif // POCKET_USE_SIMD_ANONYMOUS
-	{
-
-	}
+	{}
 	color(int_type bytes) :
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		mm(simd::set(color::byte_to_float_r(bytes),
@@ -160,15 +152,11 @@ struct color
 		b(color::byte_to_float_b(bytes)),
 		a(color::byte_to_float_a(bytes))
 #endif // POCKET_USE_SIMD_ANONYMOUS
-	{
-
-	}
+	{}
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 	explicit color(simd_type mm) :
 		mm(mm)
-	{
-
-	}
+	{}
 #endif // POCKET_USE_SIMD_ANONYMOUS
 
 	//------------------------------------------------------------------------------------------
@@ -256,29 +244,29 @@ struct color
 	//---------------------------------------------------------------------
 	// 値が等しいか
 	//---------------------------------------------------------------------
-	bool is_near(const color& c) const
+	bool near_equal(const color& c) const
 	{
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		return simd::near_equal(mm, c.mm);
 #else
-		return (math_type::is_near(r, c.r) && math_type::is_near(g, c.g) && math_type::is_near(b, c.b) && math_type::is_near(a, c.a));
+		return (math_type::near_equal(r, c.r) && math_type::near_equal(g, c.g) && math_type::near_equal(b, c.b) && math_type::near_equal(a, c.a));
 #endif // POCKET_USE_SIMD_ANONYMOUS
 	}
 	//---------------------------------------------------------------------
 	// 値がすべてゼロに等しいか
 	//---------------------------------------------------------------------
-	bool is_near_zero() const
+	bool near_equal_zero() const
 	{
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		return simd::near_equal_zero(mm);
 #else
-		return (math_type::is_near_zero(r) && math_type::is_near_zero(g) && math_type::is_near_zero(b) && math_type::is_near_zero(a));
+		return (math_type::near_equal_zero(r) && math_type::near_equal_zero(g) && math_type::near_equal_zero(b) && math_type::near_equal_zero(a));
 #endif // POCKET_USE_SIMD_ANONYMOUS
 	}
 	//---------------------------------------------------------------------
 	// 値がすべてゼロか
 	//---------------------------------------------------------------------
-	bool is_zero() const
+	bool equal_zero() const
 	{
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		return simd::equal(mm, simd::zero());
@@ -609,18 +597,18 @@ template <typename T>
 const color<T> color<T>::clear(math_type::one, math_type::one, math_type::one, math_type::half_of_half);
 template <typename T>
 const color<T> color<T>::none(math_type::zero, math_type::zero, math_type::zero, math_type::zero);
-#ifndef _UNUSING_MATH_INT_FLOAT
+#ifndef POCKET_NO_USING_MATH_INT_FLOAT
 template <> const float color<float>::float2byte = 255.0f;
 template <> const float color<float>::byte2float = 1.0f / 255.0f;
-#endif // _UNUSING_MATH_INT_FLOAT
-#ifdef _USING_MATH_DOUBLE
+#endif // POCKET_NO_USING_MATH_INT_FLOAT
+#ifdef POCKET_USING_MATH_DOUBLE
 template <> const double color<double>::float2byte = 255.0;
 template <> const double color<double>::byte2float = 1.0 / 255.0;
-#endif // _USING_MATH_DOUBLE
-#ifdef _USING_MATH_LONG_DOUBLE
+#endif // POCKET_USING_MATH_DOUBLE
+#ifdef POCKET_USING_MATH_LONG_DOUBLE
 template <> const long double color<long double>::float2byte = 255.0L;
 template <> const long double color<long double>::byte2float = 1.0L / 255.0L;
-#endif // _USING_MATH_LONG_DOUBLE
+#endif // POCKET_USING_MATH_LONG_DOUBLE
 
 template <typename CharT, typename CharTraits, typename T> inline
 std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const color<T>& c)

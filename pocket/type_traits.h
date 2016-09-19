@@ -205,7 +205,7 @@ template <typename T>
 struct is_math_floating_type : false_type
 {};
 
-#ifndef _UNUSING_MATH_INT_FLOAT
+#ifndef POCKET_NO_USING_MATH_INT_FLOAT
 template <>
 struct is_math_type<int> : true_type
 {};
@@ -215,23 +215,23 @@ struct is_math_type<float> : true_type
 template <>
 struct is_math_floating_type<float> : true_type
 {};
-#endif // _UNUSING_MATH_INT_FLOAT
-#ifdef _USING_MATH_DOUBLE
+#endif // POCKET_NO_USING_MATH_INT_FLOAT
+#ifdef POCKET_USING_MATH_DOUBLE
 template <>
 struct is_math_type<double> : true_type
 {};
 template <>
 struct is_math_floating_type<double> : true_type
 {};
-#endif // _USING_MATH_DOUBLE
-#ifdef _USING_MATH_LONG_DOUBLE
+#endif // POCKET_USING_MATH_DOUBLE
+#ifdef POCKET_USING_MATH_LONG_DOUBLE
 template <>
 struct is_math_type<long double> : true_type
 {};
 template <>
 struct is_math_floating_type<long double> : true_type
 {};
-#endif // _USING_MATH_LONG_DOUBLE
+#endif // POCKET_USING_MATH_LONG_DOUBLE
 
 //---------------------------------------------------------------------
 // bool Cが真の時のみ型を定義、コンパイル時エラーチェック

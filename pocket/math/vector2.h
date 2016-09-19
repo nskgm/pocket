@@ -22,17 +22,17 @@ template <typename> struct vector3;
 template <typename> struct vector4;
 template <typename> struct matrix3x3;
 
-#ifndef _UNUSING_MATH_INT_FLOAT
+#ifndef POCKET_NO_USING_MATH_INT_FLOAT
 typedef vector2<int> Point2;
 typedef vector2<int> vector2i;
 typedef vector2<float> vector2f;
-#endif // _UNUSING_MATH_INT_FLOAT
-#ifdef _USING_MATH_DOUBLE
+#endif // POCKET_NO_USING_MATH_INT_FLOAT
+#ifdef POCKET_USING_MATH_DOUBLE
 typedef vector2<double> vector2d;
-#endif // _USING_MATH_DOUBLE
-#ifdef _USING_MATH_LONG_DOUBLE
+#endif // POCKET_USING_MATH_DOUBLE
+#ifdef POCKET_USING_MATH_LONG_DOUBLE
 typedef vector2<long double> vector2ld;
-#endif // _USING_MATH_LONG_DOUBLE
+#endif // POCKET_USING_MATH_LONG_DOUBLE
 
 template <typename T>
 struct vector2
@@ -99,63 +99,43 @@ struct vector2
 
 	POCKET_DEFAULT_CONSTRUCTOR(vector2);
 	explicit vector2(const behavior::_noinitialize_t&)
-	{
-
-	}
+	{}
 	explicit vector2(const behavior::_zero_t&) :
 		x(math_type::zero), y(math_type::zero)
-	{
-
-	}
+	{}
 	explicit vector2(const behavior::_one_t&) :
 		x(math_type::one), y(math_type::one)
-	{
-
-	}
+	{}
 	explicit vector2(const behavior::_half_t&) :
 		x(math_type::half), y(math_type::half)
-	{
-
-	}
+	{}
 	explicit vector2(const behavior::_half_of_half_t&) :
 		x(math_type::half_of_half), y(math_type::half_of_half)
-	{
-
-	}
+	{}
 	vector2(T x, T y) :
 		x(x), y(y)
-	{
-
-	}
+	{}
 	template <typename U, typename U1,
-		POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U), POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U1)>
-		vector2(U x, U1 y) :
+		POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U),
+		POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U1)
+	>
+	vector2(U x, U1 y) :
 		x(static_cast<T>(x)), y(static_cast<T>(y))
-	{
-
-	}
+	{}
 	explicit vector2(T f) :
 		x(f), y(f)
-	{
-
-	}
+	{}
 	template <typename U, POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
 	explicit vector2(U f) :
 		x(static_cast<T>(f)), y(static_cast<T>(f))
-	{
-
-	}
+	{}
 	template <typename U>
 	vector2(const vector2<U>& v) :
 		x(static_cast<T>(v.x)), y(static_cast<T>(v.y))
-	{
-
-	}
+	{}
 	explicit vector2(const T* p) :
 		x(p[0]), y(p[1])
-	{
-
-	}
+	{}
 
 	explicit vector2(const vector3<T>&);
 	template <typename U> explicit vector2(const vector3<U>&); // vector3.h
@@ -238,37 +218,37 @@ struct vector2
 	//---------------------------------------------------------------------
 	// 平行か
 	//---------------------------------------------------------------------
-	bool is_parallel(const vector2& v) const
+	bool parallel(const vector2& v) const
 	{
 		// 長さの積の大きさが一致していたら平行(+: 同方向, -: 逆方向)
-		return math_type::is_near_zero(dot(v) - (length() * v.length()));
+		return math_type::near_equal_zero(dot(v) - (length() * v.length()));
 	}
 	//---------------------------------------------------------------------
 	// 垂直か
 	//---------------------------------------------------------------------
-	bool is_vertical(const vector2& v) const
+	bool vertical(const vector2& v) const
 	{
-		return math_type::is_near_zero(dot(v));
+		return math_type::near_equal_zero(dot(v));
 	}
 
 	//---------------------------------------------------------------------
 	// 値が近いか
 	//---------------------------------------------------------------------
-	bool is_near(const vector2& v) const
+	bool near_equal(const vector2& v) const
 	{
-		return (math_type::is_near(x, v.x) && math_type::is_near(y, v.y));
+		return (math_type::near_equal(x, v.x) && math_type::near_equal(y, v.y));
 	}
 	//---------------------------------------------------------------------
 	// 値がゼロに近いか
 	//---------------------------------------------------------------------
-	bool is_near_zero() const
+	bool near_equal_zero() const
 	{
-		return (math_type::is_near_zero(x) && math_type::is_near_zero(y));
+		return (math_type::near_equal_zero(x) && math_type::near_equal_zero(y));
 	}
 	//---------------------------------------------------------------------
 	// 値がゼロか
 	//---------------------------------------------------------------------
-	bool is_zero() const
+	bool equal_zero() const
 	{
 		return (x == math_type::zero && y == math_type::zero);
 	}
@@ -894,11 +874,11 @@ struct vector2
 	}
 	bool operator () (const behavior::_near_t&, const vector2& v) const
 	{
-		return is_near(v);
+		return near_equal(v);
 	}
 	bool operator () (const behavior::_near_zero_t&) const
 	{
-		return is_near_zero();
+		return near_equal_zero();
 	}
 
 	T operator () (const behavior::_length_t&) const

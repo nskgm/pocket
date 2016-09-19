@@ -25,17 +25,17 @@ namespace math
 template <typename> struct vector4;
 template <typename> struct matrix4x4;
 
-#ifndef _UNUSING_MATH_INT_FLOAT
+#ifndef POCKET_NO_USING_MATH_INT_FLOAT
 typedef vector4<int> Point4;
 typedef vector4<int> vector4i;
 typedef vector4<float> vector4f;
-#endif // _UNUSING_MATH_INT_FLOAT
-#ifdef _USING_MATH_DOUBLE
+#endif // POCKET_NO_USING_MATH_INT_FLOAT
+#ifdef POCKET_USING_MATH_DOUBLE
 typedef vector4<double> vector4d;
-#endif // _USING_MATH_DOUBLE
-#ifdef _USING_MATH_LONG_DOUBLE
+#endif // POCKET_USING_MATH_DOUBLE
+#ifdef POCKET_USING_MATH_LONG_DOUBLE
 typedef vector4<long double> vector4ld;
-#endif // _USING_MATH_LONG_DOUBLE
+#endif // POCKET_USING_MATH_LONG_DOUBLE
 
 template <typename T>
 struct vector4
@@ -127,9 +127,7 @@ struct vector4
 
 	POCKET_DEFAULT_CONSTRUCTOR(vector4);
 	explicit vector4(const behavior::_noinitialize_t&)
-	{
-
-	}
+	{}
 	explicit vector4(const behavior::_zero_t&) :
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		mm(simd::zero())
@@ -141,9 +139,7 @@ struct vector4
 #	endif
 		w(math_type::zero)
 #endif
-	{
-
-	}
+	{}
 	explicit vector4(const behavior::_zero_t&, const behavior::_direction_t&) :
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		mm(simd::zero())
@@ -155,9 +151,7 @@ struct vector4
 #	endif
 		w(math_type::zero)
 #endif
-	{
-
-	}
+	{}
 	explicit vector4(const behavior::_zero_t&, const behavior::_position_t&) :
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		mm(simd::zero())
@@ -185,9 +179,7 @@ struct vector4
 #	endif
 		w(math_type::one)
 #endif
-	{
-
-	}
+	{}
 	explicit vector4(const behavior::_one_t&, const behavior::_direction_t&) :
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		mm(simd::one())
@@ -215,9 +207,7 @@ struct vector4
 #	endif
 		w(math_type::one)
 #endif
-	{
-
-	}
+	{}
 	explicit vector4(const behavior::_half_t&, const behavior::_direction_t&) :
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		mm(simd::set(math_type::half))
@@ -294,14 +284,13 @@ struct vector4
 #	endif
 		w(w)
 #endif // POCKET_USE_SIMD_ANONYMOUS
-	{
-
-	}
+	{}
 	template <typename U, typename U1, typename U2, typename U3,
 		POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U),
 		POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U1),
 		POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U2),
-		POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U3)>
+		POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U3)
+	>
 	vector4(U x, U1 y, U2 z, U3 w) :
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		mm(simd::set(static_cast<T>(x), static_cast<T>(y), static_cast<T>(z), static_cast<T>(w)))
@@ -313,9 +302,7 @@ struct vector4
 #	endif
 		w(static_cast<T>(w))
 #endif // POCKET_USE_SIMD_ANONYMOUS
-	{
-
-	}
+	{}
 	explicit vector4(T f, T w = math_type::one) :
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		mm(simd::set(f, f, f, w))
@@ -327,9 +314,7 @@ struct vector4
 #	endif
 		w(w)
 #endif // POCKET_USE_SIMD_ANONYMOUS
-	{
-
-	}
+	{}
 	template <typename U, POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
 	explicit vector4(U f, U w = math_traits<U>::one) :
 #ifdef POCKET_USE_SIMD_ANONYMOUS
@@ -342,9 +327,7 @@ struct vector4
 #	endif
 		w(static_cast<T>(w))
 #endif // POCKET_USE_SIMD_ANONYMOUS
-	{
-
-	}
+	{}
 	vector4(const vector2<T>& v, T z, T w) :
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		mm(simd::set(v.x, v.y, z, w))
@@ -356,9 +339,7 @@ struct vector4
 #	endif
 		w(w)
 #endif // POCKET_USE_SIMD_ANONYMOUS
-	{
-
-	}
+	{}
 	template <typename U>
 	vector4(const vector2<U>& v, U z, U w) :
 #ifdef POCKET_USE_SIMD_ANONYMOUS
@@ -371,9 +352,7 @@ struct vector4
 #	endif
 		w(static_cast<T>(w))
 #endif // POCKET_USE_SIMD_ANONYMOUS
-	{
-
-	}
+	{}
 	explicit vector4(const vector3<T>& v, T w) :
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		mm(simd::set(v.x, v.y, v.z, w))
@@ -385,9 +364,7 @@ struct vector4
 #	endif
 		w(w)
 #endif // POCKET_USE_SIMD_ANONYMOUS
-	{
-
-	}
+	{}
 	template <typename U>
 	vector4(const vector3<U>& v, U w) :
 #ifdef POCKET_USE_SIMD_ANONYMOUS
@@ -400,9 +377,7 @@ struct vector4
 #	endif
 		w(static_cast<T>(w))
 #endif // POCKET_USE_SIMD_ANONYMOUS
-	{
-
-	}
+	{}
 	template <typename U>
 	vector4(const vector4<U>& v) :
 #ifdef POCKET_USE_SIMD_ANONYMOUS
@@ -415,9 +390,7 @@ struct vector4
 #	endif
 		w(static_cast<T>(v.w))
 #endif // POCKET_USE_SIMD_ANONYMOUS
-	{
-
-	}
+	{}
 	explicit vector4(const T* p) :
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		mm(simd::load(p))
@@ -429,15 +402,11 @@ struct vector4
 #	endif
 		w(p[3])
 #endif // POCKET_USE_SIMD_ANONYMOUS
-	{
-
-	}
+	{}
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 	vector4(simd_type mm) :
 		mm(mm)
-	{
-
-	}
+	{}
 #endif // POCKET_USE_SIMD_ANONYMOUS
 
 	//-----------------------------------------------------------------------------------------
@@ -562,44 +531,44 @@ struct vector4
 	//---------------------------------------------------------------------
 	// 平行か
 	//---------------------------------------------------------------------
-	bool is_parallel(const vector4& v) const
+	bool parallel(const vector4& v) const
 	{
 		// 長さの積の大きさが一致していたら平行(+: 同方向, -: 逆方向)
-		return math_type::is_near_zero(dot(v) - (length() * v.length()));
+		return math_type::near_equal_zero(dot(v) - (length() * v.length()));
 	}
 	//---------------------------------------------------------------------
 	// 垂直
 	//---------------------------------------------------------------------
-	bool is_vertical(const vector4& v) const
+	bool vertical(const vector4& v) const
 	{
-		return math_type::is_near_zero(dot(v));
+		return math_type::near_equal_zero(dot(v));
 	}
 	//---------------------------------------------------------------------
 	// 値が近いか
 	//---------------------------------------------------------------------
-	bool is_near(const vector4& v) const
+	bool near_equal(const vector4& v) const
 	{
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		return simd::near_equal(mm, v.mm);
 #else
-		return (math_type::is_near(x, v.x) && math_type::is_near(y, v.y) && math_type::is_near(z, v.z) && math_type::is_near(w, v.w));
+		return (math_type::near_equal(x, v.x) && math_type::near_equal(y, v.y) && math_type::near_equal(z, v.z) && math_type::near_equal(w, v.w));
 #endif // POCKET_USE_SIMD_ANONYMOUS
 	}
 	//---------------------------------------------------------------------
 	// 値がゼロに近いか
 	//---------------------------------------------------------------------
-	bool is_near_zero() const
+	bool near_equal_zero() const
 	{
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		return simd::near_equal_zero(mm);
 #else
-		return (math_type::is_near_zero(x) && math_type::is_near_zero(y) && math_type::is_near_zero(z) && math_type::is_near_zero(w));
+		return (math_type::near_equal_zero(x) && math_type::near_equal_zero(y) && math_type::near_equal_zero(z) && math_type::near_equal_zero(w));
 #endif // POCKET_USE_SIMD_ANONYMOUS
 	}
 	//---------------------------------------------------------------------
 	// 値がゼロか
 	//---------------------------------------------------------------------
-	bool is_zero() const
+	bool equal_zero() const
 	{
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		return simd::equal(mm, vector4::zero.mm);
@@ -1577,11 +1546,11 @@ struct vector4
 	}
 	bool operator () (const behavior::_near_t&, const vector4& v) const
 	{
-		return is_near(v);
+		return near_equal(v);
 	}
 	bool operator () (const behavior::_near_zero_t&) const
 	{
-		return is_near_zero();
+		return near_equal_zero();
 	}
 
 	T operator () (const behavior::_length_t&) const
@@ -1713,16 +1682,12 @@ vector4<T> operator * (T f, const vector4<T>& v)
 template <typename T> inline
 vector2<T>::vector2(const vector4<T>& v) :
 	x(v.x), y(v.y)
-{
-
-}
+{}
 template <typename T>
 template <typename U> inline
 vector2<T>::vector2(const vector4<U>& v) :
 	x(static_cast<T>(v.x)), y(static_cast<T>(v.y))
-{
-
-}
+{}
 
 template <typename T> inline
 vector4<T> vector2<T>::swizzle(int x, int y, int z, int w) const
@@ -1762,9 +1727,7 @@ vector3<T>::vector3(const vector4<T>& v) :
 	xy(v.x, v.y),
 #endif
 	z(v.z)
-{
-
-}
+{}
 template <typename T>
 template <typename U> inline
 vector3<T>::vector3(const vector4<U>& v) :
@@ -1774,9 +1737,7 @@ vector3<T>::vector3(const vector4<U>& v) :
 	xy(static_cast<T>(v.x), static_cast<T>(v.y)),
 #endif
 	z(static_cast<T>(v.z))
-{
-
-}
+{}
 
 template <typename T> inline
 vector4<T> vector3<T>::swizzle(int x, int y, int z, int w) const

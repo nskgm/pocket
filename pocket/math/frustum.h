@@ -22,15 +22,15 @@ namespace math
 
 template <typename> struct frustum;
 
-#ifndef _UNUSING_MATH_INT_FLOAT
+#ifndef POCKET_NO_USING_MATH_INT_FLOAT
 typedef frustum<float> frustumf;
-#endif // _UNUSING_MATH_INT_FLOAT
-#ifdef _USING_MATH_DOUBLE
+#endif // POCKET_NO_USING_MATH_INT_FLOAT
+#ifdef POCKET_USING_MATH_DOUBLE
 typedef frustum<double> frustumd;
-#endif // _USING_MATH_DOUBLE
-#ifdef _USING_MATH_LONG_DOUBLE
+#endif // POCKET_USING_MATH_DOUBLE
+#ifdef POCKET_USING_MATH_LONG_DOUBLE
 typedef frustum<long double> frustumld;
-#endif // _USING_MATH_LONG_DOUBLE
+#endif // POCKET_USING_MATH_LONG_DOUBLE
 
 template <typename T>
 struct frustum
@@ -44,7 +44,7 @@ struct frustum
 	typedef math_traits<T> math_type;
 	typedef plane<T> plane_type;
 	typedef matrix4x4<T> matrix4x4_type;
-	typedef typename plane_type::intersect_result intersect_result;
+	typedef typename plane_type::intersect_result_type intersect_result_type;
 
 	typedef container::array<plane_type, 6> array_type;
 	typedef typename array_type::iterator iterator;
@@ -62,14 +62,10 @@ struct frustum
 
 		look_to_t() :
 			up(vector3<T>::up)
-		{
-
-		}
+		{}
 		look_to_t(const vector3<T>& eye, const vector3<T>& direction, const vector3<T>& up = vector3<T>::up) :
 			eye(eye), direction(direction), up(up)
-		{
-
-		}
+		{}
 	};
 	struct look_at_t
 	{
@@ -79,14 +75,10 @@ struct frustum
 
 		look_at_t() :
 			up(vector3<T>::up)
-		{
-
-		}
+		{}
 		look_at_t(const vector3<T>& eye, const vector3<T>& center, const vector3<T>& up = vector3<T>::up) :
 			eye(eye), center(center), up(up)
-		{
-
-		}
+		{}
 	};
 	struct projection_field_of_view_t
 	{
@@ -96,14 +88,10 @@ struct frustum
 		T f;
 
 		projection_field_of_view_t()
-		{
-
-		}
+		{}
 		projection_field_of_view_t(T fy, T a, T n, T f) :
 			fovy(fy), aspect(a), n(n), f(f)
-		{
-
-		}
+		{}
 	};
 
 	//---------------------------------------------------------------------------------------
@@ -147,9 +135,7 @@ struct frustum
 
 	POCKET_DEFAULT_CONSTRUCTOR(frustum);
 	explicit frustum(const behavior::_noinitialize_t&)
-	{
-
-	}
+	{}
 	frustum(const plane_type& left, const plane_type& right, const plane_type& up, const plane_type& down, const plane_type& n, const plane_type& f)
 #ifdef POCKET_USE_ANONYMOUS_NON_POD
 		: left(left), right(right),
@@ -183,7 +169,6 @@ struct frustum
 		planes[5] = static_cast<plane_type>(f);
 #endif // POCKET_USE_ANONYMOUS_NON_POD
 	}
-
 	explicit frustum(const look_at_t& lookat, const projection_field_of_view_t& fov)
 	{
 		from_view_projection(lookat, fov);
@@ -282,12 +267,12 @@ struct frustum
 	//---------------------------------------------------------------------
 	// 座標が中に存在しているか
 	//---------------------------------------------------------------------
-	bool is_inside_point(const vector3<T>& point) const
+	bool inside_point(const vector3<T>& point) const
 	{
 		for (const_iterator i = planes.begin(), end = planes.end(); i != end; ++i)
 		{
 			// 背面に存在している
-			if (i->intersect_point(point) == plane_type::on_backward)
+			if (i->intersect_point(point, plane_type::intersect_backward))
 			{
 				return false;
 			}
@@ -297,14 +282,13 @@ struct frustum
 	//---------------------------------------------------------------------
 	// すべての座標が中に存在しているか
 	//---------------------------------------------------------------------
-	bool is_inside_points(const vector3<T>* points, int n) const
+	bool inside_points(const vector3<T>* points, int n) const
 	{
-		int j;
 		for (const_iterator i = planes.begin(), end = planes.end(); i != end; ++i)
 		{
-			for (j = 0; j < n; ++j)
+			for (int j = 0; j < n; ++j)
 			{
-				if (i->intersect_point(points[j]) == plane_type::on_backward)
+				if (i->intersect_point(points[j], plane_type::intersect_backward))
 				{
 					return false;
 				}
@@ -313,23 +297,23 @@ struct frustum
 		return true;
 	}
 	template <size_t S>
-	bool is_inside_points(const vector3<T>(&points)[S]) const
+	bool inside_points(const vector3<T>(&points)[S]) const
 	{
-		return is_inside_points(&points[0], static_cast<int>(S));
+		return inside_points(&points[0], static_cast<int>(S));
 	}
 	template <size_t S, template <typename, size_t> class ARRAY>
-	bool is_inside_points(const ARRAY<vector3<T>, S>& points) const
+	bool inside_points(const ARRAY<vector3<T>, S>& points) const
 	{
-		typedef typename ARRAY<vector3<T>, S>::const_iterator array_iterator;
+		typedef typename ARRAY<vector3<T>, S>::const_iterator array_const_iterator;
 
-		array_iterator array_begin = points.begin();
-		array_iterator array_end = points.end();
-		array_iterator j;
+		array_const_iterator array_begin = points.begin();
+		array_const_iterator array_end = points.end();
+		array_const_iterator j;
 		for (const_iterator i = planes.begin(), end = planes.end(); i != end; ++i)
 		{
 			for (j = array_begin; j != array_end; ++j)
 			{
-				if (i->intersect_point(*j) == plane_type::on_backward)
+				if (i->intersect_point(*j, plane_type::intersect_backward))
 				{
 					return false;
 				}
@@ -341,11 +325,11 @@ struct frustum
 	//---------------------------------------------------------------------
 	// 球が中に存在しているか
 	//---------------------------------------------------------------------
-	bool is_inside_sphere(const vector3<T>& center, T radius) const
+	bool inside_sphere(const vector3<T>& center, T radius) const
 	{
 		for (const_iterator i = planes.begin(), end = planes.end(); i != end; ++i)
 		{
-			if (i->intersect_sphere(center, radius) == plane_type::on_backward)
+			if (i->intersect_sphere(center, radius, plane_type::intersect_backward))
 			{
 				return false;
 			}
@@ -455,7 +439,7 @@ struct frustum
 template <typename T> inline
 bool operator << (const frustum<T>& f, const vector3<T>& v)
 {
-	return f.is_inside_point(v);
+	return f.inside_point(v);
 }
 template <typename T> inline
 bool operator >> (const vector3<T>& v, const frustum<T>& f)
@@ -465,7 +449,7 @@ bool operator >> (const vector3<T>& v, const frustum<T>& f)
 template <typename T, size_t N, template <typename, size_t> class ARRAY> inline
 bool operator << (const frustum<T>& f, const ARRAY<T, N>& v)
 {
-	return f.is_inside_points(v);
+	return f.inside_points(v);
 }
 template <typename T, size_t N, template <typename, size_t> class ARRAY> inline
 bool operator >> (const ARRAY<T, N>& v, const frustum<T>& f)

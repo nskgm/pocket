@@ -22,21 +22,21 @@ namespace math
 template <typename, template <typename> class> struct line;
 template <typename> struct plane;
 
-#ifndef _UNUSING_MATH_INT_FLOAT
+#ifndef POCKET_NO_USING_MATH_INT_FLOAT
 typedef line<float, vector2> line2f;
 typedef line<float, vector3> line3f;
 typedef line<float, vector4> line4f;
-#endif // _UNUSING_MATH_INT_FLOAT
-#ifdef _USING_MATH_DOUBLE
+#endif // POCKET_NO_USING_MATH_INT_FLOAT
+#ifdef POCKET_USING_MATH_DOUBLE
 typedef line<double, vector2> line2d;
 typedef line<double, vector3> line3d;
 typedef line<double, vector4> line4d;
-#endif // _USING_MATH_DOUBLE
-#ifdef _USING_MATH_LONG_DOUBLE
+#endif // POCKET_USING_MATH_DOUBLE
+#ifdef POCKET_USING_MATH_LONG_DOUBLE
 typedef line<long double, vector2> line2ld;
 typedef line<long double, vector3> line3ld;
 typedef line<long double, vector4> line4ld;
-#endif // _USING_MATH_LONG_DOUBLE
+#endif // POCKET_USING_MATH_LONG_DOUBLE
 
 template <typename T, template <typename> class VectorN>
 struct line
@@ -87,20 +87,13 @@ struct line
 
 	POCKET_DEFAULT_CONSTRUCTOR(line);
 	explicit line(const behavior::_noinitialize_t&)
-	{
-
-	}
+	{}
 	explicit line(const vector_type& e) :
 		begin(vector_type::zero), end(e)
-	{
-
-	}
+	{}
 	line(const vector_type& b, const vector_type& e) :
 		begin(b), end(e)
-	{
-
-	}
-
+	{}
 	explicit line(const ray_type& r, T length)
 	{
 		from_ray(r, length);
@@ -143,7 +136,7 @@ struct line
 	//---------------------------------------------------------------------
 	// 線分が平面と交差しているか
 	//---------------------------------------------------------------------
-	bool is_intersect(const plane_type&) const; // plane.h
+	bool intersect(const plane_type&) const; // plane.h
 
 	//-----------------------------------------------------------------------------------------
 	// Operators
@@ -239,9 +232,7 @@ const line<T, VectorN> line<T, VectorN>::backward(vector_type::backward);
 template <typename T, template <typename> class VectorN> inline
 ray<T, VectorN>::ray(const line<T, VectorN>& l) :
 	origin(l.begin), direction(l.direction())
-{
-
-}
+{}
 
 template <typename T, template <typename> class VectorN> inline
 ray<T, VectorN>& ray<T, VectorN>::from_line(const line<T, VectorN>& l)

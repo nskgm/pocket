@@ -21,20 +21,20 @@ namespace math
 template <typename> struct range;
 template <typename> struct rectangle;
 
-#ifndef _UNUSING_MATH_INT_FLOAT
+#ifndef POCKET_NO_USING_MATH_INT_FLOAT
 typedef range<int> rangei;
 typedef range<float> rangef;
 typedef rectangle<int> rectanglei;
 typedef rectangle<float> rectanglef;
-#endif // _UNUSING_MATH_INT_FLOAT
-#ifdef _USING_MATH_DOUBLE
+#endif // POCKET_NO_USING_MATH_INT_FLOAT
+#ifdef POCKET_USING_MATH_DOUBLE
 typedef range<double> ranged;
 typedef rectangle<double> rectangled;
-#endif // _USING_MATH_DOUBLE
-#ifdef _USING_MATH_LONG_DOUBLE
+#endif // POCKET_USING_MATH_DOUBLE
+#ifdef POCKET_USING_MATH_LONG_DOUBLE
 typedef range<long double> rangeld;
 typedef rectangle<long double> rectangleld;
-#endif // _USING_MATH_LONG_DOUBLE
+#endif // POCKET_USING_MATH_LONG_DOUBLE
 
 template <typename T>
 struct range
@@ -91,29 +91,21 @@ struct range
 
 	POCKET_DEFAULT_CONSTRUCTOR(range);
 	explicit range(const behavior::_noinitialize_t&)
-	{
-
-	}
+	{}
 	range(T min, T max) :
 		minimum(min), maximum(max)
-	{
-
-	}
+	{}
 	template <typename U>
 	range(const range<U>& r) :
 		minimum(static_cast<T>(r.minimum)), maximum(static_cast<T>(r.maximum))
-	{
-
-	}
+	{}
 	template <typename U, typename U1,
 		POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U),
 		POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U1)
 	>
 		range(U min, U1 max) :
 		minimum(static_cast<T>(min)), maximum(static_cast<T>(max))
-	{
-
-	}
+	{}
 
 	//------------------------------------------------------------------------------------------
 	// Functions
@@ -122,11 +114,11 @@ struct range
 	//---------------------------------------------------------------------
 	// 範囲内か
 	//---------------------------------------------------------------------
-	bool is_in_range(T f) const
+	bool in_range(T f) const
 	{
 		return f >= minimum && f <= maximum;
 	}
-	bool is_in_range(const range& r) const
+	bool in_range(const range& r) const
 	{
 		return minimum <= r.minimum && maximum >= r.maximum;
 	}
@@ -278,55 +270,39 @@ struct rectangle
 
 	POCKET_DEFAULT_CONSTRUCTOR(rectangle);
 	explicit rectangle(const behavior::_noinitialize_t&)
-	{
-
-	}
+	{}
 	rectangle(T l, T r, T t, T b) :
 		x(l, r), y(t, b)
-	{
-
-	}
+	{}
 	rectangle(T r, T b) :
 		x(math_type::zero, r), y(math_type::zero, b)
-	{
-
-	}
+	{}
 	rectangle(const range_type& x, const range_type& y) :
 		x(x), y(y)
-	{
-
-	}
+	{}
 	template <typename U>
 	rectangle(const rectangle<U>& r) :
 		x(static_cast<range_type>(r.x)),
 		y(static_cast<range_type>(r.y))
-	{
-
-	}
+	{}
 	template <typename U>
 	rectangle(const range<U>& x, const range<U>& y) :
 		x(static_cast<range<T> >(x)),
 		y(static_cast<range<T> >(y))
-	{
-
-	}
+	{}
 	template <typename U, typename U1, typename U2, typename U3,
 		POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U),
 		POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U1),
 		POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U2),
 		POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U3)
 	>
-		rectangle(U l, U1 r, U2 t, U3 b) :
+	rectangle(U l, U1 r, U2 t, U3 b) :
 		x(static_cast<T>(l), static_cast<T>(r)),
 		y(static_cast<T>(t), static_cast<T>(b))
-	{
-
-	}
+	{}
 	rectangle(const vector2<T>& x, const vector2<T>& y) :
 		x(x.x, y.x), y(x.y, y.y)
-	{
-
-	}
+	{}
 
 	//------------------------------------------------------------------------------------------
 	// Functions
@@ -335,13 +311,13 @@ struct rectangle
 	//---------------------------------------------------------------------
 	// 範囲に入っているか
 	//---------------------------------------------------------------------
-	bool is_in_inside(const vector2<T>& v) const
+	bool inside(const vector2<T>& v) const
 	{
-		return x.is_in_range(v.x) && y.is_in_range(v.y);
+		return x.in_range(v.x) && y.in_range(v.y);
 	}
-	bool is_in_inside(const rectangle& r) const
+	bool inside(const rectangle& r) const
 	{
-		return x.is_in_range(r.x) && y.is_in_range(r.y);
+		return x.in_range(r.x) && y.in_range(r.y);
 	}
 
 	//---------------------------------------------------------------------

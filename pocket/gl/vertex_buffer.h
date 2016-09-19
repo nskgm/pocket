@@ -10,6 +10,7 @@
 #include "../debug.h"
 #include "../io.h"
 #include "buffer.h"
+#include <algorithm>
 
 namespace pocket
 {
@@ -18,6 +19,7 @@ namespace gl
 
 // forward
 template <typename> class vertex_buffer;
+class draw_indirect_buffer;
 
 template <typename T>
 class binder<vertex_buffer<T> >
@@ -178,6 +180,7 @@ private:
 	//------------------------------------------------------------------------------------------
 
 	buffer _buffer;
+	int _count;
 
 public:
 	//------------------------------------------------------------------------------------------
@@ -191,7 +194,8 @@ public:
 	//------------------------------------------------------------------------------------------
 
 	vertex_buffer() :
-		_buffer()
+		_buffer(),
+		_count(0)
 	{}
 	explicit vertex_buffer(const vertex_type* vertices, int count, buffer_usage_t usg = buffer_usage::immutable_draw) :
 		_buffer()
@@ -222,11 +226,13 @@ public:
 		initialize(count);
 	}
 	vertex_buffer(const vertex_buffer& b) :
-		_buffer(b._buffer)
+		_buffer(b._buffer),
+		_count(b._count)
 	{}
 #ifdef POCKET_USE_CXX11
 	vertex_buffer(vertex_buffer&& v) :
-		_buffer(std::move(v._buffer))
+		_buffer(std::move(v._buffer)),
+		_count(std::move(v._count))
 	{}
 #endif // POCKET_USE_CXX11
 	~vertex_buffer()
@@ -239,9 +245,10 @@ public:
 	//------------------------------------------------------------------------------------------
 
 	// 初期化
-	bool initialize(const vertex_type* vertices, int count, buffer_usage_t usg = buffer_usage::immutable_draw)
+	bool initialize(const vertex_type* vertices, int n, buffer_usage_t usg = buffer_usage::immutable_draw)
 	{
-		return _buffer.initialize(buffer_type::array, usg, sizeof(vertex_type)*count, static_cast<const void*>(vertices));
+		_count = n;
+		return _buffer.initialize(buffer_type::array, usg, sizeof(vertex_type)*n, static_cast<const void*>(vertices));
 	}
 	template <int N>
 	bool initialize(const vertex_type(&vertices)[N], buffer_usage_t usg = buffer_usage::immutable_draw)
@@ -258,9 +265,10 @@ public:
 	{
 		return initialize(&vertices[0], vertices.size(), usg);
 	}
-	bool initialize(int count)
+	bool initialize(int n)
 	{
 		// サイズのみ確保
+		_count = n;
 		return _buffer.initialize(buffer_type::array, buffer_usage::dynamic_draw, sizeof(vertex_type)*count, NULL);
 	}
 
@@ -268,6 +276,7 @@ public:
 	void finalize()
 	{
 		_buffer.finalize();
+		_count = 0;
 	}
 
 	// エラー状態クリア
@@ -339,6 +348,26 @@ public:
 	binder_type make_binder() const
 	{
 		return binder_type(*this);
+	}
+
+	// 描画
+	void draw(primitive_type_t type) const
+	{
+		glDrawArrays(type, 0, _count);
+	}
+	void draw(primitive_type_t type, GLint offset) const
+	{
+		glDrawArrays(type, offset, _count - offset);
+	}
+	void draw(primitive_type_t type, GLint first, GLsizei n) const
+	{
+		n = std::min(n, _count - first);
+		glDrawArrays(type, first, n);
+	}
+	// 判別用Indirect型
+	void draw(primitive_type_t type, const draw_indirect_buffer&) const
+	{
+		glDrawArraysIndirect(type, NULL);
 	}
 
 	// バッファを展開して先頭アドレスを取得
@@ -432,11 +461,7 @@ public:
 	// 型の数
 	int count() const
 	{
-		return _buffer.count<vertex_type>();
-	}
-	int count_binding() const
-	{
-		return _buffer.count_binding<vertex_type>();
+		return _count;
 	}
 
 	// 設定した時の扱い法
@@ -691,10 +716,12 @@ template <typename CharT, typename CharTraits, typename T> inline
 std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const vertex_buffer<T>& v)
 {
 	os << io::widen("vertex_buffer: {") << std::endl <<
-		io::tab << io::widen("id: ") << v.get() << std::endl;
+		io::tab << io::widen("id: ") << v.get() << std::endl <<
+		io::tab << io::widen("type size: ") << sizeof(T) << std::endl <<
+		io::tab << io::widen("count: ") << v.count() << std::endl <<
+		io::tab << io::widen("size: ") << (v.count() * sizeof(T)) << std::endl;
 	if (v.binding())
 	{
-		os << io::tab << io::widen("count: ") << v.count_binding() << std::endl;
 		std::ios_base::fmtflags flag = os.flags();
 		os << std::hex << io::tab << io::widen("usage: 0x") << v.usage_binding() << std::endl;
 		os.flags(flag);

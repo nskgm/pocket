@@ -120,8 +120,8 @@
 //---------------------------------------------------------------------------------------
 // なにも使用しないように設定された
 //---------------------------------------------------------------------------------------
-#if defined(_UNUSING_MATH_INT_FLOAT) && !defined(_USING_MATH_DOUBLE) && !defined(_USING_MATH_LONG_DOUBLE)
-#error "request define _USING_MATH_DOUBLE or _USING_MATH_LONG_DOUBLE. or undefine _UNUSING_MATH_INT_FLOAT"
+#if defined(POCKET_NO_USING_MATH_INT_FLOAT) && !defined(POCKET_USING_MATH_DOUBLE) && !defined(POCKET_USING_MATH_LONG_DOUBLE)
+#error "request define POCKET_USING_MATH_DOUBLE or POCKET_USING_MATH_LONG_DOUBLE. or undefine POCKET_NO_USING_MATH_INT_FLOAT"
 #endif
 
 //---------------------------------------------------------------------------------------
@@ -349,6 +349,24 @@
 #endif // POCKET_STATICAL_CONSTANT
 
 //---------------------------------------------------------------------------------------
+// 構造体メンバーへのオフセット
+//---------------------------------------------------------------------------------------
+#ifndef POCKET_MEMBER_OFFSETOF
+#	define POCKET_MEMBER_OFFSETOF(TYPE, MEM) reinterpret_cast<size_t>(&(reinterpret_cast<const TYPE*>(0)->MEM))
+#endif // POCKET_MEMBER_OFFSETOF
+
+//---------------------------------------------------------------------------------------
+// 構造体メンバーの型サイズ
+//---------------------------------------------------------------------------------------
+#ifndef POCKET_MEMBER_SIZEOF
+#	ifdef POCKET_USE_CXX11
+#		define POCKET_MEMBER_SIZEOF(TYPE, MEM) sizeof(TYPE :: MEM)
+#	else
+#		define POCKET_MEMBER_SIZEOF(TYPE, MEM) sizeof(reinterpret_cast<const volatile TYPE*>(0)->MEM)
+#	endif // POCKET_USE_CXX11
+#endif // POCKET_MEMBER_SIZEOF
+
+//---------------------------------------------------------------------------------------
 // デフォルトコンストラクタを定義するための設定
 //---------------------------------------------------------------------------------------
 #ifndef POCKET_DEFAULT_DECLARE_RVALUES
@@ -456,20 +474,20 @@
 #	ifdef POCKET_USING_MATH_EXTERN_TYPE
 #		define POCKET_MATH_STATICAL_ASSERT(TYPE)
 #	else
-#		ifdef _UNUSING_MATH_INT_FLOAT
-#			if defined(_USING_MATH_DOUBLE) && defined(_USING_MATH_LONG_DOUBLE)
+#		ifdef POCKET_NO_USING_MATH_INT_FLOAT
+#			if defined(POCKET_USING_MATH_DOUBLE) && defined(POCKET_USING_MATH_LONG_DOUBLE)
 #				define POCKET_MATH_STATICAL_ASSERT(TYPE) POCKET_STATICAL_ASSERT(type_traits::is_math_type< TYPE >::value, double_or_longdouble_only)
-#			elif defined(_USING_MATH_DOUBLE) && !defined(_USING_MATH_LONG_DOUBLE)
+#			elif defined(POCKET_USING_MATH_DOUBLE) && !defined(POCKET_USING_MATH_LONG_DOUBLE)
 #				define POCKET_MATH_STATICAL_ASSERT(TYPE) POCKET_STATICAL_ASSERT(type_traits::is_math_type< TYPE >::value, double_only)
-#			elif !defined(_USING_MATH_DOUBLE) && defined(_USING_MATH_LONG_DOUBLE)
+#			elif !defined(POCKET_USING_MATH_DOUBLE) && defined(POCKET_USING_MATH_LONG_DOUBLE)
 #				define POCKET_MATH_STATICAL_ASSERT(TYPE) POCKET_STATICAL_ASSERT(type_traits::is_math_type< TYPE >::value, longdouble_only)
 #			endif
 #		else
-#			if defined(_USING_MATH_DOUBLE) && defined(_USING_MATH_LONG_DOUBLE)
+#			if defined(POCKET_USING_MATH_DOUBLE) && defined(POCKET_USING_MATH_LONG_DOUBLE)
 #				define POCKET_MATH_STATICAL_ASSERT(TYPE) POCKET_STATICAL_ASSERT(type_traits::is_math_type< TYPE >::value, int_or_float_or_double_or_longdouble_only)
-#			elif defined(_USING_MATH_DOUBLE) && !defined(_USING_MATH_LONG_DOUBLE)
+#			elif defined(POCKET_USING_MATH_DOUBLE) && !defined(POCKET_USING_MATH_LONG_DOUBLE)
 #				define POCKET_MATH_STATICAL_ASSERT(TYPE) POCKET_STATICAL_ASSERT(type_traits::is_math_type< TYPE >::value, int_or_float_or_double_only)
-#			elif !defined(_USING_MATH_DOUBLE) && defined(_USING_MATH_LONG_DOUBLE)
+#			elif !defined(POCKET_USING_MATH_DOUBLE) && defined(POCKET_USING_MATH_LONG_DOUBLE)
 #				define POCKET_MATH_STATICAL_ASSERT(TYPE) POCKET_STATICAL_ASSERT(type_traits::is_math_type< TYPE >::value, int_or_float_or_longdouble_only)
 #			else
 #				define POCKET_MATH_STATICAL_ASSERT(TYPE) POCKET_STATICAL_ASSERT(type_traits::is_math_type< TYPE >::value, int_or_float_only)
@@ -485,14 +503,14 @@
 #	ifdef POCKET_USING_MATH_EXTERN_TYPE
 #		define POCKET_MATH_STATICAL_ASSERT_FLOATING(TYPE)
 #	else
-#		ifdef _UNUSING_MATH_INT_FLOAT
+#		ifdef POCKET_NO_USING_MATH_INT_FLOAT
 #			define POCKET_MATH_STATICAL_ASSERT_FLOATING POCKET_MATH_STATICAL_ASSERT
 #		else
-#			if defined(_USING_MATH_DOUBLE) && defined(_USING_MATH_LONG_DOUBLE)
+#			if defined(POCKET_USING_MATH_DOUBLE) && defined(POCKET_USING_MATH_LONG_DOUBLE)
 #				define POCKET_MATH_STATICAL_ASSERT_FLOATING(TYPE) POCKET_STATICAL_ASSERT(type_traits::is_math_floating_type< TYPE >::value, float_or_double_or_longdouble_only)
-#			elif defined(_USING_MATH_DOUBLE) && !defined(_USING_MATH_LONG_DOUBLE)
+#			elif defined(POCKET_USING_MATH_DOUBLE) && !defined(POCKET_USING_MATH_LONG_DOUBLE)
 #				define POCKET_MATH_STATICAL_ASSERT_FLOATING(TYPE) POCKET_STATICAL_ASSERT(type_traits::is_math_floating_type< TYPE >::value, float_or_double_only)
-#			elif !defined(_USING_MATH_DOUBLE) && defined(_USING_MATH_LONG_DOUBLE)
+#			elif !defined(POCKET_USING_MATH_DOUBLE) && defined(POCKET_USING_MATH_LONG_DOUBLE)
 #				define POCKET_MATH_STATICAL_ASSERT_FLOATING(TYPE) POCKET_STATICAL_ASSERT(type_traits::is_math_floating_type< TYPE >::value, float_or_longdouble_only)
 #			else
 #				define POCKET_MATH_STATICAL_ASSERT_FLOATING(TYPE) POCKET_STATICAL_ASSERT(type_traits::is_math_floating_type< TYPE >::value, float_only)
@@ -641,15 +659,15 @@
 #		define POCKET_MATH_EXTERN_TYPE(TYPE)
 #	else
 #		ifdef POCKET_USE_CXX11
-#			ifdef _UNUSING_MATH_INT_FLOAT
-#				if defined(_USING_MATH_DOUBLE) && defined(_USING_MATH_LONG_DOUBLE)
+#			ifdef POCKET_NO_USING_MATH_INT_FLOAT
+#				if defined(POCKET_USING_MATH_DOUBLE) && defined(POCKET_USING_MATH_LONG_DOUBLE)
 #					define POCKET_MATH_EXTERN_TYPE(TYPE) extern template struct TYPE<int>;\
 												extern template struct TYPE<float>
-#				elif defined(_USING_MATH_DOUBLE) && !defined(_USING_MATH_LONG_DOUBLE)
+#				elif defined(POCKET_USING_MATH_DOUBLE) && !defined(POCKET_USING_MATH_LONG_DOUBLE)
 #					define POCKET_MATH_EXTERN_TYPE(TYPE) extern template struct TYPE<int>;\
 												extern template struct TYPE<float>;\
 												extern template struct TYPE<long double>
-#				elif !defined(_USING_MATH_DOUBLE) && defined(_USING_MATH_LONG_DOUBLE)
+#				elif !defined(POCKET_USING_MATH_DOUBLE) && defined(POCKET_USING_MATH_LONG_DOUBLE)
 #					define POCKET_MATH_EXTERN_TYPE(TYPE) extern template struct TYPE<int>;\
 												extern template struct TYPE<float>;\
 												extern template struct TYPE<double>
@@ -660,11 +678,11 @@
 												extern template struct TYPE<long double>
 #				endif
 #			else
-#				if defined(_USING_MATH_DOUBLE) && defined(_USING_MATH_LONG_DOUBLE)
+#				if defined(POCKET_USING_MATH_DOUBLE) && defined(POCKET_USING_MATH_LONG_DOUBLE)
 #					define POCKET_MATH_EXTERN_TYPE(TYPE)
-#				elif defined(_USING_MATH_DOUBLE) && !defined(_USING_MATH_LONG_DOUBLE)
+#				elif defined(POCKET_USING_MATH_DOUBLE) && !defined(POCKET_USING_MATH_LONG_DOUBLE)
 #					define POCKET_MATH_EXTERN_TYPE(TYPE) extern template struct TYPE<long double>
-#				elif !defined(_USING_MATH_DOUBLE) && defined(_USING_MATH_LONG_DOUBLE)
+#				elif !defined(POCKET_USING_MATH_DOUBLE) && defined(POCKET_USING_MATH_LONG_DOUBLE)
 #					define POCKET_MATH_EXTERN_TYPE(TYPE) extern template struct TYPE<double>
 #				else
 #					define POCKET_MATH_EXTERN_TYPE(TYPE) extern template struct TYPE<double>;\
@@ -685,13 +703,13 @@
 #		define POCKET_MATH_EXTERN_FLOATING_TYPE(TYPE)
 #	else
 #		ifdef POCKET_USE_CXX11
-#			ifdef _UNUSING_MATH_INT_FLOAT
-#				if defined(_USING_MATH_DOUBLE) && defined(_USING_MATH_LONG_DOUBLE)
+#			ifdef POCKET_NO_USING_MATH_INT_FLOAT
+#				if defined(POCKET_USING_MATH_DOUBLE) && defined(POCKET_USING_MATH_LONG_DOUBLE)
 #					define POCKET_MATH_EXTERN_FLOATING_TYPE(TYPE) extern template struct TYPE<float>
-#				elif defined(_USING_MATH_DOUBLE) && !defined(_USING_MATH_LONG_DOUBLE)
+#				elif defined(POCKET_USING_MATH_DOUBLE) && !defined(POCKET_USING_MATH_LONG_DOUBLE)
 #					define POCKET_MATH_EXTERN_FLOATING_TYPE(TYPE) extern template struct TYPE<float>;\
 												extern template struct TYPE<long double>
-#				elif !defined(_USING_MATH_DOUBLE) && defined(_USING_MATH_LONG_DOUBLE)
+#				elif !defined(POCKET_USING_MATH_DOUBLE) && defined(POCKET_USING_MATH_LONG_DOUBLE)
 #					define POCKET_MATH_EXTERN_FLOATING_TYPE(TYPE) extern template struct TYPE<float>;\
 												extern template struct TYPE<double>
 #				else
@@ -699,9 +717,9 @@
 												extern template struct TYPE<double>;\
 												extern template struct TYPE<long double>
 #				endif
-#			else // _UNUSING_MATH_INT_FLOAT
+#			else // POCKET_NO_USING_MATH_INT_FLOAT
 #				define POCKET_MATH_EXTERN_FLOATING_TYPE POCKET_MATH_EXTERN_TYPE
-#			endif // _UNUSING_MATH_INT_FLOAT
+#			endif // POCKET_NO_USING_MATH_INT_FLOAT
 #		else
 #			define POCKET_MATH_EXTERN_FLOATING_TYPE(TYPE)
 #		endif // POCKET_USE_CXX11

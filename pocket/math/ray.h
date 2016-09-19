@@ -24,21 +24,21 @@ template <typename, template <typename> class> struct ray;
 template <typename, template <typename> class> struct line;
 template <typename> struct plane;
 
-#ifndef _UNUSING_MATH_INT_FLOAT
+#ifndef POCKET_NO_USING_MATH_INT_FLOAT
 typedef ray<float, vector2> ray2f;
 typedef ray<float, vector3> ray3f;
 typedef ray<float, vector4> ray4f;
-#endif // _UNUSING_MATH_INT_FLOAT
-#ifdef _USING_MATH_DOUBLE
+#endif // POCKET_NO_USING_MATH_INT_FLOAT
+#ifdef POCKET_USING_MATH_DOUBLE
 typedef ray<double, vector2> ray2d;
 typedef ray<double, vector3> ray3d;
 typedef ray<double, vector4> ray4d;
-#endif // _USING_MATH_DOUBLE
-#ifdef _USING_MATH_LONG_DOUBLE
+#endif // POCKET_USING_MATH_DOUBLE
+#ifdef POCKET_USING_MATH_LONG_DOUBLE
 typedef ray<long double, vector2> ray2ld;
 typedef ray<long double, vector3> ray3ld;
 typedef ray<long double, vector4> ray4ld;
-#endif // _USING_MATH_LONG_DOUBLE
+#endif // POCKET_USING_MATH_LONG_DOUBLE
 
 template <typename T, template <typename> class VectorN>
 struct ray
@@ -88,9 +88,7 @@ struct ray
 
 	POCKET_DEFAULT_CONSTRUCTOR(ray);
 	explicit ray(const behavior::_noinitialize_t&)
-	{
-
-	}
+	{}
 	explicit ray(const vector_type& dir) :
 		origin(vector_type::zero),
 		direction(dir)
@@ -148,7 +146,7 @@ struct ray
 	//---------------------------------------------------------------------
 	// 平面と交差しているか
 	//---------------------------------------------------------------------
-	bool is_intersect(const plane_type&) const; // plane.h
+	bool intersect(const plane_type&) const; // plane.h
 
 	//-----------------------------------------------------------------------------------------
 	// Operators
