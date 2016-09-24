@@ -13,10 +13,10 @@
 #if (defined(_WIN32) || defined(_WIN64)) && defined(POCKET_USE_COLOR_OUTPUT)
 #	ifndef NOMINMAX
 #		define NOMINMAX
-#	endif /* NOMINMAX */
+#	endif // NOMINMAX
 #	ifndef WIN32_LEAN_AND_MEAN
 #		define WIN32_LEAN_AND_MEAN
-#	endif /* WIN32_LEAN_AND_MEAN */
+#	endif // WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
 
@@ -24,14 +24,12 @@ namespace pocket
 {
 namespace io
 {
-#ifndef __POCKET_DECL_OUT_CHAR_FUNCTION
 #define __POCKET_DECL_OUT_CHAR_FUNCTION(NAME, CHAR) template <typename CharT, typename CharTraits> inline \
 		std::basic_ostream<CharT, CharTraits>& NAME(std::basic_ostream<CharT, CharTraits>& os) \
 	{\
 		os.put(os.widen((CHAR)));\
 		return os;\
 	}
-#endif // __POCKET_DECL_OUT_CHAR_FUNCTION
 
 __POCKET_DECL_OUT_CHAR_FUNCTION(bel, '\7');
 __POCKET_DECL_OUT_CHAR_FUNCTION(space, ' ');
@@ -93,22 +91,22 @@ std::basic_ostream<CharT, CharTraits>& tab5(std::basic_ostream<CharT, CharTraits
 }
 
 #ifdef POCKET_USE_COLOR_OUTPUT
-#	ifndef __POCKET_DECL_OUT_CHAR_FUNCTION
-#		if defined(__APPLE__) || defined(__OSX__)
-#			define __POCKET_DECL_OUT_CHAR_FUNCTION(NAME, STR) template <typename CharT, typename CharTraits> inline \
-		std::basic_ostream<CharT, CharTraits>& NAME(std::basic_ostream<CharT, CharTraits>& os) \
+#	if defined(__APPLE__) || defined(__OSX__)
+#		define __POCKET_DECL_OUT_CHAR_FUNCTION(NAME, STR) \
+	template <typename CharT, typename CharTraits> inline\
+	std::basic_ostream<CharT, CharTraits>& NAME(std::basic_ostream<CharT, CharTraits>& os)\
 	{\
 		os << widen(STR) << std::flush;\
 		return os;\
 	}
-#		else
-#			define __POCKET_DECL_OUT_CHAR_FUNCTION(NAME, TYPE) template <typename CharT, typename CharTraits> inline \
-		std::basic_ostream<CharT, CharTraits>& NAME(std::basic_ostream<CharT, CharTraits>& os) \
+#	else
+#		define __POCKET_DECL_OUT_CHAR_FUNCTION(NAME, TYPE) \
+	template <typename CharT, typename CharTraits> inline\
+	std::basic_ostream<CharT, CharTraits>& NAME(std::basic_ostream<CharT, CharTraits>& os)\
 	{\
 		::SetConsoleTextAttribute(::GetStdHandle(STD_OUTPUT_HANDLE), (TYPE));\
 		return os;\
 	}
-#		endif
 #	endif // __POCKET_DECL_OUT_CHAR_FUNCTION
 
 #	if defined(__APPLE__) || defined(__OSX__)
@@ -149,19 +147,16 @@ __POCKET_DECL_OUT_CHAR_FUNCTION(white, FOREGROUND_BLUE | FOREGROUND_RED | FOREGR
 //---------------------------------------------------------------------
 
 template <typename T>
-struct widen_holder;
+class widen_holder;
 
 template <>
-struct widen_holder<char>
+class widen_holder<char>
 {
 	char c;
-
+public:
 	widen_holder(char c) :
 		c(c)
-	{
-
-	}
-
+	{}
 	template <typename CharT, typename CharTraits>
 	std::basic_ostream<CharT, CharTraits>& apply(std::basic_ostream<CharT, CharTraits>& os) const
 	{
@@ -170,16 +165,13 @@ struct widen_holder<char>
 	}
 };
 template <>
-struct widen_holder<const char*>
+class widen_holder<const char*>
 {
 	const char* str;
-
+public:
 	widen_holder(const char* s) :
 		str(s)
-	{
-
-	}
-
+	{}
 	template <typename CharT, typename CharTraits>
 	std::basic_ostream<CharT, CharTraits>& apply(std::basic_ostream<CharT, CharTraits>& os) const
 	{
@@ -193,16 +185,13 @@ struct widen_holder<const char*>
 	}
 };
 template <std::size_t N>
-struct widen_holder<const char[N]>
+class widen_holder<const char[N]>
 {
 	const char* str;
-
+public:
 	widen_holder(const char(&s)[N]) :
 		str(&s[0])
-	{
-
-	}
-
+	{}
 	template <typename CharT, typename CharTraits>
 	std::basic_ostream<CharT, CharTraits>& apply(std::basic_ostream<CharT, CharTraits>& os) const
 	{
@@ -216,16 +205,13 @@ struct widen_holder<const char[N]>
 	}
 };
 template <>
-struct widen_holder<bool>
+class widen_holder<bool>
 {
 	bool cond;
-
+public:
 	widen_holder(bool c) :
 		cond(c)
-	{
-
-	}
-
+	{}
 	template <typename CharT, typename CharTraits>
 	std::basic_ostream<CharT, CharTraits>& apply(std::basic_ostream<CharT, CharTraits>& os) const
 	{
@@ -259,14 +245,11 @@ template <typename CharT>
 struct ignore_delimiter
 {
 	typedef CharT char_type;
-
 	char_type delimiter;
 
 	ignore_delimiter(char_type d) :
 		delimiter(d)
-	{
-
-	}
+	{}
 };
 struct ignore_count
 {
@@ -274,35 +257,20 @@ struct ignore_count
 
 	ignore_count(std::streamsize c) :
 		count(c)
-	{
-
-	}
+	{}
 };
-
-// 指定の文字までスキップ
-//template <typename CharT, typename CharTraits> inline
-//std::basic_istream<CharT, CharTraits>& ignore(std::basic_istream<CharT, CharTraits>& is, CharT delim)
-//{
-//	return is.ignore(std::numeric_limits<std::streamsize>::max(), delim);
-//}
 
 namespace detail
 {
 template <typename T>
 struct is_char : type_traits::false_type
-{
-
-};
+{};
 template <>
 struct is_char<char> : type_traits::true_type
-{
-
-};
+{};
 template <>
 struct is_char<wchar_t> : type_traits::true_type
-{
-
-};
+{};
 
 template <typename CharT> inline
 ignore_delimiter<CharT> ignore_impl(CharT d, type_traits::true_type)

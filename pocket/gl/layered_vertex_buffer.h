@@ -23,9 +23,8 @@ class draw_indirect_buffer;
 
 // vertex_layout vertex_layout_index用宣言
 #define __POCKET_LAYERED_VERTEX_BUFFER_INITIALIZE(TYPE) \
-	/* ----------------------------- */\
 	template <int N>\
-	bool initialize(const vertex_type(&vertices)[N], const TYPE* layouts, int count, buffer_usage_t usg = buffer_usage::immutable_draw)\
+	bool initialize(POCKET_CREF_ARRAY_ARG(vertex_type, vertices, N), const TYPE* layouts, int count, buffer_usage_t usg = buffer_usage::immutable_draw)\
 	{\
 		return initialize(&vertices[0], N, layouts, count, usg);\
 	}\
@@ -39,9 +38,8 @@ class draw_indirect_buffer;
 	{\
 		return initialize(&vertices[0], vertices.size(), layouts, count, usg);\
 	}\
-	/* ----------------------------- */\
 	template <int N>\
-	bool initialize(const vertex_type* vertices, int count, const TYPE(&layouts)[N], buffer_usage_t usg = buffer_usage::immutable_draw)\
+	bool initialize(const vertex_type* vertices, int count, POCKET_CREF_ARRAY_ARG(TYPE, layouts, N), buffer_usage_t usg = buffer_usage::immutable_draw)\
 	{\
 		return initialize(vertices, count, &layouts[0], N, usg);\
 	}\
@@ -55,9 +53,8 @@ class draw_indirect_buffer;
 	{\
 		return initialize(vertices, count, &layouts[0], layouts.size(), usg);\
 	}\
-	/* ----------------------------- */\
 	template <int VN, int LN>\
-	bool initialize(const vertex_type(&vertices)[VN], const TYPE(&layouts)[LN], buffer_usage_t usg = buffer_usage::immutable_draw)\
+	bool initialize(POCKET_CREF_ARRAY_ARG(vertex_type, vertices, VN), POCKET_CREF_ARRAY_ARG(TYPE, layouts, LN), buffer_usage_t usg = buffer_usage::immutable_draw)\
 	{\
 		return initialize(&vertices[0], VN, &layouts[0], LN, usg);\
 	}\
@@ -71,20 +68,18 @@ class draw_indirect_buffer;
 	{\
 		return initialize(&vertices[0], vertices.size(), &layouts[0], layouts.size(), usg);\
 	}\
-	/* ----------------------------- */\
 	template <int VN, size_t LN, template <typename, size_t> class ARRAY>\
-	bool initialize(const vertex_type(&vertices)[VN], const ARRAY<TYPE, LN>& layouts, buffer_usage_t usg = buffer_usage::immutable_draw)\
+	bool initialize(POCKET_CREF_ARRAY_ARG(vertex_type, vertices, VN), const ARRAY<TYPE, LN>& layouts, buffer_usage_t usg = buffer_usage::immutable_draw)\
 	{\
 		return initialize(&vertices[0], VN, &layouts[0], LN, usg);\
 	}\
 	template <int VN, typename ALLOC, template <typename, typename> class VECTOR>\
-	bool initialize(const vertex_type(&vertices)[VN], const VECTOR<TYPE, ALLOC>& layouts, buffer_usage_t usg = buffer_usage::immutable_draw)\
+	bool initialize(POCKET_CREF_ARRAY_ARG(vertex_type, vertices, VN), const VECTOR<TYPE, ALLOC>& layouts, buffer_usage_t usg = buffer_usage::immutable_draw)\
 	{\
 		return initialize(&vertices[0], VN, &layouts[0], layouts.size(), usg);\
 	}\
-	/* ----------------------------- */\
 	template <size_t VN, int LN, template <typename, size_t> class ARRAY>\
-	bool initialize(const ARRAY<vertex_type, VN>& vertices, const TYPE(&layouts)[LN], buffer_usage_t usg = buffer_usage::immutable_draw)\
+	bool initialize(const ARRAY<vertex_type, VN>& vertices, POCKET_CREF_ARRAY_ARG(TYPE, layouts, LN), buffer_usage_t usg = buffer_usage::immutable_draw)\
 	{\
 		return initialize(&vertices[0], VN, &layouts[0], LN, usg);\
 	}\
@@ -93,9 +88,8 @@ class draw_indirect_buffer;
 	{\
 		return initialize(&vertices[0], VN, &layouts[0], layouts.size(), usg);\
 	}\
-	/* ----------------------------- */\
 	template <int LN, typename ALLOC, template <typename, typename> class VECTOR>\
-	bool initialize(const VECTOR<vertex_type, ALLOC>& vertices, const TYPE(&layouts)[LN], buffer_usage_t usg = buffer_usage::immutable_draw)\
+	bool initialize(const VECTOR<vertex_type, ALLOC>& vertices, POCKET_CREF_ARRAY_ARG(TYPE, layouts, LN), buffer_usage_t usg = buffer_usage::immutable_draw)\
 	{\
 		return initialize(&vertices[0], vertices.size(), &layouts[0], LN, usg);\
 	}\

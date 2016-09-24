@@ -103,7 +103,7 @@ PCH_HEADERS_SYSTEM = [
 # プリコンパイル対象ヘッダを一つでも指定していた場合はPCH_FILEが必ず指定される
 AUTO_INCLUDE_HEADERS = [
 	# 文字列配列
-	#"test.h"
+
 ]
 
 #---------------------------------------------------------------------------------------------------------------------------------
@@ -211,6 +211,8 @@ task :rebuild => [:clean, :build]
 #--------------------------------------------------------------------------------
 desc "execute #{EXECUTABLE_FILE_NAME}"
 task :run do |t|
+	next if !File.exist? EXECUTABLE_FILE_NAME
+
 	command = (windows? ? "#{EXECUTABLE_FILE_NAME}" : "./#{EXECUTABLE_FILE_NAME}")
 
 	# 実行ファイルの引数の連結
@@ -251,8 +253,8 @@ def filepath(dir, path, suffix="")
 	end
 
 	# ディレクトリが含まれている場合は文字列置換
-	return replace dir, path, "/", suffix if path.index("/") != nil
-	return replace dir, path, "\\", suffix if path.index("\\") != nil
+	return replace dir, path, "/", suffix if path.include? "/"
+	return replace dir, path, "\\", suffix if path.include? "\\"
 	# 含まれない場合
 	"#{dir}/#{File.basename path, suffix}"
 end
@@ -315,51 +317,52 @@ def load_dep_to_headers(path)
 	string_dep_to_headers File.read(path)
 end
 
-def color_element(e)
+def print_color_element(e)
 	# カラーシーケンス文字を作成
-	def color(num)
-		"\e[01;#{num}m"
+	def output_color(num)
+		print "\e[01;#{num}m\r"
+		$stdout.flush
 	end
 
 	case e
 	# 色を戻す
 	when :reset, :default then
-		color 0
+		output_color 0
 	when :black then
-		color 30
+		output_color 30
 	when :red then
-		color 31
+		output_color 31
 	when :green then
-		color 32
+		output_color 32
 	when :yellow then
-		color 33
+		output_color 33
 	when :blue then
-		color 34
+		output_color 34
 	when :magenta then
-		color 35
+		output_color 35
 	when :cyan then
-		color 36
+		output_color 36
 	when :white then
-		color 37
+		output_color 37
 	else
-		color 0
+		output_color 0
 	end
 end
 
 # 色付きで標準出力へ出力
 # c: 変えたい色
 # d: 戻す色
-def color_print_impl(c, d)
-	print color_element(c)
-	STDOUT.flush
+def color_print_impl(c, d, endl = true)
+	$stdout.sync = true
+	print_color_element(c)
 	yield
-	print color_element(d)
-	STDOUT.flush
-	#STDOUT.flush
+	print "\n" if endl
+	print_color_element(d)
+	$stdout.sync = false
 end
 # 変えたい色に変更してブロックが終了したら標準に色に戻す
-def color_print(c)
-	color_print_impl c, :default do yield end
+def color_print(c, endl = true)
+	color_print_impl c, :default, endl do yield end
 end
 
 # 数値型にclamp関数を定義
@@ -386,32 +389,30 @@ OBJ_LIST = SOURCE_LIST.map do |e| obj_filepath e end
 # リリースを有効にするか
 RELEASE = !DEBUG
 # アセンブラを出力するか
-ASSEMBLY = true
+ASSEMBLY = false
 
 # 経過時間の計測
 start_time = nil
 
 # デバッグ時とリリース時のマクロ追加
 defines_internal = DEFINES
-defines_internal << "DEBUG" if DEBUG
-defines_internal << "_DEBUG" if DEBUG
+defines_internal << "DEBUG" << "_DEBUG" if DEBUG
 defines_internal << "NDEBUG" if RELEASE
 undefines_internal = UNDEFINES
 undefines_internal << "NDEBUG" if DEBUG
-undefines_internal << "DEBUG" if RELEASE
-undefines_internal << "_DEBUG" if RELEASE
+undefines_internal << "DEBUG" << "_DEBUG" if RELEASE
 
-def make_version(name, defs, mj, nmj, mn, mnmax)
+def make_version_define(prefix, defs, mj, nmj, mn, mnmax)
 	if mj < nmj
 		# バージョンを超えている時はすべてを定義
 		for i in 0..mnmax
-			defs << "#{name}_VERSION_#{mj}_#{i}"
+			defs << "#{prefix}_VERSION_#{mj}_#{i}"
 		end
 	elsif mj == nmj
 		# 同じ場合は指定minorまで
 		minor = mn.clamp 0, mnmax
 		for i in 0..minor
-			defs << "#{name}_VERSION_#{mj}_#{i}"
+			defs << "#{prefix}_VERSION_#{mj}_#{i}"
 		end
 	end
 end
@@ -419,16 +420,16 @@ end
 # OpenGL define
 if GL_MAJOR > 0 then
 	major = GL_MAJOR.clamp 1, 4
-	make_version "GL", defines_internal, 1, major, GL_MINOR, 5
-	make_version "GL", defines_internal, 2, major, GL_MINOR, 1
-	make_version "GL", defines_internal, 3, major, GL_MINOR, 3
-	make_version "GL", defines_internal, 4, major, GL_MINOR, 5
+	make_version_define "GL", defines_internal, 1, major, GL_MINOR, 5
+	make_version_define "GL", defines_internal, 2, major, GL_MINOR, 1
+	make_version_define "GL", defines_internal, 3, major, GL_MINOR, 3
+	make_version_define "GL", defines_internal, 4, major, GL_MINOR, 5
 end
 
 if CL_MAJOR > 0 then
 	major = CL_MAJOR.clamp 1, 2
-	make_version "CL", defines_internal, 1, major, CL_MINOR, 2
-	make_version "CL", defines_internal, 2, major, CL_MINOR, 2
+	make_version_define "CL", defines_internal, 1, major, CL_MINOR, 2
+	make_version_define "CL", defines_internal, 2, major, CL_MINOR, 2
 end
 
 # 事前に定義する配列
@@ -442,7 +443,7 @@ lib_name = array_to_join_string LIB_NAMES do |e| "-l\"#{e}\"" end
 # その他オプション
 options = array_to_join_string OPTIONS do |e| "-#{e}" end
 # frameworkオプション
-frameworks = array_to_join_string FRAMEWORKS do |e| "-framework\"#{e}\"" end
+frameworks = array_to_join_string FRAMEWORKS do |e| "-framework \"#{e}\"" end
 # 自動インクルートするファイル
 auto_include = array_to_join_string AUTO_INCLUDE_HEADERS do |e| "-include\"#{e}\"" end
 
@@ -458,7 +459,7 @@ task :pre_build do |t|
 	asm_list = SOURCE_LIST.map do |e| asm_filepath e end if ASSEMBLY
 
 	# 事前にコンパイルするヘッダ
-	if PCH_HEADERS.length > 0 then
+	if !PCH_HEADERS.empty? then
 		pch_headers = PCH_HEADERS.map do |e|
 			# ディレクトリを指定しているか
 			if /.+\/\*\*$/ =~ e then
@@ -477,7 +478,7 @@ task :pre_build do |t|
 		directory(dir).invoke if dir != "."
 
 		# プリコンパイルヘッダが設定されていたら専用ファイルを作成
-		file PCH_FILE_NAME => pch do |t|
+		file PCH_FILE_NAME => pch do
 			# すでに存在している場合は削除
 			File.unlink PCH_FILE_NAME if File.exist? PCH_FILE_NAME
 
@@ -489,8 +490,9 @@ task :pre_build do |t|
 			# 全てのファイルをインクルード
 			#endl = windows? ? "\r\n" : "\n"
 			endl = "\n"
+			file_define = "__POCKET_PRE_COMPILE_HEADERS_H__"
 			# BOM付き \uFEFF
-			files = "#ifndef __POCKET_PRE_COMPILE_HEADERS_H__#{endl}#define __POCKET_PRE_COMPILE_HEADERS_H__#{endl*2}"
+			files = "#\uFEFFifndef #{file_define}#{endl}#define #{file_define}#{endl*2}"
 			files += array_to_join_string t.prerequisites, endl do |e|
 				# すでに存在しているパスでは先頭ディレクトリ名を省く
 				if e.match("^#{dir}/") != nil
@@ -505,11 +507,11 @@ task :pre_build do |t|
 					end
 				end
 			end
-			files += "#{endl*2}" if PCH_HEADERS_SYSTEM.length > 0
+			files += "#{endl*2}" if !PCH_HEADERS_SYSTEM.empty?
 			files += array_to_join_string PCH_HEADERS_SYSTEM, endl do |e|
 				"#include <#{e}>"
-			end if PCH_HEADERS_SYSTEM.length > 0
-			files += "#{endl*2}#endif // __POCKET_PRE_COMPILE_HEADERS_H__#{endl}"
+			end if !PCH_HEADERS_SYSTEM.empty?
+			files += "#{endl*2}#endif // #{file_define}#{endl}"
 			File.write PCH_FILE_NAME, files
 
 			# プリコンパイル用バイナリファイル作成
@@ -568,17 +570,16 @@ task :pre_build do |t|
 		# タスクが実行されたか
 		is_dep = false
 
-		# 現在のコンパイルしているソースファイルを紅色で出力
-		color_print :green do
-			print "-- #{src_file} -> #{obj_file}\n"
-		end
-
+		# -MM システムinclude以外の依存include
+		# -MT 中間ファイルターゲット名
+		# -MF 出力ファイルパス
 		# ソースが変更されていたら依存関係ファイルを更新する
-		dep_cmd = "#{COMPILER} #{src_file} -E -MM -MT #{obj_file} -MF #{dep_file}"
+		dep_cmd = "#{COMPILER} \"#{src_file}\" -E -MM -MT \"#{obj_file}\" -MF \"#{dep_file}\""
 		file dep_file => src_file do
-			# -MM システムinclude以外の依存include
-			# -MT 中間ファイルターゲット名
-			# -MF 出力ファイルパス
+			color_print :green do
+				print "-- #{src_file} -> #{dep_file}"
+			end
+
 			command = dep_cmd
 			command += " #{inc}" if inc != nil
 			sh command
@@ -590,8 +591,12 @@ task :pre_build do |t|
 		headers = load_dep_to_headers dep_file
 
 		# ソースが変更されていない場合はヘッダが依存しているヘッダーを見る
-		if !is_dep && headers.length > 0 then
+		if !is_dep && !headers.empty? then
 			file dep_file => headers do
+				color_print :green do
+					print "-- #{src_file} -> #{dep_file}"
+				end
+
 				sh dep_cmd
 				# 同じもの読み込み防止
 				is_dep = true
@@ -602,10 +607,15 @@ task :pre_build do |t|
 		end
 
 		# ソースと依存しているヘッダを見て中間ファイルを作成
-		file obj_file => [src_file, headers].flatten do |t|
+		file obj_file => [src_file, headers].flatten do
+			color_print :green do
+				print "-- #{src_file} -> #{obj_file}"
+				print " (with #{asm_file})" if ASSEMBLY
+			end
+
 			# 実行するシェルコマンド
 			# -x c++
-			command = "#{COMPILER} -c #{src_file} -o #{obj_file}#{add_cmd}"
+			command = "#{COMPILER} -c \"#{src_file}\" -o \"#{obj_file}\"#{add_cmd}"
 			# シェル実行
 			sh command
 
@@ -626,8 +636,8 @@ task :post_build do
 	next if start_time == nil
 
 	color_print :magenta do
-		line = "#{"-"*50}\n"
-		print line
+		line = "-"*50
+		print "#{line}\n"
 		print "build time: #{Time.now - start_time}s\n"
 		print line
 	end
@@ -642,7 +652,7 @@ desc "Time stamp update of cpp file"
 task :touch do
 	# Windowsの場合はcopyコマンドを代用
 	# メッセージは邪魔なので破棄
-	proc = windows? ? Proc.new{ |n| sh "copy /B #{n} +,, > nul" } : Proc.new{ |n| sh "touch #{n}" }
+	proc = windows? ? Proc.new{ |n| sh "copy /B \"#{n}\" +,, > nul" } : Proc.new{ |n| sh "touch \"#{n}\"" }
 	# シェルの実行を標示させない
 	verbose false do
 		SOURCE_LIST.each do |name|
@@ -665,8 +675,8 @@ task :syntax do
 	add_cmd += " #{inc}" if inc != nil
 	add_cmd += " #{options}" if options != nil
 
-	SOURCE_LIST.each do |path|
-		sh "#{COMPILER} -f\"syntax-only\" #{path}#{add_cmd}"
+	FileList["**/*.cpp", "pocket/**/*.h", "pocket/**/*.hpp"].each do |path|
+		sh "#{COMPILER} -fsyntax-only \"#{path}\"#{add_cmd}"
 	end
 end
 
@@ -674,11 +684,14 @@ end
 # 実行ファイル作成
 #--------------------------------------------------------------------------------
 file EXECUTABLE_FILE_NAME => OBJ_LIST do |t|
+	next if t.prerequisites.empty?
+
 	color_print :green do
-		print "\n-- #{EXECUTABLE_FILE_NAME}\n"
+		print "\n-- #{EXECUTABLE_FILE_NAME}"
 	end
 
-	command = "#{COMPILER} -o #{EXECUTABLE_FILE_NAME} #{t.prerequisites.join " "}"
+	objs = array_to_join_string t.prerequisites do |e| "\"#{e}\"" end
+	command = "#{COMPILER} -o \"#{EXECUTABLE_FILE_NAME}\" #{objs}"
 	command += " #{auto_include}" if auto_include != nil
 	command += " #{defines}" if defines != nil
 	command += " #{define_values}" if define_values != nil

@@ -36,23 +36,23 @@ class program;
 class uniform_buffer;
 
 // Uniform変数に代入するための型
-class program_uniform_assign
+class program_uniform_assign_t
 {
-	const GLuint& prog;
+	const program* prog;
 	const GLint location;
 
 public:
-	program_uniform_assign(const GLuint& p, GLint l) :
-		prog(p), location(l)
-	{
-
-	}
+	explicit program_uniform_assign_t(const program& p, GLint l) :
+		prog(&p), location(l)
+	{}
 
 	template <typename T>
-	void operator = (const T&) const
-	{
+	void operator = (const T&) const;
 
-	}
+	template <typename T>
+	const program& operator [] (const T&) const;
+	template <typename T>
+	const program& operator << (const T&) const;
 };
 
 namespace detail
@@ -60,59 +60,47 @@ namespace detail
 
 // ロケーションを取得する型
 template <typename T>
-struct call_uniform
+struct call_uniform_location
 {
-	static inline void call(GLuint, const T&)
+	static inline void call(const program&, const T&)
 	{}
 };
 template <>
-struct call_uniform<char*>
+struct call_uniform_location<char*>
 {
-	static inline GLint call(GLuint prog, const char* name)
-	{
-		return glGetUniformLocation(prog, name);
-	}
+	static inline GLint call(const program& prog, const char* name);
 };
 template <>
-struct call_uniform<char const*>
+struct call_uniform_location<char const*>
 {
-	static inline GLint call(GLuint prog, const char* const name)
-	{
-		return glGetUniformLocation(prog, name);
-	}
+	static inline GLint call(const program& prog, const char* const name);
 };
 template <std::size_t N>
-struct call_uniform<char[N]>
+struct call_uniform_location<char[N]>
 {
-	static inline GLint call(GLuint prog, const char* name)
-	{
-		return glGetUniformLocation(prog, name);
-	}
+	static inline GLint call(const program& prog, const char* name);
 };
 template <>
-struct call_uniform<std::string>
+struct call_uniform_location<std::string>
 {
-	static inline GLint call(GLuint prog, const std::string& name)
-	{
-		return glGetUniformLocation(prog, name.c_str());
-	}
+	static inline GLint call(const program& prog, const std::string& name);
 };
 
 // ロケーションから代入するための型
 template <>
-struct call_uniform<int>
+struct call_uniform_location<int>
 {
-	static inline program_uniform_assign call(const GLuint& prog, int location)
+	static inline program_uniform_assign_t call(const program& prog, int location)
 	{
-		return program_uniform_assign(prog, static_cast<GLint>(location));
+		return program_uniform_assign_t(prog, static_cast<GLint>(location));
 	}
 };
 template <>
-struct call_uniform<unsigned int>
+struct call_uniform_location<unsigned int>
 {
-	static inline program_uniform_assign call(const GLuint& prog, unsigned int location)
+	static inline program_uniform_assign_t call(const program& prog, unsigned int location)
 	{
-		return program_uniform_assign(prog, static_cast<GLint>(location));
+		return program_uniform_assign_t(prog, static_cast<GLint>(location));
 	}
 };
 
@@ -156,16 +144,13 @@ struct uniform_return_type
 		// 整数の場合は代入するためのクラス
 		typename type_traits::conditional<
 			is_uniform_assign_type<_type>::value,
-			program_uniform_assign,
-			void
+			program_uniform_assign_t,
+			void // エラー用
 		>::type
 	>::type type;
 };
 
-// VScodeシンタックスハイライト解除回避
-// defineのスコープもおかしくなっているのでdetailの中に宣言
-#define __POCKET_ARRAY_REF(TYPE, NAME, N) const TYPE (&NAME)[N]
-#define __POCKET_STD_STRING_ARRAY_REF(NAME, N) __POCKET_ARRAY_REF(std::string, NAME, N)
+#define __POCKET_STD_STRING_CREF_ARRAY(NAME, N) POCKET_CREF_ARRAY_ARG(std::string, NAME, N)
 
 // 組み込み型用uniform関数
 #define __POCKET_PROGRAM_UNIFORM(TYPE, SUFFIX) \
@@ -223,30 +208,30 @@ struct uniform_return_type
 
 // 配列型用uniform関数
 #define __POCKET_PROGRAM_UNIFORM_ARRAY(TYPE, N, SUFFIX, ...) \
-	void uniform(GLint loc, __POCKET_ARRAY_REF(TYPE, v, N)) const\
+	void uniform(GLint loc, POCKET_CREF_ARRAY_ARG(TYPE, v, N)) const\
 	{\
 		glUniform##SUFFIX(loc, ##__VA_ARGS__);\
 	}\
 	template <int VEC>\
-	void uniform(GLint loc, __POCKET_ARRAY_REF(TYPE, v, VEC)[N]) const\
+	void uniform(GLint loc, POCKET_CREF_ARRAY_ARG(TYPE, v, VEC)[N]) const\
 	{\
 		glUniform##SUFFIX##v(loc, VEC, &v[0][0]);\
 	}\
-	void uniform(const char* name, __POCKET_ARRAY_REF(TYPE, v, N)) const\
+	void uniform(const char* name, POCKET_CREF_ARRAY_ARG(TYPE, v, N)) const\
 	{\
 		glUniform##SUFFIX(uniform_location(name), ##__VA_ARGS__);\
 	}\
 	template <int VEC>\
-	void uniform(const char* name, __POCKET_ARRAY_REF(TYPE, v, VEC)[N]) const\
+	void uniform(const char* name, POCKET_CREF_ARRAY_ARG(TYPE, v, VEC)[N]) const\
 	{\
 		glUniform##SUFFIX##v(uniform_location(name), VEC, &v[0][0]);\
 	}\
-	void uniform(const std::string& name, __POCKET_ARRAY_REF(TYPE, v, N)) const\
+	void uniform(const std::string& name, POCKET_CREF_ARRAY_ARG(TYPE, v, N)) const\
 	{\
 		glUniform##SUFFIX(uniform_location(name), ##__VA_ARGS__);\
 	}\
 	template <int VEC>\
-	void uniform(const std::string& name, __POCKET_ARRAY_REF(TYPE, v, VEC)[N]) const\
+	void uniform(const std::string& name, POCKET_CREF_ARRAY_ARG(TYPE, v, VEC)[N]) const\
 	{\
 		glUniform##SUFFIX##v(uniform_location(name), VEC, &v[0][0]);\
 	}
@@ -254,47 +239,47 @@ struct uniform_return_type
 // 配列行列用uniform関数
 #define __POCKET_PROGRAM_UNIFORM_ARRAY_MATRIX(TYPE, N, SUFFIX) \
 	template <int VEC>\
-	void uniform(GLint loc, __POCKET_ARRAY_REF(TYPE, v, VEC)[N][N]) const\
+	void uniform(GLint loc, POCKET_CREF_ARRAY_ARG(TYPE, v, VEC)[N][N]) const\
 	{\
 		glUniformMatrix##SUFFIX##v(loc, VEC, GL_FALSE, &v[0][0][0]);\
 	}\
 	template <bool TRANSPOSE>\
-	void uniform(GLint loc, __POCKET_ARRAY_REF(TYPE, v, N)[N]) const\
+	void uniform(GLint loc, POCKET_CREF_ARRAY_ARG(TYPE, v, N)[N]) const\
 	{\
 		glUniformMatrix##SUFFIX##v(loc, 1, gl_bool<TRANSPOSE>::value, &v[0][0]);\
 	}\
 	template <bool TRANSPOSE, int VEC>\
-	void uniform(GLint loc, __POCKET_ARRAY_REF(TYPE, v, VEC)[N][N]) const\
+	void uniform(GLint loc, POCKET_CREF_ARRAY_ARG(TYPE, v, VEC)[N][N]) const\
 	{\
 		glUniformMatrix##SUFFIX##v(loc, VEC, gl_bool<TRANSPOSE>::value, &v[0][0][0]);\
 	}\
 	template <int VEC>\
-	void uniform(const char* name, __POCKET_ARRAY_REF(TYPE, v, VEC)[N][N]) const\
+	void uniform(const char* name, POCKET_CREF_ARRAY_ARG(TYPE, v, VEC)[N][N]) const\
 	{\
 		glUniformMatrix##SUFFIX##v(uniform_location(name), VEC, GL_FALSE, &v[0][0][0]);\
 	}\
 	template <bool TRANSPOSE>\
-	void uniform(const char* name, __POCKET_ARRAY_REF(TYPE, v, N)[N]) const\
+	void uniform(const char* name, POCKET_CREF_ARRAY_ARG(TYPE, v, N)[N]) const\
 	{\
 		glUniformMatrix##SUFFIX##v(uniform_location(name), 1, gl_bool<TRANSPOSE>::value, &v[0][0]);\
 	}\
 	template <bool TRANSPOSE, int VEC>\
-	void uniform(const char* name, __POCKET_ARRAY_REF(TYPE, v, VEC)[N][N]) const\
+	void uniform(const char* name, POCKET_CREF_ARRAY_ARG(TYPE, v, VEC)[N][N]) const\
 	{\
 		glUniformMatrix##SUFFIX##v(uniform_location(name), VEC, gl_bool<TRANSPOSE>::value, &v[0][0][0]);\
 	}\
 	template <int VEC>\
-	void uniform(const std::string& name, __POCKET_ARRAY_REF(TYPE, v, VEC)[N][N]) const\
+	void uniform(const std::string& name, POCKET_CREF_ARRAY_ARG(TYPE, v, VEC)[N][N]) const\
 	{\
 		glUniformMatrix##SUFFIX##v(uniform_location(name), VEC, GL_FALSE, &v[0][0][0]);\
 	}\
 	template <bool TRANSPOSE>\
-	void uniform(const std::string& name, __POCKET_ARRAY_REF(TYPE, v, N)[N]) const\
+	void uniform(const std::string& name, POCKET_CREF_ARRAY_ARG(TYPE, v, N)[N]) const\
 	{\
 		glUniformMatrix##SUFFIX##v(uniform_location(name), 1, gl_bool<TRANSPOSE>::value, &v[0][0]);\
 	}\
 	template <bool TRANSPOSE, int VEC>\
-	void uniform(const std::string& name, __POCKET_ARRAY_REF(TYPE, v, VEC)[N][N]) const\
+	void uniform(const std::string& name, POCKET_CREF_ARRAY_ARG(TYPE, v, VEC)[N][N]) const\
 	{\
 		glUniformMatrix##SUFFIX##v(uniform_location(name), 1, gl_bool<TRANSPOSE>::value, &v[0][0][0]);\
 	}
@@ -537,13 +522,12 @@ public:
 		}
 		// ファイルの情報を読み取る
 		std::string bin;
-		GLsizei length;
-		if (!read(path, bin, format, length, file_front_format_written))
+		if (!read(path, bin, format, file_front_format_written))
 		{
 			return false;
 		}
 		// バイナリ情報を送る
-		glProgramBinary(_id, format, bin.data(), length);
+		glProgramBinary(_id, format, bin.data(), bin.length());
 		// リンクできているか
 		return linked();
 	}
@@ -559,12 +543,11 @@ public:
 		}
 		std::string bin;
 		GLenum format = POCKET_GL_UNINITIALIZED_VALUE;
-		GLsizei length;
-		if (!read(path, bin, format, length, file_front_format_written))
+		if (!read(path, bin, format, file_front_format_written))
 		{
 			return false;
 		}
-		glProgramBinary(_id, format, bin.data(), length);
+		glProgramBinary(_id, format, bin.data(), bin.length());
 		return linked();
 	}
 	bool initialize(const std::string& path, bool file_front_format_written = true)
@@ -791,7 +774,7 @@ public:
 #endif // POCKET_USING_MATH_DOUBLE
 
 	template <typename T, int N>
-	void uniform(GLint loc, __POCKET_ARRAY_REF(T, v, N)) const
+	void uniform(GLint loc, POCKET_CREF_ARRAY_ARG(T, v, N)) const
 	{
 		uniform(loc, &v[0], N);
 	}
@@ -850,7 +833,7 @@ public:
 		glGetUniformIndices(_id, N, &s[0], &i[0]);
 	}
 	template <int N>
-	void uniform_indices(__POCKET_STD_STRING_ARRAY_REF(s, N), GLuint(&a)[N]) const
+	void uniform_indices(__POCKET_STD_STRING_CREF_ARRAY(s, N), GLuint(&a)[N]) const
 	{
 		const char* c_str[N];
 		for (int i = 0; i < N; ++i)
@@ -865,7 +848,7 @@ public:
 		glGetUniformIndices(_id, N, &s[0], &i[0]);
 	}
 	template <size_t N, template <typename, size_t> class ARRAY>
-	void uniform_indices(__POCKET_STD_STRING_ARRAY_REF(s, N), ARRAY<GLuint, N>& a) const
+	void uniform_indices(__POCKET_STD_STRING_CREF_ARRAY(s, N), ARRAY<GLuint, N>& a) const
 	{
 		const char* c_str[N];
 		for (int i = 0; i < N; ++i)
@@ -882,7 +865,7 @@ public:
 		return POCKET_CXX11_MOVE(a);
 	}
 	template <int N>
-	typename indices_t<N>::type uniform_indices(__POCKET_STD_STRING_ARRAY_REF(s, N))
+	typename indices_t<N>::type uniform_indices(__POCKET_STD_STRING_CREF_ARRAY(s, N))
 	{
 		typename indices_t<N>::type a;
 		const char* c_str[N];
@@ -966,11 +949,12 @@ public:
 	{
 		glGetActiveUniformName(_id, location, N, NULL, &name[0]);
 	}
-	std::string uniform_block_name_from_location(GLuint location, GLsizei length = 32) const
+	std::string uniform_block_name_from_location(GLuint location) const
 	{
-		std::string name(static_cast<size_t>(length), '\0');
-		glGetActiveUniformName(_id, location, length, &length, &name[0]);
-		name.resize(static_cast<size_t>(length));
+		GLsizei length = 0;
+		glGetActiveUniformName(_id, location, 0, &length, NULL);
+		std::string name(length, '\0');
+		glGetActiveUniformName(_id, location, length, NULL, &name[0]);
 		return POCKET_CXX11_MOVE(name);
 	}
 	template <int N>
@@ -978,11 +962,12 @@ public:
 	{
 		glGetActiveUniformBlockName(_id, index, N, NULL, &name[0]);
 	}
-	std::string uniform_block_name(GLuint index, GLsizei length = 32) const
+	std::string uniform_block_name(GLuint index) const
 	{
-		std::string name(static_cast<size_t>(length), '\0');
-		glGetActiveUniformBlockName(_id, index, length, &length, &name[0]);
-		name.resize(static_cast<size_t>(length));
+		GLsizei length = 0;
+		glGetActiveUniformBlockName(_id, index, 0, &length, NULL);
+		std::string name(length, '\0');
+		glGetActiveUniformBlockName(_id, index, length, NULL, &name[0]);
 		return POCKET_CXX11_MOVE(name);
 	}
 
@@ -1172,6 +1157,12 @@ public:
 		glGetActiveSubroutineUniformiv(_id, type, index, GL_NUM_COMPATIBLE_SUBROUTINES, &n);
 		return static_cast<int>(n);
 	}
+	int subroutine_count(GLuint index, const shader& s) const
+	{
+		GLint n = 0;
+		glGetActiveSubroutineUniformiv(_id, s.kind(), index, GL_NUM_COMPATIBLE_SUBROUTINES, &n);
+		return static_cast<int>(n);
+	}
 
 	// サブルーチンインデックス取得
 	GLuint subroutine_index(const char* name, shader_type_t type) const
@@ -1300,7 +1291,7 @@ public:
 	}
 
 	template <int N>
-	bool subroutine(__POCKET_STD_STRING_ARRAY_REF(name, N), shader_type_t type) const
+	bool subroutine(__POCKET_STD_STRING_CREF_ARRAY(name, N), shader_type_t type) const
 	{
 		GLuint indices[N];
 		for (int i = 0; i < N; ++i)
@@ -1319,7 +1310,7 @@ public:
 		return subroutine(name, s.kind());
 	}
 	template <int N>
-	bool subroutine(__POCKET_STD_STRING_ARRAY_REF(name, N), const shader& s) const
+	bool subroutine(__POCKET_STD_STRING_CREF_ARRAY(name, N), const shader& s) const
 	{
 		return subroutine(name, s.kind());
 	}
@@ -1329,7 +1320,7 @@ public:
 		return subroutine(name, T);
 	}
 	template <shader_type_t T, int N>
-	bool subroutine(__POCKET_STD_STRING_ARRAY_REF(name, N)) const
+	bool subroutine(__POCKET_STD_STRING_CREF_ARRAY(name, N)) const
 	{
 		return subroutine(name, T);
 	}
@@ -1452,7 +1443,7 @@ private:
 		return true;
 	}
 
-	bool read(const char* path, std::string& bin, GLenum& format, GLsizei& length, bool file_front_format_written)
+	bool read(const char* path, std::string& bin, GLenum& format, bool file_front_format_written)
 	{
 		std::ifstream fs(path, std::ios_base::in | std::ios_base::ate | std::ios_base::binary);
 		if (!fs.is_open())
@@ -1463,8 +1454,6 @@ private:
 		// ファイル全体のサイズ
 		std::size_t file_size = static_cast<std::size_t>(fs.tellg());
 		fs.seekg(0, std::ios_base::beg);
-		// 最初に書き込まれている場合はGLenum文引く
-		std::size_t bin_size = file_front_format_written ? file_size - sizeof(GLenum) : file_size;
 		// フォーマットを取得
 		if (file_front_format_written)
 		{
@@ -1479,11 +1468,11 @@ private:
 				fs.read(reinterpret_cast<char*>(&format), sizeof(GLenum));
 			}
 		}
+		// 最初に書き込まれている場合はGLenum文引く
+		std::size_t bin_size = file_front_format_written ? (file_size - sizeof(GLenum)) : file_size;
 		bin.resize(bin_size);
 		fs.read(&bin[0], bin_size);
 		fs.close();
-
-		length = static_cast<GLsizei>(bin_size);
 
 		return true;
 	}
@@ -1544,11 +1533,60 @@ public:
 	{
 		// 文字列でロケーションを返す
 		// ロケーションで代入するための型を返す
-		typedef typename type_traits::remove_cv_reference<T>::type _type;
-		return detail::call_uniform<_type>::call(_id, v);
+		typedef typename type_traits::remove_cv_reference<T>::type type;
+		return detail::call_uniform_location<type>::call(*this, v);
+	}
+	template <typename T>
+	typename type_traits::enable_if<
+	 	!type_traits::is_same<typename detail::uniform_return_type<T>::type, void>::value,
+	 	typename detail::uniform_return_type<T>::type
+	 >::type
+		operator << (const T& v) const
+	{
+		typedef typename type_traits::remove_cv_reference<T>::type type;
+		return detail::call_uniform_location<type>::call(*this, v);
 	}
 };
 
+template <typename T> inline
+void program_uniform_assign_t::operator = (const T& arg) const
+{
+	prog->uniform(location, arg);
+}
+template <typename T> inline
+const program& program_uniform_assign_t::operator [] (const T& arg) const
+{
+	prog->uniform(location, arg);
+	return *prog;
+}
+template <typename T> inline
+const program& program_uniform_assign_t::operator << (const T& arg) const
+{
+	return operator[](arg);
+}
+namespace detail
+{
+inline
+GLint call_uniform_location<char*>::call(const program& prog, const char* name)
+{
+	return prog.uniform_location(name);
+}
+inline
+GLint call_uniform_location<char const*>::call(const program& prog, const char* const name)
+{
+	return prog.uniform_location(name);
+}
+template <std::size_t N> inline
+GLint call_uniform_location<char[N]>::call(const program& prog, const char* name)
+{
+	return prog.uniform_location(name);
+}
+inline
+GLint call_uniform_location<std::string>::call(const program& prog, const std::string& name)
+{
+	return prog.uniform_location(name);
+}
+}
 
 inline
 bool shader::subroutine(const char* name, const program& prog) const
@@ -1571,8 +1609,7 @@ bool shader::subroutine(const std::string(&name)[N], const program& prog) const
 	return prog.subroutine(name, _type);
 }
 
-#undef __POCKET_ARRAY_REF
-#undef __POCKET_STD_STRING_ARRAY_REF
+#undef __POCKET_STD_STRING_CREF_ARRAY
 #undef __POCKET_PROGRAM_UNIFORM
 #undef __POCKET_PROGRAM_UNIFORM_TYPED
 #undef __POCKET_PROGRAM_UNIFORM_ARRAY

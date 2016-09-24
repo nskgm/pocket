@@ -56,7 +56,9 @@ int main()
 	{
 		return EXIT_FAILURE;
 	}
+#ifdef POCKET_DEBUG
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
+#endif // POCKET_DEBUG
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -89,7 +91,7 @@ int main()
 	std::cout << "GL_ARB_debug_output: " << gl::is_extension_support("GL_ARB_debug_output") << std::endl;
 
 	// 頂点シェーダ―作成
-	gl::shader vert = gl::make_vertex_shader("../test.vert");
+	gl::shader vert = gl::make_vertex_shader("test.vert");
 	if (!vert)
 	{
 		std::cout << vert << std::endl;
@@ -98,7 +100,7 @@ int main()
 	POCKET_GL_ERROR();
 
 	// フラグメントシェーダー作成
-	gl::shader frag = gl::make_fragment_shader("../test.frag");
+	gl::shader frag = gl::make_fragment_shader("test.frag");
 	if (!frag)
 	{
 		std::cout << frag << std::endl;
@@ -115,9 +117,9 @@ int main()
 		return EXIT_FAILURE;
 	}
 	// バイナリの保存
-	if (!prog.save_binary("../test.shbin", true))
+	if (!prog.save_binary("test.shbin", true))
 	{
-		std::cout << prog << std::endl;
+		std::cout << "save_binary: " << prog.error() << std::endl;
 		prog.clear();
 	}
 	// UBOの情報を出力

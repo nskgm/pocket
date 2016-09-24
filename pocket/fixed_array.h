@@ -194,19 +194,13 @@ struct fixed_array<T, 2>
 	};
 
 	fixed_array()
-	{
-
-	}
+	{}
 	fixed_array(value_type x, value_type y) :
 		x(x), y(y)
-	{
-
-	}
+	{}
 	fixed_array(value_type f) :
 		x(f), y(f)
-	{
-
-	}
+	{}
 	fixed_array(const fixed_array<T, 3>&);
 	fixed_array(const fixed_array<T, 4>&);
 
@@ -316,29 +310,19 @@ struct fixed_array<T, 3>
 	};
 
 	fixed_array()
-	{
-
-	}
+	{}
 	fixed_array(value_type x, value_type y, value_type z) :
 		x(x), y(y), z(z)
-	{
-
-	}
+	{}
 	fixed_array(value_type f) :
 		x(f), y(f), z(f)
-	{
-
-	}
+	{}
 	fixed_array(const fixed_array<T, 2>& xy, value_type z) :
 		x(xy.x), y(xy.y), z(z)
-	{
-
-	}
+	{}
 	fixed_array(value_type x, const fixed_array<T, 2>& yz) :
 		x(x), y(yz.x), z(yz.y)
-	{
-
-	}
+	{}
 	fixed_array(const fixed_array<T, 4>&);
 
 	T* address()
@@ -455,44 +439,28 @@ struct fixed_array<T, 4>
 	};
 
 	fixed_array()
-	{
-
-	}
+	{}
 	fixed_array(value_type x, value_type y, value_type z, value_type w) :
 		x(x), y(y), z(z), w(w)
-	{
-
-	}
+	{}
 	fixed_array(value_type f) :
 		x(f), y(f), z(f), w(f)
-	{
-
-	}
+	{}
 	fixed_array(const fixed_array<T, 2>& xy, value_type z, value_type w) :
 		x(xy.x), y(xy.y), z(z), w(w)
-	{
-
-	}
+	{}
 	fixed_array(value_type x, const fixed_array<T, 2>& yz, value_type w) :
 		x(x), y(yz.x), z(yz.y), w(w)
-	{
-
-	}
+	{}
 	fixed_array(value_type x, value_type y, const fixed_array<T, 2>& xw) :
 		x(x), y(y), z(xw.x), w(xw.y)
-	{
-
-	}
+	{}
 	fixed_array(const fixed_array<T, 3>& xyz, value_type w) :
 		x(xyz.x), y(xyz.y), z(xyz.z), w(w)
-	{
-
-	}
+	{}
 	fixed_array(value_type x, const fixed_array<T, 3>& yzw) :
 		x(x), y(yzw.x), z(yzw.y), w(yzw.z)
-	{
-
-	}
+	{}
 
 	T* address()
 	{
@@ -592,10 +560,7 @@ struct bool_reference
 
 	bool_reference(int& a, int i) :
 		a(a), bit(0x01 << i)
-	{
-
-	}
-
+	{}
 	bool operator = (bool b)
 	{
 		if (b)
@@ -608,7 +573,6 @@ struct bool_reference
 		}
 		return b;
 	}
-
 	POCKET_CXX11_EXPLICIT operator bool () const
 	{
 		return (a & bit) != 0x00;
@@ -634,19 +598,13 @@ struct fixed_array<bool, 2>
 
 	fixed_array() :
 		data(0)
-	{
-
-	}
+	{}
 	fixed_array(bool a) :
 		data(a ? 0x03 : 0x00)
-	{
-
-	}
+	{}
 	fixed_array(bool a, bool b) :
 		data(detail::or_bit(a, 0) | detail::or_bit(b, 1))
-	{
-
-	}
+	{}
 	fixed_array(const fixed_array<bool, 3>&);
 	fixed_array(const fixed_array<bool, 4>&);
 
@@ -688,29 +646,19 @@ struct fixed_array<bool, 3>
 
 	fixed_array() :
 		data(0)
-	{
-
-	}
+	{}
 	fixed_array(bool a) :
 		data(a ? 0x07 : 0x00)
-	{
-
-	}
+	{}
 	fixed_array(bool a, bool b, bool c) :
 		data(detail::or_bit(a, 0) | detail::or_bit(b, 1) | detail::or_bit(c, 2))
-	{
-
-	}
+	{}
 	fixed_array(const fixed_array<bool, 2>& a, bool c) :
 		data((a.data & 0x03) | detail::or_bit(c, 2))
-	{
-
-	}
+	{}
 	fixed_array(bool a, const fixed_array<bool, 2>& b) :
 		data(detail::or_bit(a, 0) | ((b.data & 0x03) << 1))
-	{
-
-	}
+	{}
 	fixed_array(const fixed_array<bool, 4>&);
 
 	bool all() const
@@ -751,44 +699,28 @@ struct fixed_array<bool, 4>
 
 	fixed_array() :
 		data(0)
-	{
-
-	}
+	{}
 	fixed_array(bool a) :
 		data(a ? 0x0F : 0x00)
-	{
-
-	}
+	{}
 	fixed_array(bool a, bool b, bool c, bool d) :
 		data(detail::or_bit(a, 0) | detail::or_bit(b, 1) | detail::or_bit(c, 2) | detail::or_bit(d, 3))
-	{
-
-	}
+	{}
 	fixed_array(const fixed_array<bool, 2>& a, bool c, bool d) :
 		data((a.data & 0x03) | detail::or_bit(c, 2) | detail::or_bit(d, 3))
-	{
-
-	}
+	{}
 	fixed_array(bool a, const fixed_array<bool, 2>& b, bool d) :
 		data(detail::or_bit(a, 0) | ((b.data & 0x03) << 1) | detail::or_bit(d, 3))
-	{
-
-	}
+	{}
 	fixed_array(bool a, bool b, fixed_array<bool, 2>& c) :
 		data(detail::or_bit(a, 0) | detail::or_bit(b, 1) | ((c.data & 0x03) << 2))
-	{
-
-	}
+	{}
 	fixed_array(const fixed_array<bool, 3>& a, bool b) :
 		data((a.data & 0x07) | detail::or_bit(b, 3))
-	{
-
-	}
+	{}
 	fixed_array(bool a, const fixed_array<bool, 3>& b) :
 		data(detail::or_bit(a, 0) | ((b.data & 0x07) << 1))
-	{
-
-	}
+	{}
 
 	bool all() const
 	{
@@ -823,15 +755,11 @@ struct fixed_array<bool, 4>
 template <typename T> inline
 fixed_array<T, 2>::fixed_array(const fixed_array<T, 3>& a) :
 	x(a.x), y(a.y)
-{
-
-}
+{}
 template <typename T> inline
 fixed_array<T, 2>::fixed_array(const fixed_array<T, 4>& a) :
 	x(a.x), y(a.y)
-{
-
-}
+{}
 template <typename T> inline
 fixed_array<T, 2>& fixed_array<T, 2>::operator = (const fixed_array<T, 3>& a)
 {
@@ -849,9 +777,7 @@ fixed_array<T, 2>& fixed_array<T, 2>::operator = (const fixed_array<T, 4>& a)
 template <typename T> inline
 fixed_array<T, 3>::fixed_array(const fixed_array<T, 4>& a) :
 	x(a.x), y(a.y), z(a.z)
-{
-
-}
+{}
 template <typename T> inline
 fixed_array<T, 3>& fixed_array<T, 3>::operator = (const fixed_array<T, 4>& a)
 {
@@ -864,21 +790,15 @@ fixed_array<T, 3>& fixed_array<T, 3>::operator = (const fixed_array<T, 4>& a)
 inline
 fixed_array<bool, 2>::fixed_array(const fixed_array<bool, 3>& a) :
 	data(a.data & 0x03)
-{
-
-}
+{}
 inline
 fixed_array<bool, 2>::fixed_array(const fixed_array<bool, 4>& a) :
 	data(a.data & 0x03)
-{
-
-}
+{}
 inline
 fixed_array<bool, 3>::fixed_array(const fixed_array<bool, 4>& a) :
 	data(a.data & 0x07)
-{
-
-}
+{}
 
 } // namespace pocket
 
@@ -889,7 +809,6 @@ std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, Ch
 	return os;
 }
 
-#ifndef _POCKET_OUTPUT_BOOL_FIXED_ARRAY
 #define _POCKET_OUTPUT_BOOL_FIXED_ARRAY(N) template <typename CharT, typename CharTraits> inline\
 	std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const pocket::fixed_array<bool, N>& ary)\
 	{\
@@ -905,7 +824,6 @@ std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, Ch
 		os << pocket::io::box_brackets_right;\
 		return os;\
 	}
-#endif // _POCKET_OUTPUT_BOOL_FIXED_ARRAY
 
 _POCKET_OUTPUT_BOOL_FIXED_ARRAY(2);
 _POCKET_OUTPUT_BOOL_FIXED_ARRAY(3);

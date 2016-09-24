@@ -241,39 +241,39 @@ bool output_error(std::basic_ostream<CharT, CharTraits>& os, GLenum err, const c
 
 // cerrへのエラー出力
 #ifndef POCKET_GL_ERROR_MSG
-#define POCKET_GL_ERROR_MSG(MSG, ...) pocket::gl::output_error(std::cerr, glGetError(), __FILE__, __FUNCTION__, __LINE__, MSG, ##__VA_ARGS__)
+#	define POCKET_GL_ERROR_MSG(MSG, ...) pocket::gl::output_error(std::cerr, glGetError(), __FILE__, __FUNCTION__, __LINE__, MSG, ##__VA_ARGS__)
 #endif // POCKET_GL_ERROR_MSG
 #ifndef POCKET_GL_ERROR
-#define POCKET_GL_ERROR() POCKET_GL_ERROR_MSG(NULL)
+#	define POCKET_GL_ERROR() POCKET_GL_ERROR_MSG(NULL)
 #endif // POCKET_GL_ERROR
 #ifndef POCKET_GL_ASSERT_MSG
-#define POCKET_GL_ASSERT_MSG(MSG, ...) POCKET_DEBUG_ASSERT(!POCKET_GL_ERROR_MSG(MSG, ##__VA_ARGS__))
+#	define POCKET_GL_ASSERT_MSG(MSG, ...) POCKET_DEBUG_ASSERT(!POCKET_GL_ERROR_MSG(MSG, ##__VA_ARGS__))
 #endif // POCKET_GL_ASSERT_MSG
 #ifndef POCKET_GL_ASSERT
-#define POCKET_GL_ASSERT() POCKET_DEBUG_ASSERT(!POCKET_GL_ERROR())
+#	define POCKET_GL_ASSERT() POCKET_DEBUG_ASSERT(!POCKET_GL_ERROR())
 #endif // POCKET_GL_ASSERT
 
 // wcerrへのエラー出力
 #ifndef POCKET_GL_ERROR_MSG_W
-#define POCKET_GL_ERROR_MSG_W(MSG, ...) pocket::gl::output_error(std::wcerr, glGetError(), __FILE__, __FUNCTION__, __LINE__, MSG, ##__VA_ARGS__)
+#	define POCKET_GL_ERROR_MSG_W(MSG, ...) pocket::gl::output_error(std::wcerr, glGetError(), __FILE__, __FUNCTION__, __LINE__, MSG, ##__VA_ARGS__)
 #endif // POCKET_GL_ERROR_MSG
 #ifndef POCKET_GL_ERROR_W
-#define POCKET_GL_ERROR_W() POCKET_GL_ERROR_MSG_W(NULL)
+#	define POCKET_GL_ERROR_W() POCKET_GL_ERROR_MSG_W(NULL)
 #endif // POCKET_GL_ERROR_W
 #ifndef POCKET_GL_ASSERT_MSG_W
-#define POCKET_GL_ASSERT_MSG_W(MSG, ...) POCKET_DEBUG_ASSERT(!POCKET_GL_ERROR_MSG_W(MSG, ##__VA_ARGS__))
+#	define POCKET_GL_ASSERT_MSG_W(MSG, ...) POCKET_DEBUG_ASSERT(!POCKET_GL_ERROR_MSG_W(MSG, ##__VA_ARGS__))
 #endif // POCKET_GL_ASSERT_MSG_W
 #ifndef POCKET_GL_ASSERT_W
-#define POCKET_GL_ASSERT_W() POCKET_DEBUG_ASSERT(!POCKET_GL_ERROR_W())
+#	define POCKET_GL_ASSERT_W() POCKET_DEBUG_ASSERT(!POCKET_GL_ERROR_W())
 #endif // POCKET_GL_ASSERT_W
 
 // エラーチェック付きOpenGL関数呼び出し
 #ifndef POCKET_GL_FUNC
-#define POCKET_GL_FUNC(FUNC, ...) (FUNC)(__VA_ARGS__); POCKET_GL_ASSERT()
+#	define POCKET_GL_FUNC(FUNC, ...) (FUNC)(__VA_ARGS__); POCKET_GL_ASSERT()
 #endif // POCKET_GL_FUNC
 
 #ifndef POCKET_GL_FUNC_W
-#define POCKET_GL_FUNC_W(FUNC, ...) (FUNC)(__VA_ARGS__); POCKET_GL_ASSERT_W()
+#	define POCKET_GL_FUNC_W(FUNC, ...) (FUNC)(__VA_ARGS__); POCKET_GL_ASSERT_W()
 #endif // POCKET_GL_FUNC_W
 
 // バージョン（メジャー）取得

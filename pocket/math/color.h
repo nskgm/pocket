@@ -377,7 +377,7 @@ struct color
 	//---------------------------------------------------------------------
 	// 透過値の生成
 	//---------------------------------------------------------------------
-	static color alpha(T a)
+	static inline color alpha(T a)
 	{
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		return color(simd::set(math_type::one, math_type::one, math_type::one, a));

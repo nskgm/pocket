@@ -433,17 +433,6 @@
 //---------------------------------------------------------------------------------------
 // アライメントの際に適切なサイズを指定
 //---------------------------------------------------------------------------------------
-#ifndef POCKET_ALIGNED_SIZE_INT_COUNT
-#	define POCKET_ALIGNED_SIZE_INT_COUNT(N) (sizeof(int)*(N))
-#endif // POCKET_ALIGNED_SIZE_INT_COUNT
-#ifndef POCKET_ALIGNED_SIZEABLE_POT_MAX_64
-#	define POCKET_ALIGNED_SIZEABLE_POT_MAX_64(N) ((N) <= POCKET_ALIGNED_SIZE_INT_COUNT(1) ? POCKET_ALIGNED_SIZE_INT_COUNT(1) :\
-											(N) <= POCKET_ALIGNED_SIZE_INT_COUNT(2) ? POCKET_ALIGNED_SIZE_INT_COUNT(2) :\
-											(N) <= POCKET_ALIGNED_SIZE_INT_COUNT(4) ? POCKET_ALIGNED_SIZE_INT_COUNT(4) :\
-											(N) <= POCKET_ALIGNED_SIZE_INT_COUNT(8) ? POCKET_ALIGNED_SIZE_INT_COUNT(8) :\
-											(N) <= POCKET_ALIGNED_SIZE_INT_COUNT(16) ? POCKET_ALIGNED_SIZE_INT_COUNT(16) : POCKET_ALIGNED_SIZE_INT_COUNT(0))
-#endif // POCKET_ALIGNED_SIZEABLE_POT_MAX_64
-
 #ifndef POCKET_ALIGNED_DECL
 #	if POCKET_COMPILER_IF(VC)
 #		if POCKET_VCXX_VERSION_IF(14)
@@ -462,10 +451,6 @@
 #ifndef POCKET_ALIGNED_CLASS
 #	define POCKET_ALIGNED_CLASS(N) POCKET_ALIGNED_DECL(class, N)
 #endif // POCKET_ALIGNED_CLASS
-
-#ifndef POCKET_ALIGNED_STRUCT_APPROPRIATE
-#	define POCKET_ALIGNED_STRUCT_APPROPRIATE(N) POCKET_ALIGNED_STRUCT(POCKET_ALIGNED_SIZEABLE_POT_MAX_64(N))
-#endif // POCKET_ALIGNED_STRUCT_APPROPRIATE
 
 //---------------------------------------------------------------------------------------
 // 数学クラスで使用する静的アサーションの設定
@@ -525,6 +510,28 @@
 #ifndef POCKET_ARRAY_SIZE
 #	define POCKET_ARRAY_SIZE(ARY) (sizeof(ARY) / sizeof(ARY[0]))
 #endif // POCKET_ARRAY_SIZE
+
+//---------------------------------------------------------------------------------------
+// 引数用配列参照(シンタックスハイライト解除回避用)
+//---------------------------------------------------------------------------------------
+#ifndef POCKET_REF_ARRAY_ARG
+#	define POCKET_REF_ARRAY_ARG(TYPE, NAME, N) TYPE (&NAME)[N]
+#endif // POCKET_REF_ARRAY_ARG
+#ifndef POCKET_CREF_ARRAY_ARG
+#	define POCKET_CREF_ARRAY_ARG(TYPE, NAME, N) POCKET_REF_ARRAY_ARG(const TYPE, NAME, N)
+#endif // POCKET_CREF_ARRAY_ARG
+
+//---------------------------------------------------------------------------------------
+// テンプレート引数用array, vector
+//---------------------------------------------------------------------------------------
+#ifndef POCKET_TEMPLATE_PARAM_ARRAY
+#	define POCKET_TEMPLATE_PARAM_ARRAY(N_NAME, NAME) size_t N_NAME, template <typename, size_t> class NAME
+;
+#endif // POCKET_TEMPLATE_PARAM_ARRAY
+#ifndef POCKET_TEMPLATE_PARAM_VECTOR
+#	define POCKET_TEMPLATE_PARAM_VECTOR(ALLOC_NAME, NAME) typename ALLOC_NAME, template <typename, typename> class NAME
+;
+#endif // POCKET_TEMPLATE_PARAM_VECTOR
 
 //---------------------------------------------------------------------------------------
 // SIMD種類

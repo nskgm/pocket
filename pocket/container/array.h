@@ -22,23 +22,6 @@ using array = std::array<T, N>;
 }
 }
 
-template <typename CharT, typename CharTraits, typename T, size_t N> inline
-std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const std::array<T, N>& ary)
-{
-	typedef typename std::array<T, N>::const_iterator const_iterator;
-	os << pocket::io::box_brackets_left;
-	for (const_iterator i = ary.begin(), end = ary.end(), last = end - 1; i != end; ++i)
-	{
-		os << *i;
-		if (i != last)
-		{
-			os << pocket::io::space;
-		}
-	}
-	os << pocket::io::box_brackets_right;
-	return os;
-}
-
 #else
 // 使えない場合は簡単なクラスを定義
 #include "../debug.h"
@@ -212,6 +195,17 @@ public:
 } // namespace container
 } // namespace pocket
 
+namespace std
+{
+	template <typename T, size_t N> inline
+	void swap(pocket::container::array<T, N>& lhs, pocket::container::array<T, N>& rhs)
+	{
+		lhs.swap(rhs);
+	}
+}
+
+#endif // POCKET_USE_CXX11
+
 template <typename CharT, typename CharTraits, typename T, size_t N> inline
 std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const pocket::container::array<T, N>& ary)
 {
@@ -228,16 +222,5 @@ std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, Ch
 	os << pocket::io::box_brackets_right;
 	return os;
 }
-
-namespace std
-{
-	template <typename T, size_t N> inline
-	void swap(pocket::container::array<T, N>& lhs, pocket::container::array<T, N>& rhs)
-	{
-		lhs.swap(rhs);
-	}
-}
-
-#endif // POCKET_USE_CXX11
 
 #endif // __POCKET_CONTAINER_ARRAY_H__

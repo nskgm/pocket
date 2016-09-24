@@ -15,9 +15,8 @@ namespace pocket
 {
 struct nullobj_t
 {
-	nullobj_t()
-	{
-	}
+	POCKET_CXX11_CONSTEXPR nullobj_t()
+	{}
 
 	operator bool () const
 	{
@@ -82,6 +81,10 @@ struct nullobj_t
 	operator const char* () const
 	{
 		return "";
+	}
+	operator const wchar_t* () const
+	{
+		return L"";
 	}
 	template <typename T>
 	operator T* () const
@@ -507,7 +510,7 @@ bool operator != (const nullobj_t&, const T&)
 //---------------------------------------------------------------------
 // 宣言
 //---------------------------------------------------------------------
-static const nullobj_t nullobj = {};
+POCKET_STATICAL_CONSTANT nullobj_t nullobj = {};
 
 } // namespace pocket
 
