@@ -180,6 +180,7 @@ int main()
 	char message[256];
 	math::quaternionf quat;
 
+
 	do
 	{
 		glfwPollEvents();
