@@ -680,15 +680,7 @@ public:
 	// バインドされているか
 	bool binding() const
 	{
-		GLuint i;
-		glGetIntegerv(GL_VERTEX_ARRAY_BINDING, reinterpret_cast<GLint*>(&i));
-		// バインドされていない
-		if (i == 0)
-		{
-			return false;
-		}
-		// 現在バインドされているIDが同じか
-		return i == _id;
+		return gl::is_binding(GL_VERTEX_ARRAY_BINDING, _id);
 	}
 
 	// バインド状態を管理するオブジェクト作成
@@ -728,7 +720,7 @@ public:
 	// バインドされているか
 	bool binding(int i) const
 	{
-		GLint n = 0;
+		GLint n;
 		glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING, &n);
 		return n != 0;
 	}
@@ -736,9 +728,9 @@ public:
 	// バインドされているか
 	GLenum type(int i) const
 	{
-		GLint n = 0;
-		glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_TYPE, &n);
-		return static_cast<GLenum>(n);
+		GLenum type;
+		glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_TYPE, reinterpret_cast<GLint*>(&type));
+		return type;
 	}
 
 	// エラー文

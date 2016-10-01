@@ -342,16 +342,16 @@ public:
 	}
 
 	// 描画
-	void draw(primitive_type_t type) const
+	void draw(draw_type_t type) const
 	{
 		glDrawElements(type, _count, gl_type<T>::value, NULL);
 	}
-	void draw(primitive_type_t type, GLsizei n) const
+	void draw(draw_type_t type, GLsizei n) const
 	{
 		n = std::min(n, _count);
 		glDrawElements(type, n, gl_type<T>::value, NULL);
 	}
-	void draw(primitive_type_t type, const draw_indirect_buffer&) const
+	void draw(draw_type_t type, const draw_indirect_buffer&) const
 	{
 		glDrawElementsIndirect(type, gl_type<T>::value, NULL);
 	}

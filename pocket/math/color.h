@@ -239,6 +239,7 @@ struct color
 		result.b = b * f;
 		result.a = a * f;
 #endif // POCKET_USE_SIMD_ANONYMOUS
+		return result;
 	}
 
 	//---------------------------------------------------------------------

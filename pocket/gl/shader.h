@@ -158,11 +158,12 @@ public:
 	}
 
 	// コード取得
-	std::string code(GLsizei length = 1024) const
+	std::string code() const
 	{
-		std::string source(length, '\0');
-		glGetShaderSource(_id, length, &length, &source[0]);
-		source.resize(static_cast<size_t>(length));
+		GLsizei length;
+		glGetShaderSource(_id, 0, &length, NULL);
+		std::string source(static_cast<size_t>(length), '\0');
+		glGetShaderSource(_id, length, NULL, &source[0]);
 		return POCKET_CXX11_MOVE(source);
 	}
 

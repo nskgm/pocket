@@ -648,16 +648,14 @@ end
 #--------------------------------------------------------------------------------
 # ソースファイルのタイムスタンプ更新
 #--------------------------------------------------------------------------------
-desc "Time stamp update of cpp file"
+desc "time stamp update of cpp file"
 task :touch do
 	# Windowsの場合はcopyコマンドを代用
 	# メッセージは邪魔なので破棄
-	proc = windows? ? Proc.new{ |n| sh "copy /B \"#{n}\" +,, > nul" } : Proc.new{ |n| sh "touch \"#{n}\"" }
+	# proc = windows? ? Proc.new{ |n| sh "copy /B \"#{n}\" +,, > nul" } : Proc.new{ |n| sh "touch \"#{n}\"" }
 	# シェルの実行を標示させない
 	verbose false do
-		SOURCE_LIST.each do |name|
-			proc.call name
-		end
+		FileUtils.touch [SOURCE_LIST, FileList["pocket/**/*.h", "pocket/**/*.hpp"]].flatten
 	end
 end
 

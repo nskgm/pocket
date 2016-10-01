@@ -328,15 +328,7 @@ public:
 	// 現在のバッファーがバインドされているか
 	bool binding() const
 	{
-		GLuint i;
-		glGetIntegerv(gl::to_binding_type(_type), reinterpret_cast<GLint*>(&i));
-		// バインドされていない
-		if (i == 0)
-		{
-			return false;
-		}
-		// 現在バインドされているIDが同じか
-		return i == _id;
+		return gl::is_binding(gl::to_binding_type(_type), _id);
 	}
 
 	// バインド状態を管理するオブジェクト作成

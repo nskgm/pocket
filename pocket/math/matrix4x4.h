@@ -629,7 +629,7 @@ struct matrix4x4
 	//---------------------------------------------------------------------
 	// 回転行列にする（ZXY）
 	//---------------------------------------------------------------------
-	matrix4x4& load_rotate_roll_pitch_yaw(T roll, T pitch, T yaw)
+	matrix4x4& load_rotate(T roll, T pitch, T yaw)
 	{
 		sin_cos_type r = roll;
 		sin_cos_type p = pitch;
@@ -650,7 +650,7 @@ struct matrix4x4
 	//---------------------------------------------------------------------
 	// 回転行列にする（クォータニオン）
 	//---------------------------------------------------------------------
-	matrix4x4& load_rotate_quaternion(const quaternion<T>& q)
+	matrix4x4& load_rotate(const quaternion<T>& q)
 	{
 		T xx = math_type::two * math_type::sqr(q.x);
 		T yy = math_type::two * math_type::sqr(q.y);
@@ -663,18 +663,18 @@ struct matrix4x4
 		T wz = math_type::two * q.w * q.z;
 
 		M[0] = row_type(math_type::one - (yy + zz), xy + wz, xz - wy, math_type::zero);
-		M[1] = row_type(xy - wz, math_type::one - (xx + zz), yz + wz, math_type::zero);
-		M[2] = row_type(xz + wy, yz + wx, math_type::one - (xx + yy), math_type::zero);
+		M[1] = row_type(xy - wz, math_type::one - (xx + zz), yz + wx, math_type::zero);
+		M[2] = row_type(xz + wy, yz - wx, math_type::one - (xx + yy), math_type::zero);
 		M[3] = row_type::unit_w;
 		return *this;
 	}
 	//---------------------------------------------------------------------
 	// 回転行列にする（任意軸＋角度）
 	//---------------------------------------------------------------------
-	matrix4x4& load_rotate_axis_angle(const vector3<T>& axis, T angle)
+	matrix4x4& load_rotate(const vector3<T>& axis, T angle)
 	{
 		// 四元数での計算を行なう
-		return load_rotate_quaternion(quaternion<T>(axis, angle));
+		return load_rotate(quaternion<T>(axis, angle));
 	}
 	//---------------------------------------------------------------------
 	// 座標変換行列にする
@@ -714,7 +714,10 @@ struct matrix4x4
 			s.y * r.cos * p.cos,
 			s.y * r.sin * y.sin + s.y * r.cos * p.sin * y.cos,
 			math_type::zero);
-		M[2] = row_type(s.z * p.cos * y.sin, s.z * -p.sin, s.z * p.cos * y.cos, math_type::zero);
+		M[2] = row_type(s.z * p.cos * y.sin,
+			s.z * -p.sin,
+			s.z * p.cos * y.cos,
+			math_type::zero);
 		M[3] = row_type(t, math_type::one);
 		return *this;
 	}
@@ -736,9 +739,9 @@ struct matrix4x4
 		T wy = math_type::two * q.w * q.y;
 		T wz = math_type::two * q.w * q.z;
 
-		M[0] = row_type(s.x * (math_type::one - yy + zz), s.x * (xy + wz), s.x * (xz - wy), math_type::zero);
-		M[1] = row_type(s.y * (xy - wz), s.y * (math_type::one - xx + zz), s.y * (yz + wz), math_type::zero);
-		M[2] = row_type(s.z * (xz + wy), s.z * (yz + wx), s.z * (math_type::one - xx + yy), math_type::zero);
+		M[0] = row_type(s.x * (math_type::one - (yy + zz)), s.x * (xy + wz), s.x * (xz - wy), math_type::zero);
+		M[1] = row_type(s.y * (xy - wz), s.y * (math_type::one - (xx + zz)), s.y * (yz + wx), math_type::zero);
+		M[2] = row_type(s.z * (xz + wy), s.z * (yz - wx), s.z * (math_type::one - (xx + yy)), math_type::zero);
 		M[3] = row_type(t, math_type::one);
 		return *this;
 	}
@@ -773,6 +776,20 @@ struct matrix4x4
 	matrix4x4& load_perspective_field_of_view(T fovy, T width, T height, T n, T f)
 	{
 		return load_perspective_field_of_view(fovy, width / height, n, f);
+	}
+	template <int W, int H>
+	matrix4x4& load_perspective_field_of_view(T fovy, T n, T f)
+	{
+		POCKET_CONST_OR_CONSTEXPR T asp = static_cast<T>(W) / static_cast<T>(H);
+		return load_perspective_field_of_view(fovy, asp, n, f);
+	}
+	matrix4x4& load_perspective_field_of_view_4_3(T fovy, T n, T f)
+	{
+		return load_perspective_field_of_view(fovy, static_cast<T>(1.333333333), n, f);
+	}
+	matrix4x4& load_perspective_field_of_view_16_9(T fovy, T n, T f)
+	{
+		return load_perspective_field_of_view(fovy, static_cast<T>(1.777777777), n, f);
 	}
 
 	//---------------------------------------------------------------------
@@ -836,8 +853,7 @@ struct matrix4x4
 		vector3<T> x(behavior::noinitialize);
 		up.cross(direction, x).normalize();
 		// 前と右から上方向のベクトルを求める
-		vector3<T> y(behavior::noinitialize);
-		direction.cross(x, y);
+		vector3<T> y = direction.cross(x);
 
 		M[0] = row_type(x.x, y.x, direction.x, math_type::zero);
 		M[1] = row_type(x.y, y.y, direction.y, math_type::zero);
@@ -980,7 +996,7 @@ struct matrix4x4
 			v0.y * v1.z * v2.w * v3.x - v0.y * v1.w * v2.x * v3.z - v0.z * v1.x * v2.w * v3.y - v0.z * v1.y * v2.x * v3.w -
 			v0.z * v1.w * v2.y * v3.x - v0.w * v1.x * v2.y * v3.z - v0.w * v1.y * v2.z * v3.x - v0.w * v1.z * v2.x * v3.y;
 		return (a + b);
-#endif
+#else
 		// 余因子展開で求める
 		T a1 = ((v0.x * v1.y * v2.z * v3.w) + (v0.x * v1.z * v2.w * v3.y) + (v0.x * v1.w * v2.y * v3.z) -
 			(v0.x * v1.w * v2.z * v3.y) - (v0.x * v1.z * v2.y * v3.w) - (v0.x * v1.y * v2.w * v3.z));
@@ -991,6 +1007,7 @@ struct matrix4x4
 		T a4 = ((v3.x * v0.y * v1.z * v2.w) + (v3.x * v0.z * v1.w * v2.y) + (v3.x * v0.w * v1.y * v2.z) -
 			(v3.x * v0.w * v1.z * v2.y) - (v3.x * v0.z * v1.y * v2.w) - (v3.x * v0.y * v1.w * v2.z));
 		return (a1 - a2 + a3 - a4);
+#endif
 	}
 
 	//---------------------------------------------------------------------
@@ -1613,15 +1630,15 @@ struct matrix4x4
 	}
 	matrix4x4& operator () (const behavior::_rotate_t&, const behavior::_roll_pitch_yaw_t&, T roll, T pitch, T yaw)
 	{
-		return load_rotate_roll_pitch_yaw(roll, pitch, yaw);
+		return load_rotate(roll, pitch, yaw);
 	}
 	matrix4x4& operator () (const behavior::_rotate_t&, const quaternion<T>& q)
 	{
-		return load_rotate_quaternion(q);
+		return load_rotate(q);
 	}
 	matrix4x4& operator () (const behavior::_rotate_t&, const vector3<T>& axis, T angle)
 	{
-		return load_rotate_axis_angle(axis, angle);
+		return load_rotate(axis, angle);
 	}
 	matrix4x4& operator () (const behavior::_translate_t&, const vector3<T>& t)
 	{

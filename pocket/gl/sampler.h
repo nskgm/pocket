@@ -146,15 +146,7 @@ public:
 	// バインドされているか
 	bool binding() const
 	{
-		GLuint i;
-		glGetIntegerv(GL_SAMPLER_BINDING, reinterpret_cast<GLint*>(&i));
-		// バインドされていない
-		if (i == 0)
-		{
-			return false;
-		}
-		// 現在バインドされているIDが同じか
-		return i == _id;
+		return gl::is_binding(GL_SAMPLER_BINDING, _id);
 	}
 
 	// バインド状態を管理するオブジェクト生成

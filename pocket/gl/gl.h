@@ -23,6 +23,7 @@
 #include <vector>
 #include <cstring> // for std::strstr, std::strcmp, std::strlen
 #include <string>
+#include <cstdio>
 #include <cstdarg>
 
 #ifndef POCKET_GL_UNINITIALIZED_VALUE
@@ -182,11 +183,11 @@ bool output_error(std::basic_ostream<CharT, CharTraits>& os, GLenum err, const c
 		// 可変長リスト
 		std::va_list ap;
 		va_start(ap, msg);
-#ifdef _MSC_VER
-		vsprintf_s(buf, 512, msg, ap);
+#if POCKET_COMPILER_IF(VC)
+		vsprintf_s(&buf[0], 512, msg, ap);
 #else
-		vsprintf(buf, msg, ap);
-#endif // _MSC_VER
+		vsprintf(&buf[0], msg, ap);
+#endif // POCKET_COMPILER_IF(VC)
 		va_end(ap);
 		os << io::widen("### ") << io::widen(static_cast<const char*>(&buf[0])) << io::widen(" ###") << std::endl;
 	}
@@ -493,8 +494,29 @@ int get_type_size(GLenum type)
 #undef __POCKET_TYPE_CASE_SIZE
 }
 
-// デバッグ用名前設定
-// >= 4.3
+//---------------------------------------------------------------------
+// タイプに対する値が指定した値と一致しているか
+//---------------------------------------------------------------------
+inline
+bool is_binding(GLenum type, GLint value)
+{
+	GLint i;
+	glGetIntegerv(type, &i);
+	// 0の場合は設定されていない
+	return i != 0 && i == value;
+}
+inline
+bool is_binding(GLenum type, GLuint value)
+{
+	GLuint i;
+	glGetIntegerv(type, reinterpret_cast<GLint*>(&i));
+	// 0の場合は設定されていない
+	return i != 0 && i == value;
+}
+
+//---------------------------------------------------------------------
+// デバッグ用名前設定・取得
+//---------------------------------------------------------------------
 template <typename T> inline
 void set_object_name(const T& obj, const char* name)
 {

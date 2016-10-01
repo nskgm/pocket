@@ -212,10 +212,10 @@ struct math_traits
 	//---------------------------------------------------------------------
 	// 角度からサイン、コサインを求める
 	//---------------------------------------------------------------------
-	static inline void sin_cos(T deg, T& sin, T& cos)
+	static inline void sin_cos(T deg, T& s, T& c)
 	{
-		cos = math_traits::sin(deg);
-		sin = math_traits::cos(deg);
+		s = math_traits::sin(deg);
+		c = math_traits::cos(deg);
 	}
 	static inline void sin_cos(T deg, sin_cos_t& sc)
 	{

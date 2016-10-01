@@ -678,14 +678,9 @@ struct vector4
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 
 // 3, 0, 2, 1
-#ifndef __Y_Z_X
 #define __Y_Z_X 1, 2, 0, 3
-#endif // __Y_Z_X
-
 // 3, 1, 0, 2
-#ifndef __Z_X_Y
 #define __Z_X_Y 2, 0, 1, 3
-#endif // __Z_X_Y
 
 		simd_type syzx = simd::template permute<__Y_Z_X>(mm);
 		simd_type szxy = simd::template permute<__Z_X_Y>(mm);
@@ -707,15 +702,10 @@ struct vector4
 	{
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 
-#ifndef __Y_Z_X
 // 3, 0, 2, 1
 #define __Y_Z_X 1, 2, 0, 3
-#endif // __Y_Z_X
-
-#ifndef __Z_X_Y
 // 3, 1, 0, 2
 #define __Z_X_Y 2, 0, 1, 3
-#endif // __Z_X_Y
 
 		simd_type syzx = simd::template permute<__Y_Z_X>(mm);
 		simd_type szxy = simd::template permute<__Z_X_Y>(mm);

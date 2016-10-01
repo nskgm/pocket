@@ -324,9 +324,9 @@ struct shader_type
 typedef shader_type::type shader_type_t;
 
 //---------------------------------------------------------------------------------------
-// GL側プリミティブ種類
+// GL側描画法
 //---------------------------------------------------------------------------------------
-struct primitive_type
+struct draw_type
 {
 	enum type
 	{
@@ -350,7 +350,7 @@ struct primitive_type
 		unknown = 0,
 	};
 };
-typedef primitive_type::type primitive_type_t;
+typedef draw_type::type draw_type_t;
 
 } // namespace gl
 } // namespace pocket

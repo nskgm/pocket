@@ -37,13 +37,14 @@ static void glfw_error_log(int, const char* msg)
 
 struct simple_vertex
 {
-	math::vector2f position;
+	math::vector3f position;
 	math::colorf color;
 };
 struct ublock
 {
 	math::matrix4x4f world;
-	math::matrix4x4f ortho;
+	math::matrix4x4f lookat;
+	math::matrix4x4f perspective;
 };
 
 int main()
@@ -129,7 +130,8 @@ int main()
 	// uniform buffer object作成
 	ublock data;
 	data.world.load_identity();
-	data.ortho.load_orthographics2d(0.0f, 640.0f, 0.0f, 480.0f);
+	data.lookat.load_lookat(math::vector3f(0.0f, 0.0f, 5.0f), math::vector3f::zero, math::vector3f::up);
+	data.perspective.load_perspective_field_of_view_4_3(45.0f, 0.1f, 100.0f);
 	gl::uniform_buffer ubo = prog.make_uniform_buffer("ublock", 0, data);
 	if (!ubo)
 	{
@@ -140,13 +142,13 @@ int main()
 
 	// レイアウトを指定した頂点バッファを作成
 	const gl::vertex_layout layouts[] = {
-		POCKET_LAYOUT_OFFSETOF(float, 2, false, simple_vertex, position),
+		POCKET_LAYOUT_OFFSETOF(float, 3, false, simple_vertex, position),
 		POCKET_LAYOUT_OFFSETOF(float, 4, false, simple_vertex, color),
 	};
 	const simple_vertex vertices[] = {
-		{math::vector2f(320.0f, 0.0f), math::colorf::red},
-		{math::vector2f(0.0f, 480.0f), math::colorf::blue},
-		{math::vector2f(640.0f, 480.0f), math::colorf::green}
+		{math::vector3f(0.0f, 0.5f, 0.0f), math::colorf::red},
+		{math::vector3f(-0.5f, -0.5f, 0.0f), math::colorf::blue},
+		{math::vector3f(0.5f, -0.5f, 0.0f), math::colorf::green}
 	};
 	gl::layered_vertex_buffer<simple_vertex> lvb = gl::make_layered_vertex_buffer(vertices, layouts);
 	if (!lvb)
@@ -176,6 +178,7 @@ int main()
 
 	// 受け取るメッセージバッファ
 	char message[256];
+	math::quaternionf quat;
 
 	do
 	{
@@ -185,7 +188,8 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		float time = math::math_traitsf::sin(static_cast<float>(glfwGetTime()*120.0f));
-		data.world.load_world(math::vector3f::one, math::quaternionf::identity, math::vector3f(time*30.0f, 0.0f, 0.0f));
+		quat.from_axis(math::vector3f::unit_z, math::math_traitsf::to_degree(glfwGetTime()));
+		data.world.load_world(math::vector3f::one, quat, math::vector3f(time, 0.0f, 0.0f));
 		ubo.uniform(0, data.world); // オフセットを指定して指定した型サイズのみ更新
 		//ubo.uniform(data); // 全体の更新
 
@@ -203,9 +207,9 @@ int main()
 		}
 
 		// 描画
-		//POCKET_GL_FUNC(glDrawArrays, gl::primitive_type::triangles, 0, lvb.count());
-		//POCKET_GL_FUNC(glDrawArraysIndirect, gl::primitive_type::triangles, NULL);
-		lvb.draw(gl::primitive_type::triangles, indirect);
+		//POCKET_GL_FUNC(glDrawArrays, gl::draw_type::triangles, 0, lvb.count());
+		//POCKET_GL_FUNC(glDrawArraysIndirect, gl::draw_type::triangles, NULL);
+		lvb.draw(gl::draw_type::triangles, indirect);
 
 		// バインド解除
 		prog.unbind();

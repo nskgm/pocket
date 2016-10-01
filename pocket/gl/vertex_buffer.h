@@ -269,7 +269,7 @@ public:
 	{
 		// サイズのみ確保
 		_count = n;
-		return _buffer.initialize(buffer_type::array, buffer_usage::dynamic_draw, sizeof(vertex_type)*count, NULL);
+		return _buffer.initialize(buffer_type::array, buffer_usage::dynamic_draw, sizeof(vertex_type)*n, NULL);
 	}
 
 	// 終了処理
@@ -351,21 +351,21 @@ public:
 	}
 
 	// 描画
-	void draw(primitive_type_t type) const
+	void draw(draw_type_t type) const
 	{
 		glDrawArrays(type, 0, _count);
 	}
-	void draw(primitive_type_t type, GLint offset) const
+	void draw(draw_type_t type, GLint offset) const
 	{
 		glDrawArrays(type, offset, _count - offset);
 	}
-	void draw(primitive_type_t type, GLint first, GLsizei n) const
+	void draw(draw_type_t type, GLint first, GLsizei n) const
 	{
 		n = std::min(n, _count - first);
 		glDrawArrays(type, first, n);
 	}
 	// 判別用Indirect型
-	void draw(primitive_type_t type, const draw_indirect_buffer&) const
+	void draw(draw_type_t type, const draw_indirect_buffer&) const
 	{
 		glDrawArraysIndirect(type, NULL);
 	}

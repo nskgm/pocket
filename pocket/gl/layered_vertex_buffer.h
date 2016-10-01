@@ -365,19 +365,19 @@ public:
 	}
 
 	// 描画
-	void draw(primitive_type_t type) const
+	void draw(draw_type_t type) const
 	{
 		_vbo.draw(type);
 	}
-	void draw(primitive_type_t type, GLint offset) const
+	void draw(draw_type_t type, GLint offset) const
 	{
 		_vbo.draw(type, offset);
 	}
-	void draw(primitive_type_t type, GLint first, GLsizei n) const
+	void draw(draw_type_t type, GLint first, GLsizei n) const
 	{
 		_vbo.draw(type, first, n);
 	}
-	void draw(primitive_type_t type, const draw_indirect_buffer& i) const
+	void draw(draw_type_t type, const draw_indirect_buffer& i) const
 	{
 		_vbo.draw(type, i);
 	}
