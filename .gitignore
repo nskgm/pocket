@@ -1,11 +1,10 @@
-/.vs
-/.vscode
+**/.vs
+**/.vscode
 **/x64
 **/Release
 **/Debug
-*.opendb
+**/*.opendb
 *.exe
 *.db
-*.obj
-*.shbin
+**/*.shbin
 /build

@@ -85,7 +85,7 @@ struct matrix3x3
 	typedef vector3<T> vector3_type;
 	typedef vector3<T> row_type;
 	typedef vector3<T> column_type;
-	typedef typename math_type::sin_cos_t sin_cos_type;
+	typedef typename math_type::sin_cos_type sin_cos_type;
 
 	typedef container::array<row_type, 3> array3x3_type;
 	typedef typename array3x3_type::value_type value_type;

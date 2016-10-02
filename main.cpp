@@ -176,6 +176,8 @@ int main()
 	}
 	POCKET_GL_ERROR();
 
+	glfwSetTime(0.0f);
+
 	// 受け取るメッセージバッファ
 	char message[256];
 	math::quaternionf quat;
@@ -187,9 +189,9 @@ int main()
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		float time = math::math_traitsf::sin(static_cast<float>(glfwGetTime()*120.0f));
-		quat.from_axis(math::vector3f::unit_z, math::math_traitsf::to_degree(glfwGetTime()));
-		data.world.load_world(math::vector3f::one, quat, math::vector3f(time, 0.0f, 0.0f));
+		float time = math::math_traitsf::sin(static_cast<float>(glfwGetTime()*60.0f));
+		quat.from_axis(math::vector3f::unit_z, math::math_traitsf::to_degree(glfwGetTime()*5.0f));
+		data.world.load_world(math::vector3f::one, quat, math::vector3f::zero);
 		ubo.uniform(0, data.world); // オフセットを指定して指定した型サイズのみ更新
 		//ubo.uniform(data); // 全体の更新
 

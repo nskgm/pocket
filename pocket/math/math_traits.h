@@ -68,18 +68,18 @@ struct math_traits
 	// Types
 	//-----------------------------------------------------------------------------------------
 
-	struct sin_cos_t
+	struct sin_cos_type
 	{
 		T sin; // サイン値
 		T cos; // コサイン値
 
-		POCKET_DEFAULT_CONSTRUCTOR(sin_cos_t);
-		sin_cos_t(const behavior::_noinitialize_t&)
+		POCKET_DEFAULT_CONSTRUCTOR(sin_cos_type);
+		explicit sin_cos_type(const behavior::_noinitialize_t&)
 		{}
-		sin_cos_t(T s, T c) :
+		explicit sin_cos_type(T s, T c) :
 			sin(s), cos(c)
 		{}
-		sin_cos_t(T f)
+		sin_cos_type(T f)
 		{
 			//sin = math_traits<T>::sin(f);
 			//cos = math_traits<T>::cos(f);
@@ -217,14 +217,14 @@ struct math_traits
 		s = math_traits::sin(deg);
 		c = math_traits::cos(deg);
 	}
-	static inline void sin_cos(T deg, sin_cos_t& sc)
+	static inline void sin_cos(T deg, sin_cos_type& sc)
 	{
 		sc.sin = math_traits::sin(deg);
 		sc.cos = math_traits::cos(deg);
 	}
-	static inline sin_cos_t sin_cos(T deg)
+	static inline sin_cos_type sin_cos(T deg)
 	{
-		return sin_cos_t(math_traits::sin(deg), math_traits::cos(deg));
+		return sin_cos_type(math_traits::sin(deg), math_traits::cos(deg));
 	}
 
 	//---------------------------------------------------------------------
@@ -930,14 +930,14 @@ const T math_traits<T>::deg2rad = math_traits<T>::pi / math_traits<T>::half_angl
 namespace detail
 {
 #ifndef POCKET_NO_USING_MATH_INT_FLOAT
-typedef math_traits<int>::sin_cos_t math_traits_sin_cos_ti;
-typedef math_traits<float>::sin_cos_t math_traits_sin_cos_tf;
+typedef math_traits<int>::sin_cos_type math_traits_sin_cos_ti;
+typedef math_traits<float>::sin_cos_type math_traits_sin_cos_tf;
 #endif // POCKET_NO_USING_MATH_INT_FLOAT
 #ifdef POCKET_USING_MATH_DOUBLE
-typedef math_traits<double>::sin_cos_t math_traits_sin_cos_td;
+typedef math_traits<double>::sin_cos_type math_traits_sin_cos_td;
 #endif // POCKET_USING_MATH_DOUBLE
 #ifdef POCKET_USING_MATH_LONG_DOUBLE
-typedef math_traits<long double>::sin_cos_t math_traits_sin_cos_tld;
+typedef math_traits<long double>::sin_cos_type math_traits_sin_cos_tld;
 #endif // POCKET_USING_MATH_LONG_DOUBLE
 }
 
@@ -1017,7 +1017,7 @@ T operator * (const T& f, const pocket::behavior::_atan_t&)
 	return pocket::math::math_traits<T>::atan(f);
 }
 template <typename T, POCKET_TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
-typename pocket::math::math_traits<T>::sin_cos_t operator * (const T& f, const pocket::behavior::_sin_cos_t&)
+typename pocket::math::math_traits<T>::sin_cos_type operator * (const T& f, const pocket::behavior::_sin_cos_t&)
 {
 	return pocket::math::math_traits<T>::sin_cos(f);
 }

@@ -1,5 +1,5 @@
-﻿#ifndef __MATH_TEMPLATE_H__
-#define __MATH_TEMPLATE_H__
+﻿#ifndef __POCKET_MATH_TEMPLATE_H__
+#define __POCKET_MATH_TEMPLATE_H__
 
 #include "../config.h"
 #ifdef POCKET_USE_PRAGMA_ONCE
@@ -161,4 +161,4 @@ std::basic_istream<CharT, CharTraits>& operator >> (std::basic_istream<CharT, Ch
 
 } // namespace pocket
 
-#endif // __MATH_TEMPLATE_H__
+#endif // __POCKET_MATH_TEMPLATE_H__

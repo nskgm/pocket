@@ -1,5 +1,5 @@
-﻿#ifndef __MATH_MATRIX4X4_H__
-#define __MATH_MATRIX4X4_H__
+﻿#ifndef __POCKET_MATH_MATRIX4X4_H__
+#define __POCKET_MATH_MATRIX4X4_H__
 
 #include "../config.h"
 #ifdef POCKET_USE_PRAGMA_ONCE
@@ -51,7 +51,7 @@ struct matrix4x4
 	typedef vector4<T> vector4_type;
 	typedef vector4<T> row_type;
 	typedef vector4<T> column_type;
-	typedef typename math_type::sin_cos_t sin_cos_type;
+	typedef typename math_type::sin_cos_type sin_cos_type;
 
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 	typedef typename vector4<T>::simd simd;
@@ -1091,7 +1091,7 @@ struct matrix4x4
 	matrix4x4 inversed() const
 	{
 		matrix4x4 r(behavior::noinitialize);
-		return inverse(r);
+		return POCKET_CXX11_MOVE(inverse(r));
 	}
 	//---------------------------------------------------------------------
 	// ベクトル座標変換（w=1）
@@ -1120,7 +1120,7 @@ struct matrix4x4
 	vector3<T> transform_coord(const vector3<T>& v) const
 	{
 		vector3<T> r(behavior::noinitialize);
-		return transform_coord(v, r);
+		return POCKET_CXX11_MOVE(transform_coord(v, r));
 	}
 	vector3<T>& transform_coord(const vector3<T>& v, vector3<T>& result) const
 	{
@@ -1142,7 +1142,7 @@ struct matrix4x4
 	vector4<T> transform(const vector4<T>& v) const
 	{
 		vector4<T> r(behavior::noinitialize);
-		return transform(v, r);
+		return POCKET_CXX11_MOVE(transform(v, r));
 	}
 	vector4<T>& transform(const vector4<T>& v, vector4<T>& result) const
 	{
@@ -1164,7 +1164,7 @@ struct matrix4x4
 	vector4<T> transform_coord(const vector4<T>& v) const
 	{
 		vector4<T> r(behavior::noinitialize);
-		return transform_coord(v, r);
+		return POCKET_CXX11_MOVE(transform_coord(v, r));
 	}
 	vector4<T>& transform_coord(const vector4<T>& v, vector4<T>& result) const
 	{
@@ -1181,7 +1181,7 @@ struct matrix4x4
 	vector3<T> transform_normal(const vector3<T>& v) const
 	{
 		vector3<T> r(behavior::noinitialize);
-		return transform_normal(v, r);
+		return POCKET_CXX11_MOVE(transform_normal(v, r));
 	}
 	vector3<T>& transform_normal(const vector3<T>& v, vector3<T>& result) const
 	{
@@ -1201,7 +1201,7 @@ struct matrix4x4
 	matrix4x4 slerp(const matrix4x4& to, T t) const
 	{
 		matrix4x4 result(behavior::noinitialize);
-		return slerp(to, t, result);
+		return POCKET_CXX11_MOVE(slerp(to, t, result));
 	}
 	matrix4x4& slerp(const matrix4x4& to, T t, matrix4x4& result) const
 	{
@@ -1210,11 +1210,11 @@ struct matrix4x4
 		quaternion<T> r(behavior::noinitialize);
 
 		// 補間用の値取得
-		vector3<T> s0 = scale();
-		vector3<T> s1 = to.scale();
+		const vector3<T> s0 = scale();
+		const vector3<T> s1 = to.scale();
 		// 回転取得
-		quaternion<T> q0(*this);
-		quaternion<T> q1(to);
+		const quaternion<T> q0(*this);
+		const quaternion<T> q1(to);
 
 		// 補間を行なう
 		s0.lerp(s1, t, s);
@@ -1341,8 +1341,8 @@ struct matrix4x4
 	}
 	matrix4x4 operator * (const matrix4x4& m) const
 	{
-		matrix4x4 result(behavior::noinitialize);
-		return multiply(m, result);
+		matrix4x4 r(behavior::noinitialize);
+		return POCKET_CXX11_MOVE(multiply(m, r));
 	}
 	matrix4x4 operator * (T f) const
 	{
@@ -1369,13 +1369,16 @@ struct matrix4x4
 #ifdef POCKET_USE_CXX11
 	matrix4x4& operator = (const std::initializer_list<T>& t)
 	{
-		POCKET_DEBUG_ASSERT(t.size() <= 16);
-
-		typename std::initializer_list<T>::const_iterator o = t.begin();
-		T* p = static_cast<T*>(M[0]);
-		for (typename std::initializer_list<T>::size_type i = 0, size = t.size(); i < size; ++i, ++p, ++o)
+		if (t.size() == 0)
 		{
-			*p = *o;
+			return load_identity();
+		}
+		POCKET_DEBUG_ASSERT(t.size() <= 16);
+		typedef typename std::initializer_list<T>::const_iterator initializer_iterator;
+		T* p = static_cast<T*>(M[0]);
+		for (initializer_iterator i = t.begin(), end = t.end(); i != end; ++i, ++p)
+		{
+			*p = *i;
 		}
 		return *this;
 	}
@@ -1949,4 +1952,4 @@ std::basic_istream<CharT, CharTraits>& operator >> (std::basic_istream<CharT, Ch
 } // namespace math
 } // namespace pocket
 
-#endif // __MATH_MATRIX4X4_H__
+#endif // __POCKET_MATH_MATRIX4X4_H__
