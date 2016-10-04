@@ -257,7 +257,7 @@ buffer_type_t to_buffer_type(buffer_binding_type_t a)
 //---------------------------------------------------------------------------------------
 // GL側バッファ扱い値
 //---------------------------------------------------------------------------------------
-struct buffer_usage
+struct buffer_usage_type
 {
 	enum type
 	{
@@ -286,12 +286,12 @@ struct buffer_usage
 		unknown = 0,
 	};
 };
-typedef buffer_usage::type buffer_usage_t;
+typedef buffer_usage_type::type buffer_usage_type_t;
 
 //---------------------------------------------------------------------------------------
 // GL側バッファ展開値
 //---------------------------------------------------------------------------------------
-struct buffer_map
+struct buffer_map_type
 {
 	enum type
 	{
@@ -302,7 +302,7 @@ struct buffer_map
 		unknown = 0,
 	};
 };
-typedef buffer_map::type buffer_map_t;
+typedef buffer_map_type::type buffer_map_type_t;
 
 //---------------------------------------------------------------------------------------
 // GL側シェーダー種類値

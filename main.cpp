@@ -89,7 +89,7 @@ int main()
 	//POCKET_GL_ERROR();
 
 	// デバッグ機能が使えるか
-	std::cout << "GL_ARB_debug_output: " << gl::is_extension_support("GL_ARB_debug_output") << std::endl;
+	// std::cout << "GL_ARB_debug_output: " << gl::is_extension_support("GL_ARB_debug_output") << std::endl;
 
 	// 頂点シェーダ―作成
 	gl::shader vert = gl::make_vertex_shader("test.vert");
@@ -159,10 +159,10 @@ int main()
 	POCKET_GL_ERROR();
 
 	// インダイレクトバッファ作成
-	gl::draw_indirect_buffer indirect = gl::make_draw_indirect_buffer(gl::draw_indirect_buffer::arrays, POCKET_ARRAY_SIZE(vertices));
-	if (!indirect)
+	gl::draw_indirect_buffer dib = gl::make_draw_indirect_buffer(gl::command_type::arrays, POCKET_ARRAY_SIZE(vertices));
+	if (!dib)
 	{
-		std::cout << indirect << std::endl;
+		std::cout << dib << std::endl;
 		return EXIT_FAILURE;
 	}
 	POCKET_GL_ERROR();
@@ -191,7 +191,7 @@ int main()
 
 		float time = math::math_traitsf::sin(static_cast<float>(glfwGetTime()*60.0f));
 		quat.from_axis(math::vector3f::unit_z, math::math_traitsf::to_degree(glfwGetTime()*5.0f));
-		data.world.load_world(math::vector3f::one, quat, math::vector3f::zero);
+		data.world.load_world(math::vector3f::one, quat, math::vector3f(time, 0.0f, 0.0f));
 		ubo.uniform(0, data.world); // オフセットを指定して指定した型サイズのみ更新
 		//ubo.uniform(data); // 全体の更新
 
@@ -199,7 +199,7 @@ int main()
 		prog.bind();
 		ubo.bind();
 		lvb.bind();
-		indirect.bind();
+		dib.bind();
 
 		// バインドされている状態で描画できる状態か確認
 		if (!prog.drawable(message))
@@ -209,20 +209,18 @@ int main()
 		}
 
 		// 描画
-		//POCKET_GL_FUNC(glDrawArrays, gl::draw_type::triangles, 0, lvb.count());
-		//POCKET_GL_FUNC(glDrawArraysIndirect, gl::draw_type::triangles, NULL);
-		lvb.draw(gl::draw_type::triangles, indirect);
+		lvb.draw(gl::draw_type::triangles, dib);
 
 		// バインド解除
 		prog.unbind();
 		lvb.unbind();
-		indirect.unbind();
+		dib.unbind();
 
 		glfwSwapBuffers(window);
 	} while ((glfwGetKey(window, GLFW_KEY_ESCAPE) | glfwWindowShouldClose(window)) == GL_FALSE);
 
 	smpl.finalize();
-	indirect.finalize();
+	dib.finalize();
 	lvb.finalize();
 	ubo.finalize();
 	prog.finalize();

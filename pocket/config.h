@@ -367,6 +367,25 @@
 #endif // POCKET_MEMBER_SIZEOF
 
 //---------------------------------------------------------------------------------------
+// スコープ付き列挙型. NAME + NAME##_tを定義
+//---------------------------------------------------------------------------------------
+#ifndef POCKET_SCOPED_ENUM_T
+#	ifdef POCKET_USE_CXX11
+#		define POCKET_SCOPED_ENUM_T(NAME, ...) enum class NAME {\
+		__VA_ARGS__\
+	};\
+	typedef NAME NAME##_t
+#	else
+#		define POCKET_SCOPED_ENUM_T(NAME, ...) struct NAME {\
+		enum type {\
+			__VA_ARGS__\
+		};\
+	};\
+	typedef NAME::type NAME##_t
+#	endif // POCKET_USE_CXX11
+#endif // POCKET_SCOPED_ENUM_T
+
+//---------------------------------------------------------------------------------------
 // デフォルトコンストラクタを定義するための設定
 //---------------------------------------------------------------------------------------
 #ifndef POCKET_DEFAULT_DECLARE_RVALUES

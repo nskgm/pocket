@@ -36,17 +36,17 @@ public:
 	int size() const;
 	int count(int type_size) const;
 	template <typename T> int count() const;
-	buffer_usage_t usage() const;
-	void* map(buffer_map_t) const;
-	template <typename T> T* map(buffer_map_t) const;
-	template <typename F> bool map(buffer_map_t, F) const;
-	template <typename T, typename F> bool map(buffer_map_t, F) const;
+	buffer_usage_type_t usage() const;
+	void* map(buffer_map_type_t) const;
+	template <typename T> T* map(buffer_map_type_t) const;
+	template <typename F> bool map(buffer_map_type_t, F) const;
+	template <typename T, typename F> bool map(buffer_map_type_t, F) const;
 	void unmap() const;
 
-	binder_map<buffer_view, void> make_binder_map(buffer_map_t) const;
-	template <buffer_map_t U> binder_map<buffer_view, void> make_binder_map() const;
-	template <typename T> binder_map<buffer_view, T> make_binder_map(buffer_map_t) const;
-	template <typename T, buffer_map_t U> binder_map<buffer_view, T> make_binder_map() const;
+	binder_map<buffer_view, void> make_binder_map(buffer_map_type_t) const;
+	template <buffer_map_type_t U> binder_map<buffer_view, void> make_binder_map() const;
+	template <typename T> binder_map<buffer_view, T> make_binder_map(buffer_map_type_t) const;
+	template <typename T, buffer_map_type_t U> binder_map<buffer_view, T> make_binder_map() const;
 
 	bool binding() const
 	{
@@ -210,31 +210,31 @@ public:
 	}
 
 	// バッファを展開して先頭アドレスを取得
-	void* map(buffer_map_t type) const
+	void* map(buffer_map_type_t type) const
 	{
 		bind();
 		return map_binding(type);
 	}
-	void* map_binding(buffer_map_t type) const
+	void* map_binding(buffer_map_type_t type) const
 	{
 		return glMapBuffer(_type, type);
 	}
 
 	// 展開してアドレスを取得できていたら渡された関数を実行
 	template <typename F>
-	bool map(buffer_map_t type, F func) const
+	bool map(buffer_map_type_t type, F func) const
 	{
 		binder_type lock(*this);
 		return map_binding(type, func);
 	}
 	template <typename T, typename F>
-	bool map(buffer_map_t type, F func) const
+	bool map(buffer_map_type_t type, F func) const
 	{
 		binder_type lock(*this);
 		return map_binding<T>(type, func);
 	}
 	template <typename F>
-	bool map_binding(buffer_map_t type, F func) const
+	bool map_binding(buffer_map_type_t type, F func) const
 	{
 		void* address = map_binding(type);
 		if (address == NULL)
@@ -246,7 +246,7 @@ public:
 		return true;
 	}
 	template <typename T, typename F>
-	bool map_binding(buffer_map_t type, F func) const
+	bool map_binding(buffer_map_type_t type, F func) const
 	{
 		void* address = map_binding(type);
 		if (address == NULL)
@@ -278,41 +278,41 @@ public:
 	}
 
 	// マップしたものを管理するオブジェクトを作成
-	binder_map_type make_binder_map(buffer_map_t usg) const
+	binder_map_type make_binder_map(buffer_map_type_t usg) const
 	{
 		return binder_map_type(*this, usg);
 	}
-	template <buffer_map_t U>
+	template <buffer_map_type_t U>
 	binder_map_type make_binder_map() const
 	{
 		return binder_map_type(*this, U);
 	}
 	template <typename T>
-	typename rebinder_map<T>::type make_binder_map(buffer_map_t usg) const
+	typename rebinder_map<T>::type make_binder_map(buffer_map_type_t usg) const
 	{
 		return typename rebinder_map<T>::type(*this, usg);
 	}
-	template <typename T, buffer_map_t U>
+	template <typename T, buffer_map_type_t U>
 	typename rebinder_map<T>::type make_binder_map() const
 	{
 		return typename rebinder_map<T>::type(*this, U);
 	}
 
-	binder_map_type make_binder_map(const binder_type& a, buffer_map_t usg) const
+	binder_map_type make_binder_map(const binder_type& a, buffer_map_type_t usg) const
 	{
 		return binder_map_type(a, usg);
 	}
-	template <buffer_map_t U>
+	template <buffer_map_type_t U>
 	binder_map_type make_binder_map(const binder_type& a) const
 	{
 		return binder_map_type(a, U);
 	}
 	template <typename T>
-	typename rebinder_map<T>::type make_binder_map(const binder_type& a, buffer_map_t usg) const
+	typename rebinder_map<T>::type make_binder_map(const binder_type& a, buffer_map_type_t usg) const
 	{
 		return typename rebinder_map<T>::type(a, usg);
 	}
-	template <typename T, buffer_map_t U>
+	template <typename T, buffer_map_type_t U>
 	typename rebinder_map<T>::type make_binder_map(const binder_type& a) const
 	{
 		return typename rebinder_map<T>::type(a, U);
@@ -352,16 +352,16 @@ public:
 	}
 
 	// 設定した時の扱い法
-	buffer_usage_t usage() const
+	buffer_usage_type_t usage() const
 	{
 		binder_type lock(*this);
 		return usage_binding();
 	}
-	buffer_usage_t usage_binding() const
+	buffer_usage_type_t usage_binding() const
 	{
 		GLint u = 0;
 		glGetBufferParameteriv(_type, GL_BUFFER_USAGE, &u);
-		return static_cast<buffer_usage_t>(u);
+		return static_cast<buffer_usage_type_t>(u);
 	}
 
 	// エラーの状態
@@ -492,27 +492,27 @@ int binder<buffer_view>::count() const
 	return _address->count_binding<T>();
 }
 inline
-buffer_usage_t binder<buffer_view>::usage() const
+buffer_usage_type_t binder<buffer_view>::usage() const
 {
 	return _address->usage_binding();
 }
 inline
-void* binder<buffer_view>::map(buffer_map_t usg) const
+void* binder<buffer_view>::map(buffer_map_type_t usg) const
 {
 	return _address->map_binding(usg);
 }
 template <typename T> inline
-T* binder<buffer_view>::map(buffer_map_t usg) const
+T* binder<buffer_view>::map(buffer_map_type_t usg) const
 {
 	return _address->map_binding<T>(usg);
 }
 template <typename F> inline
-bool binder<buffer_view>::map(buffer_map_t usg, F func) const
+bool binder<buffer_view>::map(buffer_map_type_t usg, F func) const
 {
 	return _address->map_binding(usg, func);
 }
 template <typename T, typename F> inline
-bool binder<buffer_view>::map(buffer_map_t usg, F func) const
+bool binder<buffer_view>::map(buffer_map_type_t usg, F func) const
 {
 	return _address->map_binding<T>(usg, func);
 }
@@ -522,21 +522,21 @@ void binder<buffer_view>::unmap() const
 	_address->unmap_binding();
 }
 inline
-binder_map<buffer_view, void> binder<buffer_view>::make_binder_map(buffer_map_t type) const
+binder_map<buffer_view, void> binder<buffer_view>::make_binder_map(buffer_map_type_t type) const
 {
 	return binder_map<buffer_view, void>(*this, type);
 }
-template <buffer_map_t U> inline
+template <buffer_map_type_t U> inline
 binder_map<buffer_view, void> binder<buffer_view>::make_binder_map() const
 {
 	return binder_map<buffer_view, void>(*this, U);
 }
 template <typename T> inline
-binder_map<buffer_view, T> binder<buffer_view>::make_binder_map(buffer_map_t type) const
+binder_map<buffer_view, T> binder<buffer_view>::make_binder_map(buffer_map_type_t type) const
 {
 	return binder_map<buffer_view, T>(*this, type);
 }
-template <typename T, buffer_map_t U> inline
+template <typename T, buffer_map_type_t U> inline
 binder_map<buffer_view, T> binder<buffer_view>::make_binder_map() const
 {
 	return binder_map<buffer_view, T>(*this, U);

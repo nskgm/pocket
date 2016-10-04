@@ -14,11 +14,20 @@ namespace gl
 {
 // buffer_type::draw_indirect
 // buffer_type::dispatch_compute
-namespace commands
+
+struct command_type
 {
+	enum type
+	{
+		arrays,
+		elements,
+		dispatch
+	};
+};
+typedef command_type::type command_type_t;
 
 // glDrawArraysIndirect用
-struct draw_arrays
+struct draw_arrays_cmd
 {
 	// 頂点数
 	GLuint arrays;
@@ -29,13 +38,13 @@ struct draw_arrays
 	// インスタンス基点値（0）
 	GLuint instance_count_base;
 
-	draw_arrays() :
+	draw_arrays_cmd() :
 		arrays(0),
 		instance_count(1),
 		first(0),
 		instance_count_base(0)
 	{}
-	draw_arrays(GLuint arrays, GLuint instance_count = 1, GLuint first = 0) :
+	draw_arrays_cmd(GLuint arrays, GLuint instance_count = 1, GLuint first = 0) :
 		arrays(arrays),
 		instance_count(instance_count),
 		first(first),
@@ -43,7 +52,7 @@ struct draw_arrays
 	{}
 };
 // glDrawElementsIndirect用
-struct draw_elements
+struct draw_elements_cmd
 {
 	// 要素数
 	GLuint elements;
@@ -56,14 +65,14 @@ struct draw_elements
 	// インスタンス基点値（0）
 	GLuint instance_count_base;
 
-	draw_elements() :
+	draw_elements_cmd() :
 		elements(0),
 		instance_count(1),
 		first(0),
 		vertex_base(0),
 		instance_count_base(0)
 	{}
-	draw_elements(GLuint elements, GLuint instance_count = 1, GLuint first = 0, GLuint vertex_base = 0) :
+	draw_elements_cmd(GLuint elements, GLuint instance_count = 1, GLuint first = 0, GLuint vertex_base = 0) :
 		elements(elements),
 		instance_count(instance_count),
 		first(first),
@@ -72,7 +81,7 @@ struct draw_elements
 	{}
 };
 // glDispatchComputeIndirect用
-struct dispatch_compute
+struct dispatch_compute_cmd
 {
 	// Xグループ
 	GLuint x;
@@ -81,19 +90,18 @@ struct dispatch_compute
 	// Zグループ
 	GLuint z;
 
-	dispatch_compute() :
+	dispatch_compute_cmd() :
 		x(0),
 		y(0),
 		z(0)
 	{}
-	dispatch_compute(GLuint x, GLuint y, GLuint z) :
+	dispatch_compute_cmd(GLuint x, GLuint y, GLuint z) :
 		x(x),
 		y(y),
 		z(z)
 	{}
 };
 
-} // namespace commands
 } // namespace gl
 } // namespace pocket
 

@@ -1102,45 +1102,45 @@ public:
 	}
 
 	// UBO作成
-	uniform_buffer make_uniform_buffer(const char*, GLuint, const void*, buffer_usage_t = buffer_usage::dynamic_draw) const;
+	uniform_buffer make_uniform_buffer(const char*, GLuint, const void*, buffer_usage_type_t = buffer_usage_type::dynamic_draw) const;
 	template <typename T>
-	uniform_buffer make_uniform_buffer(const char*, GLuint, const T&, buffer_usage_t = buffer_usage::dynamic_draw) const;
+	uniform_buffer make_uniform_buffer(const char*, GLuint, const T&, buffer_usage_type_t = buffer_usage_type::dynamic_draw) const;
 	template <typename T, int N>
-	uniform_buffer make_uniform_buffer(const char*, GLuint, const T(&)[N], buffer_usage_t = buffer_usage::dynamic_draw) const;
+	uniform_buffer make_uniform_buffer(const char*, GLuint, const T(&)[N], buffer_usage_type_t = buffer_usage_type::dynamic_draw) const;
 	template <typename T, size_t N, template <typename, size_t> class ARRAY>
-	uniform_buffer make_uniform_buffer(const char*, GLuint, const ARRAY<T, N>&, buffer_usage_t = buffer_usage::dynamic_draw) const;
+	uniform_buffer make_uniform_buffer(const char*, GLuint, const ARRAY<T, N>&, buffer_usage_type_t = buffer_usage_type::dynamic_draw) const;
 	template <typename T, typename ALLOC, template <typename, typename> class VECTOR>
-	uniform_buffer make_uniform_buffer(const char*, GLuint, const VECTOR<T, ALLOC>&, buffer_usage_t = buffer_usage::dynamic_draw) const;
+	uniform_buffer make_uniform_buffer(const char*, GLuint, const VECTOR<T, ALLOC>&, buffer_usage_type_t = buffer_usage_type::dynamic_draw) const;
 
-	uniform_buffer make_uniform_buffer(const std::string&, GLuint, const void*, buffer_usage_t = buffer_usage::dynamic_draw) const;
+	uniform_buffer make_uniform_buffer(const std::string&, GLuint, const void*, buffer_usage_type_t = buffer_usage_type::dynamic_draw) const;
 	template <typename T>
-	uniform_buffer make_uniform_buffer(const std::string&, GLuint, const T&, buffer_usage_t = buffer_usage::dynamic_draw) const;
+	uniform_buffer make_uniform_buffer(const std::string&, GLuint, const T&, buffer_usage_type_t = buffer_usage_type::dynamic_draw) const;
 	template <typename T, int N>
-	uniform_buffer make_uniform_buffer(const std::string&, GLuint, const T(&)[N], buffer_usage_t = buffer_usage::dynamic_draw) const;
+	uniform_buffer make_uniform_buffer(const std::string&, GLuint, const T(&)[N], buffer_usage_type_t = buffer_usage_type::dynamic_draw) const;
 	template <typename T, size_t N, template <typename, size_t> class ARRAY>
-	uniform_buffer make_uniform_buffer(const std::string&, GLuint, const ARRAY<T, N>&, buffer_usage_t = buffer_usage::dynamic_draw) const;
+	uniform_buffer make_uniform_buffer(const std::string&, GLuint, const ARRAY<T, N>&, buffer_usage_type_t = buffer_usage_type::dynamic_draw) const;
 	template <typename T, typename ALLOC, template <typename, typename> class VECTOR>
-	uniform_buffer make_uniform_buffer(const std::string&, GLuint, const VECTOR<T, ALLOC>&, buffer_usage_t = buffer_usage::dynamic_draw) const;
+	uniform_buffer make_uniform_buffer(const std::string&, GLuint, const VECTOR<T, ALLOC>&, buffer_usage_type_t = buffer_usage_type::dynamic_draw) const;
 
-	uniform_buffer& make_uniform_buffer(uniform_buffer&, const char*, GLuint, const void*, buffer_usage_t = buffer_usage::dynamic_draw) const;
+	uniform_buffer& make_uniform_buffer(uniform_buffer&, const char*, GLuint, const void*, buffer_usage_type_t = buffer_usage_type::dynamic_draw) const;
 	template <typename T>
-	uniform_buffer& make_uniform_buffer(uniform_buffer&, const char*, GLuint, const T&, buffer_usage_t = buffer_usage::dynamic_draw) const;
+	uniform_buffer& make_uniform_buffer(uniform_buffer&, const char*, GLuint, const T&, buffer_usage_type_t = buffer_usage_type::dynamic_draw) const;
 	template <typename T, int N>
-	uniform_buffer& make_uniform_buffer(uniform_buffer&, const char*, GLuint, const T(&)[N], buffer_usage_t = buffer_usage::dynamic_draw) const;
+	uniform_buffer& make_uniform_buffer(uniform_buffer&, const char*, GLuint, const T(&)[N], buffer_usage_type_t = buffer_usage_type::dynamic_draw) const;
 	template <typename T, size_t N, template <typename, size_t> class ARRAY>
-	uniform_buffer& make_uniform_buffer(uniform_buffer&, const char*, GLuint, const ARRAY<T, N>&, buffer_usage_t = buffer_usage::dynamic_draw) const;
+	uniform_buffer& make_uniform_buffer(uniform_buffer&, const char*, GLuint, const ARRAY<T, N>&, buffer_usage_type_t = buffer_usage_type::dynamic_draw) const;
 	template <typename T, typename ALLOC, template <typename, typename> class VECTOR>
-	uniform_buffer& make_uniform_buffer(uniform_buffer&, const char*, GLuint, const VECTOR<T, ALLOC>&, buffer_usage_t = buffer_usage::dynamic_draw) const;
+	uniform_buffer& make_uniform_buffer(uniform_buffer&, const char*, GLuint, const VECTOR<T, ALLOC>&, buffer_usage_type_t = buffer_usage_type::dynamic_draw) const;
 
-	uniform_buffer& make_uniform_buffer(uniform_buffer&, const std::string&, GLuint, const void*, buffer_usage_t = buffer_usage::dynamic_draw) const;
+	uniform_buffer& make_uniform_buffer(uniform_buffer&, const std::string&, GLuint, const void*, buffer_usage_type_t = buffer_usage_type::dynamic_draw) const;
 	template <typename T>
-	uniform_buffer& make_uniform_buffer(uniform_buffer&, const std::string&, GLuint, const T&, buffer_usage_t = buffer_usage::dynamic_draw) const;
+	uniform_buffer& make_uniform_buffer(uniform_buffer&, const std::string&, GLuint, const T&, buffer_usage_type_t = buffer_usage_type::dynamic_draw) const;
 	template <typename T, int N>
-	uniform_buffer& make_uniform_buffer(uniform_buffer&, const std::string&, GLuint, const T(&)[N], buffer_usage_t = buffer_usage::dynamic_draw) const;
+	uniform_buffer& make_uniform_buffer(uniform_buffer&, const std::string&, GLuint, const T(&)[N], buffer_usage_type_t = buffer_usage_type::dynamic_draw) const;
 	template <typename T, size_t N, template <typename, size_t> class ARRAY>
-	uniform_buffer& make_uniform_buffer(uniform_buffer&, const std::string&, GLuint, const ARRAY<T, N>&, buffer_usage_t = buffer_usage::dynamic_draw) const;
+	uniform_buffer& make_uniform_buffer(uniform_buffer&, const std::string&, GLuint, const ARRAY<T, N>&, buffer_usage_type_t = buffer_usage_type::dynamic_draw) const;
 	template <typename T, typename ALLOC, template <typename, typename> class VECTOR>
-	uniform_buffer& make_uniform_buffer(uniform_buffer&, const std::string&, GLuint, const VECTOR<T, ALLOC>&, buffer_usage_t = buffer_usage::dynamic_draw) const;
+	uniform_buffer& make_uniform_buffer(uniform_buffer&, const std::string&, GLuint, const VECTOR<T, ALLOC>&, buffer_usage_type_t = buffer_usage_type::dynamic_draw) const;
 
 	// サブルーチン数
 	int subroutine_count(GLuint index, shader_type_t type) const

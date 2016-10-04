@@ -10,7 +10,7 @@
 #include "../debug.h"
 #include "../io.h"
 #include "buffer.h"
-#include "commands.h"
+#include "indirect_command.h"
 
 namespace pocket
 {
@@ -28,12 +28,6 @@ public:
 	//------------------------------------------------------------------------------------------
 
 	typedef binder<draw_indirect_buffer> binder_type;
-
-	enum command_type
-	{
-		arrays,
-		elements
-	};
 
 	enum identifier_t
 	{
@@ -61,27 +55,27 @@ public:
 	draw_indirect_buffer() :
 		_buffer()
 	{}
-	explicit draw_indirect_buffer(const commands::draw_arrays& arys, buffer_usage_t usg = buffer_usage::immutable_read) :
+	explicit draw_indirect_buffer(const draw_arrays_cmd& arys, buffer_usage_type_t usg = buffer_usage_type::immutable_read) :
 		_buffer()
 	{
 		initialize(arys, usg);
 	}
-	explicit draw_indirect_buffer(const commands::draw_elements& elems, buffer_usage_t usg = buffer_usage::immutable_read) :
+	explicit draw_indirect_buffer(const draw_elements_cmd& elems, buffer_usage_type_t usg = buffer_usage_type::immutable_read) :
 		_buffer()
 	{
 		initialize(elems, usg);
 	}
-	explicit draw_indirect_buffer(command_type type, GLuint count, buffer_usage_t usg = buffer_usage::immutable_read) :
+	explicit draw_indirect_buffer(command_type_t type, GLuint count, buffer_usage_type_t usg = buffer_usage_type::immutable_read) :
 		_buffer()
 	{
 		initialize(type, count, usg);
 	}
-	explicit draw_indirect_buffer(const GLuint(&cmds)[4], buffer_usage_t usg = buffer_usage::immutable_read) :
+	explicit draw_indirect_buffer(POCKET_CREF_ARRAY_ARG(GLuint, cmds, 4), buffer_usage_type_t usg = buffer_usage_type::immutable_read) :
 		_buffer()
 	{
 		initialize(cmds, usg);
 	}
-	explicit draw_indirect_buffer(const GLuint(&cmds)[5], buffer_usage_t usg = buffer_usage::immutable_read) :
+	explicit draw_indirect_buffer(POCKET_CREF_ARRAY_ARG(GLuint, cmds, 5), buffer_usage_type_t usg = buffer_usage_type::immutable_read) :
 		_buffer()
 	{
 		initialize(cmds, usg);
@@ -104,29 +98,34 @@ public:
 	//------------------------------------------------------------------------------------------
 
 	// 初期化
-	bool initialize(const commands::draw_arrays& arys, buffer_usage_t usg = buffer_usage::immutable_read)
+	bool initialize(const draw_arrays_cmd& arys, buffer_usage_type_t usg = buffer_usage_type::immutable_read)
 	{
-		return _buffer.initialize(buffer_type::draw_indirect, usg, sizeof(commands::draw_arrays), static_cast<const void*>(&arys));
+		return _buffer.initialize(buffer_type::draw_indirect, usg, sizeof(draw_arrays_cmd), static_cast<const void*>(&arys));
 	}
-	bool initialize(const commands::draw_elements& elems, buffer_usage_t usg = buffer_usage::immutable_read)
+	bool initialize(const draw_elements_cmd& elems, buffer_usage_type_t usg = buffer_usage_type::immutable_read)
 	{
-		return _buffer.initialize(buffer_type::draw_indirect, usg, sizeof(commands::draw_elements), static_cast<const void*>(&elems));
+		return _buffer.initialize(buffer_type::draw_indirect, usg, sizeof(draw_elements_cmd), static_cast<const void*>(&elems));
 	}
-	bool initialize(command_type type, GLuint count, buffer_usage_t usg = buffer_usage::immutable_read)
+	bool initialize(command_type_t type, GLuint count, buffer_usage_type_t usg = buffer_usage_type::immutable_read)
 	{
-		if (type == arrays)
+		if (type == command_type::arrays)
 		{
-			return initialize(commands::draw_arrays(count), usg);
+			return initialize(draw_arrays_cmd(count), usg);
 		}
-		return initialize(commands::draw_elements(count), usg);
+		if (type == command_type::elements)
+		{
+			return initialize(draw_elements_cmd(count), usg);
+		}
+		_buffer._error_bitfield |= error_unsupported;
+		return false;
 	}
-	bool initialize(const GLuint(&cmds)[4], buffer_usage_t usg = buffer_usage::immutable_read)
+	bool initialize(POCKET_CREF_ARRAY_ARG(GLuint, cmds, 4), buffer_usage_type_t usg = buffer_usage_type::immutable_read)
 	{
-		return _buffer.initialize(buffer_type::draw_indirect, usg, sizeof(commands::draw_arrays), static_cast<const void*>(&cmds[0]));
+		return _buffer.initialize(buffer_type::draw_indirect, usg, sizeof(draw_arrays_cmd), static_cast<const void*>(&cmds[0]));
 	}
-	bool initialize(const GLuint(&cmds)[5], buffer_usage_t usg = buffer_usage::immutable_read)
+	bool initialize(POCKET_CREF_ARRAY_ARG(GLuint, cmds, 5), buffer_usage_type_t usg = buffer_usage_type::immutable_read)
 	{
-		return _buffer.initialize(buffer_type::draw_indirect, usg, sizeof(commands::draw_elements), static_cast<const void*>(&cmds[0]));
+		return _buffer.initialize(buffer_type::draw_indirect, usg, sizeof(draw_elements_cmd), static_cast<const void*>(&cmds[0]));
 	}
 
 	// 終了処理
@@ -166,40 +165,40 @@ public:
 	}
 
 	// バッファを展開して先頭アドレスを取得
-	void* map(buffer_map_t type) const
+	void* map(buffer_map_type_t type) const
 	{
 		return _buffer.map(type);
 	}
 	template <typename T>
-	T* map(buffer_map_t type) const
+	T* map(buffer_map_type_t type) const
 	{
 		return _buffer.map<T>(type);
 	}
-	void* map_binding(buffer_map_t type) const
+	void* map_binding(buffer_map_type_t type) const
 	{
 		return _buffer.map_binding(type);
 	}
 	template <typename T>
-	T* map_binding(buffer_map_t type) const
+	T* map_binding(buffer_map_type_t type) const
 	{
 		return _buffer.map_binding<T>(type);
 	}
 
 	// 展開してアドレスを取得できていたら渡された関数を実行
 	template <typename F>
-	bool map(buffer_map_t type, F func) const
+	bool map(buffer_map_type_t type, F func) const
 	{
 		binder_type lock(*this);
 		return map_binding(type, func);
 	}
 	template <typename T, typename F>
-	bool map(buffer_map_t type, F func) const
+	bool map(buffer_map_type_t type, F func) const
 	{
 		binder_type lock(*this);
 		return map_binding<T>(type, func);
 	}
 	template <typename F>
-	bool map_binding(buffer_map_t type, F func) const
+	bool map_binding(buffer_map_type_t type, F func) const
 	{
 		void* address = map_binding(type);
 		if (address == NULL)
@@ -211,7 +210,7 @@ public:
 		return true;
 	}
 	template <typename T, typename F>
-	bool map_binding(buffer_map_t type, F func) const
+	bool map_binding(buffer_map_type_t type, F func) const
 	{
 		T* address = map_binding<T>(type);
 		if (address == NULL)
@@ -277,7 +276,7 @@ public:
 	}
 	int count_binding() const
 	{
-		const GLuint* pointer = _buffer.map_binding<GLuint>(buffer_map::read);
+		const GLuint* pointer = _buffer.map_binding<GLuint>(buffer_map_type::read);
 		int c = *pointer; // どちらも先頭に描画頂点数が入っている
 		_buffer.unmap_binding();
 		return c;
@@ -289,7 +288,7 @@ public:
 	}
 	void count_binding(GLuint n) const
 	{
-		GLuint* pointer = _buffer.map_binding<GLuint>(buffer_map::write);
+		GLuint* pointer = _buffer.map_binding<GLuint>(buffer_map_type::write);
 		*pointer = n;
 		_buffer.unmap_binding();
 	}
@@ -302,7 +301,7 @@ public:
 	}
 	int instance_count_binding() const
 	{
-		const GLuint* pointer = _buffer.map_binding<GLuint>(buffer_map::read);
+		const GLuint* pointer = _buffer.map_binding<GLuint>(buffer_map_type::read);
 		int c = *(pointer + 1);
 		_buffer.unmap_binding();
 		return c;
@@ -314,7 +313,7 @@ public:
 	}
 	void instance_count_binding(GLuint n) const
 	{
-		GLuint* pointer = _buffer.map_binding<GLuint>(buffer_map::write);
+		GLuint* pointer = _buffer.map_binding<GLuint>(buffer_map_type::write);
 		*(pointer + 1) = n;
 		_buffer.unmap_binding();
 	}
@@ -327,7 +326,7 @@ public:
 	}
 	int first_binding() const
 	{
-		const GLuint* pointer = _buffer.map_binding<GLuint>(buffer_map::read);
+		const GLuint* pointer = _buffer.map_binding<GLuint>(buffer_map_type::read);
 		int c = *(pointer + 2);
 		_buffer.unmap_binding();
 		return c;
@@ -339,17 +338,17 @@ public:
 	}
 	void first_binding(GLuint n) const
 	{
-		GLuint* pointer = _buffer.map_binding<GLuint>(buffer_map::write);
+		GLuint* pointer = _buffer.map_binding<GLuint>(buffer_map_type::write);
 		*(pointer + 2) = n;
 		_buffer.unmap_binding();
 	}
 
 	// 設定した時の扱い法
-	buffer_usage_t usage() const
+	buffer_usage_type_t usage() const
 	{
 		return _buffer.usage();
 	}
-	buffer_usage_t usage_binding() const
+	buffer_usage_type_t usage_binding() const
 	{
 		return _buffer.usage_binding();
 	}
@@ -357,6 +356,10 @@ public:
 	// エラー文
 	std::string error() const
 	{
+		if (error_status(error_unsupported))
+		{
+			return "failed. unsupport type.";
+		}
 		return _buffer.error();
 	}
 
@@ -437,57 +440,57 @@ public:
 };
 
 inline
-draw_indirect_buffer make_draw_indirect_buffer(const commands::draw_arrays& arys, buffer_usage_t usg = buffer_usage::immutable_read)
+draw_indirect_buffer make_draw_indirect_buffer(const draw_arrays_cmd& arys, buffer_usage_type_t usg = buffer_usage_type::immutable_read)
 {
 	return draw_indirect_buffer(arys, usg);
 }
 inline
-draw_indirect_buffer make_draw_indirect_buffer(const commands::draw_elements& elems, buffer_usage_t usg = buffer_usage::immutable_read)
+draw_indirect_buffer make_draw_indirect_buffer(const draw_elements_cmd& elems, buffer_usage_type_t usg = buffer_usage_type::immutable_read)
 {
 	return draw_indirect_buffer(elems, usg);
 }
 inline
-draw_indirect_buffer make_draw_indirect_buffer(draw_indirect_buffer::command_type type, GLuint count, buffer_usage_t usg = buffer_usage::immutable_read)
+draw_indirect_buffer make_draw_indirect_buffer(command_type_t type, GLuint count, buffer_usage_type_t usg = buffer_usage_type::immutable_read)
 {
 	return draw_indirect_buffer(type, count, usg);
 }
 inline
-draw_indirect_buffer make_draw_indirect_buffer(const GLuint(&cmds)[4], buffer_usage_t usg = buffer_usage::immutable_read)
+draw_indirect_buffer make_draw_indirect_buffer(POCKET_CREF_ARRAY_ARG(GLuint, cmds, 4), buffer_usage_type_t usg = buffer_usage_type::immutable_read)
 {
 	return draw_indirect_buffer(cmds, usg);
 }
 inline
-draw_indirect_buffer make_draw_indirect_buffer(const GLuint(&cmds)[5], buffer_usage_t usg = buffer_usage::immutable_read)
+draw_indirect_buffer make_draw_indirect_buffer(POCKET_CREF_ARRAY_ARG(GLuint, cmds, 5), buffer_usage_type_t usg = buffer_usage_type::immutable_read)
 {
 	return draw_indirect_buffer(cmds, usg);
 }
 
 inline
-draw_indirect_buffer& make_draw_indirect_buffer(draw_indirect_buffer& b, const commands::draw_arrays& arys, buffer_usage_t usg = buffer_usage::immutable_read)
+draw_indirect_buffer& make_draw_indirect_buffer(draw_indirect_buffer& b, const draw_arrays_cmd& arys, buffer_usage_type_t usg = buffer_usage_type::immutable_read)
 {
 	b.initialize(arys, usg);
 	return b;
 }
 inline
-draw_indirect_buffer& make_draw_indirect_buffer(draw_indirect_buffer& b, const commands::draw_elements& elems, buffer_usage_t usg = buffer_usage::immutable_read)
+draw_indirect_buffer& make_draw_indirect_buffer(draw_indirect_buffer& b, const draw_elements_cmd& elems, buffer_usage_type_t usg = buffer_usage_type::immutable_read)
 {
 	b.initialize(elems, usg);
 	return b;
 }
 inline
-draw_indirect_buffer& make_draw_indirect_buffer(draw_indirect_buffer& b, draw_indirect_buffer::command_type type, GLuint count, buffer_usage_t usg = buffer_usage::immutable_read)
+draw_indirect_buffer& make_draw_indirect_buffer(draw_indirect_buffer& b, command_type_t type, GLuint count, buffer_usage_type_t usg = buffer_usage_type::immutable_read)
 {
 	b.initialize(type, count, usg);
 	return b;
 }
 inline
-draw_indirect_buffer& make_draw_indirect_buffer(draw_indirect_buffer& b, const GLuint(&cmds)[4], buffer_usage_t usg = buffer_usage::immutable_read)
+draw_indirect_buffer& make_draw_indirect_buffer(draw_indirect_buffer& b, POCKET_CREF_ARRAY_ARG(GLuint, cmds, 4), buffer_usage_type_t usg = buffer_usage_type::immutable_read)
 {
 	b.initialize(cmds, usg);
 	return b;
 }
 inline
-draw_indirect_buffer& make_draw_indirect_buffer(draw_indirect_buffer& b, const GLuint(&cmds)[5], buffer_usage_t usg = buffer_usage::immutable_read)
+draw_indirect_buffer& make_draw_indirect_buffer(draw_indirect_buffer& b, POCKET_CREF_ARRAY_ARG(GLuint, cmds, 5), buffer_usage_type_t usg = buffer_usage_type::immutable_read)
 {
 	b.initialize(cmds, usg);
 	return b;
@@ -500,12 +503,12 @@ std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, Ch
 		io::tab << io::widen("id: ") << v.get() << std::endl;
 	if (v.binding())
 	{
-		const bool elem = v.size_binding() == sizeof(commands::draw_elements);
-		const char* type = elem ? "draw_elements" : "draw_arrays";
+		const bool elem = v.size_binding() == sizeof(draw_elements_cmd);
+		const char* type = elem ? "draw_elements_cmd" : "draw_arrays_cmd";
 		os << io::tab << io::widen("type: ") << io::widen(type) << io::widen(" {") << std::endl;
 		if (elem)
 		{
-			const commands::draw_elements* pointer = v.map_binding<commands::draw_elements>(buffer_map::read);
+			const draw_elements_cmd* pointer = v.map_binding<draw_elements_cmd>(buffer_map_type::read);
 			os << io::tab2 << io::widen("elements: ") << pointer->elements << std::endl <<
 				io::tab2 << io::widen("instance_count: ") << pointer->instance_count << std::endl <<
 				io::tab2 << io::widen("first: ") << pointer->first << std::endl <<
@@ -514,7 +517,7 @@ std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, Ch
 		}
 		else
 		{
-			const commands::draw_arrays* pointer = v.map_binding<commands::draw_arrays>(buffer_map::read);
+			const draw_arrays_cmd* pointer = v.map_binding<draw_arrays_cmd>(buffer_map_type::read);
 			os << io::tab2 << io::widen("arrays: ") << pointer->arrays << std::endl <<
 				io::tab2 << io::widen("instance_count: ") << pointer->instance_count << std::endl <<
 				io::tab2 << io::widen("first: ") << pointer->first << std::endl <<

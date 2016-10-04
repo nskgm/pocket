@@ -32,13 +32,13 @@ public:
 	~binder();
 	int size() const;
 	int count() const;
-	buffer_usage_t usage() const;
-	T* map(buffer_map_t) const;
-	template <typename F> bool map(buffer_map_t, F) const;
+	buffer_usage_type_t usage() const;
+	T* map(buffer_map_type_t) const;
+	template <typename F> bool map(buffer_map_type_t, F) const;
 	void unmap() const;
 
-	binder_map<index_buffer<T>, T> make_binder_map(buffer_map_t) const;
-	template <buffer_map_t U> binder_map<index_buffer<T>, T> make_binder_map() const;
+	binder_map<index_buffer<T>, T> make_binder_map(buffer_map_type_t) const;
+	template <buffer_map_type_t U> binder_map<index_buffer<T>, T> make_binder_map() const;
 
 	bool binding() const
 	{
@@ -82,8 +82,8 @@ private:
 	state_type _state;
 
 public:
-	explicit binder_map(const index_buffer<T>&, buffer_map_t);
-	explicit binder_map(const binder<index_buffer<T> >&, buffer_map_t);
+	explicit binder_map(const index_buffer<T>&, buffer_map_type_t);
+	explicit binder_map(const binder<index_buffer<T> >&, buffer_map_type_t);
 	~binder_map();
 
 	T* get() const
@@ -197,25 +197,25 @@ public:
 		_buffer(),
 		_count(0)
 	{}
-	explicit index_buffer(const index_type* indices, int count, buffer_usage_t usg = buffer_usage::immutable_draw) :
+	explicit index_buffer(const index_type* indices, int count, buffer_usage_type_t usg = buffer_usage_type::immutable_draw) :
 		_buffer()
 	{
 		initialize(indices, count, usg);
 	}
 	template <int N>
-	explicit index_buffer(const index_type(&indices)[N], buffer_usage_t usg = buffer_usage::immutable_draw) :
+	explicit index_buffer(const index_type(&indices)[N], buffer_usage_type_t usg = buffer_usage_type::immutable_draw) :
 		_buffer()
 	{
 		initialize(indices, usg);
 	}
 	template <size_t N, template <typename, size_t> class ARRAY>
-	explicit index_buffer(const ARRAY<index_type, N>& indices, buffer_usage_t usg = buffer_usage::immutable_draw) :
+	explicit index_buffer(const ARRAY<index_type, N>& indices, buffer_usage_type_t usg = buffer_usage_type::immutable_draw) :
 		_buffer()
 	{
 		initialize(indices, usg);
 	}
 	template <typename ALLOC, template <typename, typename> class VECTOR>
-	explicit index_buffer(const VECTOR<index_type, ALLOC>& indices, buffer_usage_t usg = buffer_usage::immutable_draw) :
+	explicit index_buffer(const VECTOR<index_type, ALLOC>& indices, buffer_usage_type_t usg = buffer_usage_type::immutable_draw) :
 		_buffer()
 	{
 		initialize(indices, usg);
@@ -245,23 +245,23 @@ public:
 	//------------------------------------------------------------------------------------------
 
 	// 初期化
-	bool initialize(const index_type* indices, int n, buffer_usage_t usg = buffer_usage::immutable_draw)
+	bool initialize(const index_type* indices, int n, buffer_usage_type_t usg = buffer_usage_type::immutable_draw)
 	{
 		_count = n;
 		return _buffer.initialize(buffer_type::element_array, usg, sizeof(index_type)*n, static_cast<const void*>(indices));
 	}
 	template <int N>
-	bool initialize(const index_type(&indices)[N], buffer_usage_t usg = buffer_usage::immutable_draw)
+	bool initialize(const index_type(&indices)[N], buffer_usage_type_t usg = buffer_usage_type::immutable_draw)
 	{
 		return initialize(&indices[0], N, usg);
 	}
 	template <size_t N, template <typename, size_t> class ARRAY>
-	bool initialize(const ARRAY<index_type, N>& indices, buffer_usage_t usg = buffer_usage::immutable_draw)
+	bool initialize(const ARRAY<index_type, N>& indices, buffer_usage_type_t usg = buffer_usage_type::immutable_draw)
 	{
 		return initialize(&indices[0], N, usg);
 	}
 	template <typename ALLOC, template <typename, typename> class VECTOR>
-	bool initialize(const VECTOR<index_type, ALLOC>& indices, buffer_usage_t usg = buffer_usage::immutable_draw)
+	bool initialize(const VECTOR<index_type, ALLOC>& indices, buffer_usage_type_t usg = buffer_usage_type::immutable_draw)
 	{
 		return initialize(&indices[0], indices.size(), usg);
 	}
@@ -269,7 +269,7 @@ public:
 	{
 		// サイズのみ確保
 		_count = n;
-		return _buffer.initialize(buffer_type::element_array, buffer_usage::dynamic_draw, sizeof(index_type)*n, NULL);
+		return _buffer.initialize(buffer_type::element_array, buffer_usage_type::dynamic_draw, sizeof(index_type)*n, NULL);
 	}
 
 	// 終了処理
@@ -357,24 +357,24 @@ public:
 	}
 
 	// バッファを展開して先頭アドレスを取得
-	index_type* map(buffer_map_t type) const
+	index_type* map(buffer_map_type_t type) const
 	{
 		return _buffer.map<index_type>(type);
 	}
-	index_type* map_binding(buffer_map_t type) const
+	index_type* map_binding(buffer_map_type_t type) const
 	{
 		return _buffer.map_binding<index_type>(type);
 	}
 
 	// 展開してアドレスを取得できていたら渡された関数を実行
 	template <typename F>
-	bool map(buffer_map_t type, F func) const
+	bool map(buffer_map_type_t type, F func) const
 	{
 		binder_type lock(*this);
 		return map_binding(type, func);
 	}
 	template <typename F>
-	bool map_binding(buffer_map_t type, F func) const
+	bool map_binding(buffer_map_type_t type, F func) const
 	{
 		index_type* address = map_binding(type);
 		if (address == NULL)
@@ -423,7 +423,7 @@ public:
 	}
 
 	// 展開を管理するオブジェクト生成
-	binder_map_type make_binder_map(buffer_map_t type) const
+	binder_map_type make_binder_map(buffer_map_type_t type) const
 	{
 		return binder_map_type(*this, type);
 	}
@@ -445,11 +445,11 @@ public:
 	}
 
 	// 設定した時の扱い法
-	buffer_usage_t usage() const
+	buffer_usage_type_t usage() const
 	{
 		return _buffer.usage();
 	}
-	buffer_usage_t usage_binding() const
+	buffer_usage_type_t usage_binding() const
 	{
 		return _buffer.usage_binding();
 	}
@@ -559,18 +559,18 @@ int binder<index_buffer<T> >::count() const
 	return _address->count_binding();
 }
 template <typename T> inline
-buffer_usage_t binder<index_buffer<T> >::usage() const
+buffer_usage_type_t binder<index_buffer<T> >::usage() const
 {
 	return _address->usage_binding();
 }
 template <typename T> inline
-T* binder<index_buffer<T> >::map(buffer_map_t type) const
+T* binder<index_buffer<T> >::map(buffer_map_type_t type) const
 {
 	return _address->map_binding(type);
 }
 template <typename T>
 template <typename F> inline
-bool binder<index_buffer<T> >::map(buffer_map_t type, F func) const
+bool binder<index_buffer<T> >::map(buffer_map_type_t type, F func) const
 {
 	return _address->map_binding(type, func);
 }
@@ -580,19 +580,19 @@ void binder<index_buffer<T> >::unmap() const
 	_address->unmap_binding();
 }
 template <typename T> inline
-binder_map<index_buffer<T>, T> binder<index_buffer<T> >::make_binder_map(buffer_map_t type) const
+binder_map<index_buffer<T>, T> binder<index_buffer<T> >::make_binder_map(buffer_map_type_t type) const
 {
 	return binder_map<index_buffer<T>, T>(*this, type);
 }
 template <typename T>
-template <buffer_map_t U> inline
+template <buffer_map_type_t U> inline
 binder_map<index_buffer<T>, T> binder<index_buffer<T> >::make_binder_map() const
 {
 	return binder_map<index_buffer<T>, T>(*this, U);
 }
 
 template <typename T> inline
-binder_map<index_buffer<T>, T>::binder_map(const index_buffer<T>& a, buffer_map_t type) :
+binder_map<index_buffer<T>, T>::binder_map(const index_buffer<T>& a, buffer_map_type_t type) :
 	_address(&a)
 {
 	if (a.binding())
@@ -607,7 +607,7 @@ binder_map<index_buffer<T>, T>::binder_map(const index_buffer<T>& a, buffer_map_
 	}
 }
 template <typename T> inline
-binder_map<index_buffer<T>, T>::binder_map(const binder<index_buffer<T> >& a, buffer_map_t type) :
+binder_map<index_buffer<T>, T>::binder_map(const binder<index_buffer<T> >& a, buffer_map_type_t type) :
 	_address(a), _data(a.map(type)), _state(binding_state)
 {}
 template <typename T> inline
@@ -636,22 +636,22 @@ typename binder_map<index_buffer<T>, T>::const_iterator binder_map<index_buffer<
 }
 
 template <typename T> inline
-index_buffer<T> make_index_buffer(const T* indices, int count, buffer_usage_t usg = buffer_usage::immutable_draw)
+index_buffer<T> make_index_buffer(const T* indices, int count, buffer_usage_type_t usg = buffer_usage_type::immutable_draw)
 {
 	return index_buffer<T>(indices, count, usg);
 }
 template <typename T, int N> inline
-index_buffer<T> make_index_buffer(const T(&indices)[N], buffer_usage_t usg = buffer_usage::immutable_draw)
+index_buffer<T> make_index_buffer(const T(&indices)[N], buffer_usage_type_t usg = buffer_usage_type::immutable_draw)
 {
 	return index_buffer<T>(indices, usg);
 }
 template <typename T, size_t N, template <typename, size_t> class ARRAY> inline
-index_buffer<T> make_index_buffer(const ARRAY<T, N>& indices, buffer_usage_t usg = buffer_usage::immutable_draw)
+index_buffer<T> make_index_buffer(const ARRAY<T, N>& indices, buffer_usage_type_t usg = buffer_usage_type::immutable_draw)
 {
 	return index_buffer<T>(indices, usg);
 }
 template <typename T, typename ALLOC, template <typename, typename> class VECTOR> inline
-index_buffer<T> make_index_buffer(const VECTOR<T, ALLOC>& indices, buffer_usage_t usg = buffer_usage::immutable_draw)
+index_buffer<T> make_index_buffer(const VECTOR<T, ALLOC>& indices, buffer_usage_type_t usg = buffer_usage_type::immutable_draw)
 {
 	return index_buffer<T>(indices, usg);
 }
@@ -662,25 +662,25 @@ index_buffer<T> make_index_buffer(int count)
 }
 
 template <typename T> inline
-index_buffer<T>& make_index_buffer(index_buffer<T>& b, const T* indices, int count, buffer_usage_t usg = buffer_usage::immutable_draw)
+index_buffer<T>& make_index_buffer(index_buffer<T>& b, const T* indices, int count, buffer_usage_type_t usg = buffer_usage_type::immutable_draw)
 {
 	b.initialize(indices, count, usg);
 	return b;
 }
 template <typename T, int N> inline
-index_buffer<T>& make_index_buffer(index_buffer<T>& b, const T(&indices)[N], buffer_usage_t usg = buffer_usage::immutable_draw)
+index_buffer<T>& make_index_buffer(index_buffer<T>& b, const T(&indices)[N], buffer_usage_type_t usg = buffer_usage_type::immutable_draw)
 {
 	b.initialize(indices, usg);
 	return b;
 }
 template <typename T, size_t N, template <typename, size_t> class ARRAY> inline
-index_buffer<T>& make_index_buffer(index_buffer<T>& b, const ARRAY<T, N>& indices, buffer_usage_t usg = buffer_usage::immutable_draw)
+index_buffer<T>& make_index_buffer(index_buffer<T>& b, const ARRAY<T, N>& indices, buffer_usage_type_t usg = buffer_usage_type::immutable_draw)
 {
 	b.initialize(indices, usg);
 	return b;
 }
 template <typename T, typename ALLOC, template <typename, typename> class VECTOR> inline
-index_buffer<T>& make_index_buffer(index_buffer<T>& b, const VECTOR<T, ALLOC>& indices, buffer_usage_t usg = buffer_usage::immutable_draw)
+index_buffer<T>& make_index_buffer(index_buffer<T>& b, const VECTOR<T, ALLOC>& indices, buffer_usage_type_t usg = buffer_usage_type::immutable_draw)
 {
 	b.initialize(indices, usg);
 	return b;

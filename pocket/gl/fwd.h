@@ -11,20 +11,17 @@ namespace pocket
 namespace gl
 {
 
-namespace commands
-{
-struct draw_arrays;
-struct draw_elements;
-struct dispatch_compute;
-}
+struct draw_arrays_cmd;
+struct draw_elements_cmd;
+struct dispatch_compute_cmd;
 
 template <typename> class binder;
 template <typename, typename> class binder1;
 template <typename, typename> class binder_map;
 
 struct buffer_type;
-struct buffer_usage;
-struct buffer_map;
+struct buffer_usage_type;
+struct buffer_map_type;
 struct buffer_binding_type;
 
 class buffer;
@@ -35,7 +32,10 @@ class program;
 class uniform_buffer;
 class vertex_array;
 template <typename> class vertex_buffer;
+template <typename> class index_buffer;
 template <typename> class layered_vertex_buffer;
+class draw_indirect_buffer;
+class sampler;
 class sync;
 
 } // namespace gl

@@ -24,77 +24,77 @@ class draw_indirect_buffer;
 // vertex_layout vertex_layout_index用宣言
 #define __POCKET_LAYERED_VERTEX_BUFFER_INITIALIZE(TYPE) \
 	template <int N>\
-	bool initialize(POCKET_CREF_ARRAY_ARG(vertex_type, vertices, N), const TYPE* layouts, int count, buffer_usage_t usg = buffer_usage::immutable_draw)\
+	bool initialize(POCKET_CREF_ARRAY_ARG(vertex_type, vertices, N), const TYPE* layouts, int count, buffer_usage_type_t usg = buffer_usage_type::immutable_draw)\
 	{\
 		return initialize(&vertices[0], N, layouts, count, usg);\
 	}\
 	template <size_t N, template <typename, size_t> class ARRAY>\
-	bool initialize(const ARRAY<vertex_type, N>& vertices, const TYPE* layouts, int count, buffer_usage_t usg = buffer_usage::immutable_draw)\
+	bool initialize(const ARRAY<vertex_type, N>& vertices, const TYPE* layouts, int count, buffer_usage_type_t usg = buffer_usage_type::immutable_draw)\
 	{\
 		return initialize(&vertices[0], N, layouts, count, usg);\
 	}\
 	template <typename ALLOC, template <typename, typename> class VECTOR>\
-	bool initialize(const VECTOR<vertex_type, ALLOC>& vertices, const TYPE* layouts, int count, buffer_usage_t usg = buffer_usage::immutable_draw)\
+	bool initialize(const VECTOR<vertex_type, ALLOC>& vertices, const TYPE* layouts, int count, buffer_usage_type_t usg = buffer_usage_type::immutable_draw)\
 	{\
 		return initialize(&vertices[0], vertices.size(), layouts, count, usg);\
 	}\
 	template <int N>\
-	bool initialize(const vertex_type* vertices, int count, POCKET_CREF_ARRAY_ARG(TYPE, layouts, N), buffer_usage_t usg = buffer_usage::immutable_draw)\
+	bool initialize(const vertex_type* vertices, int count, POCKET_CREF_ARRAY_ARG(TYPE, layouts, N), buffer_usage_type_t usg = buffer_usage_type::immutable_draw)\
 	{\
 		return initialize(vertices, count, &layouts[0], N, usg);\
 	}\
 	template <size_t N, template <typename, size_t> class ARRAY>\
-	bool initialize(const vertex_type* vertices, int count, const ARRAY<TYPE, N>& layouts, buffer_usage_t usg = buffer_usage::immutable_draw)\
+	bool initialize(const vertex_type* vertices, int count, const ARRAY<TYPE, N>& layouts, buffer_usage_type_t usg = buffer_usage_type::immutable_draw)\
 	{\
 		return initialize(vertices, count, &layouts[0], N, usg);\
 	}\
 	template <typename ALLOC, template <typename, typename> class VECTOR>\
-	bool initialize(const vertex_type* vertices, int count, const VECTOR<TYPE, ALLOC>& layouts, buffer_usage_t usg = buffer_usage::immutable_draw)\
+	bool initialize(const vertex_type* vertices, int count, const VECTOR<TYPE, ALLOC>& layouts, buffer_usage_type_t usg = buffer_usage_type::immutable_draw)\
 	{\
 		return initialize(vertices, count, &layouts[0], layouts.size(), usg);\
 	}\
 	template <int VN, int LN>\
-	bool initialize(POCKET_CREF_ARRAY_ARG(vertex_type, vertices, VN), POCKET_CREF_ARRAY_ARG(TYPE, layouts, LN), buffer_usage_t usg = buffer_usage::immutable_draw)\
+	bool initialize(POCKET_CREF_ARRAY_ARG(vertex_type, vertices, VN), POCKET_CREF_ARRAY_ARG(TYPE, layouts, LN), buffer_usage_type_t usg = buffer_usage_type::immutable_draw)\
 	{\
 		return initialize(&vertices[0], VN, &layouts[0], LN, usg);\
 	}\
 	template <size_t VN, size_t LN, template <typename, size_t> class ARRAY, template <typename, size_t> class ARRAY2>\
-	bool initialize(const ARRAY<vertex_type, VN>& vertices, const ARRAY2<TYPE, LN>& layouts, buffer_usage_t usg = buffer_usage::immutable_draw)\
+	bool initialize(const ARRAY<vertex_type, VN>& vertices, const ARRAY2<TYPE, LN>& layouts, buffer_usage_type_t usg = buffer_usage_type::immutable_draw)\
 	{\
 		return initialize(&vertices[0], VN, &layouts[0], LN, usg);\
 	}\
 	template <typename ALLOC, typename ALLOC2, template <typename, typename> class VECTOR, template <typename, typename> class VECTOR2>\
-	bool initialize(const VECTOR<vertex_type, ALLOC>& vertices, const VECTOR2<TYPE, ALLOC2>& layouts, buffer_usage_t usg = buffer_usage::immutable_draw)\
+	bool initialize(const VECTOR<vertex_type, ALLOC>& vertices, const VECTOR2<TYPE, ALLOC2>& layouts, buffer_usage_type_t usg = buffer_usage_type::immutable_draw)\
 	{\
 		return initialize(&vertices[0], vertices.size(), &layouts[0], layouts.size(), usg);\
 	}\
 	template <int VN, size_t LN, template <typename, size_t> class ARRAY>\
-	bool initialize(POCKET_CREF_ARRAY_ARG(vertex_type, vertices, VN), const ARRAY<TYPE, LN>& layouts, buffer_usage_t usg = buffer_usage::immutable_draw)\
+	bool initialize(POCKET_CREF_ARRAY_ARG(vertex_type, vertices, VN), const ARRAY<TYPE, LN>& layouts, buffer_usage_type_t usg = buffer_usage_type::immutable_draw)\
 	{\
 		return initialize(&vertices[0], VN, &layouts[0], LN, usg);\
 	}\
 	template <int VN, typename ALLOC, template <typename, typename> class VECTOR>\
-	bool initialize(POCKET_CREF_ARRAY_ARG(vertex_type, vertices, VN), const VECTOR<TYPE, ALLOC>& layouts, buffer_usage_t usg = buffer_usage::immutable_draw)\
+	bool initialize(POCKET_CREF_ARRAY_ARG(vertex_type, vertices, VN), const VECTOR<TYPE, ALLOC>& layouts, buffer_usage_type_t usg = buffer_usage_type::immutable_draw)\
 	{\
 		return initialize(&vertices[0], VN, &layouts[0], layouts.size(), usg);\
 	}\
 	template <size_t VN, int LN, template <typename, size_t> class ARRAY>\
-	bool initialize(const ARRAY<vertex_type, VN>& vertices, POCKET_CREF_ARRAY_ARG(TYPE, layouts, LN), buffer_usage_t usg = buffer_usage::immutable_draw)\
+	bool initialize(const ARRAY<vertex_type, VN>& vertices, POCKET_CREF_ARRAY_ARG(TYPE, layouts, LN), buffer_usage_type_t usg = buffer_usage_type::immutable_draw)\
 	{\
 		return initialize(&vertices[0], VN, &layouts[0], LN, usg);\
 	}\
 	template <size_t VN, typename ALLOC, template <typename, size_t> class ARRAY, template <typename, typename> class VECTOR>\
-	bool initialize(const ARRAY<vertex_type, VN>& vertices, const VECTOR<TYPE, ALLOC>& layouts, buffer_usage_t usg = buffer_usage::immutable_draw)\
+	bool initialize(const ARRAY<vertex_type, VN>& vertices, const VECTOR<TYPE, ALLOC>& layouts, buffer_usage_type_t usg = buffer_usage_type::immutable_draw)\
 	{\
 		return initialize(&vertices[0], VN, &layouts[0], layouts.size(), usg);\
 	}\
 	template <int LN, typename ALLOC, template <typename, typename> class VECTOR>\
-	bool initialize(const VECTOR<vertex_type, ALLOC>& vertices, POCKET_CREF_ARRAY_ARG(TYPE, layouts, LN), buffer_usage_t usg = buffer_usage::immutable_draw)\
+	bool initialize(const VECTOR<vertex_type, ALLOC>& vertices, POCKET_CREF_ARRAY_ARG(TYPE, layouts, LN), buffer_usage_type_t usg = buffer_usage_type::immutable_draw)\
 	{\
 		return initialize(&vertices[0], vertices.size(), &layouts[0], LN, usg);\
 	}\
 	template <size_t LN, typename ALLOC, template <typename, size_t> class ARRAY, template <typename, typename> class VECTOR>\
-	bool initialize(const VECTOR<vertex_type, ALLOC>& vertices, const ARRAY<TYPE, LN>& layouts, buffer_usage_t usg = buffer_usage::immutable_draw)\
+	bool initialize(const VECTOR<vertex_type, ALLOC>& vertices, const ARRAY<TYPE, LN>& layouts, buffer_usage_type_t usg = buffer_usage_type::immutable_draw)\
 	{\
 		return initialize(&vertices[0], vertices.size(), &layouts[0], LN, usg);\
 	}
@@ -161,34 +161,34 @@ public:
 		_vao(),
 		_error(none)
 	{}
-	explicit layered_vertex_buffer(const vertex_type* vertices, int vcount, const vertex_layout* layouts, int lcount, buffer_usage_t usg = buffer_usage::immutable_draw) :
+	explicit layered_vertex_buffer(const vertex_type* vertices, int vcount, const vertex_layout* layouts, int lcount, buffer_usage_type_t usg = buffer_usage_type::immutable_draw) :
 		_vbo(),
 		_vao()
 	{
 		initialize(vertices, vcount, layouts, lcount, usg);
 	}
-	explicit layered_vertex_buffer(const vertex_type* vertices, int vcount, const vertex_layout_index* layouts, int lcount, buffer_usage_t usg = buffer_usage::immutable_draw) :
+	explicit layered_vertex_buffer(const vertex_type* vertices, int vcount, const vertex_layout_index* layouts, int lcount, buffer_usage_type_t usg = buffer_usage_type::immutable_draw) :
 		_vbo(),
 		_vao()
 	{
 		initialize(vertices, vcount, layouts, lcount, usg);
 	}
 	template <typename U>
-	explicit layered_vertex_buffer(const U& vertices, const vertex_layout* layouts, int count, buffer_usage_t usg = buffer_usage::immutable_draw) :
+	explicit layered_vertex_buffer(const U& vertices, const vertex_layout* layouts, int count, buffer_usage_type_t usg = buffer_usage_type::immutable_draw) :
 		_vbo(),
 		_vao()
 	{
 		initialize(vertices, layouts, count, usg);
 	}
 	template <typename U>
-	explicit layered_vertex_buffer(const vertex_type* vertices, int count, const U& layouts, buffer_usage_t usg = buffer_usage::immutable_draw) :
+	explicit layered_vertex_buffer(const vertex_type* vertices, int count, const U& layouts, buffer_usage_type_t usg = buffer_usage_type::immutable_draw) :
 		_vbo(),
 		_vao()
 	{
 		initialize(vertices, count, layouts, usg);
 	}
 	template <typename U, typename V>
-	explicit layered_vertex_buffer(const U& vertices, const V& layouts, buffer_usage_t usg = buffer_usage::immutable_draw) :
+	explicit layered_vertex_buffer(const U& vertices, const V& layouts, buffer_usage_type_t usg = buffer_usage_type::immutable_draw) :
 		_vbo(),
 		_vao()
 	{
@@ -218,7 +218,7 @@ public:
 	//------------------------------------------------------------------------------------------
 
 	// 初期化
-	bool initialize(const vertex_type* vertices, int vcount, const vertex_layout* layouts, int lcount, buffer_usage_t usg = buffer_usage::immutable_draw)
+	bool initialize(const vertex_type* vertices, int vcount, const vertex_layout* layouts, int lcount, buffer_usage_type_t usg = buffer_usage_type::immutable_draw)
 	{
 		finalize();
 
@@ -237,7 +237,7 @@ public:
 		}
 		return true;
 	}
-	bool initialize(const vertex_type* vertices, int vcount, const vertex_layout_index* layouts, int lcount, buffer_usage_t usg = buffer_usage::immutable_draw)
+	bool initialize(const vertex_type* vertices, int vcount, const vertex_layout_index* layouts, int lcount, buffer_usage_type_t usg = buffer_usage_type::immutable_draw)
 	{
 		finalize();
 
@@ -383,24 +383,24 @@ public:
 	}
 
 	// バッファを展開して先頭アドレスを取得
-	vertex_type* map(buffer_map_t type) const
+	vertex_type* map(buffer_map_type_t type) const
 	{
 		return _vbo.map(type);
 	}
-	vertex_type* map_binding(buffer_map_t type) const
+	vertex_type* map_binding(buffer_map_type_t type) const
 	{
 		return _vbo.map_binding(type);
 	}
 
 	// 展開してアドレスを取得できていたら渡された関数を実行
 	template <typename F>
-	bool map(buffer_map_t type, F func) const
+	bool map(buffer_map_type_t type, F func) const
 	{
 		buffer::binder_type lock(_vbo);
 		return map_binding(type, func);
 	}
 	template <typename F>
-	bool map_binding(buffer_map_t type, F func) const
+	bool map_binding(buffer_map_type_t type, F func) const
 	{
 		vertex_type* address = map_binding(type);
 		if (address == NULL)
@@ -423,7 +423,7 @@ public:
 	}
 
 	// 展開を管理するオブジェクト生成
-	binder_map_type make_binder_map(buffer_map_t type) const
+	binder_map_type make_binder_map(buffer_map_type_t type) const
 	{
 		return binder_map_type(_vbo, type);
 	}
@@ -566,107 +566,107 @@ public:
 #undef __POCKET_LAYERED_VERTEX_BUFFER_INITIALIZE
 
 template <typename T> inline
-layered_vertex_buffer<T> make_layered_vertex_buffer(const T* vertices, int vcount, const vertex_layout* layouts, int lcount, buffer_usage_t usg = buffer_usage::immutable_draw)
+layered_vertex_buffer<T> make_layered_vertex_buffer(const T* vertices, int vcount, const vertex_layout* layouts, int lcount, buffer_usage_type_t usg = buffer_usage_type::immutable_draw)
 {
 	return layered_vertex_buffer<T>(vertices, vcount, layouts, lcount, usg);
 }
 template <typename T> inline
-layered_vertex_buffer<T> make_layered_vertex_buffer(const T* vertices, int vcount, const vertex_layout_index* layouts, int lcount, buffer_usage_t usg = buffer_usage::immutable_draw)
+layered_vertex_buffer<T> make_layered_vertex_buffer(const T* vertices, int vcount, const vertex_layout_index* layouts, int lcount, buffer_usage_type_t usg = buffer_usage_type::immutable_draw)
 {
 	return layered_vertex_buffer<T>(vertices, vcount, layouts, lcount, usg);
 }
 template <typename T, int N> inline
-layered_vertex_buffer<T> make_layered_vertex_buffer(const T(&vertices)[N], const vertex_layout* layouts, int count, buffer_usage_t usg = buffer_usage::immutable_draw)
+layered_vertex_buffer<T> make_layered_vertex_buffer(const T(&vertices)[N], const vertex_layout* layouts, int count, buffer_usage_type_t usg = buffer_usage_type::immutable_draw)
 {
 	return layered_vertex_buffer<T>(vertices, layouts, count, usg);
 }
 template <typename T, size_t N, template <typename, size_t> class ARRAY> inline
-layered_vertex_buffer<T> make_layered_vertex_buffer(const ARRAY<T, N>& vertices, const vertex_layout* layouts, int count, buffer_usage_t usg = buffer_usage::immutable_draw)
+layered_vertex_buffer<T> make_layered_vertex_buffer(const ARRAY<T, N>& vertices, const vertex_layout* layouts, int count, buffer_usage_type_t usg = buffer_usage_type::immutable_draw)
 {
 	return layered_vertex_buffer<T>(vertices, layouts, count, usg);
 }
 template <typename T, typename ALLOC, template <typename, typename> class VECTOR> inline
-layered_vertex_buffer<T> make_layered_vertex_buffer(const VECTOR<T, ALLOC>& vertices, const vertex_layout* layouts, int count, buffer_usage_t usg = buffer_usage::immutable_draw)
+layered_vertex_buffer<T> make_layered_vertex_buffer(const VECTOR<T, ALLOC>& vertices, const vertex_layout* layouts, int count, buffer_usage_type_t usg = buffer_usage_type::immutable_draw)
 {
 	return layered_vertex_buffer<T>(vertices, layouts, count, usg);
 }
 template <typename T, typename U> inline
-layered_vertex_buffer<T> make_layered_vertex_buffer(const T* vertices, int count, const U& layouts, buffer_usage_t usg = buffer_usage::immutable_draw)
+layered_vertex_buffer<T> make_layered_vertex_buffer(const T* vertices, int count, const U& layouts, buffer_usage_type_t usg = buffer_usage_type::immutable_draw)
 {
 	return layered_vertex_buffer<T>(vertices, count, layouts, usg);
 }
 template <typename T, int N, typename U> inline
-layered_vertex_buffer<T> make_layered_vertex_buffer(const T(&vertices)[N], const U& layouts, buffer_usage_t usg = buffer_usage::immutable_draw)
+layered_vertex_buffer<T> make_layered_vertex_buffer(const T(&vertices)[N], const U& layouts, buffer_usage_type_t usg = buffer_usage_type::immutable_draw)
 {
 	return layered_vertex_buffer<T>(vertices, layouts, usg);
 }
 template <typename T, size_t N, typename U, template <typename, size_t> class ARRAY> inline
-layered_vertex_buffer<T> make_layered_vertex_buffer(const ARRAY<T, N>& vertices, const U& layouts, buffer_usage_t usg = buffer_usage::immutable_draw)
+layered_vertex_buffer<T> make_layered_vertex_buffer(const ARRAY<T, N>& vertices, const U& layouts, buffer_usage_type_t usg = buffer_usage_type::immutable_draw)
 {
 	return layered_vertex_buffer<T>(vertices, layouts, usg);
 }
 template <typename T, typename ALLOC, typename U, template <typename, typename> class VECTOR> inline
-layered_vertex_buffer<T> make_layered_vertex_buffer(const VECTOR<T, ALLOC>& vertices, const U& layouts, buffer_usage_t usg = buffer_usage::immutable_draw)
+layered_vertex_buffer<T> make_layered_vertex_buffer(const VECTOR<T, ALLOC>& vertices, const U& layouts, buffer_usage_type_t usg = buffer_usage_type::immutable_draw)
 {
 	return layered_vertex_buffer<T>(vertices, layouts, usg);
 }
 
 template <typename T> inline
-layered_vertex_buffer<T>& make_layered_vertex_buffer(layered_vertex_buffer<T>& b, const T* vertices, int vcount, const vertex_layout* layouts, int lcount, buffer_usage_t usg = buffer_usage::immutable_draw)
+layered_vertex_buffer<T>& make_layered_vertex_buffer(layered_vertex_buffer<T>& b, const T* vertices, int vcount, const vertex_layout* layouts, int lcount, buffer_usage_type_t usg = buffer_usage_type::immutable_draw)
 {
 	b.initialize(vertices, vcount, layouts, lcount, usg);
 	return b;
 }
 template <typename T> inline
-layered_vertex_buffer<T>& make_layered_vertex_buffer(layered_vertex_buffer<T>& b, const T* vertices, int vcount, const vertex_layout_index* layouts, int lcount, buffer_usage_t usg = buffer_usage::immutable_draw)
+layered_vertex_buffer<T>& make_layered_vertex_buffer(layered_vertex_buffer<T>& b, const T* vertices, int vcount, const vertex_layout_index* layouts, int lcount, buffer_usage_type_t usg = buffer_usage_type::immutable_draw)
 {
 	b.initialize(vertices, vcount, layouts, lcount, usg);
 	return b;
 }
 template <typename T, int N> inline
-layered_vertex_buffer<T>& make_layered_vertex_buffer(layered_vertex_buffer<T>& b, const T(&vertices)[N], const vertex_layout* layouts, int count, buffer_usage_t usg = buffer_usage::immutable_draw)
+layered_vertex_buffer<T>& make_layered_vertex_buffer(layered_vertex_buffer<T>& b, const T(&vertices)[N], const vertex_layout* layouts, int count, buffer_usage_type_t usg = buffer_usage_type::immutable_draw)
 {
 	b.initialize(vertices, layouts, count, usg);
 	return b;
 }
 template <typename T, size_t N, template <typename, size_t> class ARRAY> inline
-layered_vertex_buffer<T>& make_layered_vertex_buffer(layered_vertex_buffer<T>& b, const ARRAY<T, N>& vertices, const vertex_layout* layouts, int count, buffer_usage_t usg = buffer_usage::immutable_draw)
+layered_vertex_buffer<T>& make_layered_vertex_buffer(layered_vertex_buffer<T>& b, const ARRAY<T, N>& vertices, const vertex_layout* layouts, int count, buffer_usage_type_t usg = buffer_usage_type::immutable_draw)
 {
 	b.initialize(vertices, layouts, count, usg);
 	return b;
 }
 template <typename T, typename ALLOC, template <typename, typename> class VECTOR> inline
-layered_vertex_buffer<T>& make_layered_vertex_buffer(layered_vertex_buffer<T>& b, const VECTOR<T, ALLOC>& vertices, const vertex_layout* layouts, int count, buffer_usage_t usg = buffer_usage::immutable_draw)
+layered_vertex_buffer<T>& make_layered_vertex_buffer(layered_vertex_buffer<T>& b, const VECTOR<T, ALLOC>& vertices, const vertex_layout* layouts, int count, buffer_usage_type_t usg = buffer_usage_type::immutable_draw)
 {
 	b.initialize(vertices, layouts, count, usg);
 	return b;
 }
 template <typename T, typename U> inline
-layered_vertex_buffer<T>& make_layered_vertex_buffer(layered_vertex_buffer<T>& b, const T* vertices, int count, const U& layouts, buffer_usage_t usg = buffer_usage::immutable_draw)
+layered_vertex_buffer<T>& make_layered_vertex_buffer(layered_vertex_buffer<T>& b, const T* vertices, int count, const U& layouts, buffer_usage_type_t usg = buffer_usage_type::immutable_draw)
 {
 	b.initialize(vertices, count, layouts, usg);
 	return b;
 }
 template <typename T, typename U, typename V>
-layered_vertex_buffer<T>& make_layered_vertex_buffer(layered_vertex_buffer<T>& b, const U& vertices, const V& layouts, buffer_usage_t usg = buffer_usage::immutable_draw)
+layered_vertex_buffer<T>& make_layered_vertex_buffer(layered_vertex_buffer<T>& b, const U& vertices, const V& layouts, buffer_usage_type_t usg = buffer_usage_type::immutable_draw)
 {
 	b.initialize(vertices, layouts, usg);
 	return b;
 }
 template <typename T, int N, typename U> inline
-layered_vertex_buffer<T>& make_layered_vertex_buffer(layered_vertex_buffer<T>& b, const T(&vertices)[N], const U& layouts, buffer_usage_t usg = buffer_usage::immutable_draw)
+layered_vertex_buffer<T>& make_layered_vertex_buffer(layered_vertex_buffer<T>& b, const T(&vertices)[N], const U& layouts, buffer_usage_type_t usg = buffer_usage_type::immutable_draw)
 {
 	b.initialize(vertices, layouts, usg);
 	return b;
 }
 template <typename T, size_t N, typename U, template <typename, size_t> class ARRAY> inline
-layered_vertex_buffer<T>& make_layered_vertex_buffer(layered_vertex_buffer<T>& b, const ARRAY<T, N>& vertices, const U& layouts, buffer_usage_t usg = buffer_usage::immutable_draw)
+layered_vertex_buffer<T>& make_layered_vertex_buffer(layered_vertex_buffer<T>& b, const ARRAY<T, N>& vertices, const U& layouts, buffer_usage_type_t usg = buffer_usage_type::immutable_draw)
 {
 	b.initialize(vertices, layouts, usg);
 	return b;
 }
 template <typename T, typename ALLOC, typename U, template <typename, typename> class VECTOR> inline
-layered_vertex_buffer<T>& make_layered_vertex_buffer(layered_vertex_buffer<T>& b, const VECTOR<T, ALLOC>& vertices, const U& layouts, buffer_usage_t usg = buffer_usage::immutable_draw)
+layered_vertex_buffer<T>& make_layered_vertex_buffer(layered_vertex_buffer<T>& b, const VECTOR<T, ALLOC>& vertices, const U& layouts, buffer_usage_type_t usg = buffer_usage_type::immutable_draw)
 {
 	b.initialize(vertices, layouts, usg);
 	return b;
