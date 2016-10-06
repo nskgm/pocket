@@ -941,29 +941,27 @@ typedef math_traits<long double>::sin_cos_type math_traits_sin_cos_tld;
 #endif // POCKET_USING_MATH_LONG_DOUBLE
 }
 
-// 型を直接指定するとエラーになってしまうので
-#ifndef _MATH_SIN_COS_OUTPUT_OPERATOR
-#define _MATH_SIN_COS_OUTPUT_OPERATOR(TYPE) template <typename CharT, typename CharTraits> inline\
+// 型を直接指定するとエラーになってしまうたので
+#define __POCKET_MATH_SIN_COS_OUTPUT_OPERATOR(TYPE) template <typename CharT, typename CharTraits> inline\
 	std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const TYPE& s)\
 	{\
 		os << io::parentheses_left << CharT('S') << io::colon << io::space << s.sin \
 			<< io::comma_space << CharT('C') << io::colon << io::space << s.cos << io::parentheses_right;\
 		return os;\
 	}
-#endif // _MATH_SIN_COS_OUTPUT_OPERATOR
 
 #ifndef POCKET_NO_USING_MATH_INT_FLOAT
-_MATH_SIN_COS_OUTPUT_OPERATOR(math::detail::math_traits_sin_cos_ti);
-_MATH_SIN_COS_OUTPUT_OPERATOR(math::detail::math_traits_sin_cos_tf);
+__POCKET_MATH_SIN_COS_OUTPUT_OPERATOR(math::detail::math_traits_sin_cos_ti);
+__POCKET_MATH_SIN_COS_OUTPUT_OPERATOR(math::detail::math_traits_sin_cos_tf);
 #endif // POCKET_NO_USING_MATH_INT_FLOAT
 #ifdef POCKET_USING_MATH_DOUBLE
-_MATH_SIN_COS_OUTPUT_OPERATOR(math::detail::math_traits_sin_cos_td);
+__POCKET_MATH_SIN_COS_OUTPUT_OPERATOR(math::detail::math_traits_sin_cos_td);
 #endif // POCKET_USING_MATH_DOUBLE
 #ifdef POCKET_USING_MATH_LONG_DOUBLE
-_MATH_SIN_COS_OUTPUT_OPERATOR(math::detail::math_traits_sin_cos_tld);
+__POCKET_MATH_SIN_COS_OUTPUT_OPERATOR(math::detail::math_traits_sin_cos_tld);
 #endif // POCKET_USING_MATH_LONG_DOUBLE
 
-#undef _MATH_SIN_COS_OUTPUT_OPERATOR
+#undef __POCKET_MATH_SIN_COS_OUTPUT_OPERATOR
 
 } // namespace math
 } // namespace pocket

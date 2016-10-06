@@ -42,44 +42,54 @@
 #	define POCKET_COMPILER_IF(C) (POCKET_COMPILER == POCKET_COMPILER_TYPE_##C)
 #endif // POCKET_COMPILER_IF
 
+#if POCKET_COMPILER_IF(UNKNOWN)
+#error "unsupported compiler type."
+#endif // POCKET_COMPILER_IF(UNKNOWN)
+
 //---------------------------------------------------------------------------------------
 // GCCバージョン
 //---------------------------------------------------------------------------------------
-#ifndef POCKET_GCC_MAKE_VERSION
-#	define POCKET_GCC_MAKE_VERSION(MAJOR, MINOR) (MAJOR * 100 + MINOR)
-#endif // POCKET_GCC_MAKE_VERSION
-#ifndef POCKET_GCC_VERSION
-#	define POCKET_GCC_VERSION POCKET_GCC_MAKE_VERSION(__GNUC__, __GNUC_MINOR__)
-#endif // POCKET_GCC_VERSION
-#ifndef POCKET_GCC_VERSION_IF
-#	define POCKET_GCC_VERSION_IF(MAJOR, MINOR) (POCKET_GCC_VERSION >= POCKET_GCC_MAKE_VERSION(MAJOR, MINOR))
-#endif // POCKET_GCC_VERSION_IF
+#if !defined(POCKET_GCC_MAKE_VERSION) && !defined(POCKET_GCC_VERSION) && !defined(POCKET_GCC_VERSION_IF)
+#	if POCKET_COMPILER_IF(GCC)
+#		define POCKET_GCC_MAKE_VERSION(MAJOR, MINOR) (MAJOR * 100 + MINOR)
+#		define POCKET_GCC_VERSION POCKET_GCC_MAKE_VERSION(__GNUC__, __GNUC_MINOR__)
+#		define POCKET_GCC_VERSION_IF(MAJOR, MINOR) (POCKET_GCC_VERSION >= POCKET_GCC_MAKE_VERSION(MAJOR, MINOR))
+#	else
+#		define POCKET_GCC_MAKE_VERSION(MAJOR, MINOR) (0)
+#		define POCKET_GCC_VERSION (0)
+#		define POCKET_GCC_VERSION_IF(MAJOR, MINOR) (0)
+#	endif // POCKET_COMPILER_IF(GCC)
+#endif // !POCKET_GCC_MAKE_VERSION && !POCKET_GCC_VERSION && !POCKET_GCC_VERSION_IF
 
 //---------------------------------------------------------------------------------------
 // clangバージョン
 //---------------------------------------------------------------------------------------
-#ifndef POCKET_CLANG_MAKE_VERSION
-#	define POCKET_CLANG_MAKE_VERSION POCKET_GCC_MAKE_VERSION
-#endif // POCKET_CLANG_MAKE_VERSION
-#ifndef POCKET_CLANG_VERSION
-#	define POCKET_CLANG_VERSION POCKET_CLANG_MAKE_VERSION(__clang_major__, __clang_minor__)
-#endif // POCKET_CLANG_VERSION
-#ifndef POCKET_CLANG_VERSION_IF
-#	define POCKET_CLANG_VERSION_IF(MAJOR, MINOR) (POCKET_CLANG_VERSION >= POCKET_CLANG_MAKE_VERSION(MAJOR, MINOR))
-#endif // POCKET_CLANG_VERSION_IF
+#if !defined(POCKET_CLANG_MAKE_VERSION) && !defined(POCKET_CLANG_VERSION) && !defined(POCKET_CLANG_VERSION_IF)
+#	if POCKET_COMPILER_IF(CLANG)
+#		define POCKET_CLANG_MAKE_VERSION(MAJOR, MINOR) (MAJOR * 100 + MINOR)
+#		define POCKET_CLANG_VERSION POCKET_CLANG_MAKE_VERSION(__clang_major__, __clang_minor__)
+#		define POCKET_CLANG_VERSION_IF(MAJOR, MINOR) (POCKET_CLANG_VERSION >= POCKET_CLANG_MAKE_VERSION(MAJOR, MINOR))
+#	else
+#		define POCKET_CLANG_MAKE_VERSION(MAJOR, MINOR) (0)
+#		define POCKET_CLANG_VERSION (0)
+#		define POCKET_CLANG_VERSION_IF(MAJOR, MINOR) (0)
+#	endif // POCKET_COMPILER_IF(CLANG)
+#endif // !POCKET_CLANG_MAKE_VERSION && !POCKET_CLANG_VERSION && !POCKET_CLANG_VERSION_IF
 
 //---------------------------------------------------------------------------------------
 // VCバージョン
 //---------------------------------------------------------------------------------------
-#ifndef POCKET_VC_MAKE_VERSION
-#	define POCKET_VC_MAKE_VERSION(MAJOR, MINOR) (MAJOR * 1000 + MINOR)
-#endif // POCKET_VC_MAKE_VERSION
-#ifndef POCKET_VC_VERSION
-#	define POCKET_VC_VERSION _MSC_FULL_VER
-#endif // POCKET_VC_VERSION
-#ifndef POCKET_VC_VERSION_IF
-#	define POCKET_VC_VERSION_IF(MAJOR, MINOR) (POCKET_VC_VERSION >= POCKET_VC_MAKE_VERSION(MAJOR, MINOR))
-#endif // POCKET_VC_VERSION_IF
+#if !defined(POCKET_VC_MAKE_VERSION) && !defined(POCKET_VC_VERSION) && !defined(POCKET_VC_VERSION_IF)
+#	if POCKET_COMPILER_IF(VC)
+#		define POCKET_VC_MAKE_VERSION(MAJOR, MINOR) (MAJOR * 1000 + MINOR)
+#		define POCKET_VC_VERSION (_MSC_FULL_VER)
+#		define POCKET_VC_VERSION_IF(MAJOR, MINOR) (POCKET_VC_VERSION >= POCKET_VC_MAKE_VERSION(MAJOR, MINOR))
+#	else
+#		define POCKET_VC_MAKE_VERSION(MAJOR, MINOR) (0)
+#		define POCKET_VC_VERSION (0)
+#		define POCKET_VC_VERSION_IF(MAJOR, MINOR) (0)
+#	endif // POCKET_COMPILER_IF(VC)
+#endif // !POCKET_VC_MAKE_VERSION && !POCKET_VC_VERSION && !POCKET_VC_VERSION_IF
 
 //---------------------------------------------------------------------------------------
 // コンパイラーとバージョン確認
@@ -127,45 +137,45 @@
 //---------------------------------------------------------------------------------------
 // __cplusplusでのバージョン定義
 //---------------------------------------------------------------------------------------
-#ifndef __CXX98
-#	define __CXX98 (199711L)
-#endif // __CXX98
-#ifndef __CXX03
-#	define __CXX03 (199711L)
-#endif // __CXX03
-#ifndef __CXX11
-#	define __CXX11 (201103L)
-#endif // __CXX11
-#ifndef __CXX14
-#	define __CXX14 (201402L)
-#endif // __CXX14
+#ifndef __POCKET_CXX98
+#	define __POCKET_CXX98 (199711L)
+#endif // __POCKET_CXX98
+#ifndef __POCKET_CXX03
+#	define __POCKET_CXX03 (199711L)
+#endif // __POCKET_CXX03
+#ifndef __POCKET_CXX11
+#	define __POCKET_CXX11 (201103L)
+#endif // __POCKET_CXX11
+#ifndef __POCKET_CXX14
+#	define __POCKET_CXX14 (201402L)
+#endif // __POCKET_CXX14
 
 //---------------------------------------------------------------------------------------
 // VC++バージョン
 //---------------------------------------------------------------------------------------
-#ifndef __VCXX10
-#	define __VCXX10 (1600)
-#endif // __VCXX10
-#ifndef __VCXX11
-#	define __VCXX11 (1700)
-#endif // __VCXX11
-#ifndef __VCXX12
-#	define __VCXX12 (1800)
-#endif // __VCXX12
-#ifndef __VCXX14
-#	define __VCXX14 (1900)
-#endif // __VCXX14
+#ifndef __POCKET_VCXX10
+#	define __POCKET_VCXX10 (1600)
+#endif // __POCKET_VCXX10
+#ifndef __POCKET_VCXX11
+#	define __POCKET_VCXX11 (1700)
+#endif // __POCKET_VCXX11
+#ifndef __POCKET_VCXX12
+#	define __POCKET_VCXX12 (1800)
+#endif // __POCKET_VCXX12
+#ifndef __POCKET_VCXX14
+#	define __POCKET_VCXX14 (1900)
+#endif // __POCKET_VCXX14
 // ?
-#ifndef __VCXX15
-#	define __VCXX15 (2000)
-#endif // __VCXX15
+#ifndef __POCKET_VCXX15
+#	define __POCKET_VCXX15 (2000)
+#endif // __POCKET_VCXX15
 
 //---------------------------------------------------------------------------------------
 // C++バージョンチェック
 //---------------------------------------------------------------------------------------
 #ifndef POCKET_CXX_VERSION_IF
 #	ifdef __cplusplus
-#		define POCKET_CXX_VERSION_IF(N) (__cplusplus >= __CXX##N)
+#		define POCKET_CXX_VERSION_IF(N) (__cplusplus >= __POCKET_CXX##N)
 #	else
 #		define POCKET_CXX_VERSION_IF(N) (0)
 #	endif // __cplusplus
@@ -176,7 +186,7 @@
 //---------------------------------------------------------------------------------------
 #ifndef POCKET_VCXX_VERSION_IF
 #	if POCKET_COMPILER_IF(VC)
-#		define POCKET_VCXX_VERSION_IF(N) (_MSC_VER >= __VCXX##N)
+#		define POCKET_VCXX_VERSION_IF(N) (_MSC_VER >= __POCKET_VCXX##N)
 #	else
 #		define POCKET_VCXX_VERSION_IF(N) (0)
 #	endif // POCKET_COMPILER_IF(VC)
@@ -210,7 +220,7 @@
 #ifndef POCKET_USE_ANONYMOUS
 #	if POCKET_COMPILER_IF(VC) || POCKET_COMPILER_IF_WITH_VERSION(GCC, 4, 5) || POCKET_COMPILER_IF_WITH_VERSION(CLANG, 3, 1)
 #		define POCKET_USE_ANONYMOUS
-#	endif
+#	endif // POCKET_COMPILER_IF(VC) || POCKET_COMPILER_IF_WITH_VERSION(GCC, 4, 5) || POCKET_COMPILER_IF_WITH_VERSION(CLANG, 3, 1)
 #endif // POCKET_USE_ANONYMOUS
 
 #ifndef POCKET_USE_ANONYMOUS_NON_POD
@@ -219,8 +229,8 @@
 #	else
 #		if defined(POCKET_USE_ANONYMOUS) && POCKET_CXX_VERSION_IF(11)
 #			define POCKET_USE_ANONYMOUS_NON_POD
-#		endif
-#	endif
+#		endif // defined(POCKET_USE_ANONYMOUS) && POCKET_CXX_VERSION_IF(11)
+#	endif // POCKET_COMPILER_IF(VC)
 #endif // !POCKET_USE_ANONYMOUS_NON_POD
 
 //---------------------------------------------------------------------------------------
@@ -229,7 +239,7 @@
 #ifdef POCKET_USE_ANONYMOUS
 #	if POCKET_COMPILER_IF(VC)
 #		pragma warning(disable: 4201)
-#	endif
+#	endif // POCKET_COMPILER_IF(VC)
 #endif // POCKET_USE_ANONYMOUS
 
 //---------------------------------------------------------------------------------------
@@ -241,8 +251,8 @@
 #	else
 #		if POCKET_COMPILER_IF(GCC) || POCKET_COMPILER_IF(CLANG)
 #			define POCKET_USE_ANONYMOUS_NORMAL_CONSTRUCT
-#		endif
-#	endif
+#		endif // POCKET_COMPILER_IF(GCC) || POCKET_COMPILER_IF(CLANG)
+#	endif // POCKET_USE_ANONYMOUS_NON_POD
 #endif // POCKET_USE_ANONYMOUS_NORMAL_CONSTRUCT
 
 //---------------------------------------------------------------------------------------
@@ -309,10 +319,19 @@
 #endif // POCKET_CXX11_MOVE
 
 //---------------------------------------------------------------------------------------
+// constexprが使用できるか
+//---------------------------------------------------------------------------------------
+#ifndef POCKET_HAS_CONSTEXPR
+#	if POCKET_VCXX_VERSION_IF(14) || POCKET_CXX_VERSION_IF(11)
+#		define POCKET_HAS_CONSTEXPR
+#	endif // POCKET_VCXX_VERSION_IF(14) || POCKET_CXX_VERSION_IF(11)
+#endif // POCKET_HAS_CONSTEXPR
+
+//---------------------------------------------------------------------------------------
 // const または constexprを定義するための設定
 //---------------------------------------------------------------------------------------
 #ifndef POCKET_CONST_OR_CONSTEXPR
-#	if POCKET_VCXX_VERSION_IF(14) || POCKET_CXX_VERSION_IF(11)
+#	ifdef POCKET_HAS_CONSTEXPR
 #		define POCKET_CONST_OR_CONSTEXPR constexpr
 #	else
 #		define POCKET_CONST_OR_CONSTEXPR const
@@ -323,7 +342,7 @@
 // C++11のconstexprが使用できるか
 //---------------------------------------------------------------------------------------
 #ifndef POCKET_CXX11_CONSTEXPR
-#	if POCKET_VCXX_VERSION_IF(14) || POCKET_CXX_VERSION_IF(11)
+#	ifdef POCKET_HAS_CONSTEXPR
 #		define POCKET_CXX11_CONSTEXPR constexpr
 #	else
 #		define POCKET_CXX11_CONSTEXPR
@@ -634,9 +653,11 @@
 //---------------------------------------------------------------------------------------
 // SIMDと無名が使用できるか
 //---------------------------------------------------------------------------------------
-#if defined(POCKET_USE_SIMD) && defined(POCKET_USE_ANONYMOUS)
-#	define POCKET_USE_SIMD_ANONYMOUS
-#endif // POCKET_USE_SIMD && POCKET_USE_ANONYMOUS
+#ifndef POCKET_USE_SIMD_ANONYMOUS
+#	if defined(POCKET_USE_SIMD) && defined(POCKET_USE_ANONYMOUS)
+#		define POCKET_USE_SIMD_ANONYMOUS
+#	endif // POCKET_USE_SIMD && POCKET_USE_ANONYMOUS
+#endif // POCKET_USE_SIMD_ANONYMOUS
 
 //---------------------------------------------------------------------------------------
 // 128と256 が使用できるか
