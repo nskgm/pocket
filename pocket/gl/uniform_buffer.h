@@ -668,7 +668,7 @@ uniform_buffer program::make_uniform_buffer(const char* name, GLuint point, cons
 {
 	return uniform_buffer(*this, name, point, a, usg);
 }
-template <typename T, typename ALLOC, template <typename, typename> class VECTOR>
+template <typename T, typename ALLOC, template <typename, typename> class VECTOR> inline
 uniform_buffer program::make_uniform_buffer(const char* name, GLuint point, const VECTOR<T, ALLOC>& a, buffer_usage_type_t usg) const
 {
 	return uniform_buffer(*this, name, point, a, usg);
@@ -694,7 +694,7 @@ uniform_buffer program::make_uniform_buffer(const std::string& name, GLuint poin
 {
 	return uniform_buffer(*this, name, point, a, usg);
 }
-template <typename T, typename ALLOC, template <typename, typename> class VECTOR>
+template <typename T, typename ALLOC, template <typename, typename> class VECTOR> inline
 uniform_buffer program::make_uniform_buffer(const std::string& name, GLuint point, const VECTOR<T, ALLOC>& a, buffer_usage_type_t usg) const
 {
 	return uniform_buffer(*this, name, point, a, usg);
@@ -724,7 +724,7 @@ uniform_buffer& program::make_uniform_buffer(uniform_buffer& b, const char* name
 	b.initialize(*this, name, point, a, usg);
 	return b;
 }
-template <typename T, typename ALLOC, template <typename, typename> class VECTOR>
+template <typename T, typename ALLOC, template <typename, typename> class VECTOR> inline
 uniform_buffer& program::make_uniform_buffer(uniform_buffer& b, const char* name, GLuint point, const VECTOR<T, ALLOC>& a, buffer_usage_type_t usg) const
 {
 	b.initialize(*this, name, point, a, usg);
@@ -755,10 +755,124 @@ uniform_buffer& program::make_uniform_buffer(uniform_buffer& b, const std::strin
 	b.initialize(*this, name, point, a, usg);
 	return b;
 }
-template <typename T, typename ALLOC, template <typename, typename> class VECTOR>
+template <typename T, typename ALLOC, template <typename, typename> class VECTOR> inline
 uniform_buffer& program::make_uniform_buffer(uniform_buffer& b, const std::string& name, GLuint point, const VECTOR<T, ALLOC>& a, buffer_usage_type_t usg) const
 {
 	b.initialize(*this, name, point, a, usg);
+	return b;
+}
+
+inline
+uniform_buffer make_uniform_buffer(const program& prog, const char* name, GLuint point, const void* a, buffer_usage_type_t usg = buffer_usage_type::dynamic_draw)
+{
+	return uniform_buffer(prog, name, point, a, usg);
+}
+template <typename T> inline
+uniform_buffer make_uniform_buffer(const program& prog, const char* name, GLuint point, const T& a, buffer_usage_type_t usg = buffer_usage_type::dynamic_draw)
+{
+	return uniform_buffer(prog, name, point, a, usg);
+}
+template <typename T, int N> inline
+uniform_buffer make_uniform_buffer(const program& prog, const char* name, GLuint point, const T(&a)[N], buffer_usage_type_t usg = buffer_usage_type::dynamic_draw)
+{
+	return uniform_buffer(prog, name, point, a, usg);
+}
+template <typename T, size_t N, template <typename, size_t> class ARRAY> inline
+uniform_buffer make_uniform_buffer(const program& prog, const char* name, GLuint point, const ARRAY<T, N>& a, buffer_usage_type_t usg = buffer_usage_type::dynamic_draw)
+{
+	return uniform_buffer(prog, name, point, a, usg);
+}
+template <typename T, typename ALLOC, template <typename, typename> class VECTOR> inline
+uniform_buffer make_uniform_buffer(const program& prog, const char* name, GLuint point, const VECTOR<T, ALLOC>& a, buffer_usage_type_t usg = buffer_usage_type::dynamic_draw)
+{
+	return uniform_buffer(prog, name, point, a, usg);
+}
+
+inline
+uniform_buffer make_uniform_buffer(const program& prog, const std::string& name, GLuint point, const void* a, buffer_usage_type_t usg = buffer_usage_type::dynamic_draw)
+{
+	return uniform_buffer(prog, name, point, a, usg);
+}
+template <typename T> inline
+uniform_buffer make_uniform_buffer(const program& prog, const std::string& name, GLuint point, const T& a, buffer_usage_type_t usg = buffer_usage_type::dynamic_draw)
+{
+	return uniform_buffer(prog, name, point, a, usg);
+}
+template <typename T, int N> inline
+uniform_buffer make_uniform_buffer(const program& prog, const std::string& name, GLuint point, const T(&a)[N], buffer_usage_type_t usg = buffer_usage_type::dynamic_draw)
+{
+	return uniform_buffer(prog, name, point, a, usg);
+}
+template <typename T, size_t N, template <typename, size_t> class ARRAY> inline
+uniform_buffer make_uniform_buffer(const program& prog, const std::string& name, GLuint point, const ARRAY<T, N>& a, buffer_usage_type_t usg = buffer_usage_type::dynamic_draw)
+{
+	return uniform_buffer(prog, name, point, a, usg);
+}
+template <typename T, typename ALLOC, template <typename, typename> class VECTOR> inline
+uniform_buffer make_uniform_buffer(const program& prog, const std::string& name, GLuint point, const VECTOR<T, ALLOC>& a, buffer_usage_type_t usg = buffer_usage_type::dynamic_draw)
+{
+	return uniform_buffer(prog, name, point, a, usg);
+}
+
+inline
+uniform_buffer& make_uniform_buffer(uniform_buffer& b, const program& prog, const char* name, GLuint point, const void* a, buffer_usage_type_t usg = buffer_usage_type::dynamic_draw)
+{
+	b.initialize(prog, name, point, a, usg);
+	return b;
+}
+template <typename T> inline
+uniform_buffer& make_uniform_buffer(uniform_buffer& b, const program& prog, const char* name, GLuint point, const T& a, buffer_usage_type_t usg = buffer_usage_type::dynamic_draw)
+{
+	b.initialize(prog, name, point, a, usg);
+	return b;
+}
+template <typename T, int N> inline
+uniform_buffer& make_uniform_buffer(uniform_buffer& b, const program& prog, const char* name, GLuint point, const T(&a)[N], buffer_usage_type_t usg = buffer_usage_type::dynamic_draw)
+{
+	b.initialize(prog, name, point, a, usg);
+	return b;
+}
+template <typename T, size_t N, template <typename, size_t> class ARRAY> inline
+uniform_buffer& make_uniform_buffer(uniform_buffer& b, const program& prog, const char* name, GLuint point, const ARRAY<T, N>& a, buffer_usage_type_t usg = buffer_usage_type::dynamic_draw)
+{
+	b.initialize(prog, name, point, a, usg);
+	return b;
+}
+template <typename T, typename ALLOC, template <typename, typename> class VECTOR>
+uniform_buffer& make_uniform_buffer(uniform_buffer& b, const program& prog, const char* name, GLuint point, const VECTOR<T, ALLOC>& a, buffer_usage_type_t usg = buffer_usage_type::dynamic_draw)
+{
+	b.initialize(prog, name, point, a, usg);
+	return b;
+}
+
+inline
+uniform_buffer& make_uniform_buffer(uniform_buffer& b, const program& prog, const std::string& name, GLuint point, const void* a, buffer_usage_type_t usg = buffer_usage_type::dynamic_draw)
+{
+	b.initialize(prog, name, point, a, usg);
+	return b;
+}
+template <typename T> inline
+uniform_buffer& make_uniform_buffer(uniform_buffer& b, const program& prog, const std::string& name, GLuint point, const T& a, buffer_usage_type_t usg = buffer_usage_type::dynamic_draw)
+{
+	b.initialize(prog, name, point, a, usg);
+	return b;
+}
+template <typename T, int N> inline
+uniform_buffer& make_uniform_buffer(uniform_buffer& b, const program& prog, const std::string& name, GLuint point, const T(&a)[N], buffer_usage_type_t usg = buffer_usage_type::dynamic_draw)
+{
+	b.initialize(prog, name, point, a, usg);
+	return b;
+}
+template <typename T, size_t N, template <typename, size_t> class ARRAY> inline
+uniform_buffer& make_uniform_buffer(uniform_buffer& b, const program& prog, const std::string& name, GLuint point, const ARRAY<T, N>& a, buffer_usage_type_t usg = buffer_usage_type::dynamic_draw)
+{
+	b.initialize(prog, name, point, a, usg);
+	return b;
+}
+template <typename T, typename ALLOC, template <typename, typename> class VECTOR>
+uniform_buffer& make_uniform_buffer(uniform_buffer& b, const program& prog, const std::string& name, GLuint point, const VECTOR<T, ALLOC>& a, buffer_usage_type_t usg = buffer_usage_type::dynamic_draw)
+{
+	b.initialize(prog, name, point, a, usg);
 	return b;
 }
 

@@ -17,10 +17,7 @@ namespace gl
 // GL側タイプ値
 //---------------------------------------------------------------------------------------
 template <typename T>
-struct gl_type
-{
-	static const GLenum value = POCKET_GL_UNINITIALIZED_VALUE;
-};
+struct gl_type;
 template <>
 struct gl_type<char>
 {

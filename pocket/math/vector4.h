@@ -676,24 +676,19 @@ struct vector4
 	{
 		// vector3分でw成分は0とする
 #ifdef POCKET_USE_SIMD_ANONYMOUS
-
 // 3, 0, 2, 1
-#define __Y_Z_X 1, 2, 0, 3
 // 3, 1, 0, 2
-#define __Z_X_Y 2, 0, 1, 3
+#define __POCKET_Y_Z_X 1, 2, 0, 3
+#define __POCKET_Z_X_Y 2, 0, 1, 3
 
-		simd_type syzx = simd::template permute<__Y_Z_X>(mm);
-		simd_type szxy = simd::template permute<__Z_X_Y>(mm);
-		simd_type tzxy = simd::template permute<__Z_X_Y>(v.mm);
-		simd_type tyzx = simd::template permute<__Y_Z_X>(v.mm);
+		simd_type syzx = simd::template permute<__POCKET_Y_Z_X>(mm);
+		simd_type szxy = simd::template permute<__POCKET_Z_X_Y>(mm);
+		simd_type tzxy = simd::template permute<__POCKET_Z_X_Y>(v.mm);
+		simd_type tyzx = simd::template permute<__POCKET_Y_Z_X>(v.mm);
 		simd_type m1 = simd::mul(syzx, tzxy);
 		simd_type m2 = simd::mul(szxy, tyzx);
 
 		return vector4(simd::select1110(simd::sub(m1, m2)));
-
-#undef __Z_X_Y
-#undef __Y_Z_X
-
 #else
 		return vector4(y * v.z - z * v.y, z * v.x - x * v.z, x * v.y - y * v.x, math_type::zero);
 #endif // POCKET_USE_SIMD_ANONYMOUS
@@ -701,23 +696,17 @@ struct vector4
 	vector4& cross(const vector4& v, vector4& result) const
 	{
 #ifdef POCKET_USE_SIMD_ANONYMOUS
+		simd_type syzx = simd::template permute<__POCKET_Y_Z_X>(mm);
+		simd_type szxy = simd::template permute<__POCKET_Z_X_Y>(mm);
+		simd_type tzxy = simd::template permute<__POCKET_Z_X_Y>(v.mm);
+		simd_type tyzx = simd::template permute<__POCKET_Y_Z_X>(v.mm);
 
-// 3, 0, 2, 1
-#define __Y_Z_X 1, 2, 0, 3
-// 3, 1, 0, 2
-#define __Z_X_Y 2, 0, 1, 3
+#undef __POCKET_Z_X_Y
+#undef __POCKET_Y_Z_X
 
-		simd_type syzx = simd::template permute<__Y_Z_X>(mm);
-		simd_type szxy = simd::template permute<__Z_X_Y>(mm);
-		simd_type tzxy = simd::template permute<__Z_X_Y>(v.mm);
-		simd_type tyzx = simd::template permute<__Y_Z_X>(v.mm);
 		simd_type m1 = simd::mul(syzx, tzxy);
 		simd_type m2 = simd::mul(szxy, tyzx);
 		result.mm = simd::select1110(simd::sub(m1, m2));
-
-#undef __Z_X_Y
-#undef __Y_Z_X
-
 #else
 		result.x = y * v.z - z * v.y;
 		result.y = z * v.x - x * v.z;
@@ -798,7 +787,7 @@ struct vector4
 		result.y = math_type::lerp(y, to.y, t);
 		result.z = math_type::lerp(z, to.z, t);
 		result.w = math_type::lerp(w, to.w, t);
-#endif
+#endif // POCKET_USE_SIMD_ANONYMOUS
 		return result;
 	}
 	vector4& lerp(const vector4& from, const vector4& to, T t)

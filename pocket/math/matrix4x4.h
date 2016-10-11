@@ -76,7 +76,7 @@ struct matrix4x4
 	typedef typename array16_type::reference reference_16;
 	typedef typename array16_type::const_reference const_reference_16;
 
-	typedef vector4<T>(*CalcFunc)(const vector4<T>&, const vector4<T>&);
+	typedef vector4<T>(*each_calc_function)(const vector4<T>&, const vector4<T>&);
 
 	//-----------------------------------------------------------------------------------------
 	// Members
@@ -686,7 +686,7 @@ struct matrix4x4
 		M[3].mm = simd::set(x, y, z, math_type::one);
 #else
 		M[3] = row_type(x, y, z, math_type::one);
-#endif // POCKET_USE_ANONYMOUS_NON_POD
+#endif // POCKET_USE_SIMD_ANONYMOUS
 		return *this;
 	}
 	matrix4x4& load_translate(const vector3<T>& v)
@@ -1715,7 +1715,7 @@ struct matrix4x4
 	{
 		return determinant();
 	}
-	matrix4x4 operator () (const behavior::_inverse_t&) const
+	matrix4x4& operator () (const behavior::_inverse_t&) const
 	{
 		return inverse();
 	}

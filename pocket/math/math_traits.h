@@ -85,6 +85,24 @@ struct math_traits
 			//cos = math_traits<T>::cos(f);
 			math_traits::sin_cos(f, sin, cos);
 		}
+
+		sin_cos_type operator + (const sin_cos_type& sc) const
+		{
+			return sin_cos_type(sin+sc.sin, cos+sc.cos);
+		}
+		sin_cos_type operator - (const sin_cos_type& sc) const
+		{
+			return sin_cos_type(sin-sc.sin, cos-sc.cos);
+		}
+		sin_cos_type operator * (T f) const
+		{
+			return sin_cos_type(sin*f, cos*f);
+		}
+		sin_cos_type operator / (T f) const
+		{
+			f = math_traits::reciprocal(f);
+			return sin_cos_type(sin*f, cos*f);
+		}
 	};
 
 	typedef T value_type;
@@ -945,8 +963,8 @@ typedef math_traits<long double>::sin_cos_type math_traits_sin_cos_tld;
 #define __POCKET_MATH_SIN_COS_OUTPUT_OPERATOR(TYPE) template <typename CharT, typename CharTraits> inline\
 	std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const TYPE& s)\
 	{\
-		os << io::parentheses_left << CharT('S') << io::colon << io::space << s.sin \
-			<< io::comma_space << CharT('C') << io::colon << io::space << s.cos << io::parentheses_right;\
+		os << io::parentheses_left << io::widen("sin: ") << s.sin \
+			<< io::comma_space << io::widen("cos: ") << s.cos << io::parentheses_right;\
 		return os;\
 	}
 

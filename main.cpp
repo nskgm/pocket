@@ -132,7 +132,7 @@ int main()
 	data.world.load_identity();
 	data.lookat.load_lookat(math::vector3f(0.0f, 0.0f, 5.0f), math::vector3f::zero, math::vector3f::up);
 	data.perspective.load_perspective_field_of_view_4_3(45.0f, 0.1f, 100.0f);
-	gl::uniform_buffer ubo = prog.make_uniform_buffer("ublock", 0, data);
+	gl::uniform_buffer ubo = gl::make_uniform_buffer(prog, "ublock", 0, data);
 	if (!ubo)
 	{
 		std::cout << ubo << std::endl;

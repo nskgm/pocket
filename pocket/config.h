@@ -49,60 +49,66 @@
 //---------------------------------------------------------------------------------------
 // GCCバージョン
 //---------------------------------------------------------------------------------------
-#if !defined(POCKET_GCC_MAKE_VERSION) && !defined(POCKET_GCC_VERSION) && !defined(POCKET_GCC_VERSION_IF)
+#if !defined(POCKET_GCC_MAKE_VERSION) && !defined(POCKET_GCC_VERSION) && !defined(POCKET_GCC_HAS_VERSION) && !defined(POCKET_GCC_VERSION_IF)
 #	if POCKET_COMPILER_IF(GCC)
 #		define POCKET_GCC_MAKE_VERSION(MAJOR, MINOR) (MAJOR * 100 + MINOR)
 #		define POCKET_GCC_VERSION POCKET_GCC_MAKE_VERSION(__GNUC__, __GNUC_MINOR__)
-#		define POCKET_GCC_VERSION_IF(MAJOR, MINOR) (POCKET_GCC_VERSION >= POCKET_GCC_MAKE_VERSION(MAJOR, MINOR))
+#		define POCKET_GCC_HAS_VERSION(MAJOR, MINOR) (POCKET_GCC_VERSION >= POCKET_GCC_MAKE_VERSION(MAJOR, MINOR))
+#		define POCKET_GCC_VERSION_IF(MAJOR, MINOR) (POCKET_GCC_VERSION == POCKET_GCC_MAKE_VERSION(MAJOR, MINOR))
 #	else
 #		define POCKET_GCC_MAKE_VERSION(MAJOR, MINOR) (0)
 #		define POCKET_GCC_VERSION (0)
+#		define POCKET_GCC_HAS_VERSION(MAJOR, MINOR) (0)
 #		define POCKET_GCC_VERSION_IF(MAJOR, MINOR) (0)
 #	endif // POCKET_COMPILER_IF(GCC)
-#endif // !POCKET_GCC_MAKE_VERSION && !POCKET_GCC_VERSION && !POCKET_GCC_VERSION_IF
+#endif // !POCKET_GCC_MAKE_VERSION && !POCKET_GCC_VERSION && !POCKET_GCC_HAS_VERSION
 
 //---------------------------------------------------------------------------------------
 // clangバージョン
 //---------------------------------------------------------------------------------------
-#if !defined(POCKET_CLANG_MAKE_VERSION) && !defined(POCKET_CLANG_VERSION) && !defined(POCKET_CLANG_VERSION_IF)
+#if !defined(POCKET_CLANG_MAKE_VERSION) && !defined(POCKET_CLANG_VERSION) && !defined(POCKET_CLANG_HAS_VERSION) && !defined(POCKET_CLANG_VERSION_IF)
 #	if POCKET_COMPILER_IF(CLANG)
 #		define POCKET_CLANG_MAKE_VERSION(MAJOR, MINOR) (MAJOR * 100 + MINOR)
 #		define POCKET_CLANG_VERSION POCKET_CLANG_MAKE_VERSION(__clang_major__, __clang_minor__)
-#		define POCKET_CLANG_VERSION_IF(MAJOR, MINOR) (POCKET_CLANG_VERSION >= POCKET_CLANG_MAKE_VERSION(MAJOR, MINOR))
+#		define POCKET_CLANG_HAS_VERSION(MAJOR, MINOR) (POCKET_CLANG_VERSION >= POCKET_CLANG_MAKE_VERSION(MAJOR, MINOR))
+#		define POCKET_CLANG_VERSION_IF(MAJOR, MINOR) (POCKET_CLANG_VERSION == POCKET_CLANG_MAKE_VERSION(MAJOR, MINOR))
 #	else
 #		define POCKET_CLANG_MAKE_VERSION(MAJOR, MINOR) (0)
 #		define POCKET_CLANG_VERSION (0)
+#		define POCKET_CLANG_HAS_VERSION(MAJOR, MINOR) (0)
 #		define POCKET_CLANG_VERSION_IF(MAJOR, MINOR) (0)
 #	endif // POCKET_COMPILER_IF(CLANG)
-#endif // !POCKET_CLANG_MAKE_VERSION && !POCKET_CLANG_VERSION && !POCKET_CLANG_VERSION_IF
+#endif // !POCKET_CLANG_MAKE_VERSION && !POCKET_CLANG_VERSION && !POCKET_CLANG_HAS_VERSION
 
 //---------------------------------------------------------------------------------------
 // VCバージョン
 //---------------------------------------------------------------------------------------
-#if !defined(POCKET_VC_MAKE_VERSION) && !defined(POCKET_VC_VERSION) && !defined(POCKET_VC_VERSION_IF)
+#if !defined(POCKET_VC_MAKE_VERSION) && !defined(POCKET_VC_VERSION) && !defined(POCKET_VC_HAS_VERSION) && !defined(POCKET_VC_VERSION_IF)
 #	if POCKET_COMPILER_IF(VC)
 #		define POCKET_VC_MAKE_VERSION(MAJOR, MINOR) (MAJOR * 1000 + MINOR)
 #		define POCKET_VC_VERSION (_MSC_FULL_VER)
-#		define POCKET_VC_VERSION_IF(MAJOR, MINOR) (POCKET_VC_VERSION >= POCKET_VC_MAKE_VERSION(MAJOR, MINOR))
+#		define POCKET_VC_HAS_VERSION(MAJOR, MINOR) (POCKET_VC_VERSION >= POCKET_VC_MAKE_VERSION(MAJOR, MINOR))
+#		define POCKET_VC_VERSION_IF(MAJOR, MINOR) (POCKET_VC_VERSION == POCKET_VC_MAKE_VERSION(MAJOR, MINOR))
 #	else
 #		define POCKET_VC_MAKE_VERSION(MAJOR, MINOR) (0)
 #		define POCKET_VC_VERSION (0)
+#		define POCKET_VC_HAS_VERSION(MAJOR, MINOR) (0)
 #		define POCKET_VC_VERSION_IF(MAJOR, MINOR) (0)
 #	endif // POCKET_COMPILER_IF(VC)
-#endif // !POCKET_VC_MAKE_VERSION && !POCKET_VC_VERSION && !POCKET_VC_VERSION_IF
+#endif // !POCKET_VC_MAKE_VERSION && !POCKET_VC_VERSION && !POCKET_VC_HAS_VERSION
 
 //---------------------------------------------------------------------------------------
 // コンパイラーとバージョン確認
 //---------------------------------------------------------------------------------------
-#ifndef POCKET_COMPILER_IF_WITH_VERSION
-#	define POCKET_COMPILER_IF_WITH_VERSION(C, MAJOR, MINOR) (POCKET_COMPILER_IF(C) && POCKET_##C##_VERSION_IF(MAJOR, MINOR))
-#endif // POCKET_COMPILER_IF_WITH_VERSION
+#ifndef POCKET_COMPILER_IF_WITH_HAS_VERSION
+#	define POCKET_COMPILER_IF_WITH_HAS_VERSION(C, MAJOR, MINOR) (POCKET_COMPILER_IF(C) && POCKET_##C##_HAS_VERSION(MAJOR, MINOR))
+#endif // POCKET_COMPILER_IF_WITH_HAS_VERSION
 
 //---------------------------------------------------------------------------------------
 // #pragma onceが使用できるか設定
 //---------------------------------------------------------------------------------------
 #ifndef POCKET_USE_PRAGMA_ONCE
-#	if POCKET_COMPILER_IF_WITH_VERSION(VC, 1100, 0) || POCKET_COMPILER_IF_WITH_VERSION(GCC, 3, 4) || POCKET_COMPILER_IF(CLANG)
+#	if POCKET_COMPILER_IF_WITH_HAS_VERSION(VC, 1100, 0) || POCKET_COMPILER_IF_WITH_HAS_VERSION(GCC, 3, 4) || POCKET_COMPILER_IF(CLANG)
 #		define POCKET_USE_PRAGMA_ONCE
 #	endif
 #endif // POCKET_USE_PRAGMA_ONCE
@@ -153,6 +159,24 @@
 //---------------------------------------------------------------------------------------
 // VC++バージョン
 //---------------------------------------------------------------------------------------
+#ifndef __POCKET_VCXX05
+#	define __POCKET_VCXX05 (1100)
+#endif // __POCKET_VCXX05
+#ifndef __POCKET_VCXX06
+#	define __POCKET_VCXX06 (1200)
+#endif // __POCKET_VCXX06
+#ifndef __POCKET_VCXX07
+#	define __POCKET_VCXX07 (1300)
+#endif // __POCKET_VCXX07
+#ifndef __POCKET_VCXX07_1
+#	define __POCKET_VCXX07_1 (1310)
+#endif // __POCKET_VCXX07_1
+#ifndef __POCKET_VCXX08
+#	define __POCKET_VCXX08 (1400)
+#endif // __POCKET_VCXX08
+#ifndef __POCKET_VCXX09
+#	define __POCKET_VCXX09 (1500)
+#endif // __POCKET_VCXX09
 #ifndef __POCKET_VCXX10
 #	define __POCKET_VCXX10 (1600)
 #endif // __POCKET_VCXX10
@@ -165,7 +189,6 @@
 #ifndef __POCKET_VCXX14
 #	define __POCKET_VCXX14 (1900)
 #endif // __POCKET_VCXX14
-// ?
 #ifndef __POCKET_VCXX15
 #	define __POCKET_VCXX15 (2000)
 #endif // __POCKET_VCXX15
@@ -173,30 +196,34 @@
 //---------------------------------------------------------------------------------------
 // C++バージョンチェック
 //---------------------------------------------------------------------------------------
-#ifndef POCKET_CXX_VERSION_IF
+#if !defined(POCKET_CXX_HAS_VERSION) && !defined(POCKET_CXX_VERSION_IF)
 #	ifdef __cplusplus
-#		define POCKET_CXX_VERSION_IF(N) (__cplusplus >= __POCKET_CXX##N)
+#		define POCKET_CXX_HAS_VERSION(N) (__cplusplus >= __POCKET_CXX##N)
+#		define POCKET_CXX_VERSION_IF(N) (__cplusplus == __POCKET_CXX##N)
 #	else
+#		define POCKET_CXX_HAS_VERSION(N) (0)
 #		define POCKET_CXX_VERSION_IF(N) (0)
 #	endif // __cplusplus
-#endif // POCKET_CXX_VERSION_IF
+#endif // POCKET_CXX_HAS_VERSION
 
 //---------------------------------------------------------------------------------------
 // VC++バージョンチェック
 //---------------------------------------------------------------------------------------
-#ifndef POCKET_VCXX_VERSION_IF
+#if !defined(POCKET_VCXX_HAS_VERSION) && !defined(POCKET_VCXX_VERSION_IF)
 #	if POCKET_COMPILER_IF(VC)
-#		define POCKET_VCXX_VERSION_IF(N) (_MSC_VER >= __POCKET_VCXX##N)
+#		define POCKET_VCXX_HAS_VERSION(N) (_MSC_VER >= __POCKET_VCXX##N)
+#		define POCKET_VCXX_VERSION_IF(N) (_MSC_VER == __POCKET_VCXX##N)
 #	else
+#		define POCKET_VCXX_HAS_VERSION(N) (0)
 #		define POCKET_VCXX_VERSION_IF(N) (0)
 #	endif // POCKET_COMPILER_IF(VC)
-#endif // POCKET_VCXX_VERSION_IF
+#endif // POCKET_VCXX_HAS_VERSION
 
 //---------------------------------------------------------------------------------------
 // C++11が使用できるか設定. VC++の場合はVC++12以上
 //---------------------------------------------------------------------------------------
 #ifndef POCKET_USE_CXX11
-#	if POCKET_VCXX_VERSION_IF(12) || POCKET_CXX_VERSION_IF(11) || defined(__GXX_EXPERIMENTAL_CXX0X__)
+#	if POCKET_VCXX_HAS_VERSION(12) || POCKET_CXX_HAS_VERSION(11) || defined(__GXX_EXPERIMENTAL_CXX0X__)
 #		define POCKET_USE_CXX11
 #	endif //
 #endif // POCKET_USE_CXX11
@@ -209,7 +236,7 @@
 // C++14が使用できるか設定. VC++の場合は不明
 //---------------------------------------------------------------------------------------
 #ifndef POCKET_USE_CXX14
-#	if POCKET_VCXX_VERSION_IF(15) || POCKET_CXX_VERSION_IF(14)
+#	if POCKET_VCXX_HAS_VERSION(15) || POCKET_CXX_HAS_VERSION(14)
 #		define POCKET_USE_CXX14
 #	endif //
 #endif // POCKET_USE_CXX14
@@ -218,18 +245,18 @@
 // 匿名が使用できるか設定.
 //---------------------------------------------------------------------------------------
 #ifndef POCKET_USE_ANONYMOUS
-#	if POCKET_COMPILER_IF(VC) || POCKET_COMPILER_IF_WITH_VERSION(GCC, 4, 5) || POCKET_COMPILER_IF_WITH_VERSION(CLANG, 3, 1)
+#	if POCKET_COMPILER_IF(VC) || POCKET_COMPILER_IF_WITH_HAS_VERSION(GCC, 4, 5) || POCKET_COMPILER_IF_WITH_HAS_VERSION(CLANG, 3, 1)
 #		define POCKET_USE_ANONYMOUS
-#	endif // POCKET_COMPILER_IF(VC) || POCKET_COMPILER_IF_WITH_VERSION(GCC, 4, 5) || POCKET_COMPILER_IF_WITH_VERSION(CLANG, 3, 1)
+#	endif // POCKET_COMPILER_IF(VC) || POCKET_COMPILER_IF_WITH_HAS_VERSION(GCC, 4, 5) || POCKET_COMPILER_IF_WITH_HAS_VERSION(CLANG, 3, 1)
 #endif // POCKET_USE_ANONYMOUS
 
 #ifndef POCKET_USE_ANONYMOUS_NON_POD
 #	if POCKET_COMPILER_IF(VC)
 #		define POCKET_USE_ANONYMOUS_NON_POD
 #	else
-#		if defined(POCKET_USE_ANONYMOUS) && POCKET_CXX_VERSION_IF(11)
+#		if defined(POCKET_USE_ANONYMOUS) && POCKET_CXX_HAS_VERSION(11)
 #			define POCKET_USE_ANONYMOUS_NON_POD
-#		endif // defined(POCKET_USE_ANONYMOUS) && POCKET_CXX_VERSION_IF(11)
+#		endif // defined(POCKET_USE_ANONYMOUS) && POCKET_CXX_HAS_VERSION(11)
 #	endif // POCKET_COMPILER_IF(VC)
 #endif // !POCKET_USE_ANONYMOUS_NON_POD
 
@@ -269,10 +296,10 @@
 //---------------------------------------------------------------------------------------
 #ifndef POCKET_INLINE_FORCE
 #	if POCKET_COMPILER_IF(VC)
-#		if _MSC_VER < 1200
-#			define POCKET_INLINE_FORCE __inline
-#		else
+#		if POCKET_VCXX_HAS_VERSION(06)
 #			define POCKET_INLINE_FORCE __forceinline
+#		else
+#			define POCKET_INLINE_FORCE __inline
 #		endif
 #	elif POCKET_COMPILER_IF(GCC)
 #		define POCKET_INLINE_FORCE inline __attribute__((__always_inline__))
@@ -312,7 +339,7 @@
 //---------------------------------------------------------------------------------------
 #ifndef POCKET_CXX11_MOVE
 #	ifdef POCKET_USE_CXX11
-#		define POCKET_CXX11_MOVE(V) std::move((V))
+#		define POCKET_CXX11_MOVE(V) std::move(V)
 #	else
 #		define POCKET_CXX11_MOVE(V) (V)
 #	endif // POCKET_USE_CXX11
@@ -322,9 +349,9 @@
 // constexprが使用できるか
 //---------------------------------------------------------------------------------------
 #ifndef POCKET_HAS_CONSTEXPR
-#	if POCKET_VCXX_VERSION_IF(14) || POCKET_CXX_VERSION_IF(11)
+#	if POCKET_VCXX_HAS_VERSION(14) || POCKET_CXX_HAS_VERSION(11)
 #		define POCKET_HAS_CONSTEXPR
-#	endif // POCKET_VCXX_VERSION_IF(14) || POCKET_CXX_VERSION_IF(11)
+#	endif // POCKET_VCXX_HAS_VERSION(14) || POCKET_CXX_HAS_VERSION(11)
 #endif // POCKET_HAS_CONSTEXPR
 
 //---------------------------------------------------------------------------------------
@@ -335,7 +362,7 @@
 #		define POCKET_CONST_OR_CONSTEXPR constexpr
 #	else
 #		define POCKET_CONST_OR_CONSTEXPR const
-#	endif
+#	endif // POCKET_HAS_CONSTEXPR
 #endif // POCKET_CONST_OR_CONSTEXPR
 
 //---------------------------------------------------------------------------------------
@@ -346,14 +373,14 @@
 #		define POCKET_CXX11_CONSTEXPR constexpr
 #	else
 #		define POCKET_CXX11_CONSTEXPR
-#	endif
+#	endif // POCKET_HAS_CONSTEXPR
 #endif // POCKET_CXX11_CONSTEXPR
 
 //---------------------------------------------------------------------------------------
 // C++14のconstexprが使用できるか
 //---------------------------------------------------------------------------------------
 #ifndef POCKET_CXX14_CONSTEXPR
-#	if POCKET_VCXX_VERSION_IF(15) || POCKET_CXX_VERSION_IF(14)
+#	if POCKET_VCXX_HAS_VERSION(15) || POCKET_CXX_HAS_VERSION(14)
 #		define POCKET_CXX14_CONSTEXPR constexpr
 #	else
 #		define POCKET_CXX14_CONSTEXPR
@@ -408,7 +435,7 @@
 // デフォルトコンストラクタを定義するための設定
 //---------------------------------------------------------------------------------------
 #ifndef POCKET_DEFAULT_DECLARE_RVALUES
-#	if POCKET_VCXX_VERSION_IF(14) || POCKET_CXX_VERSION_IF(11)
+#	if POCKET_VCXX_HAS_VERSION(14) || POCKET_CXX_HAS_VERSION(11)
 #		define POCKET_DEFAULT_DECLARE_RVALUES(CLASS) CLASS(CLASS&&)=default; CLASS& operator=(CLASS&&)=default
 #	else
 #		define POCKET_DEFAULT_DECLARE_RVALUES(CLASS)
@@ -450,7 +477,7 @@
 //---------------------------------------------------------------------------------------
 #ifndef POCKET_ALIGNED
 #	if POCKET_COMPILER_IF(VC)
-#		if POCKET_VCXX_VERSION_IF(14)
+#		if POCKET_VCXX_HAS_VERSION(14)
 #			define POCKET_ALIGNED(N) alignas((N))
 #		else
 #			define POCKET_ALIGNED(N) __declspec(align(N))
@@ -473,7 +500,7 @@
 //---------------------------------------------------------------------------------------
 #ifndef POCKET_ALIGNED_DECL
 #	if POCKET_COMPILER_IF(VC)
-#		if POCKET_VCXX_VERSION_IF(14)
+#		if POCKET_VCXX_HAS_VERSION(14)
 #			define POCKET_ALIGNED_DECL(IDENTIFIER, N) IDENTIFIER POCKET_ALIGNED(N)
 #		else
 #			define POCKET_ALIGNED_DECL(IDENTIFIER, N) POCKET_ALIGNED(N) IDENTIFIER
