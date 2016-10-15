@@ -91,6 +91,15 @@ int main()
 	// デバッグ機能が使えるか
 	// std::cout << "GL_ARB_debug_output: " << gl::is_extension_support("GL_ARB_debug_output") << std::endl;
 
+	// デフォルトビューポート取得
+	gl::viewport viewport = gl::get_binding_viewport();
+	if (!viewport)
+	{
+		std::cout << viewport << std::endl;
+		return EXIT_FAILURE;
+	}
+	POCKET_GL_ERROR();
+
 	// 頂点シェーダ―作成
 	gl::shader vert = gl::make_vertex_shader("test.vert");
 	if (!vert)
@@ -127,11 +136,13 @@ int main()
 	//prog.reflect_uniform_block(std::cout);
 	POCKET_GL_ERROR();
 
-	// uniform buffer object作成
+	// ubo用データ構築
 	ublock data;
 	data.world.load_identity();
 	data.lookat.load_lookat(math::vector3f(0.0f, 0.0f, 5.0f), math::vector3f::zero, math::vector3f::up);
-	data.perspective.load_perspective_field_of_view_4_3(45.0f, 0.1f, 100.0f);
+	data.perspective.load_perspective_field_of_view(45.0f, viewport.aspect(), 0.1f, 100.0f);
+
+	// uniform buffer object作成
 	gl::uniform_buffer ubo = gl::make_uniform_buffer(prog, "ublock", 0, data);
 	if (!ubo)
 	{

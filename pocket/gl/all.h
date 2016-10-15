@@ -23,5 +23,7 @@
 #include "sampler.h"
 #include "draw_indirect_buffer.h"
 #include "sync.h"
+#include "viewport.h"
+#include "depth_range.h"
 
 #endif // __POCKET_GL_ALL_H__

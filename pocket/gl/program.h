@@ -967,46 +967,36 @@ public:
 	template <typename CharT, typename CharTraits>
 	void reflect_uniform_block(std::basic_ostream<CharT, CharTraits>& os, std::basic_ostream<CharT, CharTraits>&(*func)(std::basic_ostream<CharT, CharTraits>&) = NULL) const
 	{
+		if (func == NULL)
+		{
+			func = &io::empty;
+		}
+
 		// uniform block数
 		int count = uniform_block_count();
 		for (int i = 0; i < count; ++i)
 		{
+			func(os);
 			char name[256];
 			uniform_block_name(i, name);
-			if (func != NULL)
-			{
-				func(os);
-			}
 			os << io::widen(static_cast<const char*>(&name[0])) << io::widen(": {") << std::endl;
 
-			if (func != NULL)
-			{
-				func(os);
-			}
+			func(os);
 			os << io::tab << io::widen("index: ") << i << std::endl;
 
-			if (func != NULL)
-			{
-				func(os);
-			}
+			func(os);
 			int size = uniform_block_size(i);
 			os << io::tab << io::widen("size: ") << size << std::endl;
 
+			func(os);
 			int ubcount = uniform_block_count(i);
-			if (func != NULL)
-			{
-				func(os);
-			}
 			os << io::tab << io::widen("variable count: ") << ubcount << std::endl;
 
 			// インデックス取得
 			std::vector<GLint> indices(ubcount);
 			glGetActiveUniformBlockiv(_id, i, GL_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES, &indices[0]);
 
-			if (func != NULL)
-			{
-				func(os);
-			}
+			func(os);
 			os << io::tab << io::widen("variables: {") << std::endl;
 
 			// uniform block内 uniform変数情報
@@ -1014,10 +1004,7 @@ public:
 			{
 				GLuint idx = indices[j];
 
-				if (func != NULL)
-				{
-					func(os);
-				}
+				func(os);
 				// 変数名
 				char varname[256];
 				uniform_block_name_from_location(idx, varname);
@@ -1032,53 +1019,29 @@ public:
 				glGetActiveUniformsiv(_id, 1, &idx, GL_UNIFORM_TYPE, &type);
 
 				// ロケーション
-				if (func != NULL)
-				{
-					func(os);
-				}
+				func(os);
 				os << io::tab3 << io::widen("location: ") << idx << std::endl;
 				// 型
-				if (func != NULL)
-				{
-					func(os);
-				}
+				func(os);
 				std::ios_base::fmtflags flag = os.flags();
 				os << std::hex << io::tab3 << io::widen("type: 0x") << type << std::endl;
 				os.flags(flag);
 				// サイズ
-				if (func != NULL)
-				{
-					func(os);
-				}
+				func(os);
 				varsize *= gl::get_type_size(type); // 配列のサイズが入ってくるから型のサイズを掛け合わせる
 				os << io::tab3 << io::widen("size: ") << varsize << std::endl;
 				// オフセット
-				if (func != NULL)
-				{
-					func(os);
-				}
+				func(os);
 				os << io::tab3 << io::widen("offset: ") << varoffset << std::endl;
-				if (func != NULL)
-				{
-					func(os);
-				}
+				func(os);
 				os << io::tab3 << io::widen("array stride: ") << array_stride << std::endl;
-				if (func != NULL)
-				{
-					func(os);
-				}
+				func(os);
 				os << io::tab3 << io::widen("matrix stride: ") << matrix_stride << std::endl;
 				// 行優先か
-				if (func != NULL)
-				{
-					func(os);
-				}
+				func(os);
 				os << io::tab3 << io::widen("is row major: ") << io::widen(row_major == GL_TRUE) << std::endl;
 
-				if (func != NULL)
-				{
-					func(os);
-				}
+				func(os);
 				os << io::tab2 << io::braces_right;
 
 				if (j + 1 < ubcount)
@@ -1087,16 +1050,10 @@ public:
 				}
 				os << std::endl;
 			}
-			if (func != NULL)
-			{
-				func(os);
-			}
+			func(os);
 			os << io::tab << io::braces_right << std::endl;
 
-			if (func != NULL)
-			{
-				func(os);
-			}
+			func(os);
 			os << io::braces_right << std::endl;
 		}
 	}

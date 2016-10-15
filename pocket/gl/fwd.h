@@ -37,6 +37,8 @@ template <typename> class layered_vertex_buffer;
 class draw_indirect_buffer;
 class sampler;
 class sync;
+struct viewport;
+struct depth_range;
 
 } // namespace gl
 } // namespace pocket

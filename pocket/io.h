@@ -24,8 +24,14 @@ namespace pocket
 {
 namespace io
 {
+template <typename CharT, typename CharTraits> inline
+std::basic_ostream<CharT, CharTraits>& empty(std::basic_ostream<CharT, CharTraits>& os)
+{
+	return os;
+}
+
 #define __POCKET_DECL_OUT_CHAR_FUNCTION(NAME, CHAR) template <typename CharT, typename CharTraits> inline \
-		std::basic_ostream<CharT, CharTraits>& NAME(std::basic_ostream<CharT, CharTraits>& os) \
+	std::basic_ostream<CharT, CharTraits>& NAME(std::basic_ostream<CharT, CharTraits>& os) \
 	{\
 		os.put(os.widen((CHAR)));\
 		return os;\

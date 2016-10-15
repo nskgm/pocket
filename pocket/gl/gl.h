@@ -361,8 +361,13 @@ const char* get_renderer_name()
 
 // フォーマット一覧取得
 inline
-bool get_formats(GLenum** formats, int* count)
+bool get_formats(GLenum*& formats, int* count)
 {
+	if (formats != NULL)
+	{
+		delete formats;
+		formats = NULL;
+	}
 	GLint format_count;
 	glGetIntegerv(GL_NUM_PROGRAM_BINARY_FORMATS, &format_count);
 	if (count != NULL)
@@ -374,12 +379,12 @@ bool get_formats(GLenum** formats, int* count)
 		formats = NULL;
 		return false;
 	}
-	*formats = new GLenum[format_count];
-	if (*formats == NULL)
+	formats = new GLenum[format_count];
+	if (formats == NULL)
 	{
 		return false;
 	}
-	glGetIntegerv(GL_PROGRAM_BINARY_FORMATS, reinterpret_cast<GLint*>(*formats));
+	glGetIntegerv(GL_PROGRAM_BINARY_FORMATS, reinterpret_cast<GLint*>(formats));
 	return true;
 }
 inline
@@ -402,6 +407,7 @@ bool get_formats(std::vector<GLenum>& formats)
 inline
 bool is_extension_support(const char* name)
 {
+#if defined(GL_VERSION_3_0) && defined(GL_EXTENSIONS)
 	// 拡張の数
 	GLint count;
 	glGetIntegerv(GL_NUM_EXTENSIONS, &count);
@@ -410,46 +416,41 @@ bool is_extension_support(const char* name)
 	{
 		return false;
 	}
-
-	int major = get_version_major();
-
-	// バージョンが３以上の場合はインデックスで文字列を取得できる
-	if (major >= 3)
+	for (int i = 0; i < count; ++i)
 	{
-		for (int i = 0; i < count; ++i)
+		const char* extension_indexed = reinterpret_cast<const char*>(glGetStringi(GL_EXTENSIONS, i));
+		// 名前が一致したら拡張を使用できる
+		if (std::strcmp(name, extension_indexed) == 0)
 		{
-			const char* extension_indexed = reinterpret_cast<const char*>(glGetStringi(GL_EXTENSIONS, i));
-			// 名前が一致したら拡張を使用できる
-			if (std::strcmp(name, extension_indexed) == 0)
-			{
-				return true;
-			}
+			return true;
 		}
+	}
+	return false;
+
+#elif defined(GL_VERSION_1_1) && defined(GL_EXTENSIONS)
+	const char* extensions = reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS));
+	if (extensions == NULL)
+	{
 		return false;
 	}
-	else
+	// 文字列の中から一致する文字列の先頭アドレスを取得
+	// 含まれていない場合はNULL
+	const char* address = std::strstr(extensions, name);
+	if (address == NULL)
 	{
-		const char* extensions = reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS));
-		if (extensions == NULL)
-		{
-			return false;
-		}
-
-		// 文字列の中から一致する文字列の先頭アドレスを取得
-		// 含まれていない場合はNULL
-		const char* address = std::strstr(extensions, name);
-		if (address == NULL)
-		{
-			return false;
-		}
-
-		std::size_t length = std::strlen(name);
-		char last = *(address + length);
-
-		// スペース区切りで取得できているので名前の最後がスペースか
-		// または一番最後の拡張だったか
-		return last == ' ' || last == '\0';
+		return false;
 	}
+
+	std::size_t length = std::strlen(name);
+	char last = *(address + length);
+	// スペース区切りで取得できているので名前の最後がスペースか
+	// または一番最後の拡張だったか
+	return (last == ' ' || last == '\0');
+
+#else
+	static_cast<void>(name);
+	return false;
+#endif // GL_VERSION_3_0
 }
 
 inline
@@ -520,13 +521,13 @@ bool is_binding(GLenum type, GLuint value)
 template <typename T> inline
 void set_object_name(const T& obj, const char* name)
 {
-	size_t length = std::strlen(name);
-	glObjectLabel(T::identifier, obj.get(), static_cast<GLsizei>(length), name);
+	GLsizei length = std::strlen(name);
+	glObjectLabel(T::identifier, obj.get(), length, name);
 }
 template <typename T> inline
 void set_object_name(const T& obj, const std::string& name)
 {
-	glObjectLabel(T::identifier, obj.get(), static_cast<GLsizei>(name.length()), &name[0]);
+	glObjectLabel(T::identifier, obj.get(), static_cast<GLsizei>(name.length()), name.c_str());
 }
 template <typename T, int N> inline
 void get_object_name(const T& obj, char(&name)[N])
@@ -534,12 +535,29 @@ void get_object_name(const T& obj, char(&name)[N])
 	glGetObjectLabel(T::identifier, obj.get(), N, NULL, &name[0]);
 }
 template <typename T> inline
+void get_object_name(const T& obj, std::string& name)
+{
+	name.clear();
+	GLsizei length = 0;
+	glGetObjectLabel(T::identifier, obj.get(), 0, &length, NULL);
+	if (length == 0)
+	{
+		return;
+	}
+	name.resize(static_cast<size_t>(length));
+	glGetObjectLabel(T::identifier, obj.get(), length, NULL, &name[0]);
+}
+template <typename T> inline
 std::string get_object_name(const T& obj)
 {
 	GLsizei length = 0;
 	glGetObjectLabel(T::identifier, obj.get(), 0, &length, NULL);
-	std::string name(static_cast<size_t>(length+1), '\0');
-	glGetObjectLabel(T::identifier, obj.get(), length+1, NULL, &name[0]);
+	if (length == 0)
+	{
+		return "";
+	}
+	std::string name(static_cast<size_t>(length), '\0');
+	glGetObjectLabel(T::identifier, obj.get(), length, NULL, &name[0]);
 	return POCKET_CXX11_MOVE(name);
 }
 

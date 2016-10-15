@@ -275,14 +275,14 @@ struct matrix4x4
 #endif
 
 #ifdef POCKET_USE_SIMD_ANONYMOUS
-		/*------------------------------
-		*    1  2  3  4   ->
-		*   ____________   ____________   ____________
-		* 1 |0, 0, 0, 0|   |0, 0, 0, 0|   |0, 1, 2, 3|
-		* 2 |1, 1, 1, 1| = |1, 1, 1, 1| * |0, 1, 2, 3|
-		* 3 |2, 2, 2, 2|   |2, 2, 2, 2|   |0, 1, 2, 3|
-		* 4 |3, 3, 3, 3|   |3, 3, 3, 3|   |0, 1, 2, 3|
-		*------------------------------*/
+		// ------------------------------
+		//    1  2  3  4   ->
+		//   ____________   ____________   ____________
+		// 1 |0, 0, 0, 0|   |0, 0, 0, 0|   |0, 1, 2, 3|
+		// 2 |1, 1, 1, 1| = |1, 1, 1, 1| * |0, 1, 2, 3|
+		// 3 |2, 2, 2, 2|   |2, 2, 2, 2|   |0, 1, 2, 3|
+		// 4 |3, 3, 3, 3|   |3, 3, 3, 3|   |0, 1, 2, 3|
+		// ------------------------------
 
 		iterator ri = result.M.begin();
 		const_pointer mi = &m.M[0];
@@ -1099,7 +1099,7 @@ struct matrix4x4
 	vector3<T> transform(const vector3<T>& v) const
 	{
 		vector3<T> r(behavior::noinitialize);
-		return transform(v, r);
+		return POCKET_CXX11_MOVE(transform(v, r));
 	}
 	vector3<T>& transform(const vector3<T>& v, vector3<T>& result) const
 	{
@@ -1776,7 +1776,7 @@ template <typename T> inline
 vector3<T> vector3<T>::transformed(const matrix4x4<T>& m) const
 {
 	vector3<T> v(behavior::noinitialize);
-	return m.transform(*this, v);
+	return POCKET_CXX11_MOVE(m.transform(*this, v));
 }
 template <typename T> inline
 vector3<T>& vector3<T>::transform_coord(const matrix4x4<T>& m)
@@ -1793,7 +1793,7 @@ template <typename T> inline
 vector3<T> vector3<T>::transformed_coord(const matrix4x4<T>& m) const
 {
 	vector3<T> v(behavior::noinitialize);
-	return m.transform_coord(*this, v);
+	return POCKET_CXX11_MOVE(m.transform_coord(*this, v));
 }
 template <typename T> inline
 vector3<T>& vector3<T>::transform_normal(const matrix4x4<T>& m)
@@ -1810,7 +1810,7 @@ template <typename T> inline
 vector3<T> vector3<T>::transformed_normal(const matrix4x4<T>& m) const
 {
 	vector3<T> v(behavior::noinitialize);
-	return m.transform_normal(*this, v);
+	return POCKET_CXX11_MOVE(m.transform_normal(*this, v));
 }
 
 //---------------------------------------------------------------------
@@ -1826,7 +1826,7 @@ template <typename T> inline
 vector4<T> vector4<T>::transformed(const matrix4x4<T>& m) const
 {
 	vector4<T> v(behavior::noinitialize);
-	return m.transform(*this, v);
+	return POCKET_CXX11_MOVE(m.transform(*this, v));
 }
 template <typename T> inline
 vector4<T>& vector4<T>::transform(const matrix4x4<T>& m, vector4<T>& result) const
@@ -1848,20 +1848,20 @@ template <typename T> inline
 vector4<T> vector4<T>::transformed_coord(const matrix4x4<T>& m) const
 {
 	vector4<T> v(behavior::noinitialize);
-	return m.transform_coord(*this, v);
+	return POCKET_CXX11_MOVE(m.transform_coord(*this, v));
 }
 
 template <typename T> inline
 vector3<T> vector3<T>::operator * (const matrix4x4<T>& m) const
 {
 	vector3<T> r(behavior::noinitialize);
-	return m.transform(*this, r);
+	return POCKET_CXX11_MOVE(m.transform(*this, r));
 }
 template <typename T> inline
 vector4<T> vector4<T>::operator * (const matrix4x4<T>& m) const
 {
 	vector4<T> r(behavior::noinitialize);
-	return m.transform(*this, r);
+	return POCKET_CXX11_MOVE(m.transform(*this, r));
 }
 
 //---------------------------------------------------------------------

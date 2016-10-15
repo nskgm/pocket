@@ -55,7 +55,7 @@ struct __template_struct
 		{
 #endif // POCKET_USE_ANONYMOUS
 
-			// Noen
+			// none
 
 #ifdef POCKET_USE_ANONYMOUS
 		};
