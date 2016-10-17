@@ -369,11 +369,11 @@ public:
 	{
 		if (_type == buffer_type::unknown)
 		{
-			return "failed. buffer type unknown.";
+			return "buffer type unknown.";
 		}
 		if (_id == 0)
 		{
-			return "failed. buffer not binding.";
+			return "buffer not binding.";
 		}
 		return "";
 	}

@@ -358,7 +358,7 @@ public:
 	{
 		if (error_status(error_unsupported))
 		{
-			return "failed. unsupport type.";
+			return "unsupport type.";
 		}
 		return _buffer.error();
 	}

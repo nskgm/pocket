@@ -188,12 +188,12 @@ public:
 		// シェーダーハンドルの作成に失敗している
 		if (error_status(error_creating))
 		{
-			return "failed. glCreateShader().";
+			return "glCreateShader().";
 		}
 		// ファイルから読み込む際にファイルが存在していなかった
 		if (error_status(error_file_not_exist))
 		{
-			return "failed. file does not exist.";
+			return "file does not exist.";
 		}
 		// コンパイル中に失敗している
 		if (error_status(error_compiling))
@@ -207,10 +207,10 @@ public:
 				{
 					std::string log(length, '\0');
 					glGetShaderInfoLog(_id, length, NULL, &log[0]);
-					return "failed. compile shader. # " + log;
+					return "compile shader. # " + log;
 				}
 			}
-			return "failed. compile shader.";
+			return "compile shader.";
 		}
 		// 作成されていない
 		// またはすでに破棄済み

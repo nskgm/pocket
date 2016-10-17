@@ -27,7 +27,7 @@ struct viewport
 	// Types
 	//------------------------------------------------------------------------------------------
 
-	// none
+	typedef GLint array_type[4];
 
 	//------------------------------------------------------------------------------------------
 	// Members
@@ -47,7 +47,7 @@ struct viewport
 
 #ifdef POCKET_USE_ANONYMOUS
 		};
-		GLint data[4];
+		array_type data;
 	};
 #endif // POCKET_USE_ANONYMOUS
 
@@ -69,6 +69,12 @@ struct viewport
 	{}
 	viewport(GLint w, GLint h) :
 		x(0), y(0), w(w), h(h)
+	{}
+	viewport(const GLint* v) :
+		x(v[0]), y(v[1]), w(v[2]), h(v[3])
+	{}
+	viewport(const array_type& v) :
+		x(v[0]), y(v[1]), w(v[2]), h(v[3])
 	{}
 
 	//------------------------------------------------------------------------------------------
@@ -180,9 +186,9 @@ struct viewport
 inline
 viewport get_binding_viewport()
 {
-	GLint a[4];
+	viewport::array_type a;
 	glGetIntegerv(GL_VIEWPORT, &a[0]);
-	return viewport(a[0], a[1], a[2], a[3]);
+	return viewport(a);
 }
 inline
 viewport& get_binding_viewport(viewport& v)

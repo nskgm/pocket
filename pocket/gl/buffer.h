@@ -516,11 +516,11 @@ public:
 		// IDの作成に失敗している
 		if (error_status(error_creating))
 		{
-			return "failed. glGenBuffers().";
+			return "glGenBuffers().";
 		}
 		if (error_status(error_binding))
 		{
-			return "failed. can not bind.";
+			return "can not bind.";
 		}
 		// 作成されていない またはすでに破棄済み
 		if (_type == buffer_type::unknown ||

@@ -519,7 +519,7 @@ public:
 		// インデックスが無効（指定された名前が見つからない）
 		if (error_status(error_invalid_index))
 		{
-			return "failed. invalid name.";
+			return "invalid name.";
 		}
 		return _buffer.error();
 	}

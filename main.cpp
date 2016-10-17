@@ -10,12 +10,12 @@ namespace math = pocket::math;
 
 class main_lock
 {
+	GLFWwindow* win;
+
 public:
 	explicit main_lock(GLFWwindow* win) :
 		win(win)
-	{
-
-	}
+	{}
 	~main_lock()
 	{
 		if (win != NULL)
@@ -25,14 +25,12 @@ public:
 		}
 		glfwTerminate();
 	}
-
-private:
-	GLFWwindow* win;
 };
 
 static void glfw_error_log(int, const char* msg)
 {
 	std::cout << msg << std::endl;
+	std::exit(EXIT_FAILURE);
 }
 
 struct simple_vertex
@@ -139,7 +137,7 @@ int main()
 	// ubo用データ構築
 	ublock data;
 	data.world.load_identity();
-	data.lookat.load_lookat(math::vector3f(0.0f, 0.0f, 5.0f), math::vector3f::zero, math::vector3f::up);
+	data.lookat.load_lookat(math::vector3f(2.0f), math::vector3f::zero, math::vector3f::up);
 	data.perspective.load_perspective_field_of_view(45.0f, viewport.aspect(), 0.1f, 100.0f);
 
 	// uniform buffer object作成
@@ -187,6 +185,15 @@ int main()
 	}
 	POCKET_GL_ERROR();
 
+	// 同期オブジェクト作成
+	gl::sync sync = gl::make_sync();
+	if (!sync)
+	{
+		std::cout << sync << std::endl;
+		return EXIT_FAILURE;
+	}
+	POCKET_GL_ERROR();
+
 	glfwSetTime(0.0f);
 
 	// 受け取るメッセージバッファ
@@ -195,14 +202,14 @@ int main()
 
 	do
 	{
-		glfwPollEvents();
+		gl::clear(math::colorf::black, gl::clear_type::all);
 
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		// ubo用データ更新
+		float time = static_cast<float>(glfwGetTime());
+		data.world.load_world(math::vector3f::one*0.5f,
+			quat.from_axis(math::vector3f::unit_z, math::math_traitsf::to_degree(time*10.0f)),
+			math::vector3f(math::math_traitsf::sin(math::math_traitsf::to_degree(time*1.5f)), 0.0f, 0.0f));
 
-		float time = math::math_traitsf::sin(static_cast<float>(glfwGetTime()*60.0f));
-		quat.from_axis(math::vector3f::unit_z, math::math_traitsf::to_degree(glfwGetTime()*5.0f));
-		data.world.load_world(math::vector3f::one, quat, math::vector3f(time, 0.0f, 0.0f));
 		ubo.uniform(0, data.world); // オフセットを指定して指定した型サイズのみ更新
 		//ubo.uniform(data); // 全体の更新
 
@@ -227,9 +234,14 @@ int main()
 		lvb.unbind();
 		dib.unbind();
 
+		// GPU同期
+		sync.wait();
+
+		glfwPollEvents();
 		glfwSwapBuffers(window);
 	} while ((glfwGetKey(window, GLFW_KEY_ESCAPE) | glfwWindowShouldClose(window)) == GL_FALSE);
 
+	sync.finalize();
 	smpl.finalize();
 	dib.finalize();
 	lvb.finalize();

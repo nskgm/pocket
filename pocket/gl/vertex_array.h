@@ -739,16 +739,16 @@ public:
 		// IDの作成に失敗している
 		if (error_status(error_creating))
 		{
-			return "failed. glGenVertexArrays().";
+			return "glGenVertexArrays().";
 		}
 		if (error_status(error_binding))
 		{
-			return "failed. can not bind.";
+			return "can not bind.";
 		}
 		// VBOではないバッファを渡された
 		if (error_status(error_unsupported))
 		{
-			return "failed. not vertex buffer object.";
+			return "not vertex buffer object.";
 		}
 		// 作成されていない またはすでに破棄済み
 		if (_id == 0)

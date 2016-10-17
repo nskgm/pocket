@@ -155,27 +155,27 @@ public:
 	{
 		if (error_status(already_signaled))
 		{
-			return "failed. already signaled.";
+			return "already signaled.";
 		}
 		if (error_status(conditional_satisfied))
 		{
-			return "failed. conditional satisfied.";
+			return "conditional satisfied.";
 		}
 		if (error_status(timeout))
 		{
-			return "failed. timeout";
+			return "timeout";
 		}
 		if (error_status(failed))
 		{
-			return "failed. wait.";
+			return "wait.";
 		}
 		if (error_status(invalid_value))
 		{
-			return "failed. invalid value.";
+			return "invalid value.";
 		}
 		if (error_status(error_creating))
 		{
-			return "failed. glFenceSync()";
+			return "glFenceSync()";
 		}
 		if (_sync == NULL)
 		{
@@ -270,9 +270,23 @@ public:
 #endif // POCKET_USE_CXX11
 };
 
+inline
+sync make_sync()
+{
+	return sync(sync::construct);
+}
+
 template <typename CharT, typename CharTraits> inline
 std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const sync& v)
 {
+	os << io::widen("sync: {") << std::endl <<
+		io::tab << io::widen("object: ") << (v.get() != NULL) << std::endl;
+	if (!v.valid())
+	{
+		std::string error = v.error();
+		os << io::tab << io::widen("error: ") << io::widen(error.c_str()) << std::endl;
+	}
+	os << io::braces_right;
 	return os;
 }
 

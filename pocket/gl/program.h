@@ -1280,12 +1280,12 @@ public:
 		// シェーダーハンドルの作成に失敗している
 		if (error_status(error_creating))
 		{
-			return "failed. glCreateProgram().";
+			return "glCreateProgram().";
 		}
 		// バイナリファイルから読み込む際にファイルが存在していなかった
 		if (error_status(error_file_not_exist))
 		{
-			return "failed. file does not exist.";
+			return "file does not exist.";
 		}
 		// リンク中か検証中にエラー
 		//if (error_status(static_cast<error_bitfield>(error_link | error_validate)))
@@ -1300,22 +1300,22 @@ public:
 				{
 					std::string log(length, '\0');
 					glGetProgramInfoLog(_id, length, NULL, &log[0]);
-					return "failed. link program. #" + log;
+					return "link program. #" + log;
 				}
 			}
-			return "failed. link program.";
+			return "link program.";
 		}
 
 		// サポートされていない
 		if (error_status(error_unsupported))
 		{
-			return "failed. unsupported.";
+			return "unsupported.";
 		}
 
 		// ファイルが書き込みできない
 		if (error_status(error_file_not_write))
 		{
-			return "failed. file not write.";
+			return "file not write.";
 		}
 
 		// 作成されていない

@@ -17,7 +17,7 @@
 // バッファへのオフセット
 //---------------------------------------------------------------------
 #ifndef POCKET_BUFFER_OFFSET
-#	define POCKET_BUFFER_OFFSET(OFFSET) static_cast<const void*>(reinterpret_cast<const char*>(OFFSET))
+#	define POCKET_BUFFER_OFFSET(OFFSET) static_cast<const void*>(reinterpret_cast<const char*>(0)+(OFFSET))
 #endif // POCKET_BUFFER_OFFSET
 
 //---------------------------------------------------------------------

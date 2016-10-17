@@ -245,7 +245,7 @@ public:
 		// シェーダーハンドルの作成に失敗している
 		if (error_status(error_creating))
 		{
-			return "failed. glGenSamplers().";
+			return "glGenSamplers().";
 		}
 		// 作成されていない
 		// またはすでに破棄済み

@@ -349,6 +349,29 @@ struct draw_type
 };
 typedef draw_type::type draw_type_t;
 
+//---------------------------------------------------------------------------------------
+// 画面クリア値
+//---------------------------------------------------------------------------------------
+struct clear_type
+{
+	enum type
+	{
+		depth = GL_DEPTH_BUFFER_BIT,
+		color = GL_COLOR_BUFFER_BIT,
+		stencil = GL_STENCIL_BUFFER_BIT,
+
+		depth_color = GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT,
+		color_depth = GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT,
+		depth_stencil = GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT,
+		color_stencil = GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT,
+
+		all = GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT,
+
+		unknown = 0,
+	};
+};
+typedef clear_type::type clear_type_t;
+
 } // namespace gl
 } // namespace pocket
 

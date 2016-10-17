@@ -11,6 +11,7 @@
 #include "gl.h"
 #include "indirect_command.h"
 #include "common_type.h"
+#include "wrap.h"
 #include "shader.h"
 #include "program.h"
 #include "buffer.h"
