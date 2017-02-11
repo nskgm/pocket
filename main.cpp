@@ -214,6 +214,7 @@ int main()
 		//ubo.uniform(data); // 全体の更新
 
 		// 各種バインド
+		viewport.bind();
 		prog.bind();
 		ubo.bind();
 		lvb.bind();

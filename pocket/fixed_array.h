@@ -583,7 +583,8 @@ struct bool_reference
 	}
 };
 
-inline POCKET_CXX11_CONSTEXPR int or_bit(bool a, int shift)
+inline POCKET_CXX11_CONSTEXPR
+int or_bit(bool a, int shift)
 {
 	return a ? 0x01 << shift : 0x00;
 }
@@ -809,7 +810,7 @@ std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, Ch
 	return os;
 }
 
-#define _POCKET_OUTPUT_BOOL_FIXED_ARRAY(N) template <typename CharT, typename CharTraits> inline\
+#define __POCKET_OUTPUT_BOOL_FIXED_ARRAY(N) template <typename CharT, typename CharTraits> inline\
 	std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, CharTraits>& os, const pocket::fixed_array<bool, N>& ary)\
 	{\
 		os << pocket::io::box_brackets_left;\
@@ -825,10 +826,10 @@ std::basic_ostream<CharT, CharTraits>& operator << (std::basic_ostream<CharT, Ch
 		return os;\
 	}
 
-_POCKET_OUTPUT_BOOL_FIXED_ARRAY(2);
-_POCKET_OUTPUT_BOOL_FIXED_ARRAY(3);
-_POCKET_OUTPUT_BOOL_FIXED_ARRAY(4);
+__POCKET_OUTPUT_BOOL_FIXED_ARRAY(2);
+__POCKET_OUTPUT_BOOL_FIXED_ARRAY(3);
+__POCKET_OUTPUT_BOOL_FIXED_ARRAY(4);
 
-#undef _POCKET_OUTPUT_BOOL_FIXED_ARRAY
+#undef __POCKET_OUTPUT_BOOL_FIXED_ARRAY
 
 #endif // __POCKET_FIXED_ARRAY_H__

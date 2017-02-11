@@ -28,6 +28,7 @@ struct viewport
 	//------------------------------------------------------------------------------------------
 
 	typedef GLint array_type[4];
+	typedef binder<viewport> binder_type;
 
 	//------------------------------------------------------------------------------------------
 	// Members
@@ -86,12 +87,18 @@ struct viewport
 	{
 		glViewport(x, y, w, h);
 	}
+	//
+	void unbind() const
+	{}
 
 	// 現在設定されている値を取得
 	void load()
 	{
 		glGetIntegerv(GL_VIEWPORT, &x);
 	}
+
+	// バインド状態を管理するオブジェクト作成
+	binder_type make_binder() const;
 
 	// x方向の差を求める
 	int diff_x() const
@@ -182,6 +189,58 @@ struct viewport
 #endif // POCKET_USE_ANONYMOUS
 	}
 };
+
+template <>
+class binder<viewport>
+{
+private:
+	const viewport* _address;
+
+public:
+	const viewport prev;
+
+public:
+	explicit binder(const viewport& a) :
+		_address(&a), prev(get_binding_viewport())
+	{
+		// 設定
+		a.bind();
+	}
+	~binder()
+	{
+		// 前回の値に設定
+		prev.bind();
+	}
+
+	bool binding() const
+	{
+		return true;
+	}
+
+	const viewport* operator -> () const
+	{
+		return _address;
+	}
+	const viewport& operator * () const
+	{
+		return *_address;
+	}
+
+	operator const viewport& () const
+	{
+		return *_address;
+	}
+	operator const viewport* () const
+	{
+		return _address;
+	}
+};
+
+inline
+viewport::binder_type viewport::make_binder() const
+{
+	return binder_type(*this);
+}
 
 inline
 viewport get_binding_viewport()
