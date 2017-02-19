@@ -247,7 +247,7 @@ viewport get_binding_viewport()
 {
 	viewport::array_type a;
 	glGetIntegerv(GL_VIEWPORT, &a[0]);
-	return viewport(a);
+	return viewport(&a[0]);
 }
 inline
 viewport& get_binding_viewport(viewport& v)

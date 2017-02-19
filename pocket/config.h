@@ -138,7 +138,7 @@
 //---------------------------------------------------------------------------------------
 #if defined(POCKET_NO_USING_MATH_INT_FLOAT) && !defined(POCKET_USING_MATH_DOUBLE) && !defined(POCKET_USING_MATH_LONG_DOUBLE)
 #error "request define POCKET_USING_MATH_DOUBLE or POCKET_USING_MATH_LONG_DOUBLE. or undefine POCKET_NO_USING_MATH_INT_FLOAT"
-#endif
+#endif // defined(POCKET_NO_USING_MATH_INT_FLOAT) && !defined(POCKET_USING_MATH_DOUBLE) && !defined(POCKET_USING_MATH_LONG_DOUBLE)
 
 //---------------------------------------------------------------------------------------
 // __cplusplusでのバージョン定義
@@ -307,7 +307,7 @@
 #		define POCKET_INLINE_FORCE __attribute__((__always_inline__))
 #	else
 #		define POCKET_INLINE_FORCE inline
-#	endif
+#	endif // POCKET_COMPILER_IF
 #endif // POCKET_INLINE_FORCE
 
 //---------------------------------------------------------------------------------------
@@ -320,7 +320,7 @@
 #		define POCKET_INLINE_NEVER __attribute__((__noinline__))
 #	else
 #		define POCKET_INLINE_NEVER
-#	endif
+#	endif // POCKET_COMPILER_IF
 #endif // POCKET_INLINE_NEVER
 
 //---------------------------------------------------------------------------------------

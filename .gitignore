@@ -7,4 +7,4 @@
 *.exe
 *.db
 **/*.shbin
-/build
+/build_*

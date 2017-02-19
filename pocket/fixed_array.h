@@ -193,16 +193,19 @@ struct fixed_array<T, 2>
 		array_type data;
 	};
 
+	POCKET_CXX11_CONSTEXPR
 	fixed_array()
 	{}
+	POCKET_CXX11_CONSTEXPR
 	fixed_array(value_type x, value_type y) :
 		x(x), y(y)
 	{}
+	POCKET_CXX11_CONSTEXPR
 	fixed_array(value_type f) :
 		x(f), y(f)
 	{}
-	fixed_array(const fixed_array<T, 3>&);
-	fixed_array(const fixed_array<T, 4>&);
+	POCKET_CXX11_CONSTEXPR fixed_array(const fixed_array<T, 3>&);
+	POCKET_CXX11_CONSTEXPR fixed_array(const fixed_array<T, 4>&);
 
 	T* address()
 	{
@@ -309,21 +312,26 @@ struct fixed_array<T, 3>
 		array_type data;
 	};
 
+	POCKET_CXX11_CONSTEXPR
 	fixed_array()
 	{}
+	POCKET_CXX11_CONSTEXPR
 	fixed_array(value_type x, value_type y, value_type z) :
 		x(x), y(y), z(z)
 	{}
+	POCKET_CXX11_CONSTEXPR
 	fixed_array(value_type f) :
 		x(f), y(f), z(f)
 	{}
+	POCKET_CXX11_CONSTEXPR
 	fixed_array(const fixed_array<T, 2>& xy, value_type z) :
 		x(xy.x), y(xy.y), z(z)
 	{}
+	POCKET_CXX11_CONSTEXPR
 	fixed_array(value_type x, const fixed_array<T, 2>& yz) :
 		x(x), y(yz.x), z(yz.y)
 	{}
-	fixed_array(const fixed_array<T, 4>&);
+	POCKET_CXX11_CONSTEXPR fixed_array(const fixed_array<T, 4>&);
 
 	T* address()
 	{
@@ -438,26 +446,34 @@ struct fixed_array<T, 4>
 		array_type data;
 	};
 
+	POCKET_CXX11_CONSTEXPR
 	fixed_array()
 	{}
+	POCKET_CXX11_CONSTEXPR
 	fixed_array(value_type x, value_type y, value_type z, value_type w) :
 		x(x), y(y), z(z), w(w)
 	{}
+	POCKET_CXX11_CONSTEXPR
 	fixed_array(value_type f) :
 		x(f), y(f), z(f), w(f)
 	{}
+	POCKET_CXX11_CONSTEXPR
 	fixed_array(const fixed_array<T, 2>& xy, value_type z, value_type w) :
 		x(xy.x), y(xy.y), z(z), w(w)
 	{}
+	POCKET_CXX11_CONSTEXPR
 	fixed_array(value_type x, const fixed_array<T, 2>& yz, value_type w) :
 		x(x), y(yz.x), z(yz.y), w(w)
 	{}
+	POCKET_CXX11_CONSTEXPR
 	fixed_array(value_type x, value_type y, const fixed_array<T, 2>& xw) :
 		x(x), y(y), z(xw.x), w(xw.y)
 	{}
+	POCKET_CXX11_CONSTEXPR
 	fixed_array(const fixed_array<T, 3>& xyz, value_type w) :
 		x(xyz.x), y(xyz.y), z(xyz.z), w(w)
 	{}
+	POCKET_CXX11_CONSTEXPR
 	fixed_array(value_type x, const fixed_array<T, 3>& yzw) :
 		x(x), y(yzw.x), z(yzw.y), w(yzw.z)
 	{}
@@ -553,13 +569,14 @@ struct fixed_array<T, 4>
 
 namespace detail
 {
+
 struct bool_reference
 {
-	int& a;
-	int bit;
+	char& a;
+	char bit;
 
-	bool_reference(int& a, int i) :
-		a(a), bit(0x01 << i)
+	bool_reference(char& a, char i) :
+		a(a), bit(1 << i)
 	{}
 	bool operator = (bool b)
 	{
@@ -575,19 +592,20 @@ struct bool_reference
 	}
 	POCKET_CXX11_EXPLICIT operator bool () const
 	{
-		return (a & bit) != 0x00;
+		return (a & bit) != 0;
 	}
 	bool operator () () const
 	{
-		return (a & bit) != 0x00;
+		return (a & bit) != 0;
 	}
 };
 
 inline POCKET_CXX11_CONSTEXPR
-int or_bit(bool a, int shift)
+char or_bit(bool a, char shift)
 {
-	return a ? 0x01 << shift : 0x00;
+	return a ? 1 << shift : 0;
 }
+
 }
 
 template <>
@@ -595,19 +613,22 @@ struct fixed_array<bool, 2>
 {
 	typedef detail::bool_reference reference;
 
-	int data;
+	char data;
 
+	POCKET_CXX11_CONSTEXPR
 	fixed_array() :
 		data(0)
 	{}
+	POCKET_CXX11_CONSTEXPR
 	fixed_array(bool a) :
 		data(a ? 0x03 : 0x00)
 	{}
+	POCKET_CXX11_CONSTEXPR
 	fixed_array(bool a, bool b) :
 		data(detail::or_bit(a, 0) | detail::or_bit(b, 1))
 	{}
-	fixed_array(const fixed_array<bool, 3>&);
-	fixed_array(const fixed_array<bool, 4>&);
+	POCKET_CXX11_CONSTEXPR fixed_array(const fixed_array<bool, 3>&);
+	POCKET_CXX11_CONSTEXPR fixed_array(const fixed_array<bool, 4>&);
 
 	bool all() const
 	{
@@ -643,23 +664,29 @@ struct fixed_array<bool, 3>
 {
 	typedef detail::bool_reference reference;
 
-	int data;
+	char data;
 
+	POCKET_CXX11_CONSTEXPR
 	fixed_array() :
 		data(0)
 	{}
+	POCKET_CXX11_CONSTEXPR
 	fixed_array(bool a) :
 		data(a ? 0x07 : 0x00)
 	{}
+	POCKET_CXX11_CONSTEXPR
 	fixed_array(bool a, bool b, bool c) :
 		data(detail::or_bit(a, 0) | detail::or_bit(b, 1) | detail::or_bit(c, 2))
 	{}
+	POCKET_CXX11_CONSTEXPR
 	fixed_array(const fixed_array<bool, 2>& a, bool c) :
 		data((a.data & 0x03) | detail::or_bit(c, 2))
 	{}
+	POCKET_CXX11_CONSTEXPR
 	fixed_array(bool a, const fixed_array<bool, 2>& b) :
 		data(detail::or_bit(a, 0) | ((b.data & 0x03) << 1))
 	{}
+	POCKET_CXX11_CONSTEXPR
 	fixed_array(const fixed_array<bool, 4>&);
 
 	bool all() const
@@ -696,29 +723,37 @@ struct fixed_array<bool, 4>
 {
 	typedef detail::bool_reference reference;
 
-	int data;
+	char data;
 
+	POCKET_CXX11_CONSTEXPR
 	fixed_array() :
 		data(0)
 	{}
+	POCKET_CXX11_CONSTEXPR
 	fixed_array(bool a) :
 		data(a ? 0x0F : 0x00)
 	{}
+	POCKET_CXX11_CONSTEXPR
 	fixed_array(bool a, bool b, bool c, bool d) :
 		data(detail::or_bit(a, 0) | detail::or_bit(b, 1) | detail::or_bit(c, 2) | detail::or_bit(d, 3))
 	{}
+	POCKET_CXX11_CONSTEXPR
 	fixed_array(const fixed_array<bool, 2>& a, bool c, bool d) :
 		data((a.data & 0x03) | detail::or_bit(c, 2) | detail::or_bit(d, 3))
 	{}
+	POCKET_CXX11_CONSTEXPR
 	fixed_array(bool a, const fixed_array<bool, 2>& b, bool d) :
 		data(detail::or_bit(a, 0) | ((b.data & 0x03) << 1) | detail::or_bit(d, 3))
 	{}
+	POCKET_CXX11_CONSTEXPR
 	fixed_array(bool a, bool b, fixed_array<bool, 2>& c) :
 		data(detail::or_bit(a, 0) | detail::or_bit(b, 1) | ((c.data & 0x03) << 2))
 	{}
+	POCKET_CXX11_CONSTEXPR
 	fixed_array(const fixed_array<bool, 3>& a, bool b) :
 		data((a.data & 0x07) | detail::or_bit(b, 3))
 	{}
+	POCKET_CXX11_CONSTEXPR
 	fixed_array(bool a, const fixed_array<bool, 3>& b) :
 		data(detail::or_bit(a, 0) | ((b.data & 0x07) << 1))
 	{}
@@ -753,33 +788,33 @@ struct fixed_array<bool, 4>
 	}
 };
 
-template <typename T> inline
+template <typename T> inline POCKET_CXX11_CONSTEXPR
 fixed_array<T, 2>::fixed_array(const fixed_array<T, 3>& a) :
 	x(a.x), y(a.y)
 {}
-template <typename T> inline
+template <typename T> inline POCKET_CXX11_CONSTEXPR
 fixed_array<T, 2>::fixed_array(const fixed_array<T, 4>& a) :
 	x(a.x), y(a.y)
 {}
-template <typename T> inline
+template <typename T> inline POCKET_CXX11_CONSTEXPR
 fixed_array<T, 2>& fixed_array<T, 2>::operator = (const fixed_array<T, 3>& a)
 {
 	x = a.x;
 	y = a.y;
 	return *this;
 }
-template <typename T> inline
+template <typename T> inline POCKET_CXX11_CONSTEXPR
 fixed_array<T, 2>& fixed_array<T, 2>::operator = (const fixed_array<T, 4>& a)
 {
 	x = a.x;
 	y = a.y;
 	return *this;
 }
-template <typename T> inline
+template <typename T> inline POCKET_CXX11_CONSTEXPR
 fixed_array<T, 3>::fixed_array(const fixed_array<T, 4>& a) :
 	x(a.x), y(a.y), z(a.z)
 {}
-template <typename T> inline
+template <typename T> inline POCKET_CXX11_CONSTEXPR
 fixed_array<T, 3>& fixed_array<T, 3>::operator = (const fixed_array<T, 4>& a)
 {
 	x = a.x;
@@ -788,15 +823,15 @@ fixed_array<T, 3>& fixed_array<T, 3>::operator = (const fixed_array<T, 4>& a)
 	return *this;
 }
 
-inline
+inline POCKET_CXX11_CONSTEXPR
 fixed_array<bool, 2>::fixed_array(const fixed_array<bool, 3>& a) :
 	data(a.data & 0x03)
 {}
-inline
+inline POCKET_CXX11_CONSTEXPR
 fixed_array<bool, 2>::fixed_array(const fixed_array<bool, 4>& a) :
 	data(a.data & 0x03)
 {}
-inline
+inline POCKET_CXX11_CONSTEXPR
 fixed_array<bool, 3>::fixed_array(const fixed_array<bool, 4>& a) :
 	data(a.data & 0x07)
 {}

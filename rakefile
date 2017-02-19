@@ -3,11 +3,11 @@
 #-----------------------------------------------------------
 # C++バージョン
 # 指定しない場合は0
-CXX_VER = 3
+CXX_VER = ENV["CXX"] != nil ? ENV["CXX"].to_i : 11
 # デバッグを有効にするか
-DEBUG = true
+DEBUG = ENV["DEBUG"] != nil ? ENV["DEBUG"].downcase=="true" : true
 # 警告を有効にするか
-WARNING = true
+WARNING = ENV["WARNING"] != nil ? ENV["WARNING"].downcase=="true" : true
 
 # OpenGLバージョンdefine定義用
 # 0以上で定義を追加
@@ -109,22 +109,24 @@ AUTO_INCLUDE_HEADERS = [
 #---------------------------------------------------------------------------------------------------------------------------------
 # implementatioin
 #---------------------------------------------------------------------------------------------------------------------------------
-# プラットフォーム判定
 require "rbconfig"
+require "rake/clean"
+
+# プラットフォーム判定
 def os?
 	# @http://qiita.com/Kumassy/items/491cbde86405cf002636
 
 	host = RbConfig::CONFIG['host_os']
 	case host
-    when /mswin|msys|mingw|cygwin|bccwin|wince|emc/ then
+	when /mswin|msys|mingw|cygwin|bccwin|wince|emc/ then
 		:windows
-    when /darwin|mac os/ then
+	when /darwin|mac os/ then
 		:mac
-    when /linux/ then
+	when /linux/ then
 		:linux
-    when /solaris|bsd/ then
+	when /solaris|bsd/ then
 		:unix
-    else
+	else
 		:unknown
 	end
 end
@@ -148,7 +150,7 @@ def unix?
 	OS == :unix
 end
 
-BUILD_DIR = "build".freeze # ビルド用ディレクトリ
+BUILD_DIR = DEBUG ? "build_debug" : "build_release" # ビルド用ディレクトリ
 OBJ_DIR = "#{BUILD_DIR}/obj".freeze # 中間ファイル
 DEP_DIR = "#{BUILD_DIR}/dep".freeze # 依存関係ファイル # dependencies
 ASM_DIR = "#{BUILD_DIR}/asm".freeze # アセンブリファイル
@@ -159,14 +161,12 @@ PCH_FILE_NAME = "pch.h".freeze
 # 実行ファイル名
 EXECUTABLE_FILE_NAME = (windows? ? "#{EXECUTE_FILE}.exe" : EXECUTE_FILE).freeze
 
-require "rake/clean"
-
 # 削除対象ファイルorディレクトリ
 # [EXECUTE_FILE, "**/*.o", "**/*.d", OBJ_DIR]
 CLEAN_LIST = [EXECUTABLE_FILE_NAME, BUILD_DIR, PCH_FILE_NAME, "**/*.h.gch", "**/*.hpp.gch"]
 CLEAN.include CLEAN_LIST
 # clobberのほうではVCの設定ファイルもすべて削除
-CLOBBER.include [CLEAN_LIST, "**/Debug", "**/Release", "**/x64", "**/*.VC.db"].flatten
+CLOBBER.include [CLEAN_LIST, "build_debug", "build_release", "**/Debug", "**/Release", "**/x64", "**/*.VC.db"].flatten
 
 ## map簡略化
 ## map do |e| e.name end

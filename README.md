@@ -3,7 +3,7 @@
 ## compiler
 ***
 * VC++
-	* 12
+	* ( 12 )
 	* 14
 * GCC
 	* 5.2
@@ -21,11 +21,21 @@ $ rake
 #-> rake build run
 ```
 ***
-* CPPファイルを検索して実行ファイルを作成
+* cppファイルを全検索して実行ファイルを作成
+	* デバッグビルド
+	```
+	$ rake build (DEBUG=true)
+	```
+	* リリースビルド
+	```
+	$ rake build DEBUG=false
+	```
+* 警告有効無効
 ```
-$ rake build
+$ rake WARNING=true|false
 ```
 * 実行ファイル実行
 ```
 $ rake run
 ```
+***
