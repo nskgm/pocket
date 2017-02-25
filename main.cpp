@@ -10,6 +10,7 @@ namespace math = pocket::math;
 namespace call = pocket::call;
 
 // テスト用
+// #define __MAIN_TEST
 
 #if POCKET_COMPILER_IF(VC)
 #define __FILE_RELATIVE(PATH) "../" PATH
