@@ -6,7 +6,7 @@
 #pragma once
 #endif // POCKET_USE_PRAGMA_ONCE
 
-#include "../behavior.h"
+#include "../call.h"
 #include "../debug.h"
 #include "../container/array.h"
 #include "math_traits.h"
@@ -87,7 +87,7 @@ struct ray
 	//-----------------------------------------------------------------------------------------
 
 	POCKET_DEFAULT_CONSTRUCTOR(ray);
-	explicit ray(const behavior::_noinitialize_t&)
+	explicit ray(const call::noinitialize_t&)
 	{}
 	explicit ray(const vector_type& dir) :
 		origin(vector_type::zero),

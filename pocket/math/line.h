@@ -6,7 +6,7 @@
 #pragma once
 #endif // POCKET_USE_PRAGMA_ONCE
 
-#include "../behavior.h"
+#include "../call.h"
 #include "math_traits.h"
 #include "vector2.h"
 #include "vector3.h"
@@ -86,7 +86,7 @@ struct line
 	//-----------------------------------------------------------------------------------------
 
 	POCKET_DEFAULT_CONSTRUCTOR(line);
-	explicit line(const behavior::_noinitialize_t&)
+	explicit line(const call::noinitialize_t&)
 	{}
 	explicit line(const vector_type& e) :
 		begin(vector_type::zero), end(e)

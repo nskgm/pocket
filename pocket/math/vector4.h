@@ -6,7 +6,7 @@
 #pragma once
 #endif // POCKET_USE_PRAGMA_ONCE
 
-#include "../behavior.h"
+#include "../call.h"
 #include "../debug.h"
 #include "../container/array.h"
 #include "math_traits.h"
@@ -126,9 +126,9 @@ struct vector4
 	//-----------------------------------------------------------------------------------------
 
 	POCKET_DEFAULT_CONSTRUCTOR(vector4);
-	explicit vector4(const behavior::_noinitialize_t&)
+	explicit vector4(const call::noinitialize_t&)
 	{}
-	explicit vector4(const behavior::_zero_t&) :
+	explicit vector4(const call::zero_t&) :
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		mm(simd::zero())
 #else
@@ -140,7 +140,7 @@ struct vector4
 		w(math_type::zero)
 #endif
 	{}
-	explicit vector4(const behavior::_zero_t&, const behavior::_direction_t&) :
+	explicit vector4(const call::zero_t&, const call::direction_t&) :
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		mm(simd::zero())
 #else
@@ -152,7 +152,7 @@ struct vector4
 		w(math_type::zero)
 #endif
 	{}
-	explicit vector4(const behavior::_zero_t&, const behavior::_position_t&) :
+	explicit vector4(const call::zero_t&, const call::position_t&) :
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		mm(simd::zero())
 #else
@@ -168,7 +168,7 @@ struct vector4
 		w1();
 #endif // POCKET_USE_SIMD_ANONYMOUS
 	}
-	explicit vector4(const behavior::_one_t&) :
+	explicit vector4(const call::one_t&) :
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		mm(simd::one())
 #else
@@ -180,7 +180,7 @@ struct vector4
 		w(math_type::one)
 #endif
 	{}
-	explicit vector4(const behavior::_one_t&, const behavior::_direction_t&) :
+	explicit vector4(const call::one_t&, const call::direction_t&) :
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		mm(simd::one())
 #else
@@ -196,7 +196,7 @@ struct vector4
 		w0();
 #endif // POCKET_USE_SIMD_ANONYMOUS
 	}
-	explicit vector4(const behavior::_one_t&, const behavior::_position_t&) :
+	explicit vector4(const call::one_t&, const call::position_t&) :
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		mm(simd::one())
 #else
@@ -208,7 +208,7 @@ struct vector4
 		w(math_type::one)
 #endif
 	{}
-	explicit vector4(const behavior::_half_t&, const behavior::_direction_t&) :
+	explicit vector4(const call::half_t&, const call::direction_t&) :
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		mm(simd::set(math_type::half))
 #else
@@ -224,7 +224,7 @@ struct vector4
 		w0();
 #endif // POCKET_USE_SIMD_ANONYMOUS
 	}
-	explicit vector4(const behavior::_half_t&, const behavior::_position_t&) :
+	explicit vector4(const call::half_t&, const call::position_t&) :
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		mm(simd::set(math_type::half))
 #else
@@ -240,7 +240,7 @@ struct vector4
 		w1();
 #endif // POCKET_USE_SIMD_ANONYMOUS
 	}
-	explicit vector4(const behavior::_half_of_half_t&, const behavior::_direction_t&) :
+	explicit vector4(const call::half_of_half_t&, const call::direction_t&) :
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		mm(simd::set(math_type::half_of_half))
 #else
@@ -256,7 +256,7 @@ struct vector4
 		w0();
 #endif // POCKET_USE_SIMD_ANONYMOUS
 	}
-	explicit vector4(const behavior::_half_of_half_t&, const behavior::_position_t&) :
+	explicit vector4(const call::half_of_half_t&, const call::position_t&) :
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		mm(simd::set(math_type::half_of_half))
 #else
@@ -948,7 +948,7 @@ struct vector4
 	vector4 rotated(const quaternion<T>&) const;
 	vector4 rotated(const vector3<T>& axis, T angle) const
 	{
-		vector4 result(behavior::noinitialize);
+		vector4 result(call::noinitialize);
 		return rotated(axis, angle, result);
 	}
 	vector4& rotate(const vector3<T>& axis, T angle, vector4& result) const
@@ -1166,14 +1166,14 @@ struct vector4
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		return vector4(simd::add(mm, v.mm));
 #else
-		vector4 result(behavior::noinitialize);
+		vector4 result(call::noinitialize);
 		return add(v, result);
 #endif // POCKET_USE_SIMD_ANONYMOUS
 	}
 	template <typename U, POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
 	vector4 operator + (const vector4<U>& v) const
 	{
-		vector4 result(behavior::noinitialize);
+		vector4 result(call::noinitialize);
 		return add<U>(v, result);
 	}
 	vector4 operator - (const vector4& v) const
@@ -1181,14 +1181,14 @@ struct vector4
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		return vector4(simd::sub(mm, v.mm));
 #else
-		vector4 result(behavior::noinitialize);
+		vector4 result(call::noinitialize);
 		return subtract(v, result);
 #endif // POCKET_USE_SIMD_ANONYMOUS
 	}
 	template <typename U, POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
 	vector4 operator - (const vector4<U>& v) const
 	{
-		vector4 result(behavior::noinitialize);
+		vector4 result(call::noinitialize);
 		return subtract<U>(v, result);
 	}
 	vector4 operator * (const matrix4x4<T>&) const; // matrix4x4.h
@@ -1198,7 +1198,7 @@ struct vector4
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		return vector4(simd::mul(mm, f));
 #else
-		vector4 result(behavior::noinitialize);
+		vector4 result(call::noinitialize);
 		return multiply(f, result);
 #endif // POCKET_USE_SIMD_ANONYMOUS
 	}
@@ -1208,7 +1208,7 @@ struct vector4
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		return vector4(simd::mul(mm, simd::set(static_cast<T>(f))));
 #else
-		vector4 result(behavior::noinitialize);
+		vector4 result(call::noinitialize);
 		return multiply<U>(f, result);
 #endif // POCKET_USE_SIMD_ANONYMOUS
 	}
@@ -1217,7 +1217,7 @@ struct vector4
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		return vector4(simd::div(mm, f));
 #else
-		vector4 result(behavior::noinitialize);
+		vector4 result(call::noinitialize);
 		return divide(f, result);
 #endif // POCKET_USE_SIMD_ANONYMOUS
 	}
@@ -1227,7 +1227,7 @@ struct vector4
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		return vector4(simd::div(mm, static_cast<T>(f)));
 #else
-		vector4 result(behavior::noinitialize);
+		vector4 result(call::noinitialize);
 		return divide<U>(f, result);
 #endif // POCKET_USE_SIMD_ANONYMOUS
 	}
@@ -1258,19 +1258,19 @@ struct vector4
 		*this = static_cast<T>(f);
 		return *this;
 	}
-	vector4& operator = (const behavior::_zero_t&)
+	vector4& operator = (const call::zero_t&)
 	{
 		return operator=(math_type::zero);
 	}
-	vector4& operator = (const behavior::_one_t&)
+	vector4& operator = (const call::one_t&)
 	{
 		return operator=(math_type::one);
 	}
-	vector4& operator = (const behavior::_half_t&)
+	vector4& operator = (const call::half_t&)
 	{
 		return operator=(math_type::half);
 	}
-	vector4& operator = (const behavior::_half_of_half_t&)
+	vector4& operator = (const call::half_of_half_t&)
 	{
 		return operator=(math_type::half_of_half);
 	}
@@ -1408,216 +1408,216 @@ struct vector4
 	// タグでの関数呼び出し
 	//------------------------------------------------------------------------------------------
 
-	vector4& operator () (const behavior::_zero_t&)
+	vector4& operator () (const call::zero_t&)
 	{
 		return operator=(math_type::zero);
 	}
-	vector4& operator () (const behavior::_one_t&)
+	vector4& operator () (const call::one_t&)
 	{
 		return operator=(math_type::one);
 	}
-	vector4& operator () (const behavior::_half_t&)
+	vector4& operator () (const call::half_t&)
 	{
 		return operator=(math_type::half);
 	}
-	vector4& operator () (const behavior::_half_of_half_t&)
+	vector4& operator () (const call::half_of_half_t&)
 	{
 		return operator=(math_type::half_of_half);
 	}
 
-	vector4 operator () (const behavior::_plus_t&) const
+	vector4 operator () (const call::plus_t&) const
 	{
 		return operator+();
 	}
-	vector4 operator () (const behavior::_negate_t&) const
+	vector4 operator () (const call::negate_t&) const
 	{
 		return operator-();
 	}
-	vector4 operator () (const behavior::_add_t&, const vector4& v) const
+	vector4 operator () (const call::add_t&, const vector4& v) const
 	{
 		return operator+(v);
 	}
-	vector4 operator () (const behavior::_sub_t&, const vector4& v) const
+	vector4 operator () (const call::sub_t&, const vector4& v) const
 	{
 		return operator-(v);
 	}
-	vector4 operator () (const behavior::_mul_t&, T f) const
+	vector4 operator () (const call::mul_t&, T f) const
 	{
 		return operator*(f);
 	}
-	vector4 operator () (const behavior::_div_t&, T f) const
+	vector4 operator () (const call::div_t&, T f) const
 	{
 		return operator/(f);
 	}
-	vector4 operator () (const behavior::_rem_t&, T f) const
+	vector4 operator () (const call::rem_t&, T f) const
 	{
 		return operator%(f);
 	}
-	vector4 operator () (const behavior::_rem_t&, const vector4& v) const
+	vector4 operator () (const call::rem_t&, const vector4& v) const
 	{
 		return operator%(v);
 	}
 
-	vector4& operator () (const behavior::_add_assign_t&, const vector4& v)
+	vector4& operator () (const call::add_assign_t&, const vector4& v)
 	{
 		return operator+=(v);
 	}
-	vector4& operator () (const behavior::_sub_assign_t&, const vector4& v)
+	vector4& operator () (const call::sub_assign_t&, const vector4& v)
 	{
 		return operator-=(v);
 	}
-	vector4& operator () (const behavior::_mul_assign_t&, T f)
+	vector4& operator () (const call::mul_assign_t&, T f)
 	{
 		return operator*=(f);
 	}
-	vector4& operator () (const behavior::_div_assign_t&, T f)
+	vector4& operator () (const call::div_assign_t&, T f)
 	{
 		return operator/=(f);
 	}
-	vector4& operator () (const behavior::_rem_assign_t&, T f)
+	vector4& operator () (const call::rem_assign_t&, T f)
 	{
 		return operator%=(f);
 	}
-	vector4& operator () (const behavior::_rem_assign_t&, const vector4& v)
+	vector4& operator () (const call::rem_assign_t&, const vector4& v)
 	{
 		return operator%=(v);
 	}
-	vector4& operator () (const behavior::_increment_t&)
+	vector4& operator () (const call::increment_t&)
 	{
 		return operator++();
 	}
-	vector4 operator () (const behavior::_increment_back_t&)
+	vector4 operator () (const call::increment_back_t&)
 	{
 		return operator++(0);
 	}
-	vector4& operator () (const behavior::_decrement_t&)
+	vector4& operator () (const call::decrement_t&)
 	{
 		return operator--();
 	}
-	vector4 operator () (const behavior::_decrement_back_t&)
+	vector4 operator () (const call::decrement_back_t&)
 	{
 		return operator--(0);
 	}
-	T& operator () (const behavior::_at_t&, int i)
+	T& operator () (const call::at_t&, int i)
 	{
 		return operator[](i);
 	}
-	const T& operator () (const behavior::_at_t&, int i) const
+	const T& operator () (const call::at_t&, int i) const
 	{
 		return operator[](i);
 	}
-	T* operator () (const behavior::_pointer_t&)
+	T* operator () (const call::pointer_t&)
 	{
 		return operator T*();
 	}
-	const T* operator () (const behavior::_pointer_t&) const
+	const T* operator () (const call::pointer_t&) const
 	{
 		return operator const T*();
 	}
 
-	bool operator () (const behavior::_equal_t&, const vector4& v) const
+	bool operator () (const call::equal_t&, const vector4& v) const
 	{
 		return operator==(v);
 	}
-	bool operator () (const behavior::_not_equal_t&, const vector4& v) const
+	bool operator () (const call::not_equal_t&, const vector4& v) const
 	{
 		return operator!=(v);
 	}
-	bool operator () (const behavior::_near_t&, const vector4& v) const
+	bool operator () (const call::near_t&, const vector4& v) const
 	{
 		return near_equal(v);
 	}
-	bool operator () (const behavior::_near_zero_t&) const
+	bool operator () (const call::near_zero_t&) const
 	{
 		return near_equal_zero();
 	}
 
-	T operator () (const behavior::_length_t&) const
+	T operator () (const call::length_t&) const
 	{
 		return length();
 	}
-	T operator () (const behavior::_length_square_t&) const
+	T operator () (const call::length_square_t&) const
 	{
 		return length_sq();
 	}
-	T operator () (const behavior::_dot_t&, const vector4& v) const
+	T operator () (const call::dot_t&, const vector4& v) const
 	{
 		return dot(v);
 	}
-	vector4& operator () (const behavior::_normalize_t&)
+	vector4& operator () (const call::normalize_t&)
 	{
 		return normalize();
 	}
-	vector4 operator () (const behavior::_normalized_t&) const
+	vector4 operator () (const call::normalized_t&) const
 	{
 		return normalized();
 	}
-	vector4 operator () (const behavior::_cross_t&, const vector4& v) const
+	vector4 operator () (const call::cross_t&, const vector4& v) const
 	{
 		return cross(v);
 	}
-	vector4 operator () (const behavior::_lerp_t&, const vector4& to, T t) const
+	vector4 operator () (const call::lerp_t&, const vector4& to, T t) const
 	{
 		return lerp(to, t);
 	}
-	T operator () (const behavior::_distance_t&, const vector4& v) const
+	T operator () (const call::distance_t&, const vector4& v) const
 	{
 		return distance(v);
 	}
-	vector4 operator () (const behavior::_direction_t&, const vector4& v) const
+	vector4 operator () (const call::direction_t&, const vector4& v) const
 	{
 		return direction(v);
 	}
-	vector4 operator () (const behavior::_direction_t&, const vector4& v, T force) const
+	vector4 operator () (const call::direction_t&, const vector4& v, T force) const
 	{
 		return direction(v) * force;
 	}
-	vector4& operator () (const behavior::_saturate_t&) const
+	vector4& operator () (const call::saturate_t&) const
 	{
 		return saturate();
 	}
-	vector4 operator () (const behavior::_saturated_t&) const
+	vector4 operator () (const call::saturated_t&) const
 	{
 		return saturated();
 	}
-	vector2<T> operator () (const behavior::_swizzle_t&, int x, int y) const
+	vector2<T> operator () (const call::swizzle_t&, int x, int y) const
 	{
 		return swizzle(x, y);
 	}
-	vector3<T> operator () (const behavior::_swizzle_t&, int x, int y, int z) const
+	vector3<T> operator () (const call::swizzle_t&, int x, int y, int z) const
 	{
 		return swizzle(x, y, z);
 	}
-	vector4 operator () (const behavior::_swizzle_t&, int x, int y, int z, int w) const
+	vector4 operator () (const call::swizzle_t&, int x, int y, int z, int w) const
 	{
 		return swizzle(x, y, z, w);
 	}
 
-	T operator () (const behavior::_yaw_t&) const
+	T operator () (const call::yaw_t&) const
 	{
 		return yaw();
 	}
-	T operator () (const behavior::_pitch_t&) const
+	T operator () (const call::pitch_t&) const
 	{
 		return pitch();
 	}
-	vector4& operator () (const behavior::_from_pitch_yaw_t&, T pitch, T yaw)
+	vector4& operator () (const call::from_pitch_yaw_t&, T pitch, T yaw)
 	{
 		return from_pitch_yaw(pitch, yaw);
 	}
-	vector4 operator () (const behavior::_transform_t&, const matrix4x4<T>& m) const
+	vector4 operator () (const call::transform_t&, const matrix4x4<T>& m) const
 	{
 		return transformed(m);
 	}
-	vector4 operator () (const behavior::_transform_coord_t&, const matrix4x4<T>& m) const
+	vector4 operator () (const call::transform_coord_t&, const matrix4x4<T>& m) const
 	{
 		return transformed_coord(m);
 	}
-	vector4 operator () (const behavior::_rotate_t&, const quaternion<T>& q) const
+	vector4 operator () (const call::rotate_t&, const quaternion<T>& q) const
 	{
 		return rotated(q);
 	}
-	vector4 operator () (const behavior::_rotate_t&, const vector3<T>& axis, T angle) const
+	vector4 operator () (const call::rotate_t&, const vector3<T>& axis, T angle) const
 	{
 		return rotated(axis, angle);
 	}

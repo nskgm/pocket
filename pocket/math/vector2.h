@@ -6,7 +6,7 @@
 #pragma once
 #endif // POCKET_USE_PRAGMA_ONCE
 
-#include "../behavior.h"
+#include "../call.h"
 #include "../debug.h"
 #include "../container/array.h"
 #include "math_traits.h"
@@ -98,18 +98,18 @@ struct vector2
 	//-----------------------------------------------------------------------------------------
 
 	POCKET_DEFAULT_CONSTRUCTOR(vector2);
-	explicit vector2(const behavior::_noinitialize_t&)
+	explicit vector2(const call::noinitialize_t&)
 	{}
-	explicit vector2(const behavior::_zero_t&) :
+	explicit vector2(const call::zero_t&) :
 		x(math_type::zero), y(math_type::zero)
 	{}
-	explicit vector2(const behavior::_one_t&) :
+	explicit vector2(const call::one_t&) :
 		x(math_type::one), y(math_type::one)
 	{}
-	explicit vector2(const behavior::_half_t&) :
+	explicit vector2(const call::half_t&) :
 		x(math_type::half), y(math_type::half)
 	{}
-	explicit vector2(const behavior::_half_of_half_t&) :
+	explicit vector2(const call::half_of_half_t&) :
 		x(math_type::half_of_half), y(math_type::half_of_half)
 	{}
 	vector2(T x, T y) :
@@ -592,47 +592,47 @@ struct vector2
 	//---------------------------------------------------------------------
 	vector2 operator + (const vector2& v) const
 	{
-		vector2 result(behavior::noinitialize);
+		vector2 result(call::noinitialize);
 		return add(v, result);
 	}
 	template <typename U>
 	vector2 operator + (const vector2<U>& v) const
 	{
-		vector2 result(behavior::noinitialize);
+		vector2 result(call::noinitialize);
 		return add<U>(v, result);
 	}
 	vector2 operator - (const vector2& v) const
 	{
-		vector2 result(behavior::noinitialize);
+		vector2 result(call::noinitialize);
 		return subtract(v, result);
 	}
 	template <typename U>
 	vector2 operator - (const vector2<U>& v) const
 	{
-		vector2 result(behavior::noinitialize);
+		vector2 result(call::noinitialize);
 		return subtract<U>(v, result);
 	}
 	vector2 operator * (T f) const
 	{
-		vector2 result(behavior::noinitialize);
+		vector2 result(call::noinitialize);
 		return multiply(f, result);
 	}
 	vector2 operator * (const matrix3x3<T>&) const; // matrix3x3.h
 	template <typename U, POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
 	vector2 operator * (U f) const
 	{
-		vector2 result(behavior::noinitialize);
+		vector2 result(call::noinitialize);
 		return multiply<U>(f, result);
 	}
 	vector2 operator / (T f) const
 	{
-		vector2 result(behavior::noinitialize);
+		vector2 result(call::noinitialize);
 		return divide(f, result);
 	}
 	template <typename U, POCKET_TEMPLATE_TYPE_VALIDATE_ARITHMETIC(U)>
 	vector2 operator / (U f) const
 	{
-		vector2 result(behavior::noinitialize);
+		vector2 result(call::noinitialize);
 		return divide<U>(f, result);
 	}
 	vector2 operator % (T f) const
@@ -657,19 +657,19 @@ struct vector2
 	{
 		return operator=(static_cast<T>(f));
 	}
-	vector2& operator = (const behavior::_zero_t&)
+	vector2& operator = (const call::zero_t&)
 	{
 		return operator=(math_type::zero);
 	}
-	vector2& operator = (const behavior::_one_t&)
+	vector2& operator = (const call::one_t&)
 	{
 		return operator=(math_type::one);
 	}
-	vector2& operator = (const behavior::_half_t&)
+	vector2& operator = (const call::half_t&)
 	{
 		return operator=(math_type::half);
 	}
-	vector2& operator = (const behavior::_half_of_half_t&)
+	vector2& operator = (const call::half_of_half_t&)
 	{
 		return operator=(math_type::half_of_half);
 	}
@@ -757,205 +757,205 @@ struct vector2
 	// タグでの関数呼び出し
 	//------------------------------------------------------------------------------------------
 
-	vector2& operator () (const behavior::_zero_t&)
+	vector2& operator () (const call::zero_t&)
 	{
 		return operator=(math_type::zero);
 	}
-	vector2& operator () (const behavior::_one_t&)
+	vector2& operator () (const call::one_t&)
 	{
 		return operator=(math_type::one);
 	}
-	vector2& operator () (const behavior::_half_t&)
+	vector2& operator () (const call::half_t&)
 	{
 		return operator=(math_type::half);
 	}
-	vector2& operator () (const behavior::_half_of_half_t&)
+	vector2& operator () (const call::half_of_half_t&)
 	{
 		return operator=(math_type::half_of_half);
 	}
 
-	vector2 operator () (const behavior::_plus_t&) const
+	vector2 operator () (const call::plus_t&) const
 	{
 		return operator+();
 	}
-	vector2 operator () (const behavior::_negate_t&) const
+	vector2 operator () (const call::negate_t&) const
 	{
 		return operator-();
 	}
-	vector2 operator () (const behavior::_add_t&, const vector2& v) const
+	vector2 operator () (const call::add_t&, const vector2& v) const
 	{
 		return operator+(v);
 	}
-	vector2 operator () (const behavior::_sub_t&, const vector2& v) const
+	vector2 operator () (const call::sub_t&, const vector2& v) const
 	{
 		return operator-(v);
 	}
-	vector2 operator () (const behavior::_mul_t&, T f) const
+	vector2 operator () (const call::mul_t&, T f) const
 	{
 		return operator*(f);
 	}
-	vector2 operator () (const behavior::_div_t&, T f) const
+	vector2 operator () (const call::div_t&, T f) const
 	{
 		return operator/(f);
 	}
-	vector2 operator () (const behavior::_rem_t&, T f) const
+	vector2 operator () (const call::rem_t&, T f) const
 	{
 		return operator%(f);
 	}
-	vector2 operator () (const behavior::_rem_t&, const vector2& v) const
+	vector2 operator () (const call::rem_t&, const vector2& v) const
 	{
 		return operator%(v);
 	}
 
-	vector2& operator () (const behavior::_add_assign_t&, const vector2& v)
+	vector2& operator () (const call::add_assign_t&, const vector2& v)
 	{
 		return operator+=(v);
 	}
-	vector2& operator () (const behavior::_sub_assign_t&, const vector2& v)
+	vector2& operator () (const call::sub_assign_t&, const vector2& v)
 	{
 		return operator-=(v);
 	}
-	vector2& operator () (const behavior::_mul_assign_t&, T f)
+	vector2& operator () (const call::mul_assign_t&, T f)
 	{
 		return operator*=(f);
 	}
-	vector2& operator () (const behavior::_div_assign_t&, T f)
+	vector2& operator () (const call::div_assign_t&, T f)
 	{
 		return operator/=(f);
 	}
-	vector2& operator () (const behavior::_rem_assign_t&, T f)
+	vector2& operator () (const call::rem_assign_t&, T f)
 	{
 		return operator%=(f);
 	}
-	vector2& operator () (const behavior::_rem_assign_t&, const vector2& v)
+	vector2& operator () (const call::rem_assign_t&, const vector2& v)
 	{
 		return operator%=(v);
 	}
-	vector2& operator () (const behavior::_increment_t&)
+	vector2& operator () (const call::increment_t&)
 	{
 		return operator++();
 	}
-	vector2 operator () (const behavior::_increment_back_t&)
+	vector2 operator () (const call::increment_back_t&)
 	{
 		return operator++(0);
 	}
-	vector2& operator () (const behavior::_decrement_t&)
+	vector2& operator () (const call::decrement_t&)
 	{
 		return operator--();
 	}
-	vector2 operator () (const behavior::_decrement_back_t&)
+	vector2 operator () (const call::decrement_back_t&)
 	{
 		return operator--(0);
 	}
-	T& operator () (const behavior::_at_t&, int i)
+	T& operator () (const call::at_t&, int i)
 	{
 		return operator[](i);
 	}
-	const T& operator () (const behavior::_at_t&, int i) const
+	const T& operator () (const call::at_t&, int i) const
 	{
 		return operator[](i);
 	}
-	T* operator () (const behavior::_pointer_t&)
+	T* operator () (const call::pointer_t&)
 	{
 		return operator T*();
 	}
-	const T* operator () (const behavior::_pointer_t&) const
+	const T* operator () (const call::pointer_t&) const
 	{
 		return operator const T*();
 	}
 
-	bool operator () (const behavior::_equal_t&, const vector2& v) const
+	bool operator () (const call::equal_t&, const vector2& v) const
 	{
 		return operator==(v);
 	}
-	bool operator () (const behavior::_not_equal_t&, const vector2& v) const
+	bool operator () (const call::not_equal_t&, const vector2& v) const
 	{
 		return operator!=(v);
 	}
-	bool operator () (const behavior::_near_t&, const vector2& v) const
+	bool operator () (const call::near_t&, const vector2& v) const
 	{
 		return near_equal(v);
 	}
-	bool operator () (const behavior::_near_zero_t&) const
+	bool operator () (const call::near_zero_t&) const
 	{
 		return near_equal_zero();
 	}
 
-	T operator () (const behavior::_length_t&) const
+	T operator () (const call::length_t&) const
 	{
 		return length();
 	}
-	T operator () (const behavior::_length_square_t&) const
+	T operator () (const call::length_square_t&) const
 	{
 		return length_sq();
 	}
-	T operator () (const behavior::_dot_t&, const vector2& v) const
+	T operator () (const call::dot_t&, const vector2& v) const
 	{
 		return dot(v);
 	}
-	vector2& operator () (const behavior::_normalize_t&)
+	vector2& operator () (const call::normalize_t&)
 	{
 		return normalize();
 	}
-	vector2 operator () (const behavior::_normalized_t&) const
+	vector2 operator () (const call::normalized_t&) const
 	{
 		return normalized();
 	}
-	T operator () (const behavior::_cross_t&, const vector2& v) const
+	T operator () (const call::cross_t&, const vector2& v) const
 	{
 		return cross(v);
 	}
-	vector2 operator () (const behavior::_lerp_t&, const vector2& to, T t) const
+	vector2 operator () (const call::lerp_t&, const vector2& to, T t) const
 	{
 		return lerp(to, t);
 	}
-	T operator () (const behavior::_distance_t&, const vector2& v) const
+	T operator () (const call::distance_t&, const vector2& v) const
 	{
 		return distance(v);
 	}
-	vector2 operator () (const behavior::_direction_t&, const vector2& v) const
+	vector2 operator () (const call::direction_t&, const vector2& v) const
 	{
 		return direction(v);
 	}
-	vector2 operator () (const behavior::_direction_t&, const vector2& v, T force) const
+	vector2 operator () (const call::direction_t&, const vector2& v, T force) const
 	{
 		return direction(v) * force;
 	}
-	vector2& operator () (const behavior::_saturate_t&) const
+	vector2& operator () (const call::saturate_t&) const
 	{
 		return saturate();
 	}
-	vector2 operator () (const behavior::_saturated_t&) const
+	vector2 operator () (const call::saturated_t&) const
 	{
 		return saturated();
 	}
-	vector2 operator () (const behavior::_swizzle_t&, int x, int y) const
+	vector2 operator () (const call::swizzle_t&, int x, int y) const
 	{
 		return swizzle(x, y);
 	}
-	vector3<T> operator () (const behavior::_swizzle_t&, int x, int y, int z) const
+	vector3<T> operator () (const call::swizzle_t&, int x, int y, int z) const
 	{
 		return swizzle(x, y, z);
 	}
-	vector4<T> operator () (const behavior::_swizzle_t&, int x, int y, int z, int w) const
+	vector4<T> operator () (const call::swizzle_t&, int x, int y, int z, int w) const
 	{
 		return swizzle(x, y, z, w);
 	}
 
-	T operator () (const behavior::_inner_t&, const vector2& v) const
+	T operator () (const call::inner_t&, const vector2& v) const
 	{
 		return inner_angle(v);
 	}
-	T operator () (const behavior::_angle_t&) const
+	T operator () (const call::angle_t&) const
 	{
 		return angle();
 	}
-	T operator () (const behavior::_angle_t&, const vector2& v) const
+	T operator () (const call::angle_t&, const vector2& v) const
 	{
 		return angle(v);
 	}
 
-	vector2& operator () (const behavior::_from_angle_t&, T angle) const
+	vector2& operator () (const call::from_angle_t&, T angle) const
 	{
 		return from_angle(angle);
 	}

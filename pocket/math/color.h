@@ -6,7 +6,7 @@
 #pragma once
 #endif // POCKET_USE_PRAGMA_ONCE
 
-#include "../behavior.h"
+#include "../call.h"
 #include "../container/array.h"
 #include "math_traits.h"
 #ifdef POCKET_USE_SIMD_ANONYMOUS
@@ -110,7 +110,7 @@ struct color
 	//------------------------------------------------------------------------------------------
 
 	POCKET_DEFAULT_CONSTRUCTOR(color);
-	explicit color(const behavior::_noinitialize_t&)
+	explicit color(const call::noinitialize_t&)
 	{}
 	color(T r, T g, T b, T a) :
 #ifdef POCKET_USE_SIMD_ANONYMOUS
@@ -506,7 +506,7 @@ struct color
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		return color(simd::add(mm, c.mm));
 #else
-		color result(behavior::noinitialize);
+		color result(call::noinitialize);
 		return add(c, result);
 #endif // POCKET_USE_SIMD_ANONYMOUS
 	}
@@ -515,7 +515,7 @@ struct color
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		return color(simd::sub(mm, c.mm));
 #else
-		color result(behavior::noinitialize);
+		color result(call::noinitialize);
 		return subtract(c, result);
 #endif // POCKET_USE_SIMD_ANONYMOUS
 	}
@@ -524,7 +524,7 @@ struct color
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		return color(simd::mul(mm, f));
 #else
-		color result(behavior::noinitialize);
+		color result(call::noinitialize);
 		return multiply(f, result);
 #endif // POCKET_USE_SIMD_ANONYMOUS
 	}
@@ -533,7 +533,7 @@ struct color
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		return color(simd::mul(mm, c.mm));
 #else
-		color result(behavior::noinitialize);
+		color result(call::noinitialize);
 		return multiply(c, result);
 #endif // POCKET_USE_SIMD_ANONYMOUS
 	}
@@ -543,7 +543,7 @@ struct color
 		POCKET_DEBUG_ASSERT(f != math_type::zero);
 		return color(simd::div(mm, f));
 #else
-		color result(behavior::noinitialize);
+		color result(call::noinitialize);
 		return divide(f, result);
 #endif // POCKET_USE_SIMD_ANONYMOUS
 	}

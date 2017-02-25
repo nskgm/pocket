@@ -7,7 +7,7 @@
 #endif // POCKET_USE_PRAGMA_ONCE
 
 #include "../debug.h"
-#include "../behavior.h"
+#include "../call.h"
 #include "../container/array.h"
 #include "math_traits.h"
 #include "vector3.h"
@@ -134,7 +134,7 @@ struct frustum
 	//---------------------------------------------------------------------------------------
 
 	POCKET_DEFAULT_CONSTRUCTOR(frustum);
-	explicit frustum(const behavior::_noinitialize_t&)
+	explicit frustum(const call::noinitialize_t&)
 	{}
 	frustum(const plane_type& left, const plane_type& right, const plane_type& up, const plane_type& down, const plane_type& n, const plane_type& f)
 #ifdef POCKET_USE_ANONYMOUS_NON_POD
@@ -195,7 +195,7 @@ struct frustum
 	//---------------------------------------------------------------------
 	frustum& from_view_projection(const look_to_t& lookto, const projection_field_of_view_t& fov)
 	{
-		matrix4x4_type view(behavior::noinitialize), proj(behavior::noinitialize);
+		matrix4x4_type view(call::noinitialize), proj(call::noinitialize);
 		view.load_lookto(lookto.eye, lookto.direction, lookto.up);
 		proj.load_perspective_field_of_view(fov.fovy, fov.aspect, fov.n, fov.f);
 
@@ -203,7 +203,7 @@ struct frustum
 	}
 	frustum& from_view_projection(const look_at_t& lookat, const projection_field_of_view_t& fov)
 	{
-		matrix4x4_type view(behavior::noinitialize), proj(behavior::noinitialize);
+		matrix4x4_type view(call::noinitialize), proj(call::noinitialize);
 		view.load_lookat(lookat.eye, lookat.center, lookat.up);
 		proj.load_perspective_field_of_view(fov.fovy, fov.aspect, fov.n, fov.f);
 
@@ -215,7 +215,7 @@ struct frustum
 	frustum& from_view_projection_matrix(const matrix4x4_type& view, const matrix4x4_type& projection)
 	{
 		// クリップ行列を計算
-		matrix4x4_type clip(behavior::noinitialize);
+		matrix4x4_type clip(call::noinitialize);
 		view.multiply(projection, clip);
 
 		return from_clip_matrix(clip);

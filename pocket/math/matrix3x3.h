@@ -166,15 +166,15 @@ struct matrix3x3
 	//------------------------------------------------------------------------------------------
 
 	POCKET_DEFAULT_CONSTRUCTOR(matrix3x3);
-	explicit matrix3x3(const behavior::_noinitialize_t&)
+	explicit matrix3x3(const call::noinitialize_t&)
 	{}
-	explicit matrix3x3(const behavior::_zero_t&)
+	explicit matrix3x3(const call::zero_t&)
 	{
 		M[0] = row_type::zero;
 		M[1] = row_type::zero;
 		M[2] = row_type::zero;
 	}
-	explicit matrix3x3(const behavior::_identity_t&)
+	explicit matrix3x3(const call::identity_t&)
 	{
 		M[0] = row_type::unit_x;
 		M[1] = row_type::unit_y;
@@ -779,7 +779,7 @@ struct matrix3x3
 	//---------------------------------------------------------------------
 	vector2<T> transform(const vector2<T>& v) const
 	{
-		vector2<T> r(behavior::noinitialize);
+		vector2<T> r(call::noinitialize);
 		return transform(v, r);
 	}
 	vector2<T>& transform(const vector2<T>& v, vector2<T>& result) const
@@ -799,7 +799,7 @@ struct matrix3x3
 	//---------------------------------------------------------------------
 	vector2<T> transform_coord(const vector2<T>& v) const
 	{
-		vector2<T> r(behavior::noinitialize);
+		vector2<T> r(call::noinitialize);
 		return transform_coord(v, r);
 	}
 	vector2<T>& transform_coord(const vector2<T>& v, vector2<T>& result) const
@@ -819,7 +819,7 @@ struct matrix3x3
 	//---------------------------------------------------------------------
 	vector3<T> transform(const vector3<T>& v) const
 	{
-		vector3<T> r(behavior::noinitialize);
+		vector3<T> r(call::noinitialize);
 		return transform(v, r);
 	}
 	vector3<T>& transform(const vector3<T>& v, vector3<T>& result) const
@@ -836,7 +836,7 @@ struct matrix3x3
 	}
 	vector3<T> transform_normal(const vector3<T>& v) const
 	{
-		vector3<T> r(behavior::noinitialize);
+		vector3<T> r(call::noinitialize);
 		return transform(v, r);
 	}
 	vector3<T>& transform_normal(const vector3<T>& v, vector3<T>& result) const
@@ -948,38 +948,38 @@ struct matrix3x3
 	//---------------------------------------------------------------------
 	matrix3x3 operator + (const matrix3x3& m) const
 	{
-		matrix3x3 result(behavior::noinitialize);
+		matrix3x3 result(call::noinitialize);
 		return add(m, result);
 	}
 	matrix3x3 operator - (const matrix3x3& m) const
 	{
-		matrix3x3 result(behavior::noinitialize);
+		matrix3x3 result(call::noinitialize);
 		return subtract(m, result);
 	}
 	matrix3x3 operator * (const matrix3x3& m) const
 	{
-		matrix3x3 result(behavior::noinitialize);
+		matrix3x3 result(call::noinitialize);
 		return multiply(m, result);
 	}
 	matrix3x3 operator * (T f) const
 	{
-		matrix3x3 result(behavior::noinitialize);
+		matrix3x3 result(call::noinitialize);
 		return multiply(f, result);
 	}
 	matrix3x3 operator / (T f) const
 	{
-		matrix3x3 result(behavior::noinitialize);
+		matrix3x3 result(call::noinitialize);
 		return divide(f, result);
 	}
 
 	//---------------------------------------------------------------------
 	// 代入演算子
 	//---------------------------------------------------------------------
-	matrix3x3& operator = (const behavior::_zero_t&)
+	matrix3x3& operator = (const call::zero_t&)
 	{
 		return load_zero();
 	}
-	matrix3x3& operator = (const behavior::_identity_t&)
+	matrix3x3& operator = (const call::identity_t&)
 	{
 		return load_identity();
 	}
@@ -1063,7 +1063,7 @@ vector2<T>& vector2<T>::transform(const matrix3x3<T>& m, vector2<T>& result) con
 template <typename T> inline
 vector2<T> vector2<T>::transformed(const matrix3x3<T>& m) const
 {
-	vector2<T> r(behavior::noinitialize);
+	vector2<T> r(call::noinitialize);
 	return m.transform(*this, r);
 }
 template <typename T> inline
@@ -1080,7 +1080,7 @@ vector2<T>& vector2<T>::transform_coord(const matrix3x3<T>& m, vector2<T>& resul
 template <typename T> inline
 vector2<T> vector2<T>::transformed_coord(const matrix3x3<T>& m) const
 {
-	vector2<T> r(behavior::noinitialize);
+	vector2<T> r(call::noinitialize);
 	return m.transform(*this, r);
 }
 template <typename T> inline
@@ -1097,7 +1097,7 @@ vector2<T>& vector2<T>::transform_normal(const matrix3x3<T>& m, vector2<T>& resu
 template <typename T> inline
 vector2<T> vector2<T>::transformed_normal(const matrix3x3<T>& m) const
 {
-	vector2<T> r(behavior::noinitialize);
+	vector2<T> r(call::noinitialize);
 	return m.transform(*this, r);
 }
 
@@ -1118,7 +1118,7 @@ vector3<T>& vector3<T>::transform(const matrix3x3<T>& m, vector3<T>& result) con
 template <typename T> inline
 vector3<T> vector3<T>::transformed(const matrix3x3<T>& m) const
 {
-	vector3<T> r(behavior::noinitialize);
+	vector3<T> r(call::noinitialize);
 	return m.transform(*this, r);
 }
 template <typename T> inline
@@ -1135,7 +1135,7 @@ vector3<T>& vector3<T>::transform_normal(const matrix3x3<T>& m, vector3<T>& resu
 template <typename T> inline
 vector3<T> vector3<T>::transformed_normal(const matrix3x3<T>& m) const
 {
-	vector3<T> r(behavior::noinitialize);
+	vector3<T> r(call::noinitialize);
 	return m.transform(*this, r);
 }
 
@@ -1145,13 +1145,13 @@ vector3<T> vector3<T>::transformed_normal(const matrix3x3<T>& m) const
 template <typename T> inline
 vector2<T> vector2<T>::operator * (const matrix3x3<T>& m) const
 {
-	vector2<T> r(behavior::noinitialize);
+	vector2<T> r(call::noinitialize);
 	return m.transform(*this, r);
 }
 template <typename T> inline
 vector3<T> vector3<T>::operator * (const matrix3x3<T>& m) const
 {
-	vector3<T> r(behavior::noinitialize);
+	vector3<T> r(call::noinitialize);
 	return m.transform(*this, r);
 }
 

@@ -78,6 +78,7 @@ public:
 	//------------------------------------------------------------------------------------------
 
 	friend class buffer_view;
+	friend class uniform_buffer;
 	friend class draw_indirect_buffer;
 
 	typedef binder<buffer> binder_type;

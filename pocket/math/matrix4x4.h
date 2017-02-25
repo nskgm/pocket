@@ -7,7 +7,7 @@
 #endif // POCKET_USE_PRAGMA_ONCE
 
 #include "../debug.h"
-#include "../behavior.h"
+#include "../call.h"
 #include "math_traits.h"
 #include "vector3.h"
 #include "vector4.h"
@@ -136,16 +136,16 @@ struct matrix4x4
 	//-----------------------------------------------------------------------------------------
 
 	POCKET_DEFAULT_CONSTRUCTOR(matrix4x4);
-	explicit matrix4x4(const behavior::_noinitialize_t&)
+	explicit matrix4x4(const call::noinitialize_t&)
 	{}
-	explicit matrix4x4(const behavior::_zero_t&)
+	explicit matrix4x4(const call::zero_t&)
 	{
 		M[0] = row_type::zero;
 		M[1] = row_type::zero;
 		M[2] = row_type::zero;
 		M[3] = row_type::zero;
 	}
-	explicit matrix4x4(const behavior::_identity_t&)
+	explicit matrix4x4(const call::identity_t&)
 	{
 		M[0] = row_type::unit_x;
 		M[1] = row_type::unit_y;
@@ -541,14 +541,6 @@ struct matrix4x4
 	//---------------------------------------------------------------------
 	matrix4x4& load_zero()
 	{
-#if 0
-		M[0] = vector4<T>::zero;
-		M[1] = vector4<T>::zero;
-		M[2] = vector4<T>::zero;
-		M[3] = vector4<T>::zero;
-		//M.fill(vector4<T>::zero);
-#endif
-
 		*this = matrix4x4::zero;
 		return *this;
 	}
@@ -558,14 +550,6 @@ struct matrix4x4
 	//---------------------------------------------------------------------
 	matrix4x4& load_identity()
 	{
-#if 0
-		M[0] = vector4<T>::unit_x;
-		M[1] = vector4<T>::unit_y;
-		M[2] = vector4<T>::unit_z;
-		M[3] = vector4<T>::unit_w;
-		//std::memcpy(this, &matrix4x4::identity, sizeof(*this));
-#endif
-
 		*this = matrix4x4::identity;
 		return *this;
 	}
@@ -850,7 +834,7 @@ struct matrix4x4
 		// カメラを原点としてカメラから見た変換を行う
 
 		// 前方向と上方向の外積で右ベクトルを求める
-		vector3<T> x(behavior::noinitialize);
+		vector3<T> x(call::noinitialize);
 		up.cross(direction, x).normalize();
 		// 前と右から上方向のベクトルを求める
 		vector3<T> y = direction.cross(x);
@@ -872,7 +856,7 @@ struct matrix4x4
 	matrix4x4& load_lookat(const vector3<T>& eye, const vector3<T>& center, const vector3<T>& up = vector3<T>::up)
 	{
 		// 向きを求める
-		vector3<T> dir(behavior::noinitialize);
+		vector3<T> dir(call::noinitialize);
 		return load_lookto(eye, center.direction(eye, dir), up);
 	}
 	matrix4x4& load_lookat(T ex, T ey, T ez, T cx, T cy, T cz, T ux = math_type::zero, T uy = math_type::one, T uz = math_type::zero)
@@ -1090,7 +1074,7 @@ struct matrix4x4
 	//---------------------------------------------------------------------
 	matrix4x4 inversed() const
 	{
-		matrix4x4 r(behavior::noinitialize);
+		matrix4x4 r(call::noinitialize);
 		return POCKET_CXX11_MOVE(inverse(r));
 	}
 	//---------------------------------------------------------------------
@@ -1098,7 +1082,7 @@ struct matrix4x4
 	//---------------------------------------------------------------------
 	vector3<T> transform(const vector3<T>& v) const
 	{
-		vector3<T> r(behavior::noinitialize);
+		vector3<T> r(call::noinitialize);
 		return POCKET_CXX11_MOVE(transform(v, r));
 	}
 	vector3<T>& transform(const vector3<T>& v, vector3<T>& result) const
@@ -1119,7 +1103,7 @@ struct matrix4x4
 	//---------------------------------------------------------------------
 	vector3<T> transform_coord(const vector3<T>& v) const
 	{
-		vector3<T> r(behavior::noinitialize);
+		vector3<T> r(call::noinitialize);
 		return POCKET_CXX11_MOVE(transform_coord(v, r));
 	}
 	vector3<T>& transform_coord(const vector3<T>& v, vector3<T>& result) const
@@ -1141,7 +1125,7 @@ struct matrix4x4
 	//---------------------------------------------------------------------
 	vector4<T> transform(const vector4<T>& v) const
 	{
-		vector4<T> r(behavior::noinitialize);
+		vector4<T> r(call::noinitialize);
 		return POCKET_CXX11_MOVE(transform(v, r));
 	}
 	vector4<T>& transform(const vector4<T>& v, vector4<T>& result) const
@@ -1163,7 +1147,7 @@ struct matrix4x4
 	//---------------------------------------------------------------------
 	vector4<T> transform_coord(const vector4<T>& v) const
 	{
-		vector4<T> r(behavior::noinitialize);
+		vector4<T> r(call::noinitialize);
 		return POCKET_CXX11_MOVE(transform_coord(v, r));
 	}
 	vector4<T>& transform_coord(const vector4<T>& v, vector4<T>& result) const
@@ -1180,7 +1164,7 @@ struct matrix4x4
 	//---------------------------------------------------------------------
 	vector3<T> transform_normal(const vector3<T>& v) const
 	{
-		vector3<T> r(behavior::noinitialize);
+		vector3<T> r(call::noinitialize);
 		return POCKET_CXX11_MOVE(transform_normal(v, r));
 	}
 	vector3<T>& transform_normal(const vector3<T>& v, vector3<T>& result) const
@@ -1200,14 +1184,14 @@ struct matrix4x4
 	//---------------------------------------------------------------------
 	matrix4x4 slerp(const matrix4x4& to, T t) const
 	{
-		matrix4x4 result(behavior::noinitialize);
+		matrix4x4 result(call::noinitialize);
 		return POCKET_CXX11_MOVE(slerp(to, t, result));
 	}
 	matrix4x4& slerp(const matrix4x4& to, T t, matrix4x4& result) const
 	{
-		vector3<T> s(behavior::noinitialize);
-		vector3<T> p(behavior::noinitialize);
-		quaternion<T> r(behavior::noinitialize);
+		vector3<T> s(call::noinitialize);
+		vector3<T> p(call::noinitialize);
+		quaternion<T> r(call::noinitialize);
 
 		// 補間用の値取得
 		const vector3<T> s0 = scale();
@@ -1341,7 +1325,7 @@ struct matrix4x4
 	}
 	matrix4x4 operator * (const matrix4x4& m) const
 	{
-		matrix4x4 r(behavior::noinitialize);
+		matrix4x4 r(call::noinitialize);
 		return POCKET_CXX11_MOVE(multiply(m, r));
 	}
 	matrix4x4 operator * (T f) const
@@ -1358,11 +1342,11 @@ struct matrix4x4
 	//---------------------------------------------------------------------
 	// 代入演算子
 	//---------------------------------------------------------------------
-	matrix4x4& operator = (const behavior::_zero_t&)
+	matrix4x4& operator = (const call::zero_t&)
 	{
 		return load_zero();
 	}
-	matrix4x4& operator = (const behavior::_identity_t&)
+	matrix4x4& operator = (const call::identity_t&)
 	{
 		return load_identity();
 	}
@@ -1438,316 +1422,316 @@ struct matrix4x4
 	// タグでの関数呼び出し
 	//------------------------------------------------------------------------------------------
 
-	matrix4x4& operator () (const behavior::_zero_t&)
+	matrix4x4& operator () (const call::zero_t&)
 	{
 		return load_zero();
 	}
-	matrix4x4& operator () (const behavior::_identity_t&)
+	matrix4x4& operator () (const call::identity_t&)
 	{
 		return load_identity();
 	}
 
-	matrix4x4 operator () (const behavior::_plus_t&) const
+	matrix4x4 operator () (const call::plus_t&) const
 	{
 		return operator+();
 	}
-	matrix4x4 operator () (const behavior::_negate_t&) const
+	matrix4x4 operator () (const call::negate_t&) const
 	{
 		return operator-();
 	}
-	matrix4x4 operator () (const behavior::_add_t&, const matrix4x4& m) const
+	matrix4x4 operator () (const call::add_t&, const matrix4x4& m) const
 	{
 		return operator+(m);
 	}
-	matrix4x4 operator () (const behavior::_sub_t&, const matrix4x4& m) const
+	matrix4x4 operator () (const call::sub_t&, const matrix4x4& m) const
 	{
 		return operator-(m);
 	}
-	matrix4x4 operator () (const behavior::_mul_t&, T f) const
+	matrix4x4 operator () (const call::mul_t&, T f) const
 	{
 		return operator*(f);
 	}
-	matrix4x4 operator () (const behavior::_mul_t&, const matrix4x4& m) const
+	matrix4x4 operator () (const call::mul_t&, const matrix4x4& m) const
 	{
 		return operator*(m);
 	}
-	matrix4x4 operator () (const behavior::_div_t&, T f) const
+	matrix4x4 operator () (const call::div_t&, T f) const
 	{
 		return operator/(f);
 	}
 
-	matrix4x4& operator () (const behavior::_add_assign_t&, const matrix4x4& m)
+	matrix4x4& operator () (const call::add_assign_t&, const matrix4x4& m)
 	{
 		return operator+=(m);
 	}
-	matrix4x4& operator () (const behavior::_sub_assign_t&, const matrix4x4& m)
+	matrix4x4& operator () (const call::sub_assign_t&, const matrix4x4& m)
 	{
 		return operator-=(m);
 	}
-	matrix4x4& operator () (const behavior::_mul_assign_t&, T f)
+	matrix4x4& operator () (const call::mul_assign_t&, T f)
 	{
 		return operator*=(f);
 	}
-	matrix4x4& operator () (const behavior::_mul_assign_t&, const matrix4x4& m)
+	matrix4x4& operator () (const call::mul_assign_t&, const matrix4x4& m)
 	{
 		return operator*=(m);
 	}
-	matrix4x4& operator () (const behavior::_div_assign_t&, T f)
+	matrix4x4& operator () (const call::div_assign_t&, T f)
 	{
 		return operator/=(f);
 	}
-	vector4<T>& operator () (const behavior::_at_t&, int i)
+	vector4<T>& operator () (const call::at_t&, int i)
 	{
 		return operator[](i);
 	}
-	const vector4<T>& operator () (const behavior::_at_t&, int i) const
+	const vector4<T>& operator () (const call::at_t&, int i) const
 	{
 		return operator[](i);
 	}
-	T& operator () (const behavior::_at_t&, int y, int x)
+	T& operator () (const call::at_t&, int y, int x)
 	{
 		return operator()(y, x);
 	}
-	const T& operator () (const behavior::_at_t&, int y, int x) const
+	const T& operator () (const call::at_t&, int y, int x) const
 	{
 		return operator()(y, x);
 	}
-	T& operator () (const behavior::_at_t&, const matrix_point& p)
+	T& operator () (const call::at_t&, const matrix_point& p)
 	{
 		return operator[](p);
 	}
-	const T& operator () (const behavior::_at_t&, const matrix_point& p) const
+	const T& operator () (const call::at_t&, const matrix_point& p) const
 	{
 		return operator[](p);
 	}
-	T* operator () (const behavior::_pointer_t&)
+	T* operator () (const call::pointer_t&)
 	{
 		return operator T*();
 	}
-	const T* operator () (const behavior::_pointer_t&) const
+	const T* operator () (const call::pointer_t&) const
 	{
 		return operator const T*();
 	}
 
-	bool operator () (const behavior::_equal_t&, const matrix4x4& m) const
+	bool operator () (const call::equal_t&, const matrix4x4& m) const
 	{
 		return operator==(m);
 	}
-	bool operator () (const behavior::_not_equal_t&, const matrix4x4& m) const
+	bool operator () (const call::not_equal_t&, const matrix4x4& m) const
 	{
 		return operator!=(m);
 	}
-	bool operator () (const behavior::_near_t&, const matrix4x4& m) const
+	bool operator () (const call::near_t&, const matrix4x4& m) const
 	{
 		return near_equal(m);
 	}
-	bool operator () (const behavior::_near_zero_t&) const
+	bool operator () (const call::near_zero_t&) const
 	{
 		return near_equal_zero();
 	}
 
-	vector3<T> operator () (const behavior::_scale_t&) const
+	vector3<T> operator () (const call::scale_t&) const
 	{
 		return scale();
 	}
-	vector3<T>& operator () (const behavior::_right_t&)
+	vector3<T>& operator () (const call::right_t&)
 	{
 		return right();
 	}
-	const vector3<T>& operator () (const behavior::_right_t&) const
+	const vector3<T>& operator () (const call::right_t&) const
 	{
 		return right();
 	}
-	vector3<T>& operator () (const behavior::_up_t&)
+	vector3<T>& operator () (const call::up_t&)
 	{
 		return up();
 	}
-	const vector3<T>& operator () (const behavior::_up_t&) const
+	const vector3<T>& operator () (const call::up_t&) const
 	{
 		return up();
 	}
-	vector3<T>& operator () (const behavior::_front_t&)
+	vector3<T>& operator () (const call::front_t&)
 	{
 		return forward();
 	}
-	const vector3<T>& operator () (const behavior::_front_t&) const
+	const vector3<T>& operator () (const call::front_t&) const
 	{
 		return forward();
 	}
-	vector3<T>& operator () (const behavior::_axis_t&, const behavior::_x_t&)
+	vector3<T>& operator () (const call::axis_t&, const call::x_t&)
 	{
 		return right();
 	}
-	const vector3<T>& operator () (const behavior::_axis_t&, const behavior::_x_t&) const
+	const vector3<T>& operator () (const call::axis_t&, const call::x_t&) const
 	{
 		return right();
 	}
-	vector3<T>& operator () (const behavior::_axis_t&, const behavior::_y_t&)
+	vector3<T>& operator () (const call::axis_t&, const call::y_t&)
 	{
 		return up();
 	}
-	const vector3<T>& operator () (const behavior::_axis_t&, const behavior::_y_t&) const
+	const vector3<T>& operator () (const call::axis_t&, const call::y_t&) const
 	{
 		return up();
 	}
-	vector3<T>& operator () (const behavior::_axis_t&, const behavior::_z_t&)
+	vector3<T>& operator () (const call::axis_t&, const call::z_t&)
 	{
 		return forward();
 	}
-	const vector3<T>& operator () (const behavior::_axis_t&, const behavior::_z_t&) const
+	const vector3<T>& operator () (const call::axis_t&, const call::z_t&) const
 	{
 		return forward();
 	}
-	vector3<T>& operator () (const behavior::_position_t&)
+	vector3<T>& operator () (const call::position_t&)
 	{
 		return position();
 	}
-	const vector3<T>& operator () (const behavior::_position_t&) const
+	const vector3<T>& operator () (const call::position_t&) const
 	{
 		return position();
 	}
 
-	matrix4x4& operator () (const behavior::_scale_t&, const vector3<T>& v)
+	matrix4x4& operator () (const call::scale_t&, const vector3<T>& v)
 	{
 		return load_scale(v);
 	}
-	matrix4x4& operator () (const behavior::_scale_t&, T x, T y, T z)
+	matrix4x4& operator () (const call::scale_t&, T x, T y, T z)
 	{
 		return load_scale(x, y, z);
 	}
-	matrix4x4& operator () (const behavior::_scale_t&, T s)
+	matrix4x4& operator () (const call::scale_t&, T s)
 	{
 		return load_scale(s);
 	}
-	matrix4x4& operator () (const behavior::_rotate_t&, const behavior::_x_t&, T angle)
+	matrix4x4& operator () (const call::rotate_t&, const call::x_t&, T angle)
 	{
 		return load_rotate_x(angle);
 	}
-	matrix4x4& operator () (const behavior::_rotate_t&, const behavior::_y_t&, T angle)
+	matrix4x4& operator () (const call::rotate_t&, const call::y_t&, T angle)
 	{
 		return load_rotate_y(angle);
 	}
-	matrix4x4& operator () (const behavior::_rotate_t&, const behavior::_z_t&, T angle)
+	matrix4x4& operator () (const call::rotate_t&, const call::z_t&, T angle)
 	{
 		return load_rotate_z(angle);
 	}
-	matrix4x4& operator () (const behavior::_rotate_t&, const behavior::_roll_pitch_yaw_t&, T roll, T pitch, T yaw)
+	matrix4x4& operator () (const call::rotate_t&, T roll, T pitch, T yaw)
 	{
 		return load_rotate(roll, pitch, yaw);
 	}
-	matrix4x4& operator () (const behavior::_rotate_t&, const quaternion<T>& q)
+	matrix4x4& operator () (const call::rotate_t&, const quaternion<T>& q)
 	{
 		return load_rotate(q);
 	}
-	matrix4x4& operator () (const behavior::_rotate_t&, const vector3<T>& axis, T angle)
+	matrix4x4& operator () (const call::rotate_t&, const vector3<T>& axis, T angle)
 	{
 		return load_rotate(axis, angle);
 	}
-	matrix4x4& operator () (const behavior::_translate_t&, const vector3<T>& t)
+	matrix4x4& operator () (const call::translate_t&, const vector3<T>& t)
 	{
 		return load_translate(t);
 	}
-	matrix4x4& operator () (const behavior::_translate_t&, T x, T y, T z)
+	matrix4x4& operator () (const call::translate_t&, T x, T y, T z)
 	{
 		return load_translate(x, y, z);
 	}
-	matrix4x4& operator () (const behavior::_world_t&, const vector3<T>& s, T roll, T pitch, T yaw, const vector3<T>& p)
+	matrix4x4& operator () (const call::world_t&, const vector3<T>& s, T roll, T pitch, T yaw, const vector3<T>& p)
 	{
 		return load_world(s, roll, pitch, yaw, p);
 	}
-	matrix4x4& operator () (const behavior::_world_t&, T s, T roll, T pitch, T yaw, const vector3<T>& p)
+	matrix4x4& operator () (const call::world_t&, T s, T roll, T pitch, T yaw, const vector3<T>& p)
 	{
 		return load_world(s, roll, pitch, yaw, p);
 	}
-	matrix4x4& operator () (const behavior::_world_t&, const vector3<T>& s, const quaternion<T>& q, const vector3<T>& p)
+	matrix4x4& operator () (const call::world_t&, const vector3<T>& s, const quaternion<T>& q, const vector3<T>& p)
 	{
 		return load_world(s, q, p);
 	}
-	matrix4x4& operator () (const behavior::_world_t&, T s, const quaternion<T>& q, const vector3<T>& p)
+	matrix4x4& operator () (const call::world_t&, T s, const quaternion<T>& q, const vector3<T>& p)
 	{
 		return load_world(s, q, p);
 	}
-	matrix4x4& operator () (const behavior::_perspective_field_of_view_t&, T fovy, T aspect, T n, T f)
+	matrix4x4& operator () (const call::perspective_field_of_view_t&, T fovy, T aspect, T n, T f)
 	{
 		return load_perspective_field_of_view(fovy, aspect, n, f);
 	}
-	matrix4x4& operator () (const behavior::_orthographics_t&, T left, T right, T up, T bottom, T n, T f)
+	matrix4x4& operator () (const call::orthographics_t&, T left, T right, T up, T bottom, T n, T f)
 	{
 		return load_orthographics(left, right, up, bottom, n, f);
 	}
-	matrix4x4& operator () (const behavior::_orthographics_t&, T width, T height, T n, T f)
+	matrix4x4& operator () (const call::orthographics_t&, T width, T height, T n, T f)
 	{
 		return load_orthographics(width, height, n, f);
 	}
-	matrix4x4& operator () (const behavior::_orthographics2d_t&, T left, T right, T up, T bottom)
+	matrix4x4& operator () (const call::orthographics2d_t&, T left, T right, T up, T bottom)
 	{
 		return load_orthographics2d(left, right, up, bottom);
 	}
-	matrix4x4& operator () (const behavior::_orthographics2d_t&, T width, T height)
+	matrix4x4& operator () (const call::orthographics2d_t&, T width, T height)
 	{
 		return load_orthographics2d(width, height);
 	}
-	matrix4x4& operator () (const behavior::_look_to_t&, const vector3<T>& eye, const vector3<T>& to, const vector3<T>& up = vector3<T>::up)
+	matrix4x4& operator () (const call::look_to_t&, const vector3<T>& eye, const vector3<T>& to, const vector3<T>& up = vector3<T>::up)
 	{
 		return load_lookto(eye, to, up);
 	}
-	matrix4x4& operator () (const behavior::_look_to_t&, T ex, T ey, T ez, T tx, T ty, T tz, T ux = math_type::zero, T uy = math_type::one, T uz = math_type::zero)
+	matrix4x4& operator () (const call::look_to_t&, T ex, T ey, T ez, T tx, T ty, T tz, T ux = math_type::zero, T uy = math_type::one, T uz = math_type::zero)
 	{
 		return load_lookto(ex, ey, ez, tx, ty, tz, ux, uy, uz);
 	}
-	matrix4x4& operator () (const behavior::_look_at_t&, const vector3<T>& eye, const vector3<T>& center, const vector3<T>& up = vector3<T>::up)
+	matrix4x4& operator () (const call::look_at_t&, const vector3<T>& eye, const vector3<T>& center, const vector3<T>& up = vector3<T>::up)
 	{
 		return load_lookat(eye, center, up);
 	}
-	matrix4x4& operator () (const behavior::_look_at_t&, T ex, T ey, T ez, T tx, T ty, T tz, T ux = math_type::zero, T uy = math_type::one, T uz = math_type::zero)
+	matrix4x4& operator () (const call::look_at_t&, T ex, T ey, T ez, T tx, T ty, T tz, T ux = math_type::zero, T uy = math_type::one, T uz = math_type::zero)
 	{
 		return load_lookat(ex, ey, ez, tx, ty, tz, ux, uy, uz);
 	}
-	matrix4x4& operator () (const behavior::_transpose_t&)
+	matrix4x4& operator () (const call::transpose_t&)
 	{
 		return transpose();
 	}
-	matrix4x4 operator () (const behavior::_transposed_t&) const
+	matrix4x4 operator () (const call::transposed_t&) const
 	{
 		return transposed();
 	}
-	T operator () (const behavior::_determinant_t&) const
+	T operator () (const call::determinant_t&) const
 	{
 		return determinant();
 	}
-	matrix4x4& operator () (const behavior::_inverse_t&) const
+	matrix4x4& operator () (const call::inverse_t&) const
 	{
 		return inverse();
 	}
-	matrix4x4 operator () (const behavior::_slerp_t&, const matrix4x4& m, T t) const
+	matrix4x4 operator () (const call::slerp_t&, const matrix4x4& m, T t) const
 	{
 		return slerp(m, t);
 	}
-	vector3<T> operator () (const behavior::_transform_t&, const vector3<T>& v) const
+	vector3<T> operator () (const call::transform_t&, const vector3<T>& v) const
 	{
 		return transform(v);
 	}
-	vector3<T> operator () (const behavior::_transform_coord_t&, const vector3<T>& v) const
+	vector3<T> operator () (const call::transform_coord_t&, const vector3<T>& v) const
 	{
 		return transform_coord(v);
 	}
-	vector3<T> operator () (const behavior::_transform_normal_t&, const vector3<T>& v) const
+	vector3<T> operator () (const call::transform_normal_t&, const vector3<T>& v) const
 	{
 		return transform_normal(v);
 	}
-	vector4<T> operator () (const behavior::_transform_t&, const vector4<T>& v) const
+	vector4<T> operator () (const call::transform_t&, const vector4<T>& v) const
 	{
 		return transform(v);
 	}
-	T operator () (const behavior::_roll_t&) const
+	T operator () (const call::roll_t&) const
 	{
 		return roll();
 	}
-	T operator () (const behavior::_yaw_t&) const
+	T operator () (const call::yaw_t&) const
 	{
 		return yaw();
 	}
-	T operator () (const behavior::_pitch_t&) const
+	T operator () (const call::pitch_t&) const
 	{
 		return pitch();
 	}
@@ -1775,7 +1759,7 @@ vector3<T>& vector3<T>::transform(const matrix4x4<T>& m, vector3<T>& result) con
 template <typename T> inline
 vector3<T> vector3<T>::transformed(const matrix4x4<T>& m) const
 {
-	vector3<T> v(behavior::noinitialize);
+	vector3<T> v(call::noinitialize);
 	return POCKET_CXX11_MOVE(m.transform(*this, v));
 }
 template <typename T> inline
@@ -1792,7 +1776,7 @@ vector3<T>& vector3<T>::transform_coord(const matrix4x4<T>& m, vector3<T>& resul
 template <typename T> inline
 vector3<T> vector3<T>::transformed_coord(const matrix4x4<T>& m) const
 {
-	vector3<T> v(behavior::noinitialize);
+	vector3<T> v(call::noinitialize);
 	return POCKET_CXX11_MOVE(m.transform_coord(*this, v));
 }
 template <typename T> inline
@@ -1809,7 +1793,7 @@ vector3<T>& vector3<T>::transform_normal(const matrix4x4<T>& m, vector3<T>& resu
 template <typename T> inline
 vector3<T> vector3<T>::transformed_normal(const matrix4x4<T>& m) const
 {
-	vector3<T> v(behavior::noinitialize);
+	vector3<T> v(call::noinitialize);
 	return POCKET_CXX11_MOVE(m.transform_normal(*this, v));
 }
 
@@ -1825,7 +1809,7 @@ vector4<T>& vector4<T>::transform(const matrix4x4<T>& m)
 template <typename T> inline
 vector4<T> vector4<T>::transformed(const matrix4x4<T>& m) const
 {
-	vector4<T> v(behavior::noinitialize);
+	vector4<T> v(call::noinitialize);
 	return POCKET_CXX11_MOVE(m.transform(*this, v));
 }
 template <typename T> inline
@@ -1847,20 +1831,20 @@ vector4<T>& vector4<T>::transform_coord(const matrix4x4<T>& m, vector4<T>& resul
 template <typename T> inline
 vector4<T> vector4<T>::transformed_coord(const matrix4x4<T>& m) const
 {
-	vector4<T> v(behavior::noinitialize);
+	vector4<T> v(call::noinitialize);
 	return POCKET_CXX11_MOVE(m.transform_coord(*this, v));
 }
 
 template <typename T> inline
 vector3<T> vector3<T>::operator * (const matrix4x4<T>& m) const
 {
-	vector3<T> r(behavior::noinitialize);
+	vector3<T> r(call::noinitialize);
 	return POCKET_CXX11_MOVE(m.transform(*this, r));
 }
 template <typename T> inline
 vector4<T> vector4<T>::operator * (const matrix4x4<T>& m) const
 {
-	vector4<T> r(behavior::noinitialize);
+	vector4<T> r(call::noinitialize);
 	return POCKET_CXX11_MOVE(m.transform(*this, r));
 }
 

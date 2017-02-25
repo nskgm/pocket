@@ -1,6 +1,4 @@
-﻿#define POCKET_UNUSING_SIMD
-
-#include "pocket/math/all.h"
+﻿#include "pocket/math/all.h"
 #include "pocket/gl/all.h"
 #include <GLFW/glfw3.h>
 #include <iomanip>
@@ -9,7 +7,9 @@
 namespace io = pocket::io;
 namespace gl = pocket::gl;
 namespace math = pocket::math;
-namespace behavior = pocket::behavior;
+namespace call = pocket::call;
+
+// テスト用
 
 #if POCKET_COMPILER_IF(VC)
 #define __FILE_RELATIVE(PATH) "../" PATH
@@ -48,23 +48,55 @@ public:
 	}
 };
 
-static void glfw_error_log(int, const char* msg)
-{
-	std::cout << msg << std::endl;
-	std::exit(EXIT_FAILURE);
-}
-
-struct simple_vertex
+struct simple_vertex_t
 {
 	math::vector3f position;
 	math::colorf color;
 };
-struct ublock
+struct ublock_t
 {
 	math::matrix4x4f world;
 	math::matrix4x4f lookat;
 	math::matrix4x4f perspective;
 };
+
+#ifdef __MAIN_TEST
+
+int main()
+{
+	math::quaternionf a, b;
+	a.from_angle_x(24.0f);
+	b.from_angle_x(76.0f);
+
+	math::quaternionf d = a.difference(b);
+
+	std::cout << a << std::endl <<
+		b << std::endl <<
+		d << std::endl <<
+		"angle: " << a.angle(b) << " : " << d.angle() << std::endl;
+
+	math::vector3f ax;
+	float an;
+	a.axis_angle(ax, an);
+
+	std::cout << ax << " : " << an << std::endl;
+
+	return 0;
+}
+
+#else // __MAIN_TEST
+
+static void glfw_error_log(int, const char* msg)
+{
+	std::cout << msg << std::endl;
+	std::exit(EXIT_FAILURE);
+}
+template <typename T>
+static void log(const T& a)
+{
+	typename T::binder_type binder = a.make_binder();
+	std::cout << a << std::endl;
+}
 
 int main()
 {
@@ -159,13 +191,14 @@ int main()
 	std::cout << prog << std::endl;
 
 	// ubo用データ構築
-	ublock data;
+	ublock_t data;
 	data.world.load_identity();
 	data.lookat.load_lookat(math::vector3f(1.0f, 0.5f, 1.5f), math::vector3f::zero, math::vector3f::up);
 	data.perspective.load_perspective_field_of_view(45.0f, viewport.aspect(), 0.1f, 100.0f);
 
 	// uniform buffer object作成
-	gl::uniform_buffer ubo = gl::make_uniform_buffer(prog, "ublock", 0, data);
+	// gl::uniform_buffer ubo = gl::make_uniform_buffer(prog, "ublock", 0, data);
+	gl::uniform_buffer ubo = prog.make_uniform_buffer("ublock", 0, data);
 	if (!ubo)
 	{
 		std::cout << ubo << std::endl;
@@ -176,25 +209,25 @@ int main()
 
 	// レイアウトを指定した頂点バッファを作成
 	const gl::vertex_layout layouts[] = {
-		POCKET_LAYOUT_OFFSETOF(float, 3, false, simple_vertex, position),
-		POCKET_LAYOUT_OFFSETOF(float, 4, false, simple_vertex, color),
+		POCKET_LAYOUT_OFFSETOF(float, 3, false, simple_vertex_t, position),
+		POCKET_LAYOUT_OFFSETOF(float, 4, false, simple_vertex_t, color),
 	};
-	const simple_vertex vertices[] = {
+	const simple_vertex_t vertices[] = {
 		{math::vector3f(0.0f, 0.5f, 0.1f), math::colorf::red},
 		{math::vector3f(-0.5f, -0.5f, 0.1f), math::colorf::blue},
 		{math::vector3f(0.5f, -0.5f, 0.1f), math::colorf::green},
 	};
-	gl::layered_vertex_buffer<simple_vertex> lvb = gl::make_layered_vertex_buffer(vertices, layouts);
+	gl::layered_vertex_buffer<simple_vertex_t> lvb = gl::make_layered_vertex_buffer(vertices, layouts);
 	if (!lvb)
 	{
 		std::cout << lvb << std::endl;
 		return EXIT_FAILURE;
 	}
 	POCKET_GL_ERROR();
-	std::cout << lvb << std::endl;
+	log(lvb);
 
 	// const math::vector3f z(0.0f, 0.01f, 0.0f);
-	const simple_vertex axis_vertices[] = {
+	const simple_vertex_t axis_vertices[] = {
 		{math::vector3f::zero, math::colorf::red},
 		{math::vector3f(1.0f, 0.0f, 0.0f), math::colorf::red},
 		{math::vector3f::zero, math::colorf::blue},
@@ -202,14 +235,14 @@ int main()
 		{math::vector3f::zero, math::colorf::green},
 		{math::vector3f(0.0f, 0.0f, 1.0f), math::colorf::green},
 	};
-	gl::layered_vertex_buffer<simple_vertex> axis_lvb = gl::make_layered_vertex_buffer(axis_vertices, layouts);
+	gl::layered_vertex_buffer<simple_vertex_t> axis_lvb = gl::make_layered_vertex_buffer(axis_vertices, layouts);
 	if (!axis_lvb)
 	{
 		std::cout << axis_lvb << std::endl;
 		return EXIT_FAILURE;
 	}
 	POCKET_GL_ERROR();
-	std::cout << axis_lvb << std::endl;
+	log(axis_lvb);
 
 	// インダイレクトバッファ作成
 	gl::draw_indirect_buffer dib = gl::make_draw_indirect_buffer(gl::command_type::arrays, POCKET_ARRAY_SIZE(vertices));
@@ -219,7 +252,7 @@ int main()
 		return EXIT_FAILURE;
 	}
 	POCKET_GL_ERROR();
-	std::cout << dib << std::endl;
+	log(dib);
 
 	// サンプラー作成
 	gl::sampler smpl = gl::make_sampler(gl::wrap_type::clamp_to_edge, gl::filter_type::nearest, gl::compare_func_type::equal);
@@ -259,27 +292,26 @@ int main()
 		// 各種バインド
 		viewport.bind();
 		prog.bind();
+		ubo.bind();
 
 		// -----
 		// 軸
 		data.world.load_identity();
 		ubo.uniform(0, data.world);
-		ubo.bind();
 
 		axis_lvb.bind();
-		axis_lvb.draw(gl::draw_type::lines, 0, 6);
+		axis_lvb.draw(gl::draw_type::lines);
 
 		// ----
 		// 三角形
 		typedef math::math_traitsf mt;
 		const math::vector3f scale(1.0f);
-		const math::quaternionf rotate(math::vector3f::unit_y, mt::to_degree(time));
+		const math::quaternionf rotate(math::vector3f::unit_z, mt::to_degree(time));
 		const math::vector3f position(0.0f);
 
-		// data.world.load_world(scale, rotate, position);
-		data.world.load_rotate_x(mt::to_degree(time));
+		data.world.load_world(scale, rotate, position);
+		// data.world.load_rotate_x(mt::to_degree(time));
 		ubo.uniform(0, data.world);
-		ubo.bind();
 
 		lvb.bind();
 		dib.bind();
@@ -332,3 +364,5 @@ int main()
 #		endif
 #	endif // _MT
 #endif // _MSC_VER
+
+#endif // __MAIN_TEST

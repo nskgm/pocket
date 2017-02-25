@@ -257,6 +257,7 @@ public:
 		// プログラム中のユニフォームバッファの位置を取得
 		if (!prog.uniform_block_index(name, _index))
 		{
+			_buffer._error_bitfield |= error_invalid_index;
 			return false;
 		}
 		// バインド位置の初期設定
@@ -481,6 +482,10 @@ public:
 		return typename rebinder_map<T>::type(*this, U);
 	}
 
+	const buffer& buffer() const
+	{
+		return _buffer;
+	}
 	void bind_buffer() const
 	{
 		_buffer.bind();

@@ -7,7 +7,7 @@
 #endif // POCKET_USE_PRAGMA_ONCE
 
 #include "../debug.h"
-#include "../behavior.h"
+#include "../call.h"
 #include "../container/array.h"
 #include "math_traits.h"
 #include "vector3.h"
@@ -124,9 +124,9 @@ struct plane
 	//-----------------------------------------------------------------------------------------
 
 	POCKET_DEFAULT_CONSTRUCTOR(plane);
-	explicit plane(const behavior::_noinitialize_t&)
+	explicit plane(const call::noinitialize_t&)
 	{}
-	explicit plane(const behavior::_right_t&, T d) :
+	explicit plane(const call::right_t&, T d) :
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		mm(simd::set(math_type::one, math_type::zero, math_type::zero, -d))
 #else
@@ -138,7 +138,7 @@ struct plane
 		d(-d)
 #endif
 	{}
-	explicit plane(const behavior::_left_t&, T d) :
+	explicit plane(const call::left_t&, T d) :
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		mm(simd::set(-math_type::one, math_type::zero, math_type::zero, -d))
 #else
@@ -150,7 +150,7 @@ struct plane
 		d(-d)
 #endif
 	{}
-	explicit plane(const behavior::_up_t&, T d) :
+	explicit plane(const call::up_t&, T d) :
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		mm(simd::set(math_type::zero, math_type::one, math_type::zero, -d))
 #else
@@ -162,7 +162,7 @@ struct plane
 		d(-d)
 #endif
 	{}
-	explicit plane(const behavior::_down_t&, T d) :
+	explicit plane(const call::down_t&, T d) :
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		mm(simd::set(math_type::zero, -math_type::one, math_type::zero, -d))
 #else
@@ -174,7 +174,7 @@ struct plane
 		d(-d)
 #endif
 	{}
-	explicit plane(const behavior::_front_t&, T d) :
+	explicit plane(const call::front_t&, T d) :
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		mm(simd::set(math_type::zero, math_type::zero, math_type::one, -d))
 #else
@@ -186,7 +186,7 @@ struct plane
 		d(-d)
 #endif
 	{}
-	explicit plane(const behavior::_back_t&, T d) :
+	explicit plane(const call::back_t&, T d) :
 #ifdef POCKET_USE_SIMD_ANONYMOUS
 		mm(simd::set(math_type::zero, math_type::zero, -math_type::one, -d))
 #else
@@ -503,7 +503,7 @@ struct plane
 	{
 #if 0
 		// 始点から終点へのベクトルを求める
-		vector3<T> dir(behavior::noinitialize);
+		vector3<T> dir(call::noinitialize);
 		end.Direction(begin, dir);
 
 		// 法線ベクトルとの内積が0の場合は垂直になっているので交差していない
@@ -839,32 +839,32 @@ struct plane
 	//---------------------------------------------------------------------
 	// 代入演算子
 	//---------------------------------------------------------------------
-	plane& operator = (const behavior::_right_t&)
+	plane& operator = (const call::right_t&)
 	{
 		normal() = vector3<T>::right;
 		return *this;
 	}
-	plane& operator = (const behavior::_left_t&)
+	plane& operator = (const call::left_t&)
 	{
 		normal() = vector3<T>::left;
 		return *this;
 	}
-	plane& operator = (const behavior::_up_t&)
+	plane& operator = (const call::up_t&)
 	{
 		normal() = vector3<T>::up;
 		return *this;
 	}
-	plane& operator = (const behavior::_down_t&)
+	plane& operator = (const call::down_t&)
 	{
 		normal() = vector3<T>::down;
 		return *this;
 	}
-	plane& operator = (const behavior::_front_t&)
+	plane& operator = (const call::front_t&)
 	{
 		normal() = vector3<T>::forward;
 		return *this;
 	}
-	plane& operator = (const behavior::_back_t&)
+	plane& operator = (const call::back_t&)
 	{
 		normal() = vector3<T>::backward;
 		return *this;
@@ -899,153 +899,153 @@ struct plane
 	// タグでの関数呼び出し
 	//------------------------------------------------------------------------------------------
 
-	plane& operator () (const behavior::_right_t&)
+	plane& operator () (const call::right_t&)
 	{
 		normal() = vector3<T>::right;
 		return *this;
 	}
-	plane& operator () (const behavior::_left_t&)
+	plane& operator () (const call::left_t&)
 	{
 		normal() = vector3<T>::left;
 		return *this;
 	}
-	plane& operator () (const behavior::_up_t&)
+	plane& operator () (const call::up_t&)
 	{
 		normal() = vector3<T>::up;
 		return *this;
 	}
-	plane& operator () (const behavior::_down_t&)
+	plane& operator () (const call::down_t&)
 	{
 		normal() = vector3<T>::down;
 		return *this;
 	}
-	plane& operator () (const behavior::_front_t&)
+	plane& operator () (const call::front_t&)
 	{
 		normal() = vector3<T>::forward;
 		return *this;
 	}
-	plane& operator () (const behavior::_back_t&)
+	plane& operator () (const call::back_t&)
 	{
 		normal() = vector3<T>::backward;
 		return *this;
 	}
-	plane operator () (const behavior::_add_t&, T f) const
+	plane operator () (const call::add_t&, T f) const
 	{
 		return operator+(f);
 	}
-	plane operator () (const behavior::_sub_t&, T f) const
+	plane operator () (const call::sub_t&, T f) const
 	{
 		return operator-(f);
 	}
-	plane operator () (const behavior::_mul_t&, T f) const
+	plane operator () (const call::mul_t&, T f) const
 	{
 		return operator*(f);
 	}
-	plane operator () (const behavior::_div_t&, T f) const
+	plane operator () (const call::div_t&, T f) const
 	{
 		return operator/(f);
 	}
 
-	plane& operator () (const behavior::_add_assign_t&, T f)
+	plane& operator () (const call::add_assign_t&, T f)
 	{
 		return operator+=(f);
 	}
-	plane& operator () (const behavior::_sub_assign_t&, T f)
+	plane& operator () (const call::sub_assign_t&, T f)
 	{
 		return operator-=(f);
 	}
-	plane& operator () (const behavior::_mul_assign_t&, T f)
+	plane& operator () (const call::mul_assign_t&, T f)
 	{
 		return operator*=(f);
 	}
-	plane& operator () (const behavior::_div_assign_t&, T f)
+	plane& operator () (const call::div_assign_t&, T f)
 	{
 		return operator/=(f);
 	}
-	T& operator () (const behavior::_at_t&, int i)
+	T& operator () (const call::at_t&, int i)
 	{
 		return operator[](i);
 	}
-	const T& operator () (const behavior::_at_t&, int i) const
+	const T& operator () (const call::at_t&, int i) const
 	{
 		return operator[](i);
 	}
-	T* operator () (const behavior::_pointer_t&)
+	T* operator () (const call::pointer_t&)
 	{
 		return operator T*();
 	}
-	const T* operator () (const behavior::_pointer_t&) const
+	const T* operator () (const call::pointer_t&) const
 	{
 		return operator const T*();
 	}
 
-	bool operator () (const behavior::_equal_t&, const plane& q) const
+	bool operator () (const call::equal_t&, const plane& q) const
 	{
 		return operator==(q);
 	}
-	bool operator () (const behavior::_not_equal_t&, const plane& q) const
+	bool operator () (const call::not_equal_t&, const plane& q) const
 	{
 		return operator!=(q);
 	}
-	bool operator () (const behavior::_near_t&, const plane& q) const
+	bool operator () (const call::near_t&, const plane& q) const
 	{
 		return near_equal(q);
 	}
-	bool operator () (const behavior::_near_zero_t&) const
+	bool operator () (const call::near_zero_t&) const
 	{
 		return near_equal_zero();
 	}
 
-	plane& operator () (const behavior::_normalize_t&)
+	plane& operator () (const call::normalize_t&)
 	{
 		return normalize();
 	}
-	plane operator () (const behavior::_normalized_t&) const
+	plane operator () (const call::normalized_t&) const
 	{
 		return normalized();
 	}
-	plane operator () (const behavior::_lerp_t&, const plane& p, T t) const
+	plane operator () (const call::lerp_t&, const plane& p, T t) const
 	{
 		return lerp(p, t);
 	}
 
-	T operator () (const behavior::_dot_t&, const vector4<T>& v) const
+	T operator () (const call::dot_t&, const vector4<T>& v) const
 	{
 		return dot(v);
 	}
-	T operator () (const behavior::_dot_normal_t&, const vector3<T>& v) const
+	T operator () (const call::dot_normal_t&, const vector3<T>& v) const
 	{
 		return dot_normal(v);
 	}
-	T operator () (const behavior::_dot_coord_t&, const vector3<T>& v) const
+	T operator () (const call::dot_coord_t&, const vector3<T>& v) const
 	{
 		return dot_coord(v);
 	}
-	vector3<T> operator () (const behavior::_point_t&) const
+	vector3<T> operator () (const call::point_t&) const
 	{
 		return point();
 	}
-	bool operator () (const behavior::_intersect_t&, const ray<T, vector3>& r) const
+	bool operator () (const call::intersect_t&, const ray<T, vector3>& r) const
 	{
 		return intersect_ray(r);
 	}
-	bool operator () (const behavior::_intersect_t&, const line<T, vector3>& l) const
+	bool operator () (const call::intersect_t&, const line<T, vector3>& l) const
 	{
 		return intersect_line(l);
 	}
-	bool operator () (const behavior::_intersect_ray_t&, const ray<T, vector3>& r) const
+	bool operator () (const call::intersect_ray_t&, const ray<T, vector3>& r) const
 	{
 		return intersect_ray(r);
 	}
-	bool operator () (const behavior::_intersect_ray_t&, const vector3<T>& position, const vector3<T>& direction) const
+	bool operator () (const call::intersect_ray_t&, const vector3<T>& position, const vector3<T>& direction) const
 	{
 		return intersect_ray(position, direction);
 	}
-	bool operator () (const behavior::_intersect_line_t&, const line<T, vector3>& l) const
+	bool operator () (const call::intersect_line_t&, const line<T, vector3>& l) const
 	{
 		return intersect_line(l);
 	}
-	bool operator () (const behavior::_intersect_line_t&, const vector3<T>& begin, const vector3<T>& end) const
+	bool operator () (const call::intersect_line_t&, const vector3<T>& begin, const vector3<T>& end) const
 	{
 		return intersect_line(begin, end);
 	}

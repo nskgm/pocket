@@ -6,13 +6,15 @@
 #pragma once
 #endif // POCKET_USE_PRAGMA_ONCE
 
-#include "../behavior.h"
+#include "../call.h"
 #include "fwd.h"
 #include "../container/array.h"
 #include "math_traits.h"
 #include "../io.h"
 
 namespace pocket
+{
+namespace math
 {
 
 template <typename> struct __template_struct;
@@ -77,7 +79,7 @@ struct __template_struct
 	//------------------------------------------------------------------------------------------
 
 	POCKET_DEFAULT_CONSTRUCTOR(__template_struct);
-	explicit __template_struct(const behavior::_noinitialize_t&)
+	explicit __template_struct(const call::noinitialize_t&)
 	{
 
 	}
@@ -159,6 +161,7 @@ std::basic_istream<CharT, CharTraits>& operator >> (std::basic_istream<CharT, Ch
 	return is;
 }
 
+} // namespace math
 } // namespace pocket
 
 #endif // __POCKET_MATH_TEMPLATE_H__

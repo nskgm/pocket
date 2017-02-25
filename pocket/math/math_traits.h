@@ -7,7 +7,7 @@
 #endif // POCKET_USE_PRAGMA_ONCE
 
 #include "../debug.h"
-#include "../behavior.h"
+#include "../call.h"
 #include "../fwd.h"
 #include "fwd.h"
 #include "../container/array.h"
@@ -74,7 +74,7 @@ struct math_traits
 		T cos; // コサイン値
 
 		POCKET_DEFAULT_CONSTRUCTOR(sin_cos_type);
-		explicit sin_cos_type(const behavior::_noinitialize_t&)
+		explicit sin_cos_type(const call::noinitialize_t&)
 		{}
 		explicit sin_cos_type(T s, T c) :
 			sin(s), cos(c)
@@ -988,108 +988,108 @@ __POCKET_MATH_SIN_COS_OUTPUT_OPERATOR(math::detail::math_traits_sin_cos_tld);
 
 #ifdef POCKET_USE_CXX11
 template <typename T, POCKET_TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
-T operator * (const T& f, const pocket::behavior::_sqr_t&)
+T operator * (const T& f, const pocket::call::sqr_t &)
 {
 	return pocket::math::math_traits<T>::sqr(f);
 }
 template <typename T, POCKET_TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
-T operator * (const T& f, const pocket::behavior::_radians_t&)
+T operator * (const T& f, const pocket::call::radians_t &)
 {
 	return pocket::math::math_traits<T>::to_radian(f);
 }
 template <typename T, POCKET_TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
-T operator * (const T& f, const pocket::behavior::_degrees_t&)
+T operator * (const T& f, const pocket::call::degrees_t &)
 {
 	return pocket::math::math_traits<T>::to_degree(f);
 }
 template <typename T, POCKET_TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
-T operator * (const T& f, const pocket::behavior::_sin_t&)
+T operator * (const T& f, const pocket::call::sin_t &)
 {
 	return pocket::math::math_traits<T>::sin(f);
 }
 template <typename T, POCKET_TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
-T operator * (const T& f, const pocket::behavior::_cos_t&)
+T operator * (const T& f, const pocket::call::cos_t &)
 {
 	return pocket::math::math_traits<T>::cos(f);
 }
 template <typename T, POCKET_TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
-T operator * (const T& f, const pocket::behavior::_tan_t&)
+T operator * (const T& f, const pocket::call::tan_t &)
 {
 	return pocket::math::math_traits<T>::tan(f);
 }
 template <typename T, POCKET_TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
-T operator * (const T& f, const pocket::behavior::_asin_t&)
+T operator * (const T& f, const pocket::call::asin_t &)
 {
 	return pocket::math::math_traits<T>::asin(f);
 }
 template <typename T, POCKET_TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
-T operator * (const T& f, const pocket::behavior::_acos_t&)
+T operator * (const T& f, const pocket::call::acos_t &)
 {
 	return pocket::math::math_traits<T>::acos(f);
 }
 template <typename T, POCKET_TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
-T operator * (const T& f, const pocket::behavior::_atan_t&)
+T operator * (const T& f, const pocket::call::atan_t &)
 {
 	return pocket::math::math_traits<T>::atan(f);
 }
 template <typename T, POCKET_TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
-typename pocket::math::math_traits<T>::sin_cos_type operator * (const T& f, const pocket::behavior::_sin_cos_t&)
+typename pocket::math::math_traits<T>::sin_cos_type operator * (const T& f, const pocket::call::sin_cos_t &)
 {
 	return pocket::math::math_traits<T>::sin_cos(f);
 }
 
 template <typename T, POCKET_TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
-T operator * (const T& f, const pocket::behavior::_round_t&)
+T operator * (const T& f, const pocket::call::round_t &)
 {
 	return pocket::math::math_traits<T>::round(f);
 }
 template <typename T, POCKET_TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
-T operator * (const T& f, const pocket::behavior::_abs_t&)
+T operator * (const T& f, const pocket::call::abs_t &)
 {
 	return pocket::math::math_traits<T>::abs(f);
 }
 template <typename T, POCKET_TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
-T operator * (const T& f, const pocket::behavior::_ceil_t&)
+T operator * (const T& f, const pocket::call::ceil_t &)
 {
 	return pocket::math::math_traits<T>::ceil(f);
 }
 template <typename T, POCKET_TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
-T operator * (const T& f, const pocket::behavior::_floor_t&)
+T operator * (const T& f, const pocket::call::floor_t &)
 {
 	return pocket::math::math_traits<T>::floor(f);
 }
 template <typename T, POCKET_TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
-T operator * (const T& f, const pocket::behavior::_sqrt_t&)
+T operator * (const T& f, const pocket::call::sqrt_t &)
 {
 	return pocket::math::math_traits<T>::sqrt(f);
 }
 template <typename T, POCKET_TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
-T operator * (const T& f, const pocket::behavior::_pot_t&)
+T operator * (const T& f, const pocket::call::pot_t &)
 {
 	return pocket::math::math_traits<T>::power_of_two(f);
 }
 template <typename T, POCKET_TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
-bool operator * (const T& f, const pocket::behavior::_is_pot_t&)
+bool operator * (const T& f, const pocket::call::is_pot_t &)
 {
 	return pocket::math::math_traits<T>::is_power_of_two(f);
 }
 template <typename T, POCKET_TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
-T operator * (const T& f, const pocket::behavior::_clamp01_t&)
+T operator * (const T& f, const pocket::call::clamp01_t &)
 {
 	return pocket::math::math_traits<T>::clamp01(f);
 }
 template <typename T, POCKET_TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
-pocket::math::vector2<T> operator * (const T& f, const pocket::behavior::_vec2_t&)
+pocket::math::vector2<T> operator * (const T& f, const pocket::call::vec2_t &)
 {
 	return pocket::math::vector2<T>(f);
 }
 template <typename T, POCKET_TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
-pocket::math::vector3<T> operator * (const T& f, const pocket::behavior::_vec3_t&)
+pocket::math::vector3<T> operator * (const T& f, const pocket::call::vec3_t &)
 {
 	return pocket::math::vector3<T>(f);
 }
 template <typename T, POCKET_TEMPLATE_TYPE_VALIDATE_MATH_TYPE(T)> inline
-pocket::math::vector4<T> operator * (const T& f, const pocket::behavior::_vec4_t&)
+pocket::math::vector4<T> operator * (const T& f, const pocket::call::vec4_t &)
 {
 	return pocket::math::vector4<T>(f, f);
 }

@@ -6,7 +6,7 @@
 #pragma once
 #endif // POCKET_USE_PRAGMA_ONCE
 
-#include "../behavior.h"
+#include "../call.h"
 #include "../debug.h"
 #include "../container/array.h"
 #include "math_traits.h"
@@ -90,7 +90,7 @@ struct range
 	//------------------------------------------------------------------------------------------
 
 	POCKET_DEFAULT_CONSTRUCTOR(range);
-	explicit range(const behavior::_noinitialize_t&)
+	explicit range(const call::noinitialize_t&)
 	{}
 	range(T min, T max) :
 		minimum(min), maximum(max)
@@ -269,7 +269,7 @@ struct rectangle
 	//------------------------------------------------------------------------------------------
 
 	POCKET_DEFAULT_CONSTRUCTOR(rectangle);
-	explicit rectangle(const behavior::_noinitialize_t&)
+	explicit rectangle(const call::noinitialize_t&)
 	{}
 	rectangle(T l, T r, T t, T b) :
 		x(l, r), y(t, b)

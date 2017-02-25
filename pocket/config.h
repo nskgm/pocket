@@ -450,17 +450,6 @@
 #	endif // POCKET_USE_CXX11
 #endif // POCKET_DEFAULT_CONSTRUCTOR
 
-//------------------------------------------------------------------------------------------
-// 一度のみ宣言するタグ用
-//------------------------------------------------------------------------------------------
-#ifndef POCKET_DECL_ONCE_ARGMENT_TAG
-#	ifdef POCKET_USE_PRAGMA_ONCE
-#		define POCKET_DECL_ONCE_ARGMENT_TAG(NAME) struct _##NAME##_t {}; POCKET_STATICAL_CONSTANT _##NAME##_t NAME = {}
-#	else
-#		define POCKET_DECL_ONCE_ARGMENT_TAG(NAME) enum _##NAME##_t { NAME }
-#	endif
-#endif // POCKET_DECL_ONCE_ARGMENT_TAG
-
 //---------------------------------------------------------------------------------------
 // 静的なアサーションをするための設定. msgはすべてつなげて書く
 //---------------------------------------------------------------------------------------

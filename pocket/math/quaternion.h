@@ -6,7 +6,7 @@
 #pragma once
 #endif // POCKET_USE_PRAGMA_ONCE
 
-#include "../behavior.h"
+#include "../call.h"
 #include "../debug.h"
 #include "../container/array.h"
 #include "math_traits.h"
@@ -90,13 +90,13 @@ struct quaternion
 	//-----------------------------------------------------------------------------------------
 
 	POCKET_DEFAULT_CONSTRUCTOR(quaternion);
-	explicit quaternion(const behavior::_noinitialize_t&)
+	explicit quaternion(const call::noinitialize_t&)
 	{}
-	explicit quaternion(const behavior::_zero_t&) :
+	explicit quaternion(const call::zero_t&) :
 		x(math_type::zero), y(math_type::zero), z(math_type::zero),
 		w(math_type::zero)
 	{}
-	explicit quaternion(const behavior::_identity_t&) :
+	explicit quaternion(const call::identity_t&) :
 		x(math_type::zero), y(math_type::zero), z(math_type::zero),
 		w(math_type::one)
 	{}
@@ -108,7 +108,7 @@ struct quaternion
 	{}
 	explicit quaternion(const vector3<T>& axis, T deg)
 	{
-		from_axis(axis, deg);
+		from_axis_angle(axis, deg);
 	}
 	explicit quaternion(const matrix4x4<T>& m)
 	{
@@ -204,7 +204,7 @@ struct quaternion
 	//---------------------------------------------------------------------
 	// 任意軸と角度から求める
 	//---------------------------------------------------------------------
-	quaternion& from_axis(const vector3<T>& axis, T deg)
+	quaternion& from_axis_angle(const vector3<T>& axis, T deg)
 	{
 		// 軸ベクトルは正規化されていなければいけない
 
@@ -218,6 +218,18 @@ struct quaternion
 		w = math_type::cos(deg);
 		return *this;
 	}
+	quaternion& from_angle_x(T deg)
+	{
+		return from_axis_angle(vector3<T>::unit_x, deg);
+	}
+	quaternion& from_angle_y(T deg)
+	{
+		return from_axis_angle(vector3<T>::unit_y, deg);
+	}
+	quaternion& from_angle_z(T deg)
+	{
+		return from_axis_angle(vector3<T>::unit_z, deg);
+	}
 	//---------------------------------------------------------------------
 	// 行列から求める
 	//---------------------------------------------------------------------
@@ -230,6 +242,14 @@ struct quaternion
 	quaternion& load_identity()
 	{
 		*this = quaternion::identity;
+		return *this;
+	}
+	//---------------------------------------------------------------------
+	// 0クォータニオンにする
+	//---------------------------------------------------------------------
+	quaternion& load_zero()
+	{
+		*this = quaternion::zero;
 		return *this;
 	}
 	//---------------------------------------------------------------------
@@ -298,8 +318,17 @@ struct quaternion
 	//---------------------------------------------------------------------
 	quaternion inversed() const
 	{
-		quaternion r(behavior::noinitialize);
+		quaternion r(call::noinitialize);
 		return inverse(r);
+	}
+	//---------------------------------------------------------------------
+	// クォータニオン同士の差を求める
+	//---------------------------------------------------------------------
+	quaternion difference(const quaternion& q) const
+	{
+		quaternion inv;
+		inverse(inv);
+		return inv * q;
 	}
 	//---------------------------------------------------------------------
 	// 保持している回転量を求める
@@ -310,20 +339,42 @@ struct quaternion
 		return math_type::acos(w) * math_type::two;
 	}
 	//---------------------------------------------------------------------
+	// クォータニオン同士の回転量を求める
+	//---------------------------------------------------------------------
+	T angle(const quaternion& q) const
+	{
+		// const quaternion diff = difference();
+		// return diff.angle();
+		const T d = dot(q);
+		return math_type::acos(d) * math_type::two;
+	}
+	//---------------------------------------------------------------------
 	// 保持している軸（ベクトル）を求める
 	//---------------------------------------------------------------------
 	vector3<T> axis() const
 	{
-		vector3<T> r(behavior::noinitialize);
+		vector3<T> r(call::noinitialize);
 		return axis(r);
 	}
 	vector3<T>& axis(vector3<T>& result) const
 	{
-		T as = math_type::asin(angle() * math_type::half);
+		T as = math_type::reciprocal(math_type::sin(math_type::acos(w)));
 		result.x = x * as;
 		result.y = y * as;
 		result.z = z * as;
 		return result;
+	}
+	//---------------------------------------------------------------------
+	// 軸と角度へ変換
+	//---------------------------------------------------------------------
+	void axis_angle(vector3<T>& ax, T& an) const
+	{
+		const T c = math_type::acos(w);
+		an = c * math_type::two;
+		const T s = math_type::reciprocal(math_type::sin(c));
+		ax.x = x * s;
+		ax.y = y * s;
+		ax.z = z * s;
 	}
 	//---------------------------------------------------------------------
 	// 長さを求める
@@ -402,13 +453,13 @@ struct quaternion
 	//---------------------------------------------------------------------
 	quaternion slerp(const quaternion& to, T t) const
 	{
-		quaternion result(behavior::noinitialize);
+		quaternion result(call::noinitialize);
 		return slerp(to, t, result);
 	}
 	quaternion& slerp(const quaternion& to, T t, quaternion& result) const
 	{
 		T c = dot(to);
-		quaternion tmp(behavior::noinitialize);
+		quaternion tmp(call::noinitialize);
 		if (c < math_type::zero)
 		{
 			c = -c;
@@ -444,7 +495,7 @@ struct quaternion
 	//---------------------------------------------------------------------
 	vector3<T> rotate(const vector3<T>& v) const
 	{
-		vector3<T> r(behavior::noinitialize);
+		vector3<T> r(call::noinitialize);
 		return rotate(v, r);
 	}
 	vector3<T>& rotate(const vector3<T>& v, vector3<T>& result) const
@@ -452,7 +503,7 @@ struct quaternion
 		// Q * V * Q^: 右手
 		// Q^ * V * Q: 左手
 
-		quaternion conj(-x, -y, -z, w), vq(v.x, v.y, v.z, math_type::zero), calc(behavior::noinitialize);
+		quaternion conj(-x, -y, -z, w), vq(v.x, v.y, v.z, math_type::zero), calc(call::noinitialize);
 
 		conj.multiply(vq, calc);
 		calc.multiply(*this, vq);
@@ -466,7 +517,7 @@ struct quaternion
 	}
 	vector4<T> rotate(const vector4<T>& v) const
 	{
-		vector4<T> r(behavior::noinitialize);
+		vector4<T> r(call::noinitialize);
 		return rotate(v, r);
 	}
 	vector4<T>& rotate(const vector4<T>& v, vector4<T>& result) const
@@ -474,7 +525,7 @@ struct quaternion
 		// Q * V * Q^: 右手
 		// Q^ * V * Q: 左手
 
-		quaternion conj(-x, -y, -z, w), vq(v.x, v.y, v.z, math_type::zero), calc(behavior::noinitialize);
+		quaternion conj(-x, -y, -z, w), vq(v.x, v.y, v.z, math_type::zero), calc(call::noinitialize);
 
 		conj.multiply(vq, calc);
 		calc.multiply(*this, vq);
@@ -524,7 +575,7 @@ struct quaternion
 	}
 	POCKET_CXX11_EXPLICIT operator vector3<T>() const
 	{
-		vector3<T> r(behavior::noinitialize);
+		vector3<T> r(call::noinitialize);
 		return axis(r);
 	}
 	POCKET_CXX11_EXPLICIT operator T* ()
@@ -573,49 +624,48 @@ struct quaternion
 	//---------------------------------------------------------------------
 	quaternion operator + (const quaternion& q) const
 	{
-		quaternion result(behavior::noinitialize);
-		return add(q, result);
+		return quaternion(x + q.x, y + q.y, z + q.z, w + q.w);
 	}
 	quaternion operator - (const quaternion& q) const
 	{
-		quaternion result(behavior::noinitialize);
-		return subtract(q, result);
+		return quaternion(x - q.x, y - q.y, z - q.z, w - q.w);
 	}
 	quaternion operator * (T f) const
 	{
-		quaternion result(behavior::noinitialize);
-		return multiply(f, result);
+		return quaternion(x * f, y * f, z * f, w * f);
 	}
 	quaternion operator * (const quaternion& q) const
 	{
-		quaternion result(behavior::noinitialize);
-		return multiply(q, result);
+		return quaternion(w * q.x + x * q.w + y * q.z - z * q.y,
+			w * q.y - x * q.z + y * q.w + z * q.x,
+			w * q.z + x * q.y - y * q.x + z * q.w,
+			w * q.w - x * q.x - y * q.y - z * q.z);
 	}
 	vector3<T> operator * (const vector3<T>& v) const
 	{
-		vector3<T> r(behavior::noinitialize);
+		vector3<T> r(call::noinitialize);
 		return rotate(v, r);
 	}
 	vector4<T> operator * (const vector4<T>& v) const
 	{
-		vector4<T> r(behavior::noinitialize);
+		vector4<T> r(call::noinitialize);
 		return rotate(v, r);
 	}
 	quaternion operator / (T f) const
 	{
-		quaternion result(behavior::noinitialize);
+		quaternion result(call::noinitialize);
 		return divide(f, result);
 	}
 
 	//---------------------------------------------------------------------
 	// 代入演算子
 	//---------------------------------------------------------------------
-	quaternion& operator = (const behavior::_zero_t&)
+	quaternion& operator = (const call::zero_t&)
 	{
 		x = y = z = w = math_type::zero;
 		return *this;
 	}
-	quaternion& operator = (const behavior::_identity_t&)
+	quaternion& operator = (const call::identity_t&)
 	{
 		return load_identity();
 	}
@@ -662,158 +712,158 @@ struct quaternion
 	// タグでの関数呼び出し
 	//------------------------------------------------------------------------------------------
 
-	quaternion& operator () (const behavior::_zero_t&)
+	quaternion& operator () (const call::zero_t&)
 	{
 		x = y = z = w = math_type::zero;
 		return *this;
 	}
-	quaternion& operator () (const behavior::_identity_t&)
+	quaternion& operator () (const call::identity_t&)
 	{
 		return load_identity();
 	}
 
-	quaternion operator () (const behavior::_plus_t&) const
+	quaternion operator () (const call::plus_t&) const
 	{
 		return operator+();
 	}
-	quaternion operator () (const behavior::_negate_t&) const
+	quaternion operator () (const call::negate_t&) const
 	{
 		return operator-();
 	}
-	quaternion operator () (const behavior::_add_t&, const quaternion& q) const
+	quaternion operator () (const call::add_t&, const quaternion& q) const
 	{
 		return operator+(q);
 	}
-	quaternion operator () (const behavior::_sub_t&, const quaternion& q) const
+	quaternion operator () (const call::sub_t&, const quaternion& q) const
 	{
 		return operator-(q);
 	}
-	quaternion operator () (const behavior::_mul_t&, T f) const
+	quaternion operator () (const call::mul_t&, T f) const
 	{
 		return operator*(f);
 	}
-	quaternion operator () (const behavior::_mul_t&, const quaternion& q) const
+	quaternion operator () (const call::mul_t&, const quaternion& q) const
 	{
 		return operator*(q);
 	}
-	quaternion operator () (const behavior::_div_t&, T f) const
+	quaternion operator () (const call::div_t&, T f) const
 	{
 		return operator/(f);
 	}
 
-	quaternion& operator () (const behavior::_add_assign_t&, const quaternion& q)
+	quaternion& operator () (const call::add_assign_t&, const quaternion& q)
 	{
 		return operator+=(q);
 	}
-	quaternion& operator () (const behavior::_sub_assign_t&, const quaternion& q)
+	quaternion& operator () (const call::sub_assign_t&, const quaternion& q)
 	{
 		return operator-=(q);
 	}
-	quaternion& operator () (const behavior::_mul_assign_t&, T f)
+	quaternion& operator () (const call::mul_assign_t&, T f)
 	{
 		return operator*=(f);
 	}
-	quaternion& operator () (const behavior::_mul_assign_t&, const quaternion& q)
+	quaternion& operator () (const call::mul_assign_t&, const quaternion& q)
 	{
 		return operator*=(q);
 	}
-	quaternion& operator () (const behavior::_div_assign_t&, T f)
+	quaternion& operator () (const call::div_assign_t&, T f)
 	{
 		return operator/=(f);
 	}
-	T& operator () (const behavior::_at_t&, int i)
+	T& operator () (const call::at_t&, int i)
 	{
 		return operator[](i);
 	}
-	const T& operator () (const behavior::_at_t&, int i) const
+	const T& operator () (const call::at_t&, int i) const
 	{
 		return operator[](i);
 	}
-	T* operator () (const behavior::_pointer_t&)
+	T* operator () (const call::pointer_t&)
 	{
 		return operator T*();
 	}
-	const T* operator () (const behavior::_pointer_t&) const
+	const T* operator () (const call::pointer_t&) const
 	{
 		return operator const T*();
 	}
 
-	bool operator () (const behavior::_equal_t&, const quaternion& q) const
+	bool operator () (const call::equal_t&, const quaternion& q) const
 	{
 		return operator==(q);
 	}
-	bool operator () (const behavior::_not_equal_t&, const quaternion& q) const
+	bool operator () (const call::not_equal_t&, const quaternion& q) const
 	{
 		return operator!=(q);
 	}
-	bool operator () (const behavior::_near_t&, const quaternion& q) const
+	bool operator () (const call::near_t&, const quaternion& q) const
 	{
 		return near_equal(q);
 	}
-	bool operator () (const behavior::_near_zero_t&) const
+	bool operator () (const call::near_zero_t&) const
 	{
 		return near_equal_zero();
 	}
 
-	T operator () (const behavior::_length_t&) const
+	T operator () (const call::length_t&) const
 	{
 		return length();
 	}
-	T operator () (const behavior::_length_square_t&) const
+	T operator () (const call::length_square_t&) const
 	{
 		return length_sq();
 	}
-	T operator () (const behavior::_dot_t&, const quaternion& q) const
+	T operator () (const call::dot_t&, const quaternion& q) const
 	{
 		return dot(q);
 	}
-	quaternion& operator () (const behavior::_normalize_t&)
+	quaternion& operator () (const call::normalize_t&)
 	{
 		return normalize();
 	}
-	quaternion operator () (const behavior::_normalized_t&) const
+	quaternion operator () (const call::normalized_t&) const
 	{
 		return normalized();
 	}
-	quaternion operator () (const behavior::_conjugate_t&) const
+	quaternion operator () (const call::conjugate_t&) const
 	{
 		return conjugated();
 	}
-	vector3<T> operator () (const behavior::_axis_t&) const
+	vector3<T> operator () (const call::axis_t&) const
 	{
 		return axis();
 	}
-	T operator () (const behavior::_angle_t&) const
+	T operator () (const call::angle_t&) const
 	{
 		return angle();
 	}
-	quaternion operator () (const behavior::_inverse_t&) const
+	quaternion operator () (const call::inverse_t&) const
 	{
 		return inversed();
 	}
-	quaternion operator () (const behavior::_slerp_t&, const quaternion& q, T t) const
+	quaternion operator () (const call::slerp_t&, const quaternion& q, T t) const
 	{
 		return slerp(q, t);
 	}
-	quaternion operator () (const behavior::_lerp_t&, const quaternion& q, T t) const
+	quaternion operator () (const call::lerp_t&, const quaternion& q, T t) const
 	{
 		return lerp(q, t);
 	}
-	vector3<T> operator () (const behavior::_rotate_t&, const vector3<T>& v) const
+	vector3<T> operator () (const call::rotate_t&, const vector3<T>& v) const
 	{
 		return rotate(v);
 	}
-	vector4<T> operator () (const behavior::_rotate_t&, const vector4<T>& v) const
+	vector4<T> operator () (const call::rotate_t&, const vector4<T>& v) const
 	{
 		return rotate(v);
 	}
-	quaternion& operator () (const behavior::_from_matrix_t&, const matrix4x4<T>& m)
+	quaternion& operator () (const call::from_matrix_t&, const matrix4x4<T>& m)
 	{
 		return from_matrix(m);
 	}
-	quaternion& operator () (const behavior::_from_axis_angle_t&, const vector3<T>& axis, T angle)
+	quaternion& operator () (const call::from_axis_angle_t&, const vector3<T>& axis, T angle)
 	{
-		return from_axis(axis, angle);
+		return from_axis_angle(axis, angle);
 	}
 };
 
@@ -837,7 +887,7 @@ template <> const long double quaternion<long double>::error_slerp_value = 0.001
 template <typename T> inline
 vector3<T> vector3<T>::rotated(const quaternion<T>& q) const
 {
-	vector3<T> r(behavior::noinitialize);
+	vector3<T> r(call::noinitialize);
 	return q.rotate(*this, r);
 }
 template <typename T> inline
@@ -855,7 +905,7 @@ vector3<T>& vector3<T>::rotate(const quaternion<T>& q)
 template <typename T> inline
 vector3<T> vector3<T>::operator * (const quaternion<T>& q) const
 {
-	vector3<T> r(behavior::noinitialize);
+	vector3<T> r(call::noinitialize);
 	return q.rotate(*this, r);
 }
 
@@ -865,7 +915,7 @@ vector3<T> vector3<T>::operator * (const quaternion<T>& q) const
 template <typename T> inline
 vector4<T> vector4<T>::rotated(const quaternion<T>& q) const
 {
-	vector4<T> r(behavior::noinitialize);
+	vector4<T> r(call::noinitialize);
 	return q.rotate(*this, r);
 }
 template <typename T> inline
@@ -883,7 +933,7 @@ vector4<T>& vector4<T>::rotate(const quaternion<T>& q)
 template <typename T> inline
 vector4<T> vector4<T>::operator * (const quaternion<T>& q) const
 {
-	vector4<T> r(behavior::noinitialize);
+	vector4<T> r(call::noinitialize);
 	return q.rotate(*this, r);
 }
 
