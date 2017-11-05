@@ -162,7 +162,6 @@
     <ClInclude Include="gl\all.h" />
     <ClInclude Include="gl\buffer.h" />
     <ClInclude Include="gl\buffer_view.h" />
-    <ClInclude Include="gl\commands.h" />
     <ClInclude Include="gl\common_type.h" />
     <ClInclude Include="gl\config.h" />
     <ClInclude Include="gl\draw_indirect_buffer.h" />

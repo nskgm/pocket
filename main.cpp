@@ -181,7 +181,7 @@ int main()
 		return EXIT_FAILURE;
 	}
 	// バイナリの保存
-	if (!prog.save_binary("test.shbin", true))
+	if (!prog.save_binary(__FILE_RELATIVE("test.shbin"), true))
 	{
 		std::cout << "save_binary: " << prog.error() << std::endl;
 		prog.clear();
@@ -298,7 +298,7 @@ int main()
 		// -----
 		// 軸
 		data.world.load_identity();
-		ubo.uniform(0, data.world);
+		ubo.uniform(POCKET_OFFSETOF(ublock_t, world), data.world);
 
 		axis_lvb.bind();
 		axis_lvb.draw(gl::draw_type::lines);
@@ -312,7 +312,7 @@ int main()
 
 		data.world.load_world(scale, rotate, position);
 		// data.world.load_rotate_x(mt::to_degree(time));
-		ubo.uniform(0, data.world);
+		ubo.uniform(POCKET_OFFSETOF(ublock_t, world), data.world);
 
 		lvb.bind();
 		dib.bind();

@@ -133,7 +133,6 @@ struct nullobj_t
 	{
 		return *this;
 	}
-	template <typename T>
 	const nullobj_t& operator & () const
 	{
 		return *this;
@@ -155,7 +154,8 @@ struct nullobj_t
 		return *this;
 	}
 
-	const nullobj_t& operator [] (int) const
+	template <typename T>
+	const nullobj_t& operator [] (const T&) const
 	{
 		return *this;
 	}

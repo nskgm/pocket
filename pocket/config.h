@@ -397,9 +397,9 @@
 //---------------------------------------------------------------------------------------
 // 構造体メンバーへのオフセット
 //---------------------------------------------------------------------------------------
-#ifndef POCKET_MEMBER_OFFSETOF
-#	define POCKET_MEMBER_OFFSETOF(TYPE, MEM) reinterpret_cast<size_t>(&(reinterpret_cast<const TYPE*>(0)->MEM))
-#endif // POCKET_MEMBER_OFFSETOF
+#ifndef POCKET_OFFSETOF
+#	define POCKET_OFFSETOF(TYPE, MEM) reinterpret_cast<size_t>(&(reinterpret_cast<const TYPE*>(0)->MEM))
+#endif // POCKET_OFFSETOF
 
 //---------------------------------------------------------------------------------------
 // 構造体メンバーの型サイズ

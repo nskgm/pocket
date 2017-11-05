@@ -114,9 +114,6 @@
     <ClInclude Include="gl\buffer_view.h">
       <Filter>ヘッダー ファイル\gl</Filter>
     </ClInclude>
-    <ClInclude Include="gl\commands.h">
-      <Filter>ヘッダー ファイル\gl</Filter>
-    </ClInclude>
     <ClInclude Include="gl\common_type.h">
       <Filter>ヘッダー ファイル\gl</Filter>
     </ClInclude>

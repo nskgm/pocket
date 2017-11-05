@@ -46,7 +46,7 @@ struct vertex_layout
 	pocket::gl::gl_type<TYPE>::value,\
 	(COUNT),\
 	static_cast<int>(pocket::gl::gl_bool<NORMALIZED>::value),\
-	static_cast<int>(POCKET_MEMBER_OFFSETOF(VERTEX_TYPE, MEM))\
+	static_cast<int>(POCKET_OFFSETOF(VERTEX_TYPE, MEM))\
 	}
 #endif // POCKET_LAYOUT_OFFSETOF
 
@@ -77,7 +77,7 @@ struct vertex_layout_index
 	pocket::gl::gl_type<TYPE>::value,\
 	(COUNT),\
 	static_cast<int>(pocket::gl::gl_bool<NORMALIZED>::value),\
-	static_cast<int>(POCKET_MEMBER_OFFSETOF(VERTEX_TYPE, MEM))\
+	static_cast<int>(POCKET_OFFSETOF(VERTEX_TYPE, MEM))\
 	}
 #endif // POCKET_LAYOUT_INDEX_OFFSETOF
 

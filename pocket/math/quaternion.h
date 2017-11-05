@@ -281,7 +281,7 @@ struct quaternion
 	//---------------------------------------------------------------------
 	// 逆クォータニオンにする
 	//---------------------------------------------------------------------
-	quaternion inverse()
+	quaternion& inverse()
 	{
 		T len = length_sq();
 		if (math_type::near_equal_zero(len))
